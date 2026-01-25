@@ -1,0 +1,73 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Machine Learning",
+    "section": "",
+    "text": "Mathematics [X]\nOpen the live notebook in Google Colab or download the live notebook.\nWe’re going to do some basic tests in this file. Math now seems to work using the include above.\n\\[\n\\begin{aligned}\n    \\mathbb{P}(X) = y\n\\end{aligned}\n\\]\n© Phil Chodrow, 2025",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Welcome!</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#python-interpreter-x",
+    "href": "index.html#python-interpreter-x",
+    "title": "Machine Learning",
+    "section": "Python Interpreter [X]",
+    "text": "Python Interpreter [X]\nUse an Anaconda environment\n\nimport torch \nfrom matplotlib import pyplot as plt\n\nprint(torch.__version__)\n\nX = torch.linspace(0, 10, steps=100)\nY = torch.sin(X)\n\nplt.plot(X.numpy(), Y.numpy())\nplt.show()\n\n2.5.1\n\n\n\n\n\n\n\n\n\nDid we see the thing?\nfalse",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Welcome!</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#strip-the-delimiters-for-hidden-code-x",
+    "href": "index.html#strip-the-delimiters-for-hidden-code-x",
+    "title": "Machine Learning",
+    "section": "Strip the delimiters for hidden code [X]",
+    "text": "Strip the delimiters for hidden code [X]",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Welcome!</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#colab-link-via-an-include-x",
+    "href": "index.html#colab-link-via-an-include-x",
+    "title": "Machine Learning",
+    "section": "Colab link via an include [X]",
+    "text": "Colab link via an include [X]",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Welcome!</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#strip-solutions-and-hidden-content-e.g.-notes-in-online-website-version.-x",
+    "href": "index.html#strip-solutions-and-hidden-content-e.g.-notes-in-online-website-version.-x",
+    "title": "Machine Learning",
+    "section": "Strip solutions and hidden content (e.g. notes) in online website version. [X]",
+    "text": "Strip solutions and hidden content (e.g. notes) in online website version. [X]",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Welcome!</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#dont-strip-solutions-and-hidden-content-in-local-notes-version.-x",
+    "href": "index.html#dont-strip-solutions-and-hidden-content-in-local-notes-version.-x",
+    "title": "Machine Learning",
+    "section": "Don’t strip solutions and hidden content in local notes version. [X]",
+    "text": "Don’t strip solutions and hidden content in local notes version. [X]",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Welcome!</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-intro.html",
+    "href": "chapters/01-intro.html",
+    "title": "2  Some material!!",
+    "section": "",
+    "text": "Open the live notebook in Google Colab or download the live notebook.\nWhat happens below here?\n\n# we don't want to see this code\n2+2\n\n4\n\n\nNo hidden stuff happening\n\n# we don't want to see this code\n2+2\n\n4\n\n\nAnd in between?\n\nimport torch \nfrom matplotlib import pyplot as plt\n\nX = torch.linspace(0, 10, steps=100)\nY = torch.sin(X)\n\nZ = X + Y\n\nfig, ax = plt.subplots()\n\nax.plot(X.numpy(), Y.numpy())\n\n\n\n\ntest test test\n\n\n\n\ntest test test\n\\[\n\\begin{aligned}\n    \\mathbb{P}(X) = y\n\\end{aligned}\n\\tag{2.1}\\]\nEquation 2.1 shows a simple equation.\nA different link\n\n\n\n  © Phil Chodrow, 2025",
+    "crumbs": [
+      "Regression",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Some material!!</span>"
+    ]
+  }
+]

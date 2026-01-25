@@ -1,0 +1,76 @@
+---
+title: Some material!!
+subtitle: test
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+
+What happens below here?
+
+```{python}
+#---
+# we don't want to see this code
+2+2
+#---
+```
+
+No hidden stuff happening
+
+```{python}
+# we don't want to see this code
+2+2
+```
+
+And in between?
+
+::: {.content-hidden unless-meta="solution"}
+
+This is a hidden solution piece. 
+
+:::
+
+
+```{python}
+#| fig-cap: test test test
+import torch 
+from matplotlib import pyplot as plt
+
+X = torch.linspace(0, 10, steps=100)
+Y = torch.sin(X)
+
+#---
+Z = X + Y
+#---
+
+fig, ax = plt.subplots()
+
+ax.plot(X.numpy(), Y.numpy())
+```
+
+test test test
+
+
+$$
+\begin{aligned}
+    \prob(X) = y
+\end{aligned}
+$${#eq-test-eq}
+
+@eq-test-eq shows a simple equation.
+
+
+
+[A different link](www.philchodrow.prof)

@@ -1,0 +1,6 @@
+format:
+  html:
+    filters: 
+      - scripts/strip-hidden-delims.lua
+
+solution: false

@@ -1,0 +1,71 @@
+---
+title: Welcome!
+subtitle: test
+---
+
+{{< include assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import assets.python_style.style
+```
+:::
+
+
+## Mathematics [X]
+
+We're going to do some basic tests in this file. Math now seems to work using the include above. 
+
+
+$$
+\begin{aligned}
+    \prob(X) = y
+\end{aligned}
+$$
+
+
+## Python Interpreter [X]
+
+Use an Anaconda environment
+
+```{python}
+import torch 
+from matplotlib import pyplot as plt
+
+print(torch.__version__)
+
+X = torch.linspace(0, 10, steps=100)
+Y = torch.sin(X)
+
+plt.plot(X.numpy(), Y.numpy())
+plt.show()
+```
+
+Did we see the thing?
+
+{{< meta solution >}}
+
+
+::: {.content-hidden unless-meta="solution"}
+
+This is some hidden notes that will only appear in the local version. 
+
+
+:::
+
+
+## Strip the delimiters for hidden code [X]
+
+## Colab link via an include [X]
+
+## Strip solutions and hidden content (e.g. notes) in online website version. [X]
+
+
+
+## Don't strip solutions and hidden content in local notes version. [X]

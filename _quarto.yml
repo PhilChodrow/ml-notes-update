@@ -1,0 +1,39 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "Machine Learning"
+  # author: "Phil Chodrow"
+  # date: "01/25/2026"
+  chapters:
+    - index.qmd
+    - part: "Regression"
+      chapters:
+      - chapters/01-intro.qmd
+  body-footer: |
+        <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
+  sidebar: 
+    search: false
+
+format:
+  html:
+    theme: [cosmo, assets/custom.scss]
+    css: assets/styles.css
+    number-depth: 0
+    reference-location: margin
+    callout-icon: false;
+    callout-appearance: simple
+    fig-cap-location: margin
+    highlight-style: atom-one
+    title-block: none
+    
+jupyter: cs451
+
+execute: 
+  cache: true
+
+mermaid: 
+  theme: neutral
+
+bibliography: refs.bib

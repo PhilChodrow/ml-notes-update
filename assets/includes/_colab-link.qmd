@@ -1,0 +1,14 @@
+::: {.content-hidden when-format="ipynb"}
+```{python}
+#| echo: false
+#| output: asis
+import os
+from IPython.display import Markdown
+from pathlib import Path
+            
+ipynb_name = Path(os.environ.get('QUARTO_DOCUMENT_FILE')).with_suffix('.ipynb')
+colab_url = f"{os.environ['COLLAB_URL']}/docs/live-notebooks/{ipynb_name}"
+download_url = f"{os.environ['SITE_URL']}/live-notebooks/{ipynb_name}"
+Markdown(f"*[Open the live notebook]({colab_url}) in Google Colab or [download the live notebook]({download_url}).*")
+```
+:::

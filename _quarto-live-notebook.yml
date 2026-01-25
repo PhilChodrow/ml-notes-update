@@ -1,0 +1,27 @@
+project:
+  type: website
+  output-dir: docs/live-notebooks
+
+format: 
+  ipynb: 
+    crossref: false
+    number-sections: false
+    number-figures: false
+
+filters: 
+  - quarto
+  - scripts/strip-hidden-code.lua
+  - scripts/clean-eqref.lua
+
+
+wrap: none
+    
+jupyter: cs451
+
+execute: 
+  cache: true
+
+mermaid: 
+  theme: neutral
+
+bibliography: refs.bib
