@@ -1,0 +1,9 @@
+.luarc.json
+_local-notes
+.vscode
+.DS_Store
+.jupyter_cache
+.quarto
+**/__pycache__
+**/*.pyc
+**/*_files
