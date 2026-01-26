@@ -11,6 +11,7 @@ format:
 filters: 
   - quarto
   - scripts/strip-hidden-code.lua
+  - scripts/restore-cells.lua
   - scripts/clean-eqref.lua
 
 

@@ -254,6 +254,16 @@ tr {
   padding-left: 1rem; 
 }
 
+.theorem.definition {
+  border-left: thick solid #332089;
+  padding-left: 1rem; 
+}
+
+.theorem {
+  border-left: thick solid #7d1919;
+  padding-left: 1rem; 
+}
+
 
 
 @media (min-width: 992px) {
@@ -270,3 +280,4 @@ tr {
       z-index: 998;
   }
 }
+

@@ -1,0 +1,29 @@
+---
+title: Demo
+format: ipynb
+filters: 
+    - path: div-reuse
+      at: post-quarto
+---
+
+I expect this .qmd when rendered to ipynb to contain two Markdown and two code cells.
+
+::: {#fig-test}
+
+```{python}
+from matplotlib import pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+plt.plot(x, y)
+plt.title("Sine Wave")
+```
+
+Some caption!
+
+:::
+
+
+@fig-test

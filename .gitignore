@@ -7,3 +7,7 @@ _local-notes
 **/__pycache__
 **/*.pyc
 **/*_files
+/.quarto/
+**/*.quarto_ipynb
+
+/.luarc.json

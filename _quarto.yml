@@ -11,6 +11,7 @@ book:
     - part: "Regression"
       chapters:
       - chapters/01-intro.qmd
+      - chapters/02-signal-noise.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 
@@ -27,8 +28,11 @@ format:
     fig-cap-location: margin
     highlight-style: atom-one
     title-block: none
+    grid:
+      margin-width: 350px
     
 jupyter: cs451
+
 
 execute: 
   cache: true
