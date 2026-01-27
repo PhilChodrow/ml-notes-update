@@ -12,6 +12,7 @@ book:
       chapters:
       - chapters/01-intro.qmd
       - chapters/02-signal-noise.qmd
+      - chapters/03-maximum-likelihood.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 
@@ -24,7 +25,7 @@ format:
     number-depth: 0
     reference-location: margin
     callout-icon: false;
-    callout-appearance: simple
+    callout-appearance: minimal
     fig-cap-location: margin
     highlight-style: atom-one
     title-block: none
@@ -41,3 +42,11 @@ mermaid:
   theme: neutral
 
 bibliography: refs.bib
+
+custom-callout:
+  sol:
+    icon-symbol: "📝"
+    color: "pink"
+filters:
+- custom-callout
+- scripts/collapse-solution-callout.lua

@@ -259,6 +259,11 @@ tr {
   padding-left: 1rem; 
 }
 
+.theorem.example {
+  border-left: thick solid #bc531b;
+  padding-left: 1rem; 
+}
+
 .theorem {
   border-left: thick solid #7d1919;
   padding-left: 1rem; 

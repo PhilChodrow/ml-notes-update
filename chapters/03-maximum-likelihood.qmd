@@ -1,0 +1,540 @@
+---
+title: Maximum Likelihood Estimation and Gradients
+subtitle: Estimating parameters of data-generating distributions
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+
+## Recap: Log-Likelihood of the Linear-Gaussian Model
+
+Recap recap recap 
+
+## The Gradient of a Multivariate Function
+
+
+::: aside
+
+As you can study in courses dedicated to multivariable calculus, the existence of all of a function's partial derivatives does not necessarily imply that the function is *multivariate differentiable*. In this course, we'll exclusively treat functions which are indeed multivariate differentiable unless otherwise noted, and so this distinction will not be an issue for us. 
+
+:::
+
+::: {#def-partial-derivative}
+
+Let $f:\R^p\rightarrow \R$ be a function which accepts a vector input $\vw=(w_1,\ldots,w_p)^T\in \R^p$ and returns a scalar output $f(\vw)\in \R$. The **partial derivative** of $f$ with respect to the $j$-th coordinate $w_j$ is defined as the limit 
+
+$$
+\begin{aligned}
+    \frac{\partial f}{\partial w_i} &= \lim_{h \rightarrow 0} \frac{f(w_1,\ldots,w_i + h, \ldots w_p) - f(w_1,\ldots,w_i, \ldots w_p)}{h} \\ 
+    &= \lim_{h \rightarrow 0} \frac{f(\vw + h\ve_i) - f(\vw)}{h}\;,
+\end{aligned}
+$$
+
+where $\ve_i = (0,0,\ldots,1,\ldots,0,0)^T$ is the $i$-th standard basis vector in $\R^p$, i.e., the vector with a 1 in the $i$-th position and 0's elsewhere. If this limit does not exist, then the partial derivative is said to be undefined.
+
+:::
+
+Just like in single-variable calculus, it's not usually convenient to work directly with the limit definition of the partial derivative. Instead we use the following heuristic: 
+
+::: {#prp-partial-derivative-rules}
+
+To compute $\frac{\partial f}{\partial w_i}$, treat all other variables $w_j$ for $j\neq i$ as constants, and differentiate $f$ with respect to $w_i$ using the usual rules of single-variable calculus (power rule, product rule, chain rule, etc.).
+
+:::
+
+::: {#exr-partial-derivative-example-1}
+
+## Practice with Partial Derivatives
+
+Let $f:\R^3\rightarrow \R$ be defined by $f(x,y,z) = x^2\sin y + yz + z^3x$. Compute $\frac{\partial f}{\partial x}$, $\frac{\partial f}{\partial y}$, and $\frac{\partial f}{\partial z}$.
+
+:::
+
+
+
+::: {.sol}
+
+## Solution for @exr-partial-derivative-example-1
+
+To compute $\frac{\partial f}{\partial x}$, we treat $y$ and $z$ as constants, which yields
+
+$$
+\frac{\partial f}{\partial x} = 2x \sin y + z^3\;.
+$$ 
+
+Similarly, we can compute $\frac{\partial f}{\partial y}$ and $\frac{\partial f}{\partial z}$:
+
+$$
+\begin{align}
+    \frac{\partial f}{\partial y} &= x^2 \cos y + z \\ 
+    \frac{\partial f}{\partial z} &= y + 3z^2 x\;.    
+\end{align}
+$$
+
+
+:::
+
+::: {#exr-partial-derivative-gaussian}
+
+## Partial Derivatives of the Gaussian Log-Likelihood
+
+Suppose we have $n$ independent and identically-distributed samples $x_1,\ldots,x_n$ from a Gaussian distribution with unknown mean $\mu$ and known variance $\sigma^2$. The log-likelihood function for this data is 
+
+$$
+\begin{aligned}
+    \cL(\vx;\sigma^2,\mu) &= \sum_{i=1}^n \log p(x_i;\sigma^2,\mu) \\
+    &= \sum_{i=1}^n \log \left( \frac{1}{\sqrt{2\pi \sigma^2}} \exp\left( -\frac{(x_i - \mu)^2}{2\sigma^2} \right) \right) \\
+    &= \sum_{i=1}^n \left( -\frac{1}{2} \log(2\pi \sigma^2) - \frac{(x_i - \mu)^2}{2\sigma^2} \right) \\
+    &= -\frac{n}{2} \log(2\pi \sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^n (x_i - \mu)^2\;.
+\end{aligned}
+$$
+
+Compute $\frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \mu}$, the partial derivative of the log-likelihood with respect to the mean parameter $\mu$, and compute $\frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \sigma^2}$, the partial derivative with respect to the variance parameter $\sigma^2$. (Here, treat $\sigma^2$ as a single variable, not $\sigma$.)
+
+:::
+
+::: {.sol}
+
+## Solution for @exr-partial-derivative-gaussian
+
+To calculate $\frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \mu}$, we'll first treat $\sigma^2$ (and all the $x_i$'s) as constants and differentiate with respect to $\mu$. The first term in the log-likelihood does not depend on $\mu$, so its derivative is zero. For the second term, we need to use the chain rule: 
+
+$$
+\begin{aligned}
+    \frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \mu} &= -\frac{1}{2\sigma^2} \cdot \frac{\partial}{\partial \mu} \left( \sum_{i=1}^n (x_i - \mu)^2 \right) \\
+    &= -\frac{1}{2\sigma^2} \cdot  \left( \sum_{i=1}^n \frac{\partial}{\partial \mu}(x_i - \mu)^2 \right) \\
+    &= -\frac{1}{2\sigma^2} \cdot \sum_{i=1}^n 2(x_i - \mu)(-1) \\
+    &= \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu)\;.
+\end{aligned}
+$$
+
+Next we need to compute $\frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \sigma^2}$. This time, we treat $\mu$ (and all the $x_i$'s) as constants and differentiate with respect to $\sigma^2$. We again use the chain rule:
+
+$$
+\begin{aligned}
+    \frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \sigma^2} &= -\frac{n}{2} \cdot \frac{\partial}{\partial \sigma^2} \log(2\pi \sigma^2) - \frac{1}{2} \cdot \frac{\partial}{\partial \sigma^2} \left( \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu)^2 \right) \\
+    &= -\frac{n}{2} \cdot \frac{1}{2\pi \sigma^2} \cdot 2\pi - \frac{1}{2} \cdot \left( -\frac{1}{(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2 \right) \\
+    &= -\frac{n}{2\sigma^2} + \frac{1}{2(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2\;.
+\end{aligned}
+$$
+
+
+
+:::
+
+
+::: {#def-gradient}
+
+Let $f:\R^p\rightarrow \R$ be a differentiable function which accepts a vector input $\vw=(w_1,\ldots,w_p)^T\in \R^p$ and returns a scalar output $f(\vw)\in \R$. The **gradient** of $f$ at $\vw$, written $\nabla f(\vw) \in \R^p$, is the vector of partial derivatives 
+
+$$
+\begin{align}
+    \nabla f(\vw) &= \begin{pmatrix}
+    \frac{\partial f}{\partial w_1} \\ 
+    \frac{\partial f}{\partial w_2} \\ 
+    \vdots \\ 
+    \frac{\partial f}{\partial w_p} 
+    \end{pmatrix}\;.
+\end{align}
+$$
+
+:::
+
+
+::: {#exr-gradient-example-1}
+
+## Writing Gradients
+
+Write the gradient of the function in @exr-partial-derivative-example-1.
+
+
+:::
+
+
+::: sol
+
+## Solution for @exr-gradient-example-1
+
+In the function from @exr-partial-derivative-example-1, the gradient is given by stacking the partial derivatives we computed into a single vector: 
+
+$$
+\begin{aligned}
+    \nabla f(x, y, z) = 
+     \begin{pmatrix}
+    \frac{\partial f}{\partial x} \\ 
+    \frac{\partial f}{\partial y} \\ 
+    \frac{\partial f}{\partial z}
+    \end{pmatrix} &= 
+    \begin{pmatrix}
+    2x \sin y + z^3 \\ 
+    x^2 \cos y + z \\ 
+    y + 3z^2 x  
+    \end{pmatrix}
+    \in \R^3\;.
+\end{aligned}
+$$
+
+
+:::
+
+
+::: {#exr-gradient-example-2}
+
+## Gradient of the Gaussian Log-Likelihood
+
+Write the gradient of the Gaussian log-likelihood function in @exr-partial-derivative-gaussian.
+
+:::
+
+::: sol
+
+## Solution for @exr-gradient-example-2
+
+For the likelihood of the Gaussian from @exr-partial-derivative-gaussian, the gradient is given by 
+
+$$
+\begin{aligned}
+    \nabla \cL(\vx;\sigma^2,\mu) = 
+     \begin{pmatrix}
+    \frac{\partial \cL}{\partial \mu} \\ 
+    \frac{\partial \cL}{\partial \sigma^2}
+    \end{pmatrix} &= 
+    \begin{pmatrix}
+    \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu) \\ 
+    -\frac{n}{2\sigma^2} + \frac{1}{2(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2
+    \end{pmatrix}
+    \in \R^2\;.
+\end{aligned}
+$$
+
+:::
+
+### The Gradient Points In the Direction of Greatest Increase
+
+An important feature of the gradient is that it tells us the direction in which a small change in the function inputs $\vw$ could produce the greatest increase in the function output $f(\vw)$. Here's an example using the Gaussian likelihood from @exr-partial-derivative-gaussian and @exr-gradient-example-2:
+
+***TODO: HAS SOME ISSUES***
+
+
+```{python}
+import torch
+from matplotlib import pyplot as plt
+
+mu_grid = torch.linspace(-1, 1, 100)
+sigma2_grid = torch.linspace(0.1, 2, 100)
+MU, SIGMA2 = torch.meshgrid(mu_grid, sigma2_grid, indexing='ij')
+data = torch.tensor([0.5, -1.0, 1.0, 0.7, 0.3])  # example data points
+
+def gaussian_log_likelihood(mu, sigma2, data):
+    n = data.shape[0]
+    sum_term = 0
+    for x in data:
+        sum_term += (x - mu) ** 2
+
+    ll = -n / 2 * torch.log(2 * torch.pi * sigma2) - 1 / (2 * sigma2) * sum_term
+    return ll
+
+LL = gaussian_log_likelihood(MU, SIGMA2, data)
+
+fig, ax = plt.subplots()
+
+im = ax.contourf(LL.numpy(), levels=50, cmap='inferno')
+
+ax.set_yticks([0, 25, 50, 75, 99], labels=[f"{v:.2f}" for v in mu_grid[[0, 25, 50, 75, 99]]])
+ax.set_xticks([0, 25, 50, 75, 99], labels=[f"{v:.2f}" for v in sigma2_grid[[0, 25, 50, 75, 99]]])
+ax.set_ylabel(r'Mean ($\mu$)')
+ax.set_xlabel(r'Variance ($\sigma^2$)')
+
+i, j = 50, 50  # point at which to compute gradient
+mu_point = MU[i, j]
+sigma2_point = SIGMA2[i, j]
+
+mu_point.requires_grad_()
+sigma2_point.requires_grad_()
+
+ll_point = gaussian_log_likelihood(mu_point, sigma2_point, data)
+ll_point.backward()
+
+
+ax.annotate(
+    'Gradient Vector',
+    xy=(i+5*sigma2_point.grad.detach().numpy(),j+5*mu_point.grad.detach().numpy()),
+    xytext=(i,j),
+    arrowprops=dict(facecolor='white', arrowstyle='->', lw=1.5, color='white'), 
+    xycoords='data',
+)
+
+plt.colorbar(im)
+ax.set_title('Gradient of Gaussian Log-Likelihood at a Point')
+plt.show()
+
+```
+
+
+
+
+### Checking Gradients with `torch`
+
+The `pytorch` package, which we'll use throughout this course, implements *automatic differentiation*. Automatic differentiation is an extraordinarily powerful tool which we'll study later in the course. For now, we'll just note that it provides a handy way to check calculations of derivatives and gradients. For example, we can use `torch` to check the gradient we computed in @exr-gradient-example-1 as follows:
+
+```{python}
+#---
+import torch
+x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+
+# function to differentiate
+f = lambda x: x[0]**2 * torch.sin(x[1]) + x[1]*x[2] + x[2]**3 * x[0]
+
+# compute the gradient by hand using the formula we derived
+our_grad = torch.tensor([
+    2 * x[0] * torch.sin(x[1]) + x[2]**3,
+    x[0]**2 * torch.cos(x[1]) + x[2],
+    x[1] + 3 * x[2]**2 * x[0]
+])
+print(our_grad)
+
+# compute the gradient using automatic differentiation
+y = f(x) #<1>
+y.backward() #<2>
+print(x.grad) #<3>
+#---
+```
+1. First, we compute the value of the function we want to differentiate and store the result to a variable (in this case called `y`).
+2. Next, we call the `backward()` method on `y`, which computes the gradient of `y` with respect to its inputs (in this case, the vector `x`) using automatic differentiation.
+3. Finally, we can access the computed gradient via the `grad` attribute of the input tensor `x`.
+
+
+The two approaches agree! As we grow comfortable with the calculus, we'll begin to rely more on torch's automatic differentiation capabilities to compute gradients for us.
+
+
+## Critical Points and Local Extrema
+
+One way we can use gradients is by analytically computing the local extrema of a function: solve the equation $\nabla \cL(\vw) = 0$ for $\vw$ to find critical points of the log-likelihood, and then check which of these points are local maxima.
+
+A critical point of a multivariate function is a point at which all of its partial derivatives are equal to zero. Critical points are candidates for local maxima or minima of the function, and so they are of interest when performing maximum-likelihood estimation by solving $\nabla \cL(\vw) = 0$.
+
+::: {#def-critical-point}
+
+## Critical Points of Multivariate Functions
+
+A *critical point* of a differentiable function $f:\R^p\rightarrow \R$ is a point $\vw^* \in \R^p$ such that $\nabla f(\vw^*) = \vzero$ (the zero vector in $\R^p$). 
+
+:::
+
+All critical points of a function can be identified by solving the system of equations $\nabla f(\vw) = \vzero$. In a few rare cases, it's possible to solve this system analytically to find all critical points. 
+
+::: aside
+
+The notation $\norm{\vv}_2$ refers to the Euclidean norm of $\vv$, with formula
+
+$$
+\begin{aligned}
+    \norm{\vv}_2 = \sqrt{\sum_{i = 1}^p v_i^2}\;.
+\end{aligned}
+$$
+
+:::
+
+
+
+
+::: {#def-local-extrema}
+
+## Local Minima and Maxima
+
+A *local minimum* of a differentiable function $f:\R^p\rightarrow \R$ is a point $\vw^* \in \R^p$ such that there exists some radius $r>0$ such that for all $\vw$ with $\|\vw - \vw^*\|_2 < r$, we have $f(\vw) \geq f(\vw^*)$. A *local maximum* is defined similarly, with the inequality reversed: for all $\vw$ with $\|\vw - \vw^*\|_2 < r$, we have $f(\vw) \leq f(\vw^*)$.
+
+:::
+
+::: aside
+
+The Mild Conditions of @thm-extrema are that $f$ is continuously differentiable in an open neighborhood around $\vw^*$.
+
+:::
+
+
+::: {#thm-extrema}
+
+## Local Extrema are Critical Points
+
+Under Mild Conditions*, if $\vw^*$ is a local extremum (minimum or maximum) of a differentiable function $f:\R^p\rightarrow \R$, then $\vw^*$ is a critical point of $f$.
+
+:::
+
+::: callout-note
+
+### We Always Minimize
+
+Although our motivating problem is still *maximum* likelihood estimation, it is conventional in the literature on statistics, machine learning, and optimization to always seek *minima* of a given function. This works because maximizing $\cL(\vw)$ is equivalent to minimizing $-\cL(\vw)$. Therefore, in the remainder of this chapter and in subsequent chapters, we will often refer to "minimizing the negative log-likelihood" rather than "maximizing the log-likelihood." Perhaps confusingly, we'll still refer to the result as the "maximum likelihood estimate" (MLE).
+
+:::
+
+@thm-extrema tells us that we can try to find the maximum likelihood estimate of a parameter vector $\vw$ by solving the equation $\nabla \cL(\vw) = \vzero$. In principle, we should then check that the critical points we find are indeed minima of $-\cL(\vw)$ rather than maxima or saddle points, which can sometimes be done using the multivariate second-derivative test. In practice, however, this second step is often skipped. [Skipping the second-derivative test can be justified if it is known that $-\cL$ is a *convex* function.]{.aside}
+
+
+Equipped with the concept of critical points, we are ready to find maximum likelihood estimates by solving the equation $\nabla \cL(\vw) = \vzero$.
+
+::: {#exr-gaussian-parameters}
+
+## Estimating Gaussian Parameters
+
+Using the gradient $\nabla \cL(\vx;\sigma^2,\mu)$ computed in @exr-gradient-example-2, find the maximum likelihood estimates for the mean $\mu$ and variance $\sigma^2$ of a Gaussian distribution given $n$ independent and identically-distributed samples $x_1,\ldots,x_n$.
+
+:::
+
+::: sol 
+
+## Solution for @exr-gaussian-parameters
+
+We can find the critical points of the log-likelihood by solving the system of equations given by setting each component of the gradient to zero:
+
+$$
+\begin{align}
+    \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu) &= 0 \\ 
+    -\frac{n}{2\sigma^2} + \frac{1}{2(\sigma^2)^2}  \sum_{i=1}^n (x_i - \mu)^2 &= 0\;.    
+\end{align}
+$$
+
+Solving the first equation for $\mu$, we find 
+
+$$
+\begin{aligned}
+    \frac{1}{\sigma^2} \sum_{i = 1}^n x_i - \frac{1}{\sigma^2} \mu = 0 &\implies \sum_{i=1}^n x_i = n \mu \implies \mu = \frac{1}{n} \sum_{i=1}^n x_i\;.
+\end{aligned}
+$$
+
+We can now solve for $\sigma^2$ using this value of $\mu$ in the second equation:
+
+$$
+\begin{aligned}
+    -\frac{n}{2\sigma^2} + \frac{1}{2(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2 &= 0 \\ 
+    \implies \frac{1}{2(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2 &= \frac{n}{2\sigma^2} \\ 
+    \implies \sum_{i=1}^n (x_i - \mu)^2 &= n \sigma^2 \\ 
+    \implies \sigma^2 &= \frac{1}{n} \sum_{i=1}^n (x_i - \mu)^2\;.
+\end{aligned}
+$$
+
+:::
+
+By convention, the maximum-likelihood estimate of a parameter is given a "hat" symbol, so we would write the MLE estimators we found above as $\hat{\mu}$ and $\hat{\sigma}^2$.
+
+## Gradient of the Linear-Gaussian Log-Likelihood 
+
+Let's now consider the linear-Gaussian model from [last chapter](02-signal-noise.qmd). In this model, we assume that each observed target variable $y_i$ is sampled from a Gaussian distribution with mean equal to a linear function of the corresponding feature vector $x_i$:
+
+$$
+\begin{aligned}
+    y_i &\sim \mathcal{N}(w_1 x_i + w_0, \sigma^2)\;,
+\end{aligned}
+$$
+
+To find the maximum-likelihood estimates given a data set of pairs $(x_i,y_i)$ for $i=1,\ldots,n$, we  need to compute the log-likelihood function for this model, which as per last chapter is 
+
+$$
+\begin{aligned}
+    \cL(\vx, \vy; w_1, w_0) &= \sum_{i = 1}^n \log p_y(y_i;w_1x_i + w_0; \sigma^2) \\ 
+    &= \sum_{i = 1}^n \log \left( \frac{1}{\sqrt{2\pi \sigma^2}} \exp\left( -\frac{(y_i - (w_1 x_i + w_0))^2}{2\sigma^2} \right) \right) \\
+    &= \sum_{i = 1}^n \left( -\frac{1}{2} \log(2\pi \sigma^2) - \frac{(y_i - (w_1 x_i + w_0))^2}{2\sigma^2} \right) \\
+    &= \underbrace{-\frac{n}{2} \log(2\pi \sigma^2)}_{C} - \frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - (w_1 x_i + w_0))^2 \\ 
+    &= C - \frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - w_1 x_i - w_0)^2\;.
+\end{aligned}
+$$
+
+We've collected the terms that do not depend on $w_0$ or $w_1$ into a constant $C$ to simplify the expression. We observe that to maximize the log-likelihood with respect to $w_0$ and $w_1$, we can equivalently minimize the *mean-squared error* $R(\vx, \vy; w_0, w_1) = \frac{1}{n}\sum_{i=1}^n (y_i - w_1 x_i - w_0)^2$. [It's conventional to normalize the sum appearing in the final line by the constant $\frac{1}{n}$.]{.aside} So, to find $\hat{w}_0$ and $\hat{w}_1$, we can solve the system of equations given by setting the gradient of the negative log-likelihood to zero:
+
+$$
+\begin{aligned}
+    \nabla R(\vx, \vy; w_0, w_1) &= \vzero\;.
+\end{aligned}
+$$
+
+::: {#exr-linear-gaussian-gradient}
+
+Compute the gradient $\nabla R(\vx, \vy; w_0, w_1)$ of the sum of squared errors for the linear-Gaussian model with respect to the parameters $w_0$ and $w_1$.
+
+:::
+
+::: {.sol}
+
+## Solution for @exr-linear-gaussian-gradient
+
+We have 
+
+$$
+\begin{aligned}
+    \frac{\partial R}{\partial w_0} = \frac{1}{n} \sum_{i=1}^n 2(y_i - w_1 x_i - w_0)(-1) &= -\frac{2}{n} \sum_{i=1}^n (y_i - w_1 x_i - w_0) \\
+\end{aligned}
+$$
+
+and 
+
+$$
+\begin{aligned}
+    \frac{\partial R}{\partial w_1} = \frac{1}{n} \sum_{i=1}^n 2(y_i - w_1 x_i - w_0)(-x_i) &= -\frac{2}{n} \sum_{i=1}^n x_i (y_i - w_1 x_i - w_0)\;.
+\end{aligned}
+$$
+
+
+
+:::
+
+::: {#exr-linear-gaussian-mle}
+
+Compute the maximum-likelihood estimates $\hat{w}_0$ and $\hat{w}_1$ for the linear-Gaussian model by solving the system of equations given by setting the gradient computed in @exr-linear-gaussian-gradient to zero.
+
+:::
+
+::: {.sol}
+
+## Solution for @exr-linear-gaussian-mle
+
+We'll start with the first equation and solve for $\hat{w}_0$:
+
+$$
+\begin{aligned}
+    \frac{\partial R}{\partial w_0} = -\frac{2}{n} \sum_{i=1}^n (y_i - \hat{w}_1 x_i - \hat{w}_0) &= 0 \\ 
+    \implies \sum_{i=1}^n y_i - \hat{w}_1 \sum_{i=1}^n x_i - n \hat{w}_0 &= 0 \\ 
+    \implies n \hat{w}_0 &= \sum_{i=1}^n y_i - \hat{w}_1 \sum_{i=1}^n x_i \\ 
+    \implies\hat{w}_0 &= \frac{1}{n} \sum_{i=1}^n y_i - \hat{w}_1 \frac{1}{n} \sum_{i=1}^n x_i \\ 
+    &= \bar{y} - \hat{w}_1 \bar{x}\;,
+\end{aligned}
+$$
+
+where we've defined $\bar{y} = \frac{1}{n} \sum_{i=1}^n y_i$ and $\bar{x} = \frac{1}{n} \sum_{i=1}^n x_i$ to be the sample means of the $y_i$'s and $x_i$'s, respectively. 
+
+Now we need to solve for $\hat{w}_1$ using this value of $\hat{w}_0$ in the second equation:
+
+$$
+\begin{aligned}
+    \frac{\partial R}{\partial w_1} = -\frac{2}{n} \sum_{i=1}^n x_i (y_i - \hat{w}_1 x_i - \hat{w}_0) &= 0 \\ 
+    \implies -\frac{2}{n} \sum_{i=1}^n x_i (y_i - \hat{w}_1 x_i - \bar{y} + \hat{w}_1 \bar{x}) &= 0 \\ 
+    \implies -\frac{2}{n} \sum_{i=1}^n x_i (y_i - \bar{y} + \hat{w}_1 (\bar{x} - x_i)) &= 0 \\
+    \implies \sum_{i=1}^n x_i (y_i - \bar{y}) + \hat{w}_1 \sum_{i=1}^n x_i (\bar{x} - x_i) &= 0 \\
+    \implies \hat{w}_1 \sum_{i=1}^n x_i (\bar{x} - x_i) &= - \sum_{i=1}^n x_i (y_i - \bar{y}) \\ 
+    \implies \hat{w}_1 &= \frac{- \sum_{i=1}^n x_i (y_i - \bar{y})}{\sum_{i=1}^n x_i (\bar{x} - x_i)} \\ 
+    &= \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2}\
+\end{aligned}
+$$
+
+:::
+
+
+
+
+## A First Look: Gradient Descent for Maximum Likelihood Estimation
+
+## Deriving and Checking Gradient Formulas
+
+## A Complete Example: Gradient Descent for Laplace Regression

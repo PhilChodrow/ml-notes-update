@@ -1,8 +1,6 @@
 ---
 title: Data = Signal + Noise
 subtitle: Introducing data-generating distributions for machine learning
-filters:
-    - ../scripts/restore-cells.lua
 ---
 
 {{< include ../assets/includes/_colab-link.qmd >}}
@@ -18,6 +16,8 @@ $$
 import style
 ```
 :::
+
+
 
 
 ## Introduction: Data, Signal, and Noise
