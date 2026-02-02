@@ -20,42 +20,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
 }
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
 }
-</style>
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -65,7 +50,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./chapters/01-intro.html" rel="next">
+<link href="./chapters/02-signal-noise.html" rel="next">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -105,6 +90,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
+  background-image: none;
+}
 div.callout-sol.callout {
   border-left-color: pink;
 }
@@ -118,35 +114,6 @@ div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.cal
 }
 </style>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="assets/styles.css">
 </head>
@@ -160,7 +127,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Welcome!</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -182,13 +149,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Welcome!</span></span></a>
+ <span class="menu-text">Welcome</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Regression</span></a>
+ <span class="menu-text">Machine Learning Fundamentals</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -196,20 +163,20 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./chapters/01-intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./chapters/02-signal-noise.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./chapters/03-maximum-likelihood.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapters/04-more-gradients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
   </div>
 </li>
       </ul>
@@ -224,12 +191,14 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#mathematics-x" id="toc-mathematics-x" class="nav-link active" data-scroll-target="#mathematics-x">Mathematics [X]</a></li>
-  <li><a href="#python-interpreter-x" id="toc-python-interpreter-x" class="nav-link" data-scroll-target="#python-interpreter-x">Python Interpreter [X]</a></li>
-  <li><a href="#strip-the-delimiters-for-hidden-code-x" id="toc-strip-the-delimiters-for-hidden-code-x" class="nav-link" data-scroll-target="#strip-the-delimiters-for-hidden-code-x">Strip the delimiters for hidden code [X]</a></li>
-  <li><a href="#colab-link-via-an-include-x" id="toc-colab-link-via-an-include-x" class="nav-link" data-scroll-target="#colab-link-via-an-include-x">Colab link via an include [X]</a></li>
-  <li><a href="#strip-solutions-and-hidden-content-e.g.-notes-in-online-website-version.-x" id="toc-strip-solutions-and-hidden-content-e.g.-notes-in-online-website-version.-x" class="nav-link" data-scroll-target="#strip-solutions-and-hidden-content-e.g.-notes-in-online-website-version.-x">Strip solutions and hidden content (e.g.&nbsp;notes) in online website version. [X]</a></li>
-  <li><a href="#dont-strip-solutions-and-hidden-content-in-local-notes-version.-x" id="toc-dont-strip-solutions-and-hidden-content-in-local-notes-version.-x" class="nav-link" data-scroll-target="#dont-strip-solutions-and-hidden-content-in-local-notes-version.-x">Don’t strip solutions and hidden content in local notes version. [X]</a></li>
+  <li><a href="#welcome" id="toc-welcome" class="nav-link active" data-scroll-target="#welcome">Welcome</a>
+  <ul class="collapse">
+  <li><a href="#pedagogical-features" id="toc-pedagogical-features" class="nav-link" data-scroll-target="#pedagogical-features">Pedagogical Features</a></li>
+  <li><a href="#use-and-reuse" id="toc-use-and-reuse" class="nav-link" data-scroll-target="#use-and-reuse">Use and Reuse</a></li>
+  <li><a href="#source-texts" id="toc-source-texts" class="nav-link" data-scroll-target="#source-texts">Source Texts</a></li>
+  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -239,7 +208,6 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Machine Learning</h1>
-<p class="subtitle lead">test</p>
 </div>
 
 
@@ -256,57 +224,83 @@ window.Quarto = {
 </header>
 
 
-<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/index.ipynb">Open the live notebook</a> in Google Colab or <a href="https://philchodrow.prof/ml-notes-update/live-notebooks/index.ipynb">download the live notebook</a>.</em></p>
-<section id="mathematics-x" class="level2">
-<h2 class="anchored" data-anchor-id="mathematics-x">Mathematics [X]</h2>
-<p>We’re going to do some basic tests in this file. Math now seems to work using the include above.</p>
-<p><span class="math display">\[
-\begin{aligned}
-    \mathbb{P}(X) = y
-\end{aligned}
-\]</span></p>
+<section id="welcome" class="level1 unnumbered">
+<h1 class="unnumbered">Welcome</h1>
+<p>This is a set of notes developed for an undergraduate course in machine learning. The target audience for these notes are undergraduates in computer science who have completed first courses in linear algebra and discrete mathematics. These notes draw on many sources, but are somewhat distinctive in the following ways:</p>
+<ul>
+<li>The technical focus is almost exclusively on smooth methods for empirical risk minimization in supervised regression and, especially, classification. These notes do not attempt to be a broad survey of all of machine learning. Especially important topics which are largely untreated include decision trees, random forests, and most unsupervised techniques.<br>
+</li>
+<li>The social impacts of automated decision technologies–including bias, fairness, and harm–are considered as first-class topics which occupy a substantial fraction of the notes.</li>
+<li>Minimal familiarity with probability is assumed. Continuous probability does not appear explicitly, and discrete probability is introduced “from the ground up” as needed.</li>
+</ul>
+<section id="pedagogical-features" class="level2">
+<h2 class="anchored" data-anchor-id="pedagogical-features">Pedagogical Features</h2>
+<p>These notes are explicitly designed for undergraduate instruction in computer science. For this reason:</p>
+<ul>
+<li>Computational examples are integrated into the text and shown throughout.</li>
+<li>Live versions of lecture notes are supplied as downloadable Jupyter Notebooks, with certain code components removed. The purpose is to facilitate live-coding in lectures.</li>
+</ul>
 </section>
-<section id="python-interpreter-x" class="level2">
-<h2 class="anchored" data-anchor-id="python-interpreter-x">Python Interpreter [X]</h2>
-<p>Use an Anaconda environment</p>
-<div id="61cea5c7" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torch.__version__)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">10</span>, steps<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> torch.sin(X)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>plt.plot(X.numpy(), Y.numpy())</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>2.10.0</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-4-output-2.png" class="figure-img" width="578" height="405"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Did we see the thing?</p>
-<p>false</p>
+<section id="use-and-reuse" class="level2">
+<h2 class="anchored" data-anchor-id="use-and-reuse">Use and Reuse</h2>
+<p>These notes were written by <a href="www.philchodrow.prof">Phil Chodrow</a> for the course CSCI 0451: Machine Learning at Middlebury College. All are welcome to use them for educational purposes. Attribution is appreciated but not expected.</p>
 </section>
-<section id="strip-the-delimiters-for-hidden-code-x" class="level2">
-<h2 class="anchored" data-anchor-id="strip-the-delimiters-for-hidden-code-x">Strip the delimiters for hidden code [X]</h2>
+<section id="source-texts" class="level2">
+<h2 class="anchored" data-anchor-id="source-texts">Source Texts</h2>
+<p>These notes draw on several source texts, most of which are available for free online. These are:</p>
+<ul>
+<li><span class="citation" data-cites="bishop2023deep">Christopher M. Bishop and Bishop (<a href="#ref-bishop2023deep" role="doc-biblioref">2023</a>)</span> is the primary influence for the development of technical content.</li>
+<li><span class="citation" data-cites="hardtPatternsPredictionsActions2022">Hardt and Recht (<a href="#ref-hardtPatternsPredictionsActions2022" role="doc-biblioref">2022</a>)</span> has been a very helpful guiding influence for content on decision-theory and automated decision systems.</li>
+<li><a href="http://ciml.info/">A Course in Machine Learning</a> by Hal Daumé III is an accessible introduction to many of the topics and serves as a useful source of supplementary readings.</li>
+</ul>
+<p>Additional useful readings:</p>
+<ul>
+<li><span class="citation" data-cites="abu-mostafaLearningDataShort2012">Abu-Mostafa, Magdon-Ismail, and Lin (<a href="#ref-abu-mostafaLearningDataShort2012" role="doc-biblioref">2012</a>)</span>: <em><a href="https://amlbook.com/">Learning From Data: A Short Course</a></em></li>
+<li><span class="citation" data-cites="barocasFairnessMachineLearning2023">Barocas, Hardt, and Narayanan (<a href="#ref-barocasFairnessMachineLearning2023" role="doc-biblioref">2023</a>)</span> is an advanced text on questions of fairness in automated decision-making for readers who have some background in probability theory.</li>
+<li><span class="citation" data-cites="bishopPatternRecognitionMachine2006">Christopher M. Bishop (<a href="#ref-bishopPatternRecognitionMachine2006" role="doc-biblioref">2006</a>)</span> and <span class="citation" data-cites="murphyProbabilisticMachineLearning2022a">Murphy (<a href="#ref-murphyProbabilisticMachineLearning2022a" role="doc-biblioref">2022</a>)</span> are advanced texts which are most suitable for advanced readers who have already taken at least one course in probability theory.<br>
+</li>
+<li><span class="citation" data-cites="deisenrothMathematicsMachineLearning2020">Deisenroth, Faisal, and Ong (<a href="#ref-deisenrothMathematicsMachineLearning2020" role="doc-biblioref">2020</a>)</span> and <span class="citation" data-cites="kroeseDataScienceMachine2020">Kroese et al. (<a href="#ref-kroeseDataScienceMachine2020" role="doc-biblioref">2020</a>)</span> are useful readings focusing on some of the mathematical fundamentals.</li>
+<li><span class="citation" data-cites="zhangDiveDeepLearning2023">Zhang, Lipton, and Li (<a href="#ref-zhangDiveDeepLearning2023" role="doc-biblioref">2023</a>)</span> tells a helpful story of the fundamentals of deep learning.</li>
+</ul>
 </section>
-<section id="colab-link-via-an-include-x" class="level2">
-<h2 class="anchored" data-anchor-id="colab-link-via-an-include-x">Colab link via an include [X]</h2>
+<section id="acknowledgements" class="level2">
+<h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
+<p>This site was generated using the <a href="https://quarto.org/">Quarto</a> publishing system. It is hosted on GitHub and published via GitHub Pages.</p>
 </section>
-<section id="strip-solutions-and-hidden-content-e.g.-notes-in-online-website-version.-x" class="level2">
-<h2 class="anchored" data-anchor-id="strip-solutions-and-hidden-content-e.g.-notes-in-online-website-version.-x">Strip solutions and hidden content (e.g.&nbsp;notes) in online website version. [X]</h2>
-</section>
-<section id="dont-strip-solutions-and-hidden-content-in-local-notes-version.-x" class="level2">
-<h2 class="anchored" data-anchor-id="dont-strip-solutions-and-hidden-content-in-local-notes-version.-x">Don’t strip solutions and hidden content in local notes version. [X]</h2>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-abu-mostafaLearningDataShort2012" class="csl-entry" role="listitem">
+Abu-Mostafa, Yaser S., Malik Magdon-Ismail, and Hsuan-Tien Lin. 2012. <em>Learning from Data: A Short Course</em>. S.l. <a href="https://amlbook.com/">https://amlbook.com/</a>.
+</div>
+<div id="ref-barocasFairnessMachineLearning2023" class="csl-entry" role="listitem">
+Barocas, Solon, Moritz Hardt, and Arvind Narayanan. 2023. <em>Fairness and Machine Learning: Limitations and Opportunities</em>. Cambridge, Massachusetts: The MIT Press. <a href="https://fairmlbook.org/pdf/fairmlbook.pdf">https://fairmlbook.org/pdf/fairmlbook.pdf</a>.
+</div>
+<div id="ref-bishopPatternRecognitionMachine2006" class="csl-entry" role="listitem">
+Bishop, Christopher M. 2006. <em>Pattern <span>Recognition</span> and <span>Machine Learning</span></em>. Information Science and Statistics. New York: Springer. <a href="https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf">https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf</a>.
+</div>
+<div id="ref-bishop2023deep" class="csl-entry" role="listitem">
+Bishop, Christopher M, and Hugh Bishop. 2023. <em>Deep Learning: Foundations and Concepts</em>. Springer Nature.
+</div>
+<div id="ref-deisenrothMathematicsMachineLearning2020" class="csl-entry" role="listitem">
+Deisenroth, Marc Peter, A. Aldo Faisal, and Cheng Soon Ong. 2020. <em>Mathematics for Machine Learning</em>. Cambridge, UK New York, NY: Cambridge University Press. <a href="https://mml-book.github.io/book/mml-book.pdf">https://mml-book.github.io/book/mml-book.pdf</a>.
+</div>
+<div id="ref-hardtPatternsPredictionsActions2022" class="csl-entry" role="listitem">
+Hardt, Moritz, and Benjamin Recht. 2022. <em>Patterns, <span>Predictions</span>, and <span>Actions</span></em>. Princeton University Press. <a href="https://mlstory.org/pdf/patterns.pdf">https://mlstory.org/pdf/patterns.pdf</a>.
+</div>
+<div id="ref-kroeseDataScienceMachine2020" class="csl-entry" role="listitem">
+Kroese, Dirk P., Zdravko I. Botev, Thomas Taimre, and Radislav Vaisman. 2020. <em>Data Science and Machine Learning: Mathematical and Statistical Methods</em>. Chapman &amp; <span>Hall</span>/<span>CRC</span> Machine Learning &amp; Pattern Recognition Series. Boca Raton London New York: CRC Press, Taylor &amp; Francis Group.
+</div>
+<div id="ref-murphyProbabilisticMachineLearning2022a" class="csl-entry" role="listitem">
+Murphy, Kevin P. 2022. <em>Probabilistic Machine Learning: An Introduction</em>. Adaptive Computation and Machine Learning Series. Cambridge, Massachusetts: The MIT Press. <a href="https://probml.github.io/pml-book/book1.html">https://probml.github.io/pml-book/book1.html</a>.
+</div>
+<div id="ref-zhangDiveDeepLearning2023" class="csl-entry" role="listitem">
+Zhang, Aston, Zachary Lipton, and Mu Li. 2023. <em>Dive into Deep Learning</em>. Cambridge, UK: Cambridge University Press.
+</div>
+</div>
+</section>
 </section>
 
 <p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
@@ -714,8 +708,8 @@ window.Quarto = {
   <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./chapters/01-intro.html" class="pagination-link" aria-label="Introduction">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./chapters/02-signal-noise.html" class="pagination-link" aria-label="Data = Signal + Noise">
+        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

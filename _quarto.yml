@@ -8,11 +8,11 @@ book:
   # date: "01/25/2026"
   chapters:
     - index.qmd
-    - part: "Regression"
+    - part: "Machine Learning Fundamentals"
       chapters:
-      - chapters/01-intro.qmd
       - chapters/02-signal-noise.qmd
       - chapters/03-maximum-likelihood.qmd
+      - chapters/04-more-gradients.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 
@@ -47,6 +47,9 @@ custom-callout:
   sol:
     icon-symbol: "📝"
     color: "pink"
+  question:
+    icon-symbol: "❓"
+    color: "lightblue"
 filters:
 - custom-callout
 - scripts/collapse-solution-callout.lua

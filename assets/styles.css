@@ -257,6 +257,7 @@ tr {
 .theorem.definition {
   border-left: thick solid #332089;
   padding-left: 1rem; 
+  padding-bottom: 0rem;
 }
 
 .theorem.example {
@@ -267,8 +268,12 @@ tr {
 .theorem {
   border-left: thick solid #7d1919;
   padding-left: 1rem; 
+  margin-bottom: 1rem;
 }
 
+.theorem p {
+  margin-bottom: 0rem;
+}
 
 
 @media (min-width: 992px) {

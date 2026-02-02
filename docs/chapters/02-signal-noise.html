@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Data = Signal + Noise – Machine Learning</title>
+<title>1&nbsp; Data = Signal + Noise – Machine Learning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -66,7 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../chapters/03-maximum-likelihood.html" rel="next">
-<link href="../chapters/01-intro.html" rel="prev">
+<link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -106,6 +106,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
+  background-image: none;
+}
 div.callout-sol.callout {
   border-left-color: pink;
 }
@@ -161,7 +172,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-intro.html">Regression</a></li><li class="breadcrumb-item"><a href="../chapters/02-signal-noise.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/02-signal-noise.html">Machine Learning Fundamentals</a></li><li class="breadcrumb-item"><a href="../chapters/02-signal-noise.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -183,13 +194,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Welcome!</span></span></a>
+ <span class="menu-text">Welcome</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Regression</span></a>
+ <span class="menu-text">Machine Learning Fundamentals</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -197,20 +208,20 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/01-intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../chapters/02-signal-noise.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/03-maximum-likelihood.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-more-gradients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
   </div>
 </li>
       </ul>
@@ -244,9 +255,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-intro.html">Regression</a></li><li class="breadcrumb-item"><a href="../chapters/02-signal-noise.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/02-signal-noise.html">Machine Learning Fundamentals</a></li><li class="breadcrumb-item"><a href="../chapters/02-signal-noise.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></h1>
+<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></h1>
 <p class="subtitle lead">Introducing data-generating distributions for machine learning</p>
 </div>
 
@@ -312,7 +323,7 @@ window.Quarto = {
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-signal-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.1: An illustrative decomposition of a data set (points) into a hypothesized underlying signal (dashed line) and noise (red segments).
+Figure&nbsp;1.1: An illustrative decomposition of a data set (points) into a hypothesized underlying signal (dashed line) and noise (red segments).
 </figcaption>
 </figure>
 </div>
@@ -321,12 +332,12 @@ Figure&nbsp;3.1: An illustrative decomposition of a data set (points) into a hyp
 \begin{aligned}
     y_i = f(x_i) + \epsilon_i\;,
 \end{aligned}
-\tag{3.1}\]</span></span></p>
+\tag{1.1}\]</span></span></p>
 <p>which says that the <span class="math inline">\(i\)</span>th value of the target is equal to some function <span class="math inline">\(f(x_i)\)</span> of the input variable <span class="math inline">\(x_i\)</span>, plus some random noise term <span class="math inline">\(\epsilon_i\)</span>.</p>
 </section>
 <section id="overfitting" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="overfitting">Overfitting</h2>
-<p>It’s important to emphasize here that the thing we want to learn is <em>not</em> the individual targets <span class="math inline">\(y_i\)</span>, but rather the underlying function <span class="math inline">\(f(x)\)</span>. To see why, let’s consider an example of what goes wrong if we try to learn the targets <span class="math inline">\(y_i\)</span> exactly. This is called <em>interpolation</em>, and is illustrated by <a href="#fig-interpolation" class="quarto-xref">Figure&nbsp;<span>3.2</span></a>:</p>
+<p>It’s important to emphasize here that the thing we want to learn is <em>not</em> the individual targets <span class="math inline">\(y_i\)</span>, but rather the underlying function <span class="math inline">\(f(x)\)</span>. To see why, let’s consider an example of what goes wrong if we try to learn the targets <span class="math inline">\(y_i\)</span> exactly. This is called <em>interpolation</em>, and is illustrated by <a href="#fig-interpolation" class="quarto-xref">Figure&nbsp;<span>1.2</span></a>:</p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> interpolate</span>
@@ -356,7 +367,7 @@ Figure&nbsp;3.1: An illustrative decomposition of a data set (points) into a hyp
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-interpolation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.2: A function which exactly interpolates the data, perfectly fitting both signal and noise.
+Figure&nbsp;1.2: A function which exactly interpolates the data, perfectly fitting both signal and noise.
 </figcaption>
 </figure>
 </div>
@@ -386,7 +397,7 @@ Figure&nbsp;3.2: A function which exactly interpolates the data, perfectly fitti
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-interpolation-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.3: New data plotted alongside the interpolating fit from the previous figure.
+Figure&nbsp;1.3: New data plotted alongside the interpolating fit from the previous figure.
 </figcaption>
 </figure>
 </div>
@@ -394,7 +405,7 @@ Figure&nbsp;3.3: New data plotted alongside the interpolating fit from the previ
 </section>
 <section id="modeling-the-noise" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="modeling-the-noise">Modeling the Noise</h2>
-<p>If we want to learn the signal <span class="math inline">\(f\)</span> in <a href="#eq-signal-plus-noise" class="quarto-xref">Equation&nbsp;<span>3.1</span></a>, it’s helpful to learn how to talk mathematically about the noise term <span class="math inline">\(\epsilon_i\)</span>. To do this, we need to step into the language of probability theory. Our standing assumption will be that the noise terms <span class="math inline">\(\epsilon_i\)</span> are <em>random variables</em> drawn independently and identically-distributed from some probability distribution. This means that each time we observe a new data point, we get a different value of <span class="math inline">\(\epsilon_i\)</span> drawn from the same distribution, without any influence from other values of <span class="math inline">\(\epsilon_j\)</span> for <span class="math inline">\(j \neq i\)</span>.</p>
+<p>If we want to learn the signal <span class="math inline">\(f\)</span> in <a href="#eq-signal-plus-noise" class="quarto-xref">Equation&nbsp;<span>1.1</span></a>, it’s helpful to learn how to talk mathematically about the noise term <span class="math inline">\(\epsilon_i\)</span>. To do this, we need to step into the language of probability theory. Our standing assumption will be that the noise terms <span class="math inline">\(\epsilon_i\)</span> are <em>random variables</em> drawn independently and identically-distributed from some probability distribution. This means that each time we observe a new data point, we get a different value of <span class="math inline">\(\epsilon_i\)</span> drawn from the same distribution, without any influence from other values of <span class="math inline">\(\epsilon_j\)</span> for <span class="math inline">\(j \neq i\)</span>.</p>
 <p>The noise distribution we will usually consider is the Gaussian distribution, also called the Gaussian distribution.</p>
 <div id="cell-fig-gaussian-area" class="cell page-columns page-full" data-execution_count="7">
 
@@ -405,13 +416,13 @@ Figure&nbsp;3.3: New data plotted alongside the interpolating fit from the previ
 <img src="02-signal-noise_files/figure-html/fig-gaussian-area-output-1.png" width="286" height="239" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-gaussian-area-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.4: The probability that a Gaussian random variable lies between two values <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> is given by the area under its PDF between those values.
+Figure&nbsp;1.4: The probability that a Gaussian random variable lies between two values <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> is given by the area under its PDF between those values.
 </figcaption>
 </figure>
 </div>
 </div></div></div>
 <div id="def-gaussian" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.1 (Gaussian (Normal) Distribution)</strong></span> A random variable <span class="math inline">\(\epsilon\)</span> has a Gaussian distribution with <em>parameters</em> mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span> if the probability that <span class="math inline">\(\epsilon\)</span> has a value between <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> is given by:</p>
+<p><span class="theorem-title"><strong>Definition 1.1 (Gaussian (Normal) Distribution)</strong></span> A random variable <span class="math inline">\(\epsilon\)</span> has a Gaussian distribution with <em>parameters</em> mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span> if the probability that <span class="math inline">\(\epsilon\)</span> has a value between <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> is given by:</p>
 <p><span class="math display">\[
 \begin{aligned}
     \mathbb{P}(a \leq \epsilon \leq b) = \int_a^b p_\epsilon(x;\mu, \sigma) \, dx\;,
@@ -446,7 +457,7 @@ p_\epsilon(x;\mu, \sigma) = \frac{1}{\sigma \sqrt{2 \pi}} \exp\left(-\frac{(x - 
 <img src="02-signal-noise_files/figure-html/fig-normal-pdfs-output-1.png" width="283" height="221" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-normal-pdfs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.5: Normal distribution PDFs for different values.
+Figure&nbsp;1.5: Normal distribution PDFs for different values.
 </figcaption>
 </figure>
 </div>
@@ -463,7 +474,7 @@ Figure&nbsp;3.5: Normal distribution PDFs for different values.
          0.0287, -2.3102])</code></pre>
 </div>
 </div>
-<p>If we take many samples of Gaussian noise and plot a histogram of their values, then we’ll find (via the <em>law of large numbers</em>) that the histogram approximates the PDF of the Gaussian distribution we sampled from, as illustrated in <a href="#fig-normal-histogram-comparison" class="quarto-xref">Figure&nbsp;<span>3.6</span></a>:</p>
+<p>If we take many samples of Gaussian noise and plot a histogram of their values, then we’ll find (via the <em>law of large numbers</em>) that the histogram approximates the PDF of the Gaussian distribution we sampled from, as illustrated in <a href="#fig-normal-histogram-comparison" class="quarto-xref">Figure&nbsp;<span>1.6</span></a>:</p>
 <div id="cell-fig-normal-histogram-comparison" class="cell page-columns page-full" data-execution_count="11">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output cell-output-display">
@@ -473,7 +484,7 @@ Figure&nbsp;3.5: Normal distribution PDFs for different values.
 <img src="02-signal-noise_files/figure-html/fig-normal-histogram-comparison-output-1.png" width="286" height="201" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-normal-histogram-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.6: Histogram of samples from a Gaussian distribution compared to its PDF.
+Figure&nbsp;1.6: Histogram of samples from a Gaussian distribution compared to its PDF.
 </figcaption>
 </figure>
 </div>
@@ -483,10 +494,10 @@ Figure&nbsp;3.6: Histogram of samples from a Gaussian distribution compared to i
 <h2 class="anchored" data-anchor-id="properties-of-the-gaussian-distribution">Properties of the Gaussian Distribution</h2>
 <p>The Gaussian distribution has a number of useful properties for modeling noise in data. Here are a few:</p>
 <div id="thm-translation" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 3.1 (Translation)</strong></span> If <span class="math inline">\(\epsilon\)</span> is normally distributed with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>, then the random variable <span class="math inline">\(\epsilon + c\)</span> (where <span class="math inline">\(c\)</span> is a constant) is normally distributed with mean <span class="math inline">\(\mu + c\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>. In other words, if <span class="math inline">\(\epsilon \sim \mathcal{N}(\mu, \sigma^2)\)</span>, then <span class="math inline">\(\epsilon + c \sim \mathcal{N}(\mu + c, \sigma^2)\)</span>.</p>
+<p><span class="theorem-title"><strong>Theorem 1.1 (Translation)</strong></span> If <span class="math inline">\(\epsilon\)</span> is normally distributed with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>, then the random variable <span class="math inline">\(\epsilon + c\)</span> (where <span class="math inline">\(c\)</span> is a constant) is normally distributed with mean <span class="math inline">\(\mu + c\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>. In other words, if <span class="math inline">\(\epsilon \sim \mathcal{N}(\mu, \sigma^2)\)</span>, then <span class="math inline">\(\epsilon + c \sim \mathcal{N}(\mu + c, \sigma^2)\)</span>.</p>
 </div>
 <div id="thm-scaling" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 3.2 (Scaling)</strong></span> If <span class="math inline">\(\epsilon\)</span> is normally distributed with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>, then the random variable <span class="math inline">\(a \epsilon\)</span> (where <span class="math inline">\(a\)</span> is a constant) is normally distributed with mean <span class="math inline">\(a \mu\)</span> and standard deviation <span class="math inline">\(|a| \sigma\)</span>. In other words, if <span class="math inline">\(\epsilon \sim \mathcal{N}(\mu, \sigma^2)\)</span>, then <span class="math inline">\(a \epsilon \sim \mathcal{N}(a \mu, (a \sigma)^2)\)</span>.</p>
+<p><span class="theorem-title"><strong>Theorem 1.2 (Scaling)</strong></span> If <span class="math inline">\(\epsilon\)</span> is normally distributed with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>, then the random variable <span class="math inline">\(a \epsilon\)</span> (where <span class="math inline">\(a\)</span> is a constant) is normally distributed with mean <span class="math inline">\(a \mu\)</span> and standard deviation <span class="math inline">\(|a| \sigma\)</span>. In other words, if <span class="math inline">\(\epsilon \sim \mathcal{N}(\mu, \sigma^2)\)</span>, then <span class="math inline">\(a \epsilon \sim \mathcal{N}(a \mu, (a \sigma)^2)\)</span>.</p>
 </div>
 <p>The <em>expectation</em> or <em>mean</em> of a continuous-valued random variable <span class="math inline">\(\epsilon\)</span> with probability density function <span class="math inline">\(p_\epsilon(x)\)</span> is defined as:</p>
 <p><span class="math display">\[
@@ -502,7 +513,7 @@ Figure&nbsp;3.6: Histogram of samples from a Gaussian distribution compared to i
 \]</span></p>
 <p>We can interpret the variance as a measure of how far away <span class="math inline">\(\epsilon\)</span> “usually, on average” lies from its mean value.</p>
 <div id="thm-moments" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 3.3 (Mean and Variance of the Gaussian)</strong></span> For a normally distributed random variable with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>:</p>
+<p><span class="theorem-title"><strong>Theorem 1.3 (Mean and Variance of the Gaussian)</strong></span> For a normally distributed random variable with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>:</p>
 <p><span class="math display">\[
 \begin{aligned}
     \mathbb{E}[\epsilon] &amp;= \mu \\
@@ -514,7 +525,7 @@ Figure&nbsp;3.6: Histogram of samples from a Gaussian distribution compared to i
 </section>
 <section id="the-standard-gaussian" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="the-standard-gaussian">The Standard Gaussian</h2>
-<p>The standard Gaussian distribution is the Gaussian with mean zero and standard deviation one: <span class="math inline">\(\mathcal{N}(0, 1)\)</span>. We often use the symbol <span class="math inline">\(Z\)</span> to Due to the properties above, we can make any Gaussian random variable from a standard Gaussian: if <span class="math inline">\(X \sim \mathcal{N}(\mu, \sigma^2)\)</span>, then, using <a href="#thm-scaling" class="quarto-xref">Theorem&nbsp;<span>3.2</span></a> and <a href="#thm-translation" class="quarto-xref">Theorem&nbsp;<span>3.1</span></a>, we can write <span class="math inline">\(X\)</span> as</p>
+<p>The standard Gaussian distribution is the Gaussian with mean zero and standard deviation one: <span class="math inline">\(\mathcal{N}(0, 1)\)</span>. We often use the symbol <span class="math inline">\(Z\)</span> to Due to the properties above, we can make any Gaussian random variable from a standard Gaussian: if <span class="math inline">\(X \sim \mathcal{N}(\mu, \sigma^2)\)</span>, then, using <a href="#thm-scaling" class="quarto-xref">Theorem&nbsp;<span>1.2</span></a> and <a href="#thm-translation" class="quarto-xref">Theorem&nbsp;<span>1.1</span></a>, we can write <span class="math inline">\(X\)</span> as</p>
 <p><span class="math display">\[
 \begin{aligned}
     X \sim \sigma Z + \mu\;.
@@ -551,31 +562,31 @@ Figure&nbsp;3.6: Histogram of samples from a Gaussian distribution compared to i
     y_i = f(x_i) + \epsilon_i\;,
 \end{aligned}
 \]</span></p>
-<p>If we assume that <span class="math inline">\(\epsilon_i \sim \mathcal{N}(0, \sigma^2)\)</span> (i.e., that the noise terms are independent and identically distributed Gaussian random variables with mean zero and standard deviation <span class="math inline">\(\sigma\)</span>), then we can use the translation property of the Gaussian distribution (<a href="#thm-translation" class="quarto-xref">Theorem&nbsp;<span>3.1</span></a>) to deduce that</p>
+<p>If we assume that <span class="math inline">\(\epsilon_i \sim \mathcal{N}(0, \sigma^2)\)</span> (i.e., that the noise terms are independent and identically distributed Gaussian random variables with mean zero and standard deviation <span class="math inline">\(\sigma\)</span>), then we can use the translation property of the Gaussian distribution (<a href="#thm-translation" class="quarto-xref">Theorem&nbsp;<span>1.1</span></a>) to deduce that</p>
 <p><span id="eq-normal-noise"><span class="math display">\[
 \begin{aligned}
     y_i &amp;\sim \mathcal{N}(f(x_i), \sigma^2)\;.
 \end{aligned}
-\tag{3.2}\]</span></span></p>
+\tag{1.2}\]</span></span></p>
 <div class="page-columns page-full"><p>So, we are modeling each data point <span class="math inline">\(y_i\)</span> as a Gaussian random variable whose mean is given by the underlying signal <span class="math inline">\(f(x_i)\)</span>, and whose standard deviation is given by the noise level <span class="math inline">\(\sigma\)</span>. This modeling approach is important enough to merit a name: </p><div class="no-row-height column-margin column-container"><span class="margin-aside">Technically, the model described below is an <em>additive</em> Gaussian model, but we won’t worry about non-additive models here and therefore won’t bother repeating “additive.”</span></div></div>
 <div id="def-gaussian-model" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.2 (Gaussian Model)</strong></span> The model</p>
+<p><span class="theorem-title"><strong>Definition 1.2 (Gaussian Model)</strong></span> The model</p>
 <p><span id="eq-gaussian-model"><span class="math display">\[
 \begin{aligned}
     y &amp;= f(x_i) + \epsilon_i \\    
     \epsilon_i &amp;\sim \mathcal{N}(0, \sigma^2)
 \end{aligned}
-\tag{3.3}\]</span></span></p>
+\tag{1.3}\]</span></span></p>
 <p>is called a <em>Gaussian data generating model</em>.</p>
 </div>
 <p>Often, as illustrated so far in these notes, we choose <span class="math inline">\(f\)</span> to be a linear function of <span class="math inline">\(x_i\)</span>:</p>
 <div id="def-linear-gaussian-model" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.3 (Linear-Gaussian Model)</strong></span> A Gaussian model in which</p>
+<p><span class="theorem-title"><strong>Definition 1.3 (Linear-Gaussian Model)</strong></span> A Gaussian model in which</p>
 <p><span id="eq-linear-signal-1d"><span class="math display">\[
 \begin{aligned}
     f(x_i) = w_0 + w_1 x_i   
 \end{aligned}
-\tag{3.4}\]</span></span></p>
+\tag{1.4}\]</span></span></p>
 <p>for parameters <span class="math inline">\(w_0, w_1 \in \mathbb{R}\)</span> is called a (1-dimensional) <em>linear-Gaussian model</em>.</p>
 </div>
 <p>Here’s a schematic picture of the linear-Gaussian model.</p>
@@ -621,16 +632,16 @@ Figure&nbsp;3.6: Histogram of samples from a Gaussian distribution compared to i
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-gaussian-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.7: Illustration of the Gaussian noise model <a href="#eq-normal-noise" class="quarto-xref">Equation&nbsp;<span>3.2</span></a>, showing data points (black circles) as samples from Gaussian distributions (blue curves) centered on the signal (dashed line).
+Figure&nbsp;1.7: Illustration of the Gaussian noise model <a href="#eq-normal-noise" class="quarto-xref">Equation&nbsp;<span>1.2</span></a>, showing data points (black circles) as samples from Gaussian distributions (blue curves) centered on the signal (dashed line).
 </figcaption>
 </figure>
 </div>
 <p>We are modeling <span class="math inline">\(y_i\)</span> as a noisy sample from a Gaussian distribution centered at the signal value <span class="math inline">\(f(x_i)\)</span>, with noise level <span class="math inline">\(\sigma\)</span> controlling how spread out the distribution is. A larger value of <span class="math inline">\(\sigma\)</span> means that the observed data points <span class="math inline">\(y_i\)</span> will tend to be further away from the signal <span class="math inline">\(f(x_i)\)</span>, while a smaller value of <span class="math inline">\(\sigma\)</span> means that the data points will tend to be closer to the signal. Larger values of the noise level <span class="math inline">\(\sigma\)</span> create noisier data sets where it is more difficult to discern the underlying signal.</p>
 <section id="data-generating-distributions" class="level3">
 <h3 class="anchored" data-anchor-id="data-generating-distributions">Data Generating Distributions</h3>
-<p>One of the primary reasons to define models like <a href="#eq-normal-noise" class="quarto-xref">Equation&nbsp;<span>3.2</span></a> is that they give us principled ways for thinking about what our models should learn – the signal – and what they should ignore – the noise. These models are also very helpful as models of <em>where the data comes from</em> – that is, as <em>data generating distributions</em>.</p>
+<p>One of the primary reasons to define models like <a href="#eq-normal-noise" class="quarto-xref">Equation&nbsp;<span>1.2</span></a> is that they give us principled ways for thinking about what our models should learn – the signal – and what they should ignore – the noise. These models are also very helpful as models of <em>where the data comes from</em> – that is, as <em>data generating distributions</em>.</p>
 <div id="def-data-generating-distribution" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.4 (Data Generating Distribution)</strong></span> A <em>data generating distribution</em> (also called a <em>data generating model</em>) is a probabilistic model that describes how data points (especially targets <span class="math inline">\(y\)</span>) are generated in terms of random variables and their distributions.</p>
+<p><span class="theorem-title"><strong>Definition 1.4 (Data Generating Distribution)</strong></span> A <em>data generating distribution</em> (also called a <em>data generating model</em>) is a probabilistic model that describes how data points (especially targets <span class="math inline">\(y\)</span>) are generated in terms of random variables and their distributions.</p>
 </div>
 <p>The linear-Gaussian model is a simple example of a data generating model: it describes a recipe to simulate each target <span class="math inline">\(y_i\)</span> by first computing the signal value <span class="math inline">\(f(x_i)\)</span>, then sampling a noise term <span class="math inline">\(\epsilon_i\)</span> from a Gaussian distribution, and finally adding the two together to get <span class="math inline">\(y_i = f(x_i) + \epsilon_i\)</span>.</p>
 <p>A very useful feature of data generating models is that they also give us tools to measure how well our learned signal fits observed data, via the concept of a <em>likelihood</em>.</p>
@@ -638,7 +649,7 @@ Figure&nbsp;3.7: Illustration of the Gaussian noise model <a href="#eq-normal-no
 </section>
 <section id="model-likelihood" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="model-likelihood">Model Likelihood</h2>
-<p>Given a data-generating distribution, we can compute the <em>likelihood</em> of the observed data under that model. Recall that the PDF of a single data point <span class="math inline">\(y_i\)</span> under the Gaussian noise model <a href="#eq-normal-noise" class="quarto-xref">Equation&nbsp;<span>3.2</span></a> with predictor value <span class="math inline">\(x_i\)</span> is given by the formula</p>
+<p>Given a data-generating distribution, we can compute the <em>likelihood</em> of the observed data under that model. Recall that the PDF of a single data point <span class="math inline">\(y_i\)</span> under the Gaussian noise model <a href="#eq-normal-noise" class="quarto-xref">Equation&nbsp;<span>1.2</span></a> with predictor value <span class="math inline">\(x_i\)</span> is given by the formula</p>
 <p><span class="math display">\[
 \begin{aligned}
     p_{y}(y_i; f(x_i), \sigma^2) = \frac{1}{\sigma \sqrt{2 \pi}} \exp\left(-\frac{(y_i - f(x_i))^2}{2\sigma^2}\right)\;.
@@ -646,7 +657,7 @@ Figure&nbsp;3.7: Illustration of the Gaussian noise model <a href="#eq-normal-no
 \]</span></p>
 <p>The likelihood of the complete data set is simply the product of the individual data point PDFs, evaluated at their corresponding observed values. The likelihood is a function of the predictors which we’ll collect into a vector $= (x_1,,x_n)^T, the targets which we’ll collect into a vector $ <span class="math inline">\(\mathbf{y}= (y_1,\ldots,y_n)^T\)</span>, and the parameters of the model (in this case, the function <span class="math inline">\(f\)</span> and the noise level <span class="math inline">\(\sigma\)</span>):</p>
 <div id="def-gaussian-likelihood" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.5 (Gaussian Likelihood, Log-Likelihood)</strong></span> The <em>likelihood</em> of the observed data <span class="math inline">\((\mathbf{x}, \mathbf{y})\)</span> under a 1d Gaussian model with function <span class="math inline">\(f\)</span> and noise level <span class="math inline">\(\sigma\)</span> is given by:</p>
+<p><span class="theorem-title"><strong>Definition 1.5 (Gaussian Likelihood, Log-Likelihood)</strong></span> The <em>likelihood</em> of the observed data <span class="math inline">\((\mathbf{x}, \mathbf{y})\)</span> under a 1d Gaussian model with function <span class="math inline">\(f\)</span> and noise level <span class="math inline">\(\sigma\)</span> is given by:</p>
 <p><span class="math display">\[
 \begin{aligned}
     L(\mathbf{x}, \mathbf{y}; f, \sigma) = \prod_{i = 1}^n p_{y}(y_i; f(x_i), \sigma^2)
@@ -657,12 +668,12 @@ Figure&nbsp;3.7: Illustration of the Gaussian noise model <a href="#eq-normal-no
 \begin{aligned}
     \mathcal{L}(\mathbf{x}, \mathbf{y}; f, \sigma) = \log L(\mathbf{x}, \mathbf{y}; f, \sigma) = \sum_{i = 1}^n \log p_{y}(y_i; f(x_i), \sigma^2)\;.
 \end{aligned}
-\tag{3.5}\]</span></span></p>
+\tag{1.5}\]</span></span></p>
 </div>
-<p>The log-likelihood <span class="math inline">\(\mathcal{L}\)</span> in <a href="#eq-log-likelihood" class="quarto-xref">Equation&nbsp;<span>3.5</span></a> is almost always the tool we work with in applied contexts – it turns products into sums, which is very useful in computational practice.</p>
+<p>The log-likelihood <span class="math inline">\(\mathcal{L}\)</span> in <a href="#eq-log-likelihood" class="quarto-xref">Equation&nbsp;<span>1.5</span></a> is almost always the tool we work with in applied contexts – it turns products into sums, which is very useful in computational practice.</p>
 <section id="a-first-look-likelihood-maximization" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="a-first-look-likelihood-maximization">A First Look: Likelihood Maximization</h3>
-<p>Let’s now finally fit a machine learning model! We’ll assume that the data is sampled from the linear-Gaussian model specified by <a href="#eq-gaussian-model" class="quarto-xref">Equation&nbsp;<span>3.3</span></a> and <a href="#eq-linear-signal-1d" class="quarto-xref">Equation&nbsp;<span>3.4</span></a>, and try to fit the parameters <span class="math inline">\(w_0, w_1\)</span> of the function <span class="math inline">\(f\)</span> to maximize the likelihood of the observed data. For now, we’ll do this simply by choosing the combination of parameters that achieves the best likelihood from among many candidates:</p>
+<p>Let’s now finally fit a machine learning model! We’ll assume that the data is sampled from the linear-Gaussian model specified by <a href="#eq-gaussian-model" class="quarto-xref">Equation&nbsp;<span>1.3</span></a> and <a href="#eq-linear-signal-1d" class="quarto-xref">Equation&nbsp;<span>1.4</span></a>, and try to fit the parameters <span class="math inline">\(w_0, w_1\)</span> of the function <span class="math inline">\(f\)</span> to maximize the likelihood of the observed data. For now, we’ll do this simply by choosing the combination of parameters that achieves the best likelihood from among many candidates:</p>
 <p>To see how the likelihood can give us a tool to assess model fit, we can compute the likelihood of our observed data for different choices of the function <span class="math inline">\(f\)</span>. This can be done in a simple grid search over possible values of the parameters <span class="math inline">\(w_0, w_1\)</span> in the linear function <span class="math inline">\(f(x) = w_0 + w_1 x\)</span>.</p>
 <div id="6534efd1" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-3"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> <span class="fl">3.0</span>  <span class="co"># assumed noise level</span></span>
@@ -727,7 +738,7 @@ Figure&nbsp;3.7: Illustration of the Gaussian noise model <a href="#eq-normal-no
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-likelihood-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.8: Comparison of the true signal (black dashed line) and the model fit by maximizing the likelihood (red dashed line).
+Figure&nbsp;1.8: Comparison of the true signal (black dashed line) and the model fit by maximizing the likelihood (red dashed line).
 </figcaption>
 </figure>
 </div>
@@ -1141,13 +1152,13 @@ Figure&nbsp;3.8: Comparison of the true signal (black dashed line) and the model
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../chapters/01-intro.html" class="pagination-link" aria-label="Introduction">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span>
+      <a href="../index.html" class="pagination-link" aria-label="Welcome">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Welcome</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../chapters/03-maximum-likelihood.html" class="pagination-link" aria-label="Maximum Likelihood Estimation and Gradients">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -1,6 +1,6 @@
 ---
 title: Maximum Likelihood Estimation and Gradients
-subtitle: Estimating parameters of data-generating distributions
+subtitle: Estimating parameters of data-generating distributions using calculus. 
 ---
 
 {{< include ../assets/includes/_colab-link.qmd >}}
@@ -20,7 +20,8 @@ import style
 
 ## Recap: Log-Likelihood of the Linear-Gaussian Model
 
-Recap recap recap 
+[Last time](02-signal-noise.qmd), we introduced the idea of modeling data as signal + noise, studied the Gaussian distribution as a model of noise, and introduced the linear-Gaussian model for prediction in the context of linear trends. We also derived the log-likelihood function for the linear-Gaussian model and introduced the idea that we could learn the signal of the data by maximizing the log-likelihood with respect to the model parameters. In this chapter, we'll begin our study of how to maximize the likelihood systematically using tools from calculus. 
+
 
 ## The Gradient of a Multivariate Function
 
@@ -86,50 +87,10 @@ $$
 
 :::
 
-::: {#exr-partial-derivative-gaussian}
 
-## Partial Derivatives of the Gaussian Log-Likelihood
+::: {#exr-partial-derivative-example-2}
 
-Suppose we have $n$ independent and identically-distributed samples $x_1,\ldots,x_n$ from a Gaussian distribution with unknown mean $\mu$ and known variance $\sigma^2$. The log-likelihood function for this data is 
-
-$$
-\begin{aligned}
-    \cL(\vx;\sigma^2,\mu) &= \sum_{i=1}^n \log p(x_i;\sigma^2,\mu) \\
-    &= \sum_{i=1}^n \log \left( \frac{1}{\sqrt{2\pi \sigma^2}} \exp\left( -\frac{(x_i - \mu)^2}{2\sigma^2} \right) \right) \\
-    &= \sum_{i=1}^n \left( -\frac{1}{2} \log(2\pi \sigma^2) - \frac{(x_i - \mu)^2}{2\sigma^2} \right) \\
-    &= -\frac{n}{2} \log(2\pi \sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^n (x_i - \mu)^2\;.
-\end{aligned}
-$$
-
-Compute $\frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \mu}$, the partial derivative of the log-likelihood with respect to the mean parameter $\mu$, and compute $\frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \sigma^2}$, the partial derivative with respect to the variance parameter $\sigma^2$. (Here, treat $\sigma^2$ as a single variable, not $\sigma$.)
-
-:::
-
-::: {.sol}
-
-## Solution for @exr-partial-derivative-gaussian
-
-To calculate $\frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \mu}$, we'll first treat $\sigma^2$ (and all the $x_i$'s) as constants and differentiate with respect to $\mu$. The first term in the log-likelihood does not depend on $\mu$, so its derivative is zero. For the second term, we need to use the chain rule: 
-
-$$
-\begin{aligned}
-    \frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \mu} &= -\frac{1}{2\sigma^2} \cdot \frac{\partial}{\partial \mu} \left( \sum_{i=1}^n (x_i - \mu)^2 \right) \\
-    &= -\frac{1}{2\sigma^2} \cdot  \left( \sum_{i=1}^n \frac{\partial}{\partial \mu}(x_i - \mu)^2 \right) \\
-    &= -\frac{1}{2\sigma^2} \cdot \sum_{i=1}^n 2(x_i - \mu)(-1) \\
-    &= \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu)\;.
-\end{aligned}
-$$
-
-Next we need to compute $\frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \sigma^2}$. This time, we treat $\mu$ (and all the $x_i$'s) as constants and differentiate with respect to $\sigma^2$. We again use the chain rule:
-
-$$
-\begin{aligned}
-    \frac{\partial \cL(\vx;\sigma^2,\mu)}{\partial \sigma^2} &= -\frac{n}{2} \cdot \frac{\partial}{\partial \sigma^2} \log(2\pi \sigma^2) - \frac{1}{2} \cdot \frac{\partial}{\partial \sigma^2} \left( \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu)^2 \right) \\
-    &= -\frac{n}{2} \cdot \frac{1}{2\pi \sigma^2} \cdot 2\pi - \frac{1}{2} \cdot \left( -\frac{1}{(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2 \right) \\
-    &= -\frac{n}{2\sigma^2} + \frac{1}{2(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2\;.
-\end{aligned}
-$$
-
+## Partial Derivative of the Gaussian Log-Likelihood
 
 
 :::
@@ -189,98 +150,51 @@ $$
 
 :::
 
-
 ::: {#exr-gradient-example-2}
 
-## Gradient of the Gaussian Log-Likelihood
-
-Write the gradient of the Gaussian log-likelihood function in @exr-partial-derivative-gaussian.
-
-:::
-
-::: sol
-
-## Solution for @exr-gradient-example-2
-
-For the likelihood of the Gaussian from @exr-partial-derivative-gaussian, the gradient is given by 
+Consider the *mean-squared error* function for a simple linear model with parameters $w_0$ and $w_1$:
 
 $$
 \begin{aligned}
-    \nabla \cL(\vx;\sigma^2,\mu) = 
-     \begin{pmatrix}
-    \frac{\partial \cL}{\partial \mu} \\ 
-    \frac{\partial \cL}{\partial \sigma^2}
-    \end{pmatrix} &= 
-    \begin{pmatrix}
-    \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu) \\ 
-    -\frac{n}{2\sigma^2} + \frac{1}{2(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2
-    \end{pmatrix}
-    \in \R^2\;.
+    R(\vx, \vy; w_0, w_1) = \frac{1}{n} \sum_{i = 1}^n (y_i - w_1x_i - w_0)^2\;. 
 \end{aligned}
 $$
 
+Compute the gradient $\nabla R(\vx, \vy; w_0, w_1)$ with respect to the parameters $w_0$ and $w_1$.
+
+*Note: we'll soon see that this function is closely related to the log-likelihood of the linear-Gaussian model*. 
+
 :::
 
-### The Gradient Points In the Direction of Greatest Increase
+::: {.sol}
 
-An important feature of the gradient is that it tells us the direction in which a small change in the function inputs $\vw$ could produce the greatest increase in the function output $f(\vw)$. Here's an example using the Gaussian likelihood from @exr-partial-derivative-gaussian and @exr-gradient-example-2:
+## Solution for @exr-gradient-example-2
 
-***TODO: HAS SOME ISSUES***
+We can compute the gradient by computing each partial derivative in turn:
 
+$$
+\begin{aligned}
+    \frac{\partial R}{\partial w_0} &= \frac{2}{n} (y_i - w_1x_i - w_0) \\ 
+    \frac{\partial R}{\partial w_1} &= \frac{-2}{n} x_i(y_i - w_1x_i - w_0) \;,
+\end{aligned}
+$$
+where we've used the rules for derivatives. Stacking these into a vector gives 
 
-```{python}
-import torch
-from matplotlib import pyplot as plt
-
-mu_grid = torch.linspace(-1, 1, 100)
-sigma2_grid = torch.linspace(0.1, 2, 100)
-MU, SIGMA2 = torch.meshgrid(mu_grid, sigma2_grid, indexing='ij')
-data = torch.tensor([0.5, -1.0, 1.0, 0.7, 0.3])  # example data points
-
-def gaussian_log_likelihood(mu, sigma2, data):
-    n = data.shape[0]
-    sum_term = 0
-    for x in data:
-        sum_term += (x - mu) ** 2
-
-    ll = -n / 2 * torch.log(2 * torch.pi * sigma2) - 1 / (2 * sigma2) * sum_term
-    return ll
-
-LL = gaussian_log_likelihood(MU, SIGMA2, data)
-
-fig, ax = plt.subplots()
-
-im = ax.contourf(LL.numpy(), levels=50, cmap='inferno')
-
-ax.set_yticks([0, 25, 50, 75, 99], labels=[f"{v:.2f}" for v in mu_grid[[0, 25, 50, 75, 99]]])
-ax.set_xticks([0, 25, 50, 75, 99], labels=[f"{v:.2f}" for v in sigma2_grid[[0, 25, 50, 75, 99]]])
-ax.set_ylabel(r'Mean ($\mu$)')
-ax.set_xlabel(r'Variance ($\sigma^2$)')
-
-i, j = 50, 50  # point at which to compute gradient
-mu_point = MU[i, j]
-sigma2_point = SIGMA2[i, j]
-
-mu_point.requires_grad_()
-sigma2_point.requires_grad_()
-
-ll_point = gaussian_log_likelihood(mu_point, sigma2_point, data)
-ll_point.backward()
+$$
+\begin{aligned}
+    \nabla R(\vx, \vy; w_0, w_1) = \frac{2}{n} \begin{pmatrix}
+    \sum_{i=1}^n (y_i - w_1x_i - w_0) \\
+    \sum_{i=1}^n x_i (y_i - w_1x_i - w_0)
+    \end{pmatrix}
+\end{aligned}
+$$
 
 
-ax.annotate(
-    'Gradient Vector',
-    xy=(i+5*sigma2_point.grad.detach().numpy(),j+5*mu_point.grad.detach().numpy()),
-    xytext=(i,j),
-    arrowprops=dict(facecolor='white', arrowstyle='->', lw=1.5, color='white'), 
-    xycoords='data',
-)
 
-plt.colorbar(im)
-ax.set_title('Gradient of Gaussian Log-Likelihood at a Point')
-plt.show()
 
-```
+:::
+
+
 
 
 
@@ -318,6 +232,79 @@ print(x.grad) #<3>
 
 The two approaches agree! As we grow comfortable with the calculus, we'll begin to rely more on torch's automatic differentiation capabilities to compute gradients for us.
 
+### The Gradient Points In the Direction of Greatest Increase
+
+An important feature of the gradient is that it tells us the direction in which a small change in the function inputs $\vw$ could produce the greatest increase in the function output $f(\vw)$. Here's an example using the function from @exr-gradient-example-2. `torch` makes it very easy to implement this function. 
+
+```{python}
+#---
+def MSE(x, y, w0, w1):
+    return -((y - (w1 * x + w0))**2).mean()
+#---
+```
+
+We first plot the function as a function of the parameters $w_0$ and $w_1$ and then we overlay arrows representing the gradients at various points in the $(w_0, w_1)$ space, with the gradients calculated via automatic differentiation in `torch`. 
+
+
+::: {#fig-mse}
+```{python}
+#| code-fold: true
+
+from matplotlib import pyplot as plt
+
+# create the grid of (mu, sigma^2) values and the data
+w0_grid = torch.linspace(-1, 1, 100)
+w1_grid = torch.linspace(0.1, 2, 100)
+W0, W1 = torch.meshgrid(w0_grid, w1_grid, indexing='ij')
+
+x = torch.tensor([0.5, -1.0, 1.0, 0.7, 0.3])  # example data points
+y = torch.tensor([1.0, 0.0, 2.0, 1.5, 0.5])
+
+LL = torch.zeros(W0.shape)
+for i in range(W0.shape[0]):
+    for j in range(W0.shape[1]):
+        LL[i, j] = MSE(x, y, W0[i, j], W1[i, j])
+
+
+# initialize the figure 
+fig, ax = plt.subplots()
+
+# show the log-likelihood as a contour plot
+im = ax.contourf(LL.numpy(), levels=100, cmap='inferno', extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+ax.contour(LL.numpy(), levels=100, colors='black', linewidths=0.5, extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+
+ax.set_ylabel(r'$w_1$')
+ax.set_xlabel(r'$w_0$')
+
+# compute and plot the gradients at various points
+for w0, w1 in [( -0.5, 1.5), (0.0, 1.0), (0.5, 1.5), (.25, 0.5), (0.75, 1.0)]:
+    w0_tensor = torch.tensor(w0, requires_grad=True)
+    w1_tensor = torch.tensor(w1, requires_grad=True)
+    
+    ll = MSE(x, y, w0_tensor, w1_tensor)
+    ll.backward()
+    
+    grad_w0 = w0_tensor.grad.item()
+    grad_w1 = w1_tensor.grad.item()
+    
+    ax.quiver(w1, w0, grad_w1, grad_w0, color='black', scale=20, width=0.01)
+    ax.scatter(w1, w0, color='black', s=30)
+
+plt.colorbar(im)
+ax.set_title('Gradients of the mean-squared error')
+plt.show()
+```
+
+Visualization of the gradients of the mean-squared error function with respect to the parameters $w_0$ and $w_1$. The background color indicates the value of the mean-squared error, with lighter colors representing higher values. Dotted curves give contours along which the function is constant. The black arrows represent the gradients at various points in the $(w_0, w_1)$ space, pointing in the direction of greatest increase of the mean-squared error function.
+
+:::
+
+Two observations about @fig-mse are worth noting:
+
+1. The gradient arrows always point uphill and are orthogonal (at right angles with) to the contour lines of the function.
+1. The gradient arrows get smaller as we approach the maximum of the log-likelihood function, eventually becoming zero at the maximum itself.
+
+Both of these features are possible to prove mathematically, although we won't do so here. 
 
 ## Critical Points and Local Extrema
 
@@ -386,51 +373,10 @@ Although our motivating problem is still *maximum* likelihood estimation, it is 
 
 Equipped with the concept of critical points, we are ready to find maximum likelihood estimates by solving the equation $\nabla \cL(\vw) = \vzero$.
 
-::: {#exr-gaussian-parameters}
-
-## Estimating Gaussian Parameters
-
-Using the gradient $\nabla \cL(\vx;\sigma^2,\mu)$ computed in @exr-gradient-example-2, find the maximum likelihood estimates for the mean $\mu$ and variance $\sigma^2$ of a Gaussian distribution given $n$ independent and identically-distributed samples $x_1,\ldots,x_n$.
-
-:::
-
-::: sol 
-
-## Solution for @exr-gaussian-parameters
-
-We can find the critical points of the log-likelihood by solving the system of equations given by setting each component of the gradient to zero:
-
-$$
-\begin{align}
-    \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu) &= 0 \\ 
-    -\frac{n}{2\sigma^2} + \frac{1}{2(\sigma^2)^2}  \sum_{i=1}^n (x_i - \mu)^2 &= 0\;.    
-\end{align}
-$$
-
-Solving the first equation for $\mu$, we find 
-
-$$
-\begin{aligned}
-    \frac{1}{\sigma^2} \sum_{i = 1}^n x_i - \frac{1}{\sigma^2} \mu = 0 &\implies \sum_{i=1}^n x_i = n \mu \implies \mu = \frac{1}{n} \sum_{i=1}^n x_i\;.
-\end{aligned}
-$$
-
-We can now solve for $\sigma^2$ using this value of $\mu$ in the second equation:
-
-$$
-\begin{aligned}
-    -\frac{n}{2\sigma^2} + \frac{1}{2(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2 &= 0 \\ 
-    \implies \frac{1}{2(\sigma^2)^2} \sum_{i=1}^n (x_i - \mu)^2 &= \frac{n}{2\sigma^2} \\ 
-    \implies \sum_{i=1}^n (x_i - \mu)^2 &= n \sigma^2 \\ 
-    \implies \sigma^2 &= \frac{1}{n} \sum_{i=1}^n (x_i - \mu)^2\;.
-\end{aligned}
-$$
-
-:::
 
 By convention, the maximum-likelihood estimate of a parameter is given a "hat" symbol, so we would write the MLE estimators we found above as $\hat{\mu}$ and $\hat{\sigma}^2$.
 
-## Gradient of the Linear-Gaussian Log-Likelihood 
+## Revisiting the Linear-Gaussian Log-Likelihood 
 
 Let's now consider the linear-Gaussian model from [last chapter](02-signal-noise.qmd). In this model, we assume that each observed target variable $y_i$ is sampled from a Gaussian distribution with mean equal to a linear function of the corresponding feature vector $x_i$:
 
@@ -448,17 +394,16 @@ $$
     &= \sum_{i = 1}^n \log \left( \frac{1}{\sqrt{2\pi \sigma^2}} \exp\left( -\frac{(y_i - (w_1 x_i + w_0))^2}{2\sigma^2} \right) \right) \\
     &= \sum_{i = 1}^n \left( -\frac{1}{2} \log(2\pi \sigma^2) - \frac{(y_i - (w_1 x_i + w_0))^2}{2\sigma^2} \right) \\
     &= \underbrace{-\frac{n}{2} \log(2\pi \sigma^2)}_{C} - \frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - (w_1 x_i + w_0))^2 \\ 
-    &= C - \frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - w_1 x_i - w_0)^2\;.
+    &= C - \frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - w_1 x_i - w_0)^2 \\ 
+    &= C - \frac{n}{2\sigma^2} \cdot \frac{1}{n} \sum_{i=1}^n (y_i - w_1 x_i - w_0)^2 \\ 
+    &= C - \frac{n}{2\sigma^2} R(\vx, \vy; w_0, w_1)\;.
 \end{aligned}
-$$
+$${#eq-linear-gaussian-to-mse}
 
-We've collected the terms that do not depend on $w_0$ or $w_1$ into a constant $C$ to simplify the expression. We observe that to maximize the log-likelihood with respect to $w_0$ and $w_1$, we can equivalently minimize the *mean-squared error* $R(\vx, \vy; w_0, w_1) = \frac{1}{n}\sum_{i=1}^n (y_i - w_1 x_i - w_0)^2$. [It's conventional to normalize the sum appearing in the final line by the constant $\frac{1}{n}$.]{.aside} So, to find $\hat{w}_0$ and $\hat{w}_1$, we can solve the system of equations given by setting the gradient of the negative log-likelihood to zero:
+We've collected terms that do not depend on $w_0$ or $w_1$ into a constant term $C$, and noticed that there's a copy of the mean-squared error function $R(\vx, \vy; w_0, w_1) = \frac{1}{n}\sum_{i=1}^n (y_i - w_1 x_i - w_0)^2$ from @exr-gradient-example-2 appearing in the likelihood expression. Indeed, this term is the only that involves the parameters $w_0$ and $w_1$. This means: 
 
-$$
-\begin{aligned}
-    \nabla R(\vx, \vy; w_0, w_1) &= \vzero\;.
-\end{aligned}
-$$
+> To **maximize** the likelihood $\cL$ with respect to $w_0$ and $w_1$, we can equivalently **minimize** the mean-squared error $R(\vx, \vy; w_0, w_1)$.
+
 
 ::: {#exr-linear-gaussian-gradient}
 
@@ -487,54 +432,180 @@ $$
 $$
 
 
-
 :::
-
-::: {#exr-linear-gaussian-mle}
-
-Compute the maximum-likelihood estimates $\hat{w}_0$ and $\hat{w}_1$ for the linear-Gaussian model by solving the system of equations given by setting the gradient computed in @exr-linear-gaussian-gradient to zero.
-
-:::
-
-::: {.sol}
-
-## Solution for @exr-linear-gaussian-mle
-
-We'll start with the first equation and solve for $\hat{w}_0$:
-
-$$
-\begin{aligned}
-    \frac{\partial R}{\partial w_0} = -\frac{2}{n} \sum_{i=1}^n (y_i - \hat{w}_1 x_i - \hat{w}_0) &= 0 \\ 
-    \implies \sum_{i=1}^n y_i - \hat{w}_1 \sum_{i=1}^n x_i - n \hat{w}_0 &= 0 \\ 
-    \implies n \hat{w}_0 &= \sum_{i=1}^n y_i - \hat{w}_1 \sum_{i=1}^n x_i \\ 
-    \implies\hat{w}_0 &= \frac{1}{n} \sum_{i=1}^n y_i - \hat{w}_1 \frac{1}{n} \sum_{i=1}^n x_i \\ 
-    &= \bar{y} - \hat{w}_1 \bar{x}\;,
-\end{aligned}
-$$
-
-where we've defined $\bar{y} = \frac{1}{n} \sum_{i=1}^n y_i$ and $\bar{x} = \frac{1}{n} \sum_{i=1}^n x_i$ to be the sample means of the $y_i$'s and $x_i$'s, respectively. 
-
-Now we need to solve for $\hat{w}_1$ using this value of $\hat{w}_0$ in the second equation:
-
-$$
-\begin{aligned}
-    \frac{\partial R}{\partial w_1} = -\frac{2}{n} \sum_{i=1}^n x_i (y_i - \hat{w}_1 x_i - \hat{w}_0) &= 0 \\ 
-    \implies -\frac{2}{n} \sum_{i=1}^n x_i (y_i - \hat{w}_1 x_i - \bar{y} + \hat{w}_1 \bar{x}) &= 0 \\ 
-    \implies -\frac{2}{n} \sum_{i=1}^n x_i (y_i - \bar{y} + \hat{w}_1 (\bar{x} - x_i)) &= 0 \\
-    \implies \sum_{i=1}^n x_i (y_i - \bar{y}) + \hat{w}_1 \sum_{i=1}^n x_i (\bar{x} - x_i) &= 0 \\
-    \implies \hat{w}_1 \sum_{i=1}^n x_i (\bar{x} - x_i) &= - \sum_{i=1}^n x_i (y_i - \bar{y}) \\ 
-    \implies \hat{w}_1 &= \frac{- \sum_{i=1}^n x_i (y_i - \bar{y})}{\sum_{i=1}^n x_i (\bar{x} - x_i)} \\ 
-    &= \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2}\
-\end{aligned}
-$$
-
-:::
-
-
-
 
 ## A First Look: Gradient Descent for Maximum Likelihood Estimation
 
-## Deriving and Checking Gradient Formulas
+Now that we have tools to compute gradients, we can use these gradients to find maximum-likelihood estimates numerically using a *gradient method*. There are many kinds of gradient methods, and they all have in common a simple idea:
 
-## A Complete Example: Gradient Descent for Laplace Regression
+
+::: {#def-gradient-method}
+
+## Gradient Methods
+
+A *gradient method* for optimizing a multivariate function $f:\R^p\rightarrow \R$ is an iterative algorithm which starts from an initial guess $\vw^{(0)} \in \R^p$ and produces a sequence of estimates $\vw^{(1)}, \vw^{(2)}, \ldots$ by repeatedly updating the current estimate $\vw^{(t)}$ in the direction of the negative gradient $-\nabla f(\vw^{(t)})$, or some approximation thereof. 
+
+:::
+
+The simplest gradient method is *gradient descent* with *fixed learning rate*: 
+
+::: {#def-gradient-descent}
+
+## Gradient Descent
+
+*Gradient descent* is an algorithm that iterates the update
+
+$$
+\begin{aligned}
+    \vw^{(t+1)} = \vw^{(t)} - \alpha\nabla f(\vw^{(t)})\;,
+\end{aligned}
+$$
+
+where $\alpha \in \R_{>0}$ is a fixed hyperparameter called the *learning rate*.
+
+:::
+
+Let's use gradient descent to find maximum-likelihood estimates for the parameters of the linear-Gaussian model in a simple example. To visualize gradient descent, we'll start by implementing a function for the linear-Gaussian log-likelihood in terms of the parameters $w_0$ and $w_1$: 
+
+Then we'll generate some synthetic data from a linear-Gaussian model with known parameters:
+
+
+```{python}
+# true parameters
+#---
+w0 = torch.tensor(0.0)
+w1 = torch.tensor(2.0)
+sigma2 = torch.tensor(1.0)
+#---
+
+# observed data
+#---
+x = torch.linspace(-2, 2, 101)
+y = w1 * x + w0 + torch.sqrt(sigma2) * torch.randn_like(x)
+#---
+```
+
+::: {#fig-linear-gaussian-data}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(figsize = (6, 4))
+ax.scatter(x, y, color='steelblue', s=10)
+ax.set_xlabel('Feature (x)')
+ax.set_ylabel('Target (y)')
+t = ax.set_title('Observed Data from Linear-Gaussian Model')
+```
+
+Sample data from a linear-Gaussian model with true parameters $w_0 = 0$, $w_1 = 2$, and $\sigma^2 = 1$.
+
+:::
+
+Our aim in maximum likelihood estimation is to find estimators $\hat{w}_0$ and $\hat{w}_1$ which maximize the log-likelihood of the observed data. As we saw in @eq-linear-gaussian-to-mse, maximizing the log-likelihood is equivalent to minimizing the mean-squared error between the observed targets $y_i$ and the linear predictions $w_1 x_i + w_0$. Let's go ahead and plot the mean-squared error: 
+
+::: {#fig-linear-gaussian-log-likelihood}
+
+```{python}
+#| code-fold: true
+w0_grid = torch.linspace(-1, 1, 100)
+w1_grid = torch.linspace(1, 3, 100)
+
+W0, W1 = torch.meshgrid(w0_grid, w1_grid, indexing='ij')
+
+LL = torch.zeros(W0.shape)
+
+for i in range(W0.shape[0]):
+    for j in range(W0.shape[1]):
+        LL[i, j] = -MSE(x, y, W0[i, j], W1[i, j])
+
+# visualize the log-likelihood surface
+fig, ax = plt.subplots(figsize=(6, 5))
+
+im = ax.contourf(LL.numpy(), levels=20, cmap='inferno_r', extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+ax.contour(LL.numpy(), levels=20, colors='black', linewidths=0.5, extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+ax.set_ylabel(r'Intercept ($w_0$)')
+ax.set_xlabel(r'Slope ($w_1$)')
+plt.colorbar(im, ax=ax)
+ax.set_title('Mean-squared error for linear-Gaussian model')
+
+ax.scatter([w1], [w0], color='black', s=50, label='True Parameters', facecolors='white')
+```
+
+Mean-squared error $R(\vx, \vy; w_0, w_1)$ for the linear-Gaussian model as a function of the intercept $w_0$ and slope $w_1$ with the data shown in @fig-linear-gaussian-data. The dot indicates the location of the true parameters used to generate the data. 
+
+:::
+
+::: {.question}
+
+> Why does this surface have only one minimum, and why is that minimum so close to the true parameters used to generate the data? Seems pretty convenient! 
+
+It is convenient! The uniqueness of the local minimum is due to a property called *convexity* that we'll study later in the course. The closeness of the minimum to the true parameters is a consequence of the *consistency* property of maximum-likelihood estimators, which you can study in courses on statistical inference. 
+
+:::
+
+
+The gradient descent algorithm will start from an initial guess for the parameters $(w_0, w_1)$ and iteratively update this guess in the direction of the negative gradient of the negative log-likelihood. We'll implement this with a simple for-loop: 
+
+```{python}
+
+# algorithm parameters
+learning_rate = 0.05
+num_iterations = 20
+n = x.shape[0] # number of data points
+
+# initial guesses
+w0_est = torch.tensor(-0.5, requires_grad=True)
+w1_est = torch.tensor(1.5, requires_grad=True)
+
+# store the history of estimates
+w0_history = [w0_est.item()]
+w1_history = [w1_est.item()]
+
+# main loop
+for t in range(num_iterations):
+
+    w0_grad = -2/n * torch.sum(y - (w1_est * x + w0_est))  #<1>
+    w1_grad = -2/n * torch.sum(x * (y - (w1_est * x + w0_est)))  #<2>
+
+    w1_est = w1_est - learning_rate * w1_grad  #<3>
+    w0_est = w0_est - learning_rate * w0_grad  #<4> 
+    
+    # store the history of estimates
+    w0_history.append(w0_est.item())
+    w1_history.append(w1_est.item())
+#---
+```
+1. Compute the gradient of the negative log-likelihood with respect to $w_0$ using the formula derived in @exr-linear-gaussian-gradient.
+2. Compute the gradient of the negative log-likelihood with respect to $w_1$ using the formula derived in @exr-linear-gaussian-gradient.
+3. Update the estimate of $w_1$ by taking a step in the direction of the negative gradient, scaled by the learning rate.
+4. Update the estimate of $w_0$ by taking a step in the direction of the negative gradient, scaled by the learning rate.
+
+@fig-linear-gaussian-gradient-descent shows the trajectory of the gradient descent algorithm on the negative log-likelihood surface, ultimately landing near the minimal value of the MSE and close to the true parameters used to generate the data. We also show the fitted linear model corresponding to the final estimates of $w_0$ and $w_1$, which visually agrees well with the data. 
+
+::: {#fig-linear-gaussian-gradient-descent}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 2, figsize=(8, 3))
+
+im = ax[0].contourf(LL.numpy(), levels=20, cmap='inferno_r', extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+ax[0].contour(LL.numpy(), levels=20, colors='black', linewidths=0.5, extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+ax[0].set_ylabel(r'Intercept ($w_0$)')
+ax[0].set_xlabel(r'Slope ($w_1$)')
+plt.colorbar(im, ax=ax[0])
+ax[0].set_title('Mean-squared error for\nlinear-Gaussian model')
+ax[0].plot(w1_history, w0_history, marker='o', color='black', label='Gradient Descent Path', markersize=3)
+ax[0].scatter([w1], [w0], color='black', s=50, label='True Parameters', facecolors='white')
+
+ax[1].scatter(x, y, color='steelblue', s=10, label='Observed Data')
+ax[1].plot(x, w1_est.detach().item() * x + w0_est.detach().item(), color='black', label='Fitted Line', linestyle='--')
+ax[1].legend()
+ax[1].set_xlabel('Feature (x)')
+ax[1].set_ylabel('Target (y)')
+t = ax[1].set_title('Fitted model')
+```
+
+Trajectory of the gradient descent algorithm (black line with dots) on the negative log-likelihood surface for the linear-Gaussian model from @fig-linear-gaussian-log-likelihood. The starting point of the algorithm is at the beginning of the line, and each dot represents an iteration of the algorithm. The dot indicates the location of the true parameters used to generate the data.
+
+::: 
+
+We have just completed a simple implementation of our first machine learning algorithm: gradient descent for 1d linear-Gaussian regression via maximum likelihood estimation. This algorithm appears to successfully learn the linear trend present in the data, as shown in the right panel of @fig-linear-gaussian-gradient-descent.

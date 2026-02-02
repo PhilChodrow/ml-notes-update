@@ -1,71 +1,41 @@
----
-title: Welcome!
-subtitle: test
----
+# Welcome {.unnumbered}
 
-{{< include assets/includes/_colab-link.qmd >}}
+This is a set of notes developed for an undergraduate course in machine learning. The target audience for these notes are undergraduates in computer science who have completed first courses in linear algebra and discrete mathematics. These notes draw on many sources, but are somewhat distinctive in the following ways: 
 
-::: {.content-hidden}
+- The technical focus is almost exclusively on smooth methods for empirical risk minimization in supervised regression and, especially, classification. These notes do not attempt to be a broad survey of all of machine learning. Especially important topics which are largely untreated include decision trees, random forests, and most unsupervised techniques.  
+- The social impacts of automated decision technologies--including bias, fairness, and harm--are considered as first-class topics which occupy a substantial fraction of the notes. 
+- Minimal familiarity with probability is assumed. Continuous probability does not appear explicitly, and discrete probability is introduced "from the ground up" as needed. 
 
-## Boilerplate preamble for LaTeX macros and Python viz style
-$$
-{{< include assets/includes/_macros.tex >}}
-$$
+## Pedagogical Features
 
-```{python}
-import assets.python_style.style
-```
-:::
+These notes are explicitly designed for undergraduate instruction in computer science. For this reason: 
 
+- Computational examples are integrated into the text and shown throughout. 
+- Live versions of lecture notes are supplied as downloadable Jupyter Notebooks, with certain code components removed. The purpose is to facilitate live-coding in lectures. 
 
-## Mathematics [X]
+## Use and Reuse
 
-We're going to do some basic tests in this file. Math now seems to work using the include above. 
+These notes were written by  [Phil Chodrow](www.philchodrow.prof) for the course CSCI 0451: Machine Learning at Middlebury College. All are welcome to use them for educational purposes. Attribution is appreciated but not expected. 
 
+## Source Texts
 
-$$
-\begin{aligned}
-    \prob(X) = y
-\end{aligned}
-$$
+These notes draw on several source texts, most of which are available for free online. These are: 
 
+- @bishop2023deep is the primary influence for the development of technical content. 
+- @hardtPatternsPredictionsActions2022 has been a very helpful guiding influence for content on decision-theory and automated decision systems. 
+- [A Course in Machine Learning](http://ciml.info/) by Hal Daumé III is an accessible introduction to many of the topics and serves as a useful source of supplementary readings.
 
-## Python Interpreter [X]
+Additional useful readings: 
 
-Use an Anaconda environment
+- @abu-mostafaLearningDataShort2012: *[Learning From Data: A Short Course](https://amlbook.com/)* 
+- @barocasFairnessMachineLearning2023 is an advanced text on questions of fairness in automated decision-making for readers who have some background in probability theory. 
+- @bishopPatternRecognitionMachine2006 and @murphyProbabilisticMachineLearning2022a are advanced texts which are most suitable for advanced readers who have already taken at least one course in probability theory.  
+- @deisenrothMathematicsMachineLearning2020 and @kroeseDataScienceMachine2020 are useful readings focusing on some of the mathematical fundamentals. 
+- @zhangDiveDeepLearning2023 tells a helpful story of the fundamentals of deep learning.  
 
-```{python}
-import torch 
-from matplotlib import pyplot as plt
+## Acknowledgements
 
-print(torch.__version__)
+This site was generated using the [Quarto](https://quarto.org/) publishing system. It is hosted on GitHub and published via GitHub Pages. 
 
-X = torch.linspace(0, 10, steps=100)
-Y = torch.sin(X)
+## References
 
-plt.plot(X.numpy(), Y.numpy())
-plt.show()
-```
-
-Did we see the thing?
-
-{{< meta solution >}}
-
-
-::: {.content-hidden unless-meta="solution"}
-
-This is some hidden notes that will only appear in the local version. 
-
-
-:::
-
-
-## Strip the delimiters for hidden code [X]
-
-## Colab link via an include [X]
-
-## Strip solutions and hidden content (e.g. notes) in online website version. [X]
-
-
-
-## Don't strip solutions and hidden content in local notes version. [X]

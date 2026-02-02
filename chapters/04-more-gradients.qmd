@@ -1,0 +1,449 @@
+---
+title: Higher Dimensions
+subtitle: Working with models and gradients with many features
+---
+
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+## Recap
+
+[Last time](03-maximum-likelihood.qmd), we developed an end-to-end example of maximum-likelihood estimation for the 1-dimensional linear-Gaussian model, which allowed us to fit a regression line to data displaying a linear trend. We saw that we could use the gradient of the log-likelihood function (or in this case, equivalently, the mean-squared error) to iteratively update a guess for the optimal parameters using gradient descent. 
+
+The model we learned to fit had two parameters, $w_1$ and $w_0$. However, modern models have vastly more parameters, with frontier LLMs having parameter counts nearing the trillions. In order to reason about these models, we need to build fluency in reasoning about high-dimensional spaces of parameters. We turn to this now, with a focus on multivariate linear regression. 
+
+## Multivariate Linear-Gaussian Model
+
+Recall that the 1-dimensional linear-Gaussian model assumed that the target variable $y$ was generated from a linear function of a single feature $x$ plus Gaussian noise. We can write this as: 
+
+$$
+\begin{aligned}
+    y_i \sim \mathcal{N}(w_1 x_i + w_0, \sigma^2)
+\end{aligned}
+$$
+
+Suppose now that we have more than one predictive feature, which we would like to use in our model. Given $p$ features $x_1,\ldots,x_p$, we can extend the linear-Gaussian model to incorpoate all of them: 
+
+$$
+\begin{aligned}
+    y_i \sim \mathcal{N}(w_1 x_{i1} + w_2 x_{i2} + \cdots + w_p x_{ip} + w_0, \sigma^2) = \mathcal{N}\left(\sum_{j=1}^p w_j x_{ij} + w_0, \sigma^2\right)
+\end{aligned}
+$${#eq-multivar-linear-gaussian-verbose}
+
+Here's a visualization of a regression model with two features, $x_1$ and $x_2$, alongside the plane defined by the linear function of these features.
+
+
+```{python}
+#| column: margin
+#| echo: false
+#| fig-cap: "3D Scatter Plot of Synthetic Data with Regression Plane and Residuals"
+import torch 
+from matplotlib import pyplot as plt
+
+# Generate synthetic data
+torch.manual_seed(0)
+n_samples = 100
+X = torch.randn(n_samples, 2)
+true_w = torch.tensor([1.0, 1.0])
+true_b = 1.0
+y = X @ true_w + true_b + 1 * torch.randn(n_samples)
+
+# Plot the data
+fig = plt.figure(figsize=(4, 3))
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(X[:, 0].numpy(), X[:, 1].numpy(), y.numpy(), c='b', marker='o')
+ax.set_xlabel(r'Feature $x_1$')
+ax.set_ylabel(r'Feature $x_2$')
+ax.set_zlabel('Target y')
+ax.set_title('3D Scatter Plot of Synthetic Data')
+
+# plot the regression plane
+xx1, xx2 = torch.meshgrid(torch.linspace(-3, 3, 10), torch.linspace(-3, 3, 10))
+zz = true_w[0] * xx1 + true_w[1] * xx2 + true_b
+ax.plot_surface(xx1.numpy(), xx2.numpy(), zz.numpy(), alpha=0.2, color='b')
+
+# plot the residuals
+for i in range(n_samples):
+    ax.plot([X[i, 0].item(), X[i, 0].item()], 
+            [X[i, 1].item(), X[i, 1].item()], 
+            [y[i].item(), (true_w @ X[i] + true_b).item()], 
+            c='black', alpha=0.5, linestyle='--')
+
+plt.show()
+```
+
+
+
+In order to write down @eq-multivar-linear-gaussian-verbose more compactly, we need to introduce some notation. We'll collect the features for data point $i$ into a vector:
+
+$$
+\begin{aligned}
+    \vx_i = (x_{i0}, x_{i1},x_{i2},\ldots,x_{ip})
+\end{aligned}
+$$
+
+where we assume that $x_{i0} = 1$ is a constant feature included to capture the intercept term $w_0$. We also collect the parameters into a vector: 
+
+$$
+\begin{aligned}
+    \vw = (w_0, w_1, w_2, \ldots, w_p)
+\end{aligned}
+$$
+
+With this notation, we can rewrite the sum appearing in the mean of the Gaussian in @eq-multivar-linear-gaussian-verbose as an inner product between the feature vector $\vx_i$ and the parameter vector $\vw$: [An inner product is also often called a dot product. @eq-inner-product can equivalently be written with the notation $\iprod{\vx_i}{\vw} = \vx_i \cdot \vw = \brackets{\vx_i,\vw}$.]{.aside}
+
+
+
+$$
+\begin{aligned}
+    \iprod{\vx_i}{\vw} =  \sum_{j=0}^p w_j x_{ij} = 1\cdot w_0 + \sum_{j=1}^p w_j x_{ij} = 1\cdot w_0 + \sum_{j=1}^p w_j x_{ij}\;. 
+\end{aligned}
+$${#eq-inner-product}
+
+The choice of $x_{i0} = 1$ ensures that the intercept term $w_0$ is included in the inner product. This is so convenient that we'll assume it from now on.
+
+::: {.callout-note}
+
+## Assumption
+
+From this point forwards, we assume that the feature vector $\vx_i$ begins with a constant feature $x_{i0} = 1$. 
+
+:::
+
+
+This notation allows us to compactly rewrite the multivariate linear-Gaussian model as:
+
+$$
+\begin{aligned}
+    y_i \sim \cN(\iprod{\vx_i} {\vw}, \sigma^2)
+\end{aligned}
+$$
+
+regardless of the number of features. We can make things even a bit simpler by defining a *score* $s_i$ associated to each data point $i$:
+
+$$
+\begin{aligned}
+    s_i = \iprod{\vx_i} {\vw}
+\end{aligned}
+$${#eq-linear-score}
+
+after which we can write:
+$$
+\begin{aligned}
+    y_i \sim \cN(s_i, \sigma^2)
+\end{aligned}
+$$
+
+### Log-Likelihood and Mean-Squared Error
+
+The log-likelihood function of the multivariate linear-Gaussian model is given by 
+
+$$
+\begin{aligned}
+    \cL(\vw) &= \sum_{i=1}^n \log p_Y(y_i ; s_i \sigma^2) \\
+    &= \sum_{i=1}^n \log \left( \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left(-\frac{(y_i - s_i)^2}{2 \sigma^2}\right) \right) \\
+    &= -\frac{n}{2} \log(2 \pi \sigma^2) - \frac{1}{2 \sigma^2} \sum_{i=1}^n (y_i - s_i)^2\;,
+\end{aligned}
+$$
+
+which, like last time, means that our maximum-likelihood estimation problem is equivalent to minimizing the mean-squared error between the observed targets $y_i$ and the scores $s_i$:
+
+$$
+\begin{aligned}
+    R(\vx, \vy; \vw) = \frac{1}{n} \sum_{i=1}^n (y_i - s_i)^2 = \frac{1}{n} \sum_{i=1}^n (y_i - \iprod{\vx_i} {\vw})^2\;.
+\end{aligned}
+$$
+
+In theory, we're ready to start taking gradients and minimizing this function. However, it's helpful to try to first simplify our notation *even more*, which we can do with the introduction of matrix and norm notation.
+
+### Matrices and Norms
+
+Recall that the *Euclidean norm* of a vector $\vv \in \R^d$ is defined by the formula [More generally, the $\ell_p$-norm of vector $\vv$ is defined by the equation 
+$$
+\begin{aligned}
+    \norm{\vv}_p = \sqrt[p]{\sum_{j = 1}^d v_j^p}\;.
+\end{aligned}
+$$
+For simplicity, whenever we write $\norm{\vv}$ without a subscript, we mean the $\ell_2$-norm, i.e. $\norm{\vv} = \norm{\vv}_2$.
+]{.aside}
+
+$$
+\begin{aligned}
+    \norm{\vv}^2 = \sum_{j=1}^d v_j^2\;.
+\end{aligned}
+$$
+
+The norm notation allows us to eliminate the explicit summation in favor of vector operations: 
+
+$$
+\begin{aligned}
+    R(\vx, \vy; \vw) = \frac{1}{n} \norm{\vy - \vs}^2\;,
+\end{aligned}
+$$
+
+where $\vs$ is the vector of scores for all data points, whose $i$th entry is given by @eq-linear-score. Our last step is to give a compact formula for $\vs$. To do this, we collect all of the feature vectors $\vx_i$ into a matrix $\mX \in \R^{n \times (p+1)}$, whose $i$th row is given by $\vx_i^T$:
+
+$$
+\begin{aligned}
+    \mX = \left[\begin{matrix} 
+    - & \vx_1^T & - \\
+    - & \vx_2^T & - \\
+    & \vdots & \\
+    - & \vx_n^T & -
+    \end{matrix}\right]\;.
+\end{aligned}
+$$
+
+Now, if we multiply the matrix $\mX$ by the parameter vector $\vw$, we obtain 
+
+$$
+\begin{aligned}
+    \mX\vw = \left[\begin{matrix} 
+    - & \vx_1^T & - \\
+    - & \vx_2^T & - \\
+    & \vdots & \\
+    - & \vx_n^T & -
+    \end{matrix}\right] \vw = \left[\begin{matrix}
+    \iprod{\vx_1}{\vw} \\
+    \iprod{\vx_2}{\vw} \\
+    \vdots \\
+    \iprod{\vx_n}{\vw}
+    \end{matrix}\right] = 
+    \left[\begin{matrix}
+    s_1 \\
+    s_2 \\
+    \vdots \\
+    s_n
+    \end{matrix}\right] = 
+    \vs\;,
+\end{aligned}
+$$
+
+This gives us our compact formula for the MSE: 
+
+$$
+\begin{aligned}
+    R(\vx, \vy; \vw) = \frac{1}{n}\norm{\mX \vw - \vy}^2\;.
+\end{aligned}
+$${#eq-mse-matrix-form}
+
+The maximum-likelihood problem for the multivariate linear-Gaussian model can therefore be written [Since the $\frac{1}{n}$ is a positive constant, it does not affect the location of the minimum and can be ignored in the optimization problem.]{.aside}
+
+$$
+\begin{aligned}
+    \hat{\vw} = \argmin_\vw \norm{\mX \vw - \vy}^2\;. 
+\end{aligned}
+$${#eq-mse-optimization}
+
+## Deriving and Checking Gradient Formulas
+
+To solve the optimization problem in @eq-mse-optimization, we will need the gradient of $R$ with respect to $\vw$. To do so, we'll highlight two approaches. 
+
+### Entrywise Derivation
+
+To compute the gradient of $R$ entrywise, we start by explicitly rewriting $R$ in summation notation, avoiding matrix and vector notation for the moment:
+
+$$
+\begin{aligned}
+    R(\vx, \vy; \vw) = \frac{1}{n} \sum_{i=1}^n (y_i - \iprod{\vx_i}{\vw})^2 = \frac{1}{n} \sum_{i=1}^n (y_i - \sum_{j=0}^p w_j x_{ij})^2\;.
+\end{aligned}
+$$
+
+We now take the derivative with respect to a particular parameter $w_k$:
+
+$$
+\begin{aligned}
+    \frac{\partial R}{\partial w_k} &= \frac{\partial}{\partial w_k} \left( \frac{1}{n} \sum_{i=1}^n (y_i - \sum_{j=0}^p w_j x_{ij})^2 \right) \\
+    &= \frac{1}{n} \sum_{i=1}^n \frac{\partial}{\partial w_k} \left(y_i - \sum_{j=0}^p w_j x_{ij}\right)^2 \\
+    &= \frac{1}{n} \sum_{i=1}^n 2 \left(y_i - \sum_{j=0}^p w_j x_{ij}\right) \cdot \left(-x_{ik}\right) &\quad \text{(chain rule)}\\
+    &= -\frac{2}{n} \sum_{i=1}^n x_{ik} \left(y_i - \iprod{\vx_i}{\vw}\right) \\ 
+    &= \frac{2}{n} \sum_{i=1}^n x_{ik} \left(\iprod{\vx_i}{\vw} - y_i\right)\;.
+\end{aligned}
+$$ {#eq-mse-gradient-entrywise}
+
+### Vector Derivation
+
+It's more convenient and insightful to compute the gradient in vector form. This requires a few *gradient identities*, each of which can be derived and verified using entrywise methods like the one above. For our case, we need two  identities [In both these identities, the gradient is taken with respect to $\vv$.]{.aside}
+
+::: {#prp-norm-grad}
+
+## Gradient of Norm Squared
+
+For any $\vv \in \R^d$, if $f(\vv) = \norm{\vv}^2$, then
+$$
+\nabla f(\vv) = 2 \vv\;.
+$$
+
+:::
+
+::: {#prp-linear-map-grad}
+
+## Compositions with Linear Maps
+
+Let $f: \R^m \to \R$ be a differentiable function, and let $\mA \in \R^{m \times n}$ be a matrix. Define $g: \R^n \to \R$ by $g(\vv) = f(\mA \vv)$. Then, for any $\vv \in \R^n$,
+
+$$
+\nabla g(\vv) = \mA^T \nabla f(\mA \vv)\;.
+$$
+
+:::
+
+
+If we apply these identities to @eq-mse-matrix-form, we obtain
+
+$$
+\begin{aligned}
+    \nabla R(\vx, \vy; \vw) = \nabla \left( \frac{1}{n} \norm{\mX \vw - \vy}^2 \right) &= \frac{1}{n} \nabla \norm{\mX \vw - \vy}^2 \\
+    &= \frac{1}{n}\mX^T \nabla \norm{\mX \vw - \vy}^2 &\quad \text{(Prop 3.2)}\\
+    &= \frac{1}{n}\mX^T \cdot 2(\mX \vw - \vy) &\quad \text{(Prop 3.1)}\\
+    &= \frac{2}{n} \mX^T (\mX \vw - \vy)\;. 
+\end{aligned}
+$$
+
+It's possible to check that this vector formula for the gradient matches the entrywise formula from @eq-mse-gradient-entrywise by verifying that the $k$th entry of the vector formula equals the entrywise formula for arbitrary $k$. 
+
+
+### Checking Vector Identities
+
+How do we know that vector gradient identities like the ones we used above are correct? The most direct way is to verify them *entrywise*. To verify a vector identity entrywise, we just check that the $k$th entry of the left-hand side equals the $k$th entry of the right-hand side, for an arbitrary index $k$. For example, let's verify the first identity above, $\nabla \norm{\vv}^2 = 2\vv$. The $k$th entry of the left-hand side is given by the partial derivative with respect to entry $w_k$: 
+
+$$
+\begin{aligned}
+    \left(\nabla \norm{\vv}^2\right)_k = \frac{\partial}{\partial v_k} \norm{\vv}^2 = \frac{\partial}{\partial v_k} \sum_{j=1}^d v_j^2 =  \sum_{j=1}^d \frac{\partial}{\partial v_k} v_j^2 = \sum_{j=1}^d 2\delta_{jk}  v_k = 2 v_k\;,
+\end{aligned}
+$$
+
+where $\delta_{jk}$ is the Kronecker delta, which equals 1 if $j=k$ and 0 otherwise. The $k$th entry of the right-hand side is simply $2 v_k$. Since these are equal for arbitrary $k$, the identity holds. 
+
+## Implementing Multivariate Regression
+
+Our implementation for multivariate linear regression is very similar to our implementation for univariate regression from last time, and can actually be more compact in code thanks to our use of matrix operations. `torch` supplies the syntax `X@w` for matrix-vector and matrix-matrix multiplication, which we can use to compute the predictions for all data points at once. Let's implement functions for the MSE, its gradient, and a gradient descent step which returns a new parameter vector after one step of gradient descent.
+
+```{python}
+#---
+import torch
+
+def mse(X, y, w):
+    n = y.shape[0]
+    mse = ((X @ w - y) ** 2).sum() / n
+    return mse
+
+def grad_mse(X, y, w):
+    n = y.shape[0]
+    gradient = (2/n) * X.T @ (X @ w - y)
+    return gradient
+#---
+```
+
+Before proceeding further, let's generate some random synthetic data for testing. 
+
+```{python}
+# Generate synthetic data
+torch.manual_seed(0)
+n_samples = 100
+n_features = 5
+X = torch.randn(n_samples, n_features)
+X = torch.cat([torch.ones(n_samples, 1), X], dim=1) # shape (n_samples, n_features + 1)
+true_w = torch.randn(n_features + 1)
+y = X @ true_w + 0.5 * torch.randn(n_samples)
+```
+
+With this data, we can check that our vector gradient formula matches the entrywise formula we derived earlier, which we can do via torch's automatic differentiation:
+
+```{python}
+w0 = torch.randn(n_features + 1, requires_grad=True)
+
+#---
+grad_manual = grad_mse(X, y, w0) #<1>
+loss = mse(X, y, w0) #<2>
+loss.backward() #<3>
+#---
+
+print(torch.allclose(grad_manual, w0.grad))  # Should print True
+```
+1. Compute the gradient manually using our `grad_mse` function.
+2. Compute the loss using the `mse` function.
+3. Use PyTorch's automatic differentiation to compute the gradient.
+
+
+Looks fine! Now that we have gradient descent implemented, we can consider the gradient descent algorithm itself. This time, we'll implement gradient descent as two functions: one which performs a single step of gradient descent, and one which handles the main loop, including storing values of the loss and checking for convergence. [There are many ways to check for convergence. Here, we're just testing whether $\norm{\vw_\mathrm{new} - \vw_\mathrm{old}}$ is small, which is one way to quantifying the idea that $\vw$ "hasn't changed much" in a single iteration.]{.aside}
+
+```{python}
+#---
+def gradient_descent_step(X, y, w, eta):
+    grad = grad_mse(X, y, w)
+    w_new = w - eta * grad
+    return w_new
+
+def gradient_descent(X, y, w_init, eta, max_iter = int(1e4)):
+    loss_history = [] #<1>
+    w_old = w_init
+    for iteration in range(max_iter):
+        loss_history.append(mse(X, y, w_old).item()) #<2>
+        w_new = gradient_descent_step(X, y, w_old, eta) #<3>
+        if ((w_new - w_old)**2).sum() < 1e-8: #<4>
+            print("Converged after", iteration, "iterations")
+            break
+        w_old = w_new 
+    return w_new, loss_history
+#---
+```
+1. Initialize a list to store the loss history.
+2. Compute and store the current loss.
+3. Perform a single gradient descent step.
+4. Check for convergence by seeing if the change in parameters is small.
+
+
+
+
+Now we're ready to run gradient descent.
+
+::: {#fig-gradient-descent-loss}
+
+```{python}
+#| code-fold: true
+
+# Initialize parameters
+w = torch.zeros(n_features + 1)
+eta = 0.01
+
+#---
+# Run gradient descent!
+w, loss_history = gradient_descent(X, y, w, eta)
+#---
+
+# Plot loss history
+import matplotlib.pyplot as plt
+plt.plot(loss_history)
+plt.xlabel('Iteration')
+plt.ylabel('Mean Squared Error')
+plt.title('Gradient Descent Loss History')
+plt.show()
+```
+
+Loss vs. iteration during gradient descent for our manual implementation of multivariate linear regression.
+
+:::
+
+This time, because we implemented a convergence check, our main loop terminated automatically. 
+
+We can compare the learned parameters to the true parameters:
+
+```{python}
+print("Learned parameters:\n", w)
+print("True parameters:\n", true_w)
+```
+
+The learned parameters are relatively close to the true parameters we planted in the synthetic data. 
