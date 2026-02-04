@@ -13,6 +13,7 @@ book:
       - chapters/02-signal-noise.qmd
       - chapters/03-maximum-likelihood.qmd
       - chapters/04-more-gradients.qmd
+      - chapters/06-regularization.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 
