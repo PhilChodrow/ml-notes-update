@@ -40,7 +40,7 @@ y = signal + noise
 fig, ax = plt.subplots()
 ax.scatter(X.numpy(), y.numpy(), **scatterplot_kwargs)
 plt.xlabel(r"$x$")
-plt.ylabel(r"$y$")
+t = plt.ylabel(r"$y$")
 ```
 
 Nonlinear data generated from a sinusoidal signal plus Gaussian noise.
@@ -560,7 +560,7 @@ ridership_by_day["dteday"] = pd.to_datetime(ridership_by_day["dteday"])
 ax.plot(ridership_by_day["dteday"], ridership_by_day["cnt"], color='steelblue')
 
 plt.xlabel("Date")
-plt.ylabel("Total Daily Bike Rentals")
+t = plt.ylabel("Total Daily Bike Rentals")
 ```
 
 Daily ridership in the bikeshare data set. 
@@ -726,7 +726,7 @@ W = torch.empty(X_train.shape[1], 0)
 for reg in reg_strengths: 
 
     LR = LinearRegression(n_params=X_train.shape[1])
-    train_model(LR, X_train, y_train, lr=1e-2, n_epochs=50000, tol = 1e-2, regularization = lambda w: reg*ell_1_regularization(w), verbose = True)
+    train_model(LR, X_train, y_train, lr=1e-2, n_epochs=50000, tol = 1e-2, regularization = lambda w: reg*ell_1_regularization(w))
 
     y_pred_train = LR.forward(X_train)
     train_mse = mse(y_pred_train, y_train)
