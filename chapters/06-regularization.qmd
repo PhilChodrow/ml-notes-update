@@ -1,6 +1,8 @@
 ---
 title: Features and Regularization
 subtitle: Our first look at methods for using and controlling model complexity
+execute: 
+    eval: true
 ---
 
 {{< include ../assets/includes/_colab-link.qmd >}}
@@ -14,12 +16,16 @@ $$
 
 ```{python}
 import style
-
 ```
 :::
 
+
 Suppose that we'd like to model a distinctly *nonlinear* relationship in our data: 
+
+::: {#fig-synthetic-sin-data}
+
 ```{python}
+#| code-fold: true
 import torch 
 from matplotlib import pyplot as plt
 scatterplot_kwargs = dict(color = "black", label = "data", facecolors = "none", s = 40, alpha = 0.6)
@@ -35,8 +41,11 @@ fig, ax = plt.subplots()
 ax.scatter(X.numpy(), y.numpy(), **scatterplot_kwargs)
 plt.xlabel(r"$x$")
 plt.ylabel(r"$y$")
-
 ```
+
+Nonlinear data generated from a sinusoidal signal plus Gaussian noise.
+
+:::
 
 One flexible candidate model for this kind of data is a nonlinear Gaussian model: 
 
@@ -169,7 +178,7 @@ We'll also write a simple training loop, this time using some of PyTorch's built
 def mse(y_pred, y):
     return torch.mean((y_pred - y) ** 2)
 
-def train_model(model, X_train, y_train, lr=1e-2, n_epochs=1000, tol=1e-4, regularization = None):
+def train_model(model, X_train, y_train, lr=1e-2, n_epochs=1000, tol=1e-4, regularization = None, verbose = False):
     opt = torch.optim.Adam(params=[model.w], lr=lr)
     for epoch in range(n_epochs):
         y_pred = model.forward(X_train)
@@ -179,7 +188,11 @@ def train_model(model, X_train, y_train, lr=1e-2, n_epochs=1000, tol=1e-4, regul
         opt.step()
         if model.w.grad is not None:
             if model.w.grad.norm().item() < tol:
+                if verbose: 
+                    print(f"Converged at epoch {epoch}, Loss: {loss.item()}")
                 break
+        if verbose and epoch % 100 == 0:
+            print(f"Epoch {epoch}, Loss: {loss.item()}")
 ```
 1. This function adds a regularization term (introduced below) to the loss if provided.
 
@@ -410,25 +423,29 @@ def ell_2_regularization(w):
 
 The reason for excluding the first entry of $w$ from the regularization term is that this entry corresponds to the intercept term, which we typically don't want to penalize. We then pass this function in to the `regularization` argument of `train_model`, where flagged line <1> adds the regularization term to the loss. We train again and visualize the results as we vary the regularization strength, this time keeping the maximum frequency of the sinusoidal basis functions fixed at 20:
 
+::: {#fig-ridge-regression-varying-regularization}
+
 ```{python}
-
+#| code-fold: true
 fig, axarr = plt.subplots(2, 3, figsize=(8,5))
-
 reg_strengths = torch.logspace(0, 1.5, 6)
 
 for i, ax in enumerate(axarr.flatten()):
     
     PHI = sinusoidal_features(X, max_freq=20)
-    
     LR = LinearRegression(n_params=PHI.shape[1])
     train_model(LR, PHI, y, lr=1e-2, n_epochs=200000, tol = 1e-4, regularization = lambda w: reg_strengths[i]*ell_2_regularization(w))
-
     viz_model_predictions(LR, X, y, basis_fun = sinusoidal_features, ax=ax, max_freq=20)
+
     ax.set_title(f"reg_strength={reg_strengths[i]:.2f}")
     if i == 0:
         ax.legend()
 plt.tight_layout()
 ```
+
+Ridge regression models using sinusoidal basis functions with maximum frequency 20, for varying regularization strengths, visualized against training data. 
+
+:::
 
 We observe that the tendency of $\ell_2$ regularization in this setting is to "shrink" the coefficients of the basis functions toward zero. This makes the predictions somewhat smoother, but also just makes them *smaller*, eventually leaving them systematically smaller than the data in magnitude. 
 
@@ -450,19 +467,18 @@ def ell_1_regularization(w):
 
 Now we can run the same experiment: 
 
+::: {#fig-lasso-regression-varying-regularization}
+
 ```{python}
-
+#| code-fold: true
 fig, axarr = plt.subplots(2, 3, figsize=(8,5))
-
 reg_strengths = torch.logspace(0, 1.5, 6)
 
 for i, ax in enumerate(axarr.flatten()):
     
     PHI = sinusoidal_features(X, max_freq=20)
-    
     LR = LinearRegression(n_params=PHI.shape[1])
     train_model(LR, PHI, y, lr=1e-2, n_epochs=20000, tol = 1e-4, regularization = lambda w: reg_strengths[i]*ell_1_regularization(w))
-
     viz_model_predictions(LR, X, y, basis_fun = sinusoidal_features, ax=ax, max_freq=20)
     
     ax.set_title(f"reg_strength={reg_strengths[i]:.2f}")
@@ -471,7 +487,11 @@ for i, ax in enumerate(axarr.flatten()):
 plt.tight_layout()
 ```
 
-LASSO is somewhat more difficult to fit, resulting in longer computation times. We observe that some of the LASSO fits manage to highlight the underlying trend in the data relatively well, with somewhat less systematic underfitting when compared to the ridge regression fits.
+LASSO regression models using sinusoidal basis functions with maximum frequency 20, for varying regularization strengths, visualized against training data.
+
+:::
+
+LASSO is somewhat more difficult to fit in computational terms, resulting in longer computation times. We observe that some of the LASSO fits manage to highlight the underlying trend in the data relatively well, with somewhat less systematic underfitting when compared to the ridge regression fits.
 
 An important and useful property of LASSO is that it tends to set many of the coefficients exactly to zero, effectively performing *feature selection*.[Features with coefficients of 0 are effectively thrown away from the model.]{.aside} This can be useful when we have a large number of basis functions, as it allows us to identify which ones are most important for modeling the data. Let's take a look at the coefficients learned by a LASSO model with moderate regularization strength:
 
@@ -479,7 +499,6 @@ An important and useful property of LASSO is that it tends to set many of the co
 
 ```{python}
 #| code-fold: true
-
 LR = LinearRegression(n_params=PHI.shape[1])
 train_model(LR, PHI, y, lr=1e-4, n_epochs=50000, tol = 1e-4, regularization = lambda w: 1.0*ell_1_regularization(w))
 
@@ -506,6 +525,10 @@ In one way, we've just kicked the can down the road -- in an environment in whic
 
 This is an instance of a problem called *model selection*, which asks us to make choices between models containing different features or hyperparameters. A very common approach to model selection is to use a *validation set*. The idea is to split our data into three parts: a training set which we'll use for actually training our models, a validation set which we'll use for model selection, and a test set which we'll use for final evaluation of our chosen model. So, to make choices about the regularization strength, for example, we'll train separate models with different regularization strengths on the training set, and then evaluate their performance on the validation set. The model with the best validation performance is then selected as the final model.
 
+### Features In the Wild
+
+Although in the previous examples we engineered our features by hand using basis-function expansions, features are also natural parts of data sets! Often the data set we want to predict already has all the features we need (or more!), and we need to make all the same choices about which features to use and how to regularize. In the case study below, we'll face some of these same questions without needing to engineer any new features by hand. 
+
 ### Bike Share Case Study
 
 ```{python}
@@ -515,12 +538,49 @@ import torch
 from matplotlib import pyplot as plt
 
 df = pd.read_csv('https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/bikeshare/hour.csv')
+```
 
-df.drop(columns=['instant', 'dteday'], inplace=True)
+We've downloaded a data set containing hourly bike rental counts in Washington, D.C., along with a variety of features that might be predictive of bike rental demand.  [This data set was collected by @fanaee-tEventLabelingCombining2013.]{.aside} The data contains a variety of features including weather conditions, the year, month, week, and weekday; the hour of the day. It also includes columns for the number of casual and registered users, as well as the total count of bike rentals (`cnt`). We'll try to predict the total count of bike rentals using the other features. Let's take a look: 
 
-df = pd.get_dummies(df, columns=['season', 'weathersit', 'mnth', 'hr', 'weekday'], drop_first=False)
+
+```{python}
+df.head()
+```
+
+Our aim is to predict the `cnt` column using the other features. Let's visualize the total number of bike rentals over time:
+
+::: {#fig-daily-ridership}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(figsize = (6, 4))
+ridership_by_day = df.groupby("dteday")["cnt"].sum().reset_index()
+ridership_by_day["dteday"] = pd.to_datetime(ridership_by_day["dteday"])
+
+ax.plot(ridership_by_day["dteday"], ridership_by_day["cnt"], color='steelblue')
+
+plt.xlabel("Date")
+plt.ylabel("Total Daily Bike Rentals")
+```
+
+Daily ridership in the bikeshare data set. 
+
+:::
+
+Predicting the number of bike rentals on a given day is a very helpful task for bikeshare operators, as this can help them know the urgency of rebalancing (moving bikes between stations) and scheduling maintenance.
+
+Let's prepare our data for modeling by dropping some columns and transforming qualitative columns into one-hot encoded features:
+
+```{python}
+df.drop(columns=['instant', 'dteday', "workingday"], inplace=True)
+
+df = 1.0*pd.get_dummies(df, columns=['season', 'weathersit', 'mnth', 'hr', 'weekday'], drop_first=False)
 df["intercept"] = 1
+```
 
+We'll now split the data into features and targets, and then into training, validation, and test sets.
+
+```{python}
 X = 1.0*df.drop(columns=['cnt', 'casual', 'registered'])
 y = df['cnt']
 
@@ -530,7 +590,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_proport
 
 X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=1/2, random_state=42)
 
-
 X_train = torch.tensor(X_train.values, dtype=torch.float32)
 y_train = torch.tensor(y_train.values.reshape(-1, 1), dtype=torch.float32)
 X_val   = torch.tensor(X_val.values, dtype=torch.float32)
@@ -539,241 +598,206 @@ X_test  = torch.tensor(X_test.values, dtype=torch.float32)
 y_test  = torch.tensor(y_test.values.reshape(-1, 1), dtype=torch.float32)
 ```
 
+We've  split the data into three pieces: a small training set (3% of the data), a validation set (3% of the data), and a test set (94% of the data). Given the size of the data set, this split is reasonable -- we have enough data to train models effectively, while still leaving a large amount of data for final evaluation. 
+
 ```{python}
+print(f"Training set size: {X_train.shape[0]} samples")
+print(f"Validation set size: {X_val.shape[0]} samples")
+print(f"Test set size: {X_test.shape[0]} samples")
+```
 
-from torch.optim import Adam
+::: {.callout-note}
 
-class LinearRegression:
-    def __init__(self, n_params):
-        self.w = torch.zeros(n_params, 1, requires_grad=True)
-    
-    def forward(self, X):
-        if self.w is None:
-            self.w = torch.zeros(X.shape[1], 1, requires_grad=True)
-        return X@self.w
+## Why so few training samples? 
 
-mse = lambda y_pred, y: torch.mean((y_pred - y)**2)
-    
-ell2_regularization = lambda w: torch.mean(w[:-1]**2)
-ell1_regularization = lambda w: torch.mean(torch.abs(w[:-1]))
+Issues related to feature engineering and regularization most frequently arise in settings where we many *parameters* and relatively few *data points*. Therefore, to illustrate these issues clearly, we've deliberately limited the size of the training set. In practice, of course, one would typically want to use as much data as possible for training.
+
+Although this example is a bit artificial, modern neural networks are often trained with vastly more parameters than data points, making these considerations quite relevant in practice. 
+
+:::
+
+To contextualize model performance on real data, it's helpful to compute a *base rate*. 
+
+::: {#def-base-rate}
+
+## Base Rate
+
+A *base rate* is a measure of performance for a model which uses *no features* in the data. 
+
+We typically say that a model has demonstrated success in learning from features if it outperforms the base rate on unseen data.
+
+:::
+
+Let's check the base rate for the bikeshare data and assess on validation data: 
+
+```{python}
+#---
+y_mean = y_train.mean()
+base_rate_mse = mse(y_val, y_mean)
+#---
+print(f"Base rate MSE on validation data: {base_rate_mse.item():.4f}")
+```
+
+So, we are looking for any reasonable candidate model to achieve validation MSE less than the above. 
+
+In principle, we can already go ahead and fit a model: 
+
+```{python}
+LR = LinearRegression(n_params=X_train.shape[1])
+train_model(LR, X_train, y_train, lr=1e-2, n_epochs=50000, tol=1e-4)
+y_pred = LR.forward(X_val)
+val_mse = mse(y_pred, y_val)
+print(f"Validation MSE without regularization: {val_mse.item():.4f}")
+print(f"Fraction of base rate: {val_mse.item()/base_rate_mse.item():.4f}")
+```
+
+This simple linear regression model with no regularization already performs considerably better on validation data than the base rate. Can we do better with regularization? To find out, we'll do a systematic search in which we vary the regularization strength and evaluate performance on validation data, for each of ridge regression and LASSO. 
+
+
+::: {#fig-ridge-regression-model-selection}
+
+```{python}
+#| code-fold: true
+
+reg_strengths = torch.logspace(-5, 0, 21)  
+
+train_mses = []
+val_mses = []
 
 W = torch.empty(X_train.shape[1], 0)
 
-val_losses = []
+for reg in reg_strengths: 
 
-reg_strengths = torch.logspace(1, -2, 21) 
+    LR = LinearRegression(n_params=X_train.shape[1])
+    train_model(LR, X_train, y_train, lr=1e-1, n_epochs=20000, tol = 1e-2, regularization = lambda w: reg*ell_2_regularization(w))
+
+    y_pred_train = LR.forward(X_train)
+    train_mse = mse(y_pred_train, y_train)
+    y_pred_val = LR.forward(X_val)
+    val_mse = mse(y_pred_val, y_val)
+
+    train_mses.append(train_mse.item())
+    val_mses.append(val_mse.item())
+
+    W = torch.cat((W, LR.w), dim=1)
+
+best_reg = reg_strengths[val_mses.index(min(val_mses))]
+
+fig, ax = plt.subplots(1, 2, figsize = (8,3))
+ax[0].plot(reg_strengths, train_mses, label='Train MSE')
+ax[0].plot(reg_strengths, val_mses, label='Validation MSE')
+
+ax[0].axvline(best_reg, color='black', linestyle='--', label=fr'Best $\lambda=${best_reg:.2f}, val MSE {min(val_mses):.1f}')
+
+
+ax[0].set_xlabel("Regularization Strength")
+ax[0].set_ylabel("MSE")
+ax[0].set_xscale("log")
+plt.title("Ridge Regression: Train and Validation MSE vs Regularization Strength")
+ax[0].legend()
+
+ax[1].plot(reg_strengths, W.detach().numpy().T)
+ax[1].axvline(best_reg, color='black', linestyle='--', label=f'Best reg={best_reg:.4f}')
+ax[1].set_xlabel("Regularization Strength")
+ax[1].set_ylabel("Weights")
+ax[1].set_xscale("log")
+plt.title("Ridge Regression: Weights vs Regularization Strength")
+
+plt.tight_layout()
+```
+
+Model selection in ridge regression on the bikeshare data set. (Left): training and validation MSE as a function of regularization strength. (Right): learned weights as a function of regularization strength.
+
+:::
+
+Now let's try the same experiment for LASSO. 
+
+::: {#fig-lasso-regression-model-selection}
+
+```{python}
+#| code-fold: true
+reg_strengths = torch.logspace(0, 2, 21)  
+
+train_mses = []
+val_mses = []
 
 W = torch.empty(X_train.shape[1], 0)
 
-val_losses = []
+for reg in reg_strengths: 
 
-last_w = None
+    LR = LinearRegression(n_params=X_train.shape[1])
+    train_model(LR, X_train, y_train, lr=1e-2, n_epochs=50000, tol = 1e-2, regularization = lambda w: reg*ell_1_regularization(w), verbose = True)
 
-for reg_strength in reg_strengths:
-    print(f"Training with regularization strength {reg_strength:.4f}")
-    model = LinearRegression(n_params=X_train.shape[1])
-    if last_w is not None:
-        model.w = last_w.clone().detach().requires_grad_(True)
-    opt = torch.optim.Adam(params=[model.w], lr=1e-2)
-    losses = []
-    for epoch in range(100000):
-        y_pred = model.forward(X_train)
-        loss = mse(y_pred, y_train) + reg_strength*ell2_regularization(model.w)
+    y_pred_train = LR.forward(X_train)
+    train_mse = mse(y_pred_train, y_train)
+    y_pred_val = LR.forward(X_val)
+    val_mse = mse(y_pred_val, y_val)
 
-        opt.zero_grad()
-        loss.backward()
+    train_mses.append(train_mse.item())
+    val_mses.append(val_mse.item())
 
-        opt.step()
+    W = torch.cat((W, LR.w), dim=1)
 
-        losses.append(loss.item())
+best_reg = reg_strengths[val_mses.index(min(val_mses))]
 
-        len_compare = 1000
+fig, ax = plt.subplots(1, 2, figsize = (8,3))
+ax[0].plot(reg_strengths, train_mses, label='Train MSE')
+ax[0].plot(reg_strengths, val_mses, label='Validation MSE')
 
-        if epoch % 1000 == 0:
-            print(f"  Epoch {epoch}: loss={loss.item():.4f}")
+ax[0].axvline(best_reg, color='black', linestyle='--', label=fr'Best $\lambda=${best_reg:.2f}, val MSE {min(val_mses):.1f}')
 
-        if epoch >= 2*len_compare: 
-            if abs(sum(losses[-len_compare:]) - sum(losses[-len_compare*2:-len_compare]))/len_compare < 1e-3:
-                print("Converged")
-                break
 
-    last_w = model.w.detach().clone()
-    
-    val_losses.append(mse(model.forward(X_val), y_val).item())
-    W = torch.cat((W, model.w), dim=1)
+ax[0].set_xlabel("Regularization Strength")
+ax[0].set_ylabel("MSE")
+ax[0].set_xscale("log")
+plt.title("LASSO Regression: Train and Validation MSE vs Regularization Strength")
+ax[0].legend()
+
+ax[1].plot(reg_strengths, W.detach().numpy().T)
+ax[1].axvline(best_reg, color='black', linestyle='--', label=f'Best reg={best_reg:.4f}')
+ax[1].set_xlabel("Regularization Strength")
+ax[1].set_ylabel("Weights")
+ax[1].set_xscale("log")
+plt.title("LASSO Regression: Weights vs Regularization Strength")
+
+plt.tight_layout()
 ```
 
+Model selection in LASSO regression on the bikeshare data set. (Left): training and validation MSE as a function of regularization strength. (Right): learned weights as a function of regularization strength.
+
+:::
+
+We find that LASSO regression achieves a slightly lower MSE on validation data than ridge regression. 
+
+Let's train the LASSO model one last time with the best regularization strength and take a look at the learned coefficients:
+
 ```{python}
-plt.plot(reg_strengths, val_losses)
-
-best_reg = reg_strengths[val_losses.index(min(val_losses))]
-plt.axvline(best_reg, color='red', linestyle='--', label=f'Best reg={best_reg:.4f} with loss {min(val_losses):.4f}')
-plt.legend()
-
-
-plt.xlabel("Regularization Strength")
-plt.ylabel("Validation Loss")
-plt.xscale("log")
-plt.show()
+reg_strength = reg_strengths[val_mses.index(min(val_mses))]
+LR = LinearRegression(n_params=X_train.shape[1])
+train_model(LR, X_train, y_train, lr=1e-1, n_epochs=20000, tol = 1e-4, regularization = lambda w: reg_strength*ell_1_regularization(w))
 ```
 
-```{python}
-plt.plot(reg_strengths, W.detach().numpy().T)
-
-plt.axvline(best_reg, color='red', linestyle='--', label=f'Best reg={best_reg:.4f}')
-plt.legend()
-
-plt.xlabel("Regularization Strength")
-plt.ylabel("Weights")
-plt.xscale("log")
-plt.show()
-```
-
+We can inspect the coefficients to see which features the model found most important:
 
 ```{python}
-best_w = W[:,val_losses.index(min(val_losses))]
 coefs = pd.DataFrame({
     'Feature': X.columns,
-    'Coefficient': best_w.detach().numpy().flatten()
+    'Coefficient': LR.w.detach().numpy().flatten()
 }).sort_values(by='Coefficient', key=abs, ascending=False)
-coefs
+coefs.head()
 ```
+
+We see that rush hours and high temperatures are identified by the model as highly predictive of bike rental demand. 
+
+Finally, let's evaluate our chosen model on the test set to get a final estimate of performance: 
 
 ```{python}
-fig, ax = plt.subplots(1, 2, figsize=(10,6))
-
-months = coefs[coefs["Feature"].str.contains("mnth_")]
-months["month"] = months["Feature"].str.replace("mnth_", "").astype(int)
-
-ax[0].bar(months["month"], months["Coefficient"])
-ax[0].set_xlabel("Month")
-ax[0].set_ylabel("Coefficient")
-ax[0].set_xticks(range(1,13))
-
-hours = coefs[coefs["Feature"].str.contains("hr_")]
-hours["hour"] = hours["Feature"].str.replace("hr_", "").astype(int)
-ax[1].bar(hours["hour"], hours["Coefficient"])
-ax[1].set_xlabel("Hour of Day")
-ax[1].set_ylabel("Coefficient")
-ax[1].set_xticks(range(0,24))
-fig.suptitle("Month and Hour Coefficients for Ridge Regression")
-
-plt.show()
+y_pred_test = LR.forward(X_test)
+test_mse = mse(y_pred_test, y_test)
+print(f"Test MSE: {test_mse.item():.4f}")
+print(f"Fraction of base rate: {test_mse.item()/base_rate_mse.item():.4f}")
 ```
 
+Our final model achieves a test MSE considerably lower than the base rate, suggesting that it has successfully learned to predict bike rental demand using the available features.
 
-Sparsity
-
-```{python}
-
-reg_strengths = torch.logspace(3, 0, 21)
-
-W = torch.empty(X_train.shape[1], 0)
-
-val_losses = []
-
-last_w = None
-
-for reg_strength in reg_strengths:
-    print(f"Training with regularization strength {reg_strength:.4f}")
-    model = LinearRegression(n_params=X_train.shape[1])
-    if last_w is not None:
-        model.w = last_w.clone().detach().requires_grad_(True)
-    opt = torch.optim.Adam(params=[model.w], lr=1e-2)
-    losses = []
-    for epoch in range(50000):
-        y_pred = model.forward(X_train)
-        loss = mse(y_pred, y_train) + reg_strength*ell1_regularization(model.w)
-
-        opt.zero_grad()
-        loss.backward()
-
-        if epoch % 1000 == 0:
-            print(f"  Epoch {epoch}: loss={loss.item():.4f}")
-
-        opt.step(closure = lambda: loss)
-
-        losses.append(loss.item())
-
-        len_compare = 1000
-
-        if epoch >= 2*len_compare: 
-            if abs(sum(losses[-len_compare:]) - sum(losses[-len_compare*2:-len_compare]))/len_compare < 1e-3:
-                print("Converged")
-                break
-
-    last_w = model.w.detach().clone()
-    
-    val_losses.append(mse(model.forward(X_val), y_val).item())
-    W = torch.cat((W, model.w), dim=1)
-```
-
-
-```{python}
-plt.plot(reg_strengths, val_losses)
-
-best_reg = reg_strengths[val_losses.index(min(val_losses))]
-plt.axvline(best_reg, color='red', linestyle='--', label=f'Best reg={best_reg:.4f} with loss {min(val_losses):.4f}')
-plt.legend()
-
-plt.xlabel("Regularization Strength")
-plt.ylabel("Validation Loss")
-plt.xscale("log")
-plt.show()
-```
-
-```{python}
-plt.plot(reg_strengths, W.detach().numpy().T)
-plt.axvline(best_reg, color='red', linestyle='--', label=f'Best reg={best_reg:.4f} with loss {min(val_losses):.4f}')
-plt.legend()
-
-plt.xlabel("Regularization Strength")
-plt.ylabel("Weights")
-plt.xscale("log")
-plt.show()
-```
-
-```{python}
-best_w = W[:,val_losses.index(min(val_losses))] 
-
-coefs = pd.DataFrame({
-    'Feature': X.columns,
-    'Coefficient': best_w.detach().numpy().flatten()
-}).sort_values(by='Coefficient', key=abs, ascending=False)
-coefs
-```
-
-
-
-```{python}
-fig, ax = plt.subplots(1, 3, figsize=(10,6))
-
-months = coefs[coefs["Feature"].str.contains("mnth_")]
-months["month"] = months["Feature"].str.replace("mnth_", "").astype(int)
-
-ax[0].bar(months["month"], months["Coefficient"])
-ax[0].set_xlabel("Month")
-ax[0].set_ylabel("Coefficient")
-ax[0].set_xticks(range(1,13))
-
-weekdays = coefs[coefs["Feature"].str.contains("weekday_")]
-weekdays["weekday"] = weekdays["Feature"].str.replace("weekday_", "").astype(int)
-ax[1].bar(weekdays["weekday"], weekdays["Coefficient"])
-ax[1].set_xlabel("Day of Week")
-ax[1].set_ylabel("Coefficient")
-ax[1].set_xticks(range(0,7))
-
-
-hours = coefs[coefs["Feature"].str.contains("hr_")]
-hours["hour"] = hours["Feature"].str.replace("hr_", "").astype(int)
-ax[2].bar(hours["hour"], hours["Coefficient"])
-ax[2].set_xlabel("Hour of Day")
-ax[2].set_ylabel("Coefficient")
-ax[2].set_xticks(range(0,24))
-fig.suptitle("Month and Hour Coefficients for LASSO Regression")
-
-plt.show()
-```
-
-
-
+## References

@@ -224,6 +224,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -271,7 +277,7 @@ window.Quarto = {
 </header>
 
 
-<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/03-maximum-likelihood.ipynb">Open the live notebook</a> in Google Colab or <a href="https://philchodrow.prof/ml-notes-update/live-notebooks/03-maximum-likelihood.ipynb">download the live notebook</a>.</em></p>
+<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/03-maximum-likelihood.ipynb">Open the live notebook</a> in Google Colab.</em></p>
 <section id="recap-log-likelihood-of-the-linear-gaussian-model" class="level2">
 <h2 class="anchored" data-anchor-id="recap-log-likelihood-of-the-linear-gaussian-model">Recap: Log-Likelihood of the Linear-Gaussian Model</h2>
 <p><a href="../chapters/02-signal-noise.html">Last time</a>, we introduced the idea of modeling data as signal + noise, studied the Gaussian distribution as a model of noise, and introduced the linear-Gaussian model for prediction in the context of linear trends. We also derived the log-likelihood function for the linear-Gaussian model and introduced the idea that we could learn the signal of the data by maximizing the log-likelihood with respect to the model parameters. In this chapter, we’ll begin our study of how to maximize the likelihood systematically using tools from calculus.</p>
@@ -418,38 +424,40 @@ window.Quarto = {
 <section id="checking-gradients-with-torch" class="level3">
 <h3 class="anchored" data-anchor-id="checking-gradients-with-torch">Checking Gradients with <code>torch</code></h3>
 <p>The <code>pytorch</code> package, which we’ll use throughout this course, implements <em>automatic differentiation</em>. Automatic differentiation is an extraordinarily powerful tool which we’ll study later in the course. For now, we’ll just note that it provides a handy way to check calculations of derivatives and gradients. For example, we can use <code>torch</code> to check the gradient we computed in <a href="#exr-gradient-example-1" class="quarto-xref">Exercise&nbsp;<span>2.3</span></a> as follows:</p>
-<div id="75459d8a" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-1"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>)</span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># function to differentiate</span></span>
-<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> torch.sin(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">1</span>]<span class="op">*</span>x[<span class="dv">2</span>] <span class="op">+</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">3</span> <span class="op">*</span> x[<span class="dv">0</span>]</span>
-<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># compute the gradient by hand using the formula we derived</span></span>
-<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a>our_grad <span class="op">=</span> torch.tensor([</span>
-<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span> <span class="op">*</span> x[<span class="dv">0</span>] <span class="op">*</span> torch.sin(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">3</span>,</span>
-<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a>    x[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> torch.cos(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">2</span>],</span>
-<span id="annotated-cell-1-11"><a href="#annotated-cell-1-11" aria-hidden="true" tabindex="-1"></a>    x[<span class="dv">1</span>] <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> x[<span class="dv">0</span>]</span>
-<span id="annotated-cell-1-12"><a href="#annotated-cell-1-12" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="annotated-cell-1-13"><a href="#annotated-cell-1-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(our_grad)</span>
-<span id="annotated-cell-1-14"><a href="#annotated-cell-1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-15"><a href="#annotated-cell-1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># compute the gradient using automatic differentiation</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-16" class="code-annotation-target"><a href="#annotated-cell-1-16" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> f(x)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-17" class="code-annotation-target"><a href="#annotated-cell-1-17" aria-hidden="true" tabindex="-1"></a>y.backward()</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-1-18" class="code-annotation-target"><a href="#annotated-cell-1-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x.grad)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="0b464ac7" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-1"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># function to differentiate</span></span>
+<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> torch.sin(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">1</span>]<span class="op">*</span>x[<span class="dv">2</span>] <span class="op">+</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">3</span> <span class="op">*</span> x[<span class="dv">0</span>]</span>
+<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># compute the gradient by hand using the formula we derived</span></span>
+<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a>our_grad <span class="op">=</span> torch.tensor([</span>
+<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span> <span class="op">*</span> x[<span class="dv">0</span>] <span class="op">*</span> torch.sin(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">3</span>,</span>
+<span id="annotated-cell-1-11"><a href="#annotated-cell-1-11" aria-hidden="true" tabindex="-1"></a>    x[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> torch.cos(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">2</span>],</span>
+<span id="annotated-cell-1-12"><a href="#annotated-cell-1-12" aria-hidden="true" tabindex="-1"></a>    x[<span class="dv">1</span>] <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> x[<span class="dv">0</span>]</span>
+<span id="annotated-cell-1-13"><a href="#annotated-cell-1-13" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="annotated-cell-1-14"><a href="#annotated-cell-1-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(our_grad)</span>
+<span id="annotated-cell-1-15"><a href="#annotated-cell-1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-16"><a href="#annotated-cell-1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># compute the gradient using automatic differentiation</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-17" class="code-annotation-target"><a href="#annotated-cell-1-17" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> f(x)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-18" class="code-annotation-target"><a href="#annotated-cell-1-18" aria-hidden="true" tabindex="-1"></a>y.backward()</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-1-19" class="code-annotation-target"><a href="#annotated-cell-1-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x.grad)</span>
+<span id="annotated-cell-1-20"><a href="#annotated-cell-1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="16" data-code-annotation="1">First, we compute the value of the function we want to differentiate and store the result to a variable (in this case called <code>y</code>).</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="17" data-code-annotation="1">First, we compute the value of the function we want to differentiate and store the result to a variable (in this case called <code>y</code>).</span>
 </dd>
 <dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="17" data-code-annotation="2">Next, we call the <code>backward()</code> method on <code>y</code>, which computes the gradient of <code>y</code> with respect to its inputs (in this case, the vector <code>x</code>) using automatic differentiation.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="18" data-code-annotation="2">Next, we call the <code>backward()</code> method on <code>y</code>, which computes the gradient of <code>y</code> with respect to its inputs (in this case, the vector <code>x</code>) using automatic differentiation.</span>
 </dd>
 <dt data-target-cell="annotated-cell-1" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="18" data-code-annotation="3">Finally, we can access the computed gradient via the <code>grad</code> attribute of the input tensor <code>x</code>.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="19" data-code-annotation="3">Finally, we can access the computed gradient via the <code>grad</code> attribute of the input tensor <code>x</code>.</span>
 </dd>
 </dl>
 </div>
@@ -457,67 +465,74 @@ window.Quarto = {
 <pre><code>tensor([28.8186,  2.5839, 29.0000])
 tensor([28.8186,  2.5839, 29.0000])</code></pre>
 </div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/var/folders/xn/wvbwvw0d6dx46h9_2bkrknnw0000gn/T/ipykernel_33760/3637606239.py:9: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  our_grad = torch.tensor([</code></pre>
+</div>
 </div>
 <p>The two approaches agree! As we grow comfortable with the calculus, we’ll begin to rely more on torch’s automatic differentiation capabilities to compute gradients for us.</p>
 </section>
 <section id="the-gradient-points-in-the-direction-of-greatest-increase" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="the-gradient-points-in-the-direction-of-greatest-increase">The Gradient Points In the Direction of Greatest Increase</h3>
 <p>An important feature of the gradient is that it tells us the direction in which a small change in the function inputs <span class="math inline">\(\mathbf{w}\)</span> could produce the greatest increase in the function output <span class="math inline">\(f(\mathbf{w})\)</span>. Here’s an example using the function from <a href="#exr-gradient-example-2" class="quarto-xref">Exercise&nbsp;<span>2.4</span></a>. <code>torch</code> makes it very easy to implement this function.</p>
-<div id="034936a6" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MSE(x, y, w0, w1):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>((y <span class="op">-</span> (w1 <span class="op">*</span> x <span class="op">+</span> w0))<span class="op">**</span><span class="dv">2</span>).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b89b86b2" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MSE(x, y, w0, w1):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>((y <span class="op">-</span> (w1 <span class="op">*</span> x <span class="op">+</span> w0))<span class="op">**</span><span class="dv">2</span>).mean()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We first plot the function as a function of the parameters <span class="math inline">\(w_0\)</span> and <span class="math inline">\(w_1\)</span> and then we overlay arrows representing the gradients at various points in the <span class="math inline">\((w_0, w_1)\)</span> space, with the gradients calculated via automatic differentiation in <code>torch</code>.</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># create the grid of (mu, sigma^2) values and the data</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>w0_grid <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">100</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>w1_grid <span class="op">=</span> torch.linspace(<span class="fl">0.1</span>, <span class="dv">2</span>, <span class="dv">100</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>W0, W1 <span class="op">=</span> torch.meshgrid(w0_grid, w1_grid, indexing<span class="op">=</span><span class="st">'ij'</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>])  <span class="co"># example data points</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">0.0</span>, <span class="fl">2.0</span>, <span class="fl">1.5</span>, <span class="fl">0.5</span>])</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>LL <span class="op">=</span> torch.zeros(W0.shape)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(W0.shape[<span class="dv">0</span>]):</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(W0.shape[<span class="dv">1</span>]):</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        LL[i, j] <span class="op">=</span> MSE(x, y, W0[i, j], W1[i, j])</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize the figure </span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># show the log-likelihood as a contour plot</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>im <span class="op">=</span> ax.contourf(LL.numpy(), levels<span class="op">=</span><span class="dv">100</span>, cmap<span class="op">=</span><span class="st">'inferno'</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>ax.contour(LL.numpy(), levels<span class="op">=</span><span class="dv">100</span>, colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="vs">w_1</span><span class="dv">$</span><span class="vs">'</span>)</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="vs">r'</span><span class="dv">$</span><span class="vs">w_0</span><span class="dv">$</span><span class="vs">'</span>)</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co"># compute and plot the gradients at various points</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w0, w1 <span class="kw">in</span> [( <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.5</span>), (<span class="fl">0.0</span>, <span class="fl">1.0</span>), (<span class="fl">0.5</span>, <span class="fl">1.5</span>), (<span class="fl">.25</span>, <span class="fl">0.5</span>), (<span class="fl">0.75</span>, <span class="fl">1.0</span>)]:</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    w0_tensor <span class="op">=</span> torch.tensor(w0, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    w1_tensor <span class="op">=</span> torch.tensor(w1, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    ll <span class="op">=</span> MSE(x, y, w0_tensor, w1_tensor)</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    ll.backward()</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    grad_w0 <span class="op">=</span> w0_tensor.grad.item()</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    grad_w1 <span class="op">=</span> w1_tensor.grad.item()</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    ax.quiver(w1, w0, grad_w1, grad_w0, color<span class="op">=</span><span class="st">'black'</span>, scale<span class="op">=</span><span class="dv">20</span>, width<span class="op">=</span><span class="fl">0.01</span>)</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    ax.scatter(w1, w0, color<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">30</span>)</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im)</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Gradients of the mean-squared error'</span>)</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># create the grid of (mu, sigma^2) values and the data</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>w0_grid <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">100</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>w1_grid <span class="op">=</span> torch.linspace(<span class="fl">0.1</span>, <span class="dv">2</span>, <span class="dv">100</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>W0, W1 <span class="op">=</span> torch.meshgrid(w0_grid, w1_grid, indexing<span class="op">=</span><span class="st">'ij'</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>])  <span class="co"># example data points</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">0.0</span>, <span class="fl">2.0</span>, <span class="fl">1.5</span>, <span class="fl">0.5</span>])</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>LL <span class="op">=</span> torch.zeros(W0.shape)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(W0.shape[<span class="dv">0</span>]):</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(W0.shape[<span class="dv">1</span>]):</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        LL[i, j] <span class="op">=</span> MSE(x, y, W0[i, j], W1[i, j])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize the figure </span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># show the log-likelihood as a contour plot</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>im <span class="op">=</span> ax.contourf(LL.numpy(), levels<span class="op">=</span><span class="dv">100</span>, cmap<span class="op">=</span><span class="st">'inferno'</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>ax.contour(LL.numpy(), levels<span class="op">=</span><span class="dv">100</span>, colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="vs">w_1</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="vs">r'</span><span class="dv">$</span><span class="vs">w_0</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co"># compute and plot the gradients at various points</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w0, w1 <span class="kw">in</span> [( <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.5</span>), (<span class="fl">0.0</span>, <span class="fl">1.0</span>), (<span class="fl">0.5</span>, <span class="fl">1.5</span>), (<span class="fl">.25</span>, <span class="fl">0.5</span>), (<span class="fl">0.75</span>, <span class="fl">1.0</span>)]:</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    w0_tensor <span class="op">=</span> torch.tensor(w0, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    w1_tensor <span class="op">=</span> torch.tensor(w1, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    ll <span class="op">=</span> MSE(x, y, w0_tensor, w1_tensor)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    ll.backward()</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    grad_w0 <span class="op">=</span> w0_tensor.grad.item()</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    grad_w1 <span class="op">=</span> w1_tensor.grad.item()</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    ax.quiver(w1, w0, grad_w1, grad_w0, color<span class="op">=</span><span class="st">'black'</span>, scale<span class="op">=</span><span class="dv">20</span>, width<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    ax.scatter(w1, w0, color<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Gradients of the mean-squared error'</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-mse" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-mse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="fa072103" class="cell" data-execution_count="6">
+<div id="da3fef4a" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -655,28 +670,32 @@ Figure&nbsp;2.1: Visualization of the gradients of the mean-squared error functi
 </div>
 <p>Let’s use gradient descent to find maximum-likelihood estimates for the parameters of the linear-Gaussian model in a simple example. To visualize gradient descent, we’ll start by implementing a function for the linear-Gaussian log-likelihood in terms of the parameters <span class="math inline">\(w_0\)</span> and <span class="math inline">\(w_1\)</span>:</p>
 <p>Then we’ll generate some synthetic data from a linear-Gaussian model with known parameters:</p>
-<div id="dbcf78e6" class="cell" data-execution_count="7">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># true parameters</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>w0 <span class="op">=</span> torch.tensor(<span class="fl">0.0</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>w1 <span class="op">=</span> torch.tensor(<span class="fl">2.0</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>sigma2 <span class="op">=</span> torch.tensor(<span class="fl">1.0</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># observed data</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">101</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> w1 <span class="op">*</span> x <span class="op">+</span> w0 <span class="op">+</span> torch.sqrt(sigma2) <span class="op">*</span> torch.randn_like(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="ce5b0daa" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># true parameters</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>w0 <span class="op">=</span> torch.tensor(<span class="fl">0.0</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>w1 <span class="op">=</span> torch.tensor(<span class="fl">2.0</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>sigma2 <span class="op">=</span> torch.tensor(<span class="fl">1.0</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># observed data</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">101</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> w1 <span class="op">*</span> x <span class="op">+</span> w0 <span class="op">+</span> torch.sqrt(sigma2) <span class="op">*</span> torch.randn_like(x)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'steelblue'</span>, s<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Feature (x)'</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Target (y)'</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax.set_title(<span class="st">'Observed Data from Linear-Gaussian Model'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'steelblue'</span>, s<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Feature (x)'</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Target (y)'</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax.set_title(<span class="st">'Observed Data from Linear-Gaussian Model'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-linear-gaussian-data" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-linear-gaussian-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="e75e8a5d" class="cell" data-execution_count="8">
+<div id="d8fa5232" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -694,37 +713,37 @@ Figure&nbsp;2.2: Sample data from a linear-Gaussian model with true parameters <
 <p>Our aim in maximum likelihood estimation is to find estimators <span class="math inline">\(\hat{w}_0\)</span> and <span class="math inline">\(\hat{w}_1\)</span> which maximize the log-likelihood of the observed data. As we saw in <a href="#eq-linear-gaussian-to-mse" class="quarto-xref">Equation&nbsp;<span>2.1</span></a>, maximizing the log-likelihood is equivalent to minimizing the mean-squared error between the observed targets <span class="math inline">\(y_i\)</span> and the linear predictions <span class="math inline">\(w_1 x_i + w_0\)</span>. Let’s go ahead and plot the mean-squared error:</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>w0_grid <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">100</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>w1_grid <span class="op">=</span> torch.linspace(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">100</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>W0, W1 <span class="op">=</span> torch.meshgrid(w0_grid, w1_grid, indexing<span class="op">=</span><span class="st">'ij'</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>LL <span class="op">=</span> torch.zeros(W0.shape)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(W0.shape[<span class="dv">0</span>]):</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(W0.shape[<span class="dv">1</span>]):</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        LL[i, j] <span class="op">=</span> <span class="op">-</span>MSE(x, y, W0[i, j], W1[i, j])</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># visualize the log-likelihood surface</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">5</span>))</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>im <span class="op">=</span> ax.contourf(LL.numpy(), levels<span class="op">=</span><span class="dv">20</span>, cmap<span class="op">=</span><span class="st">'inferno_r'</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>ax.contour(LL.numpy(), levels<span class="op">=</span><span class="dv">20</span>, colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'Intercept </span><span class="kw">(</span><span class="dv">$</span><span class="vs">w_0</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="vs">r'Slope </span><span class="kw">(</span><span class="dv">$</span><span class="vs">w_1</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im, ax<span class="op">=</span>ax)</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Mean-squared error for linear-Gaussian model'</span>)</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>ax.scatter([w1], [w0], color<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>, label<span class="op">=</span><span class="st">'True Parameters'</span>, facecolors<span class="op">=</span><span class="st">'white'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>w0_grid <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">100</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>w1_grid <span class="op">=</span> torch.linspace(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">100</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>W0, W1 <span class="op">=</span> torch.meshgrid(w0_grid, w1_grid, indexing<span class="op">=</span><span class="st">'ij'</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>LL <span class="op">=</span> torch.zeros(W0.shape)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(W0.shape[<span class="dv">0</span>]):</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(W0.shape[<span class="dv">1</span>]):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        LL[i, j] <span class="op">=</span> <span class="op">-</span>MSE(x, y, W0[i, j], W1[i, j])</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># visualize the log-likelihood surface</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">5</span>))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>im <span class="op">=</span> ax.contourf(LL.numpy(), levels<span class="op">=</span><span class="dv">20</span>, cmap<span class="op">=</span><span class="st">'inferno_r'</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>ax.contour(LL.numpy(), levels<span class="op">=</span><span class="dv">20</span>, colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'Intercept </span><span class="kw">(</span><span class="dv">$</span><span class="vs">w_0</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="vs">r'Slope </span><span class="kw">(</span><span class="dv">$</span><span class="vs">w_1</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im, ax<span class="op">=</span>ax)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Mean-squared error for linear-Gaussian model'</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>ax.scatter([w1], [w0], color<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>, label<span class="op">=</span><span class="st">'True Parameters'</span>, facecolors<span class="op">=</span><span class="st">'white'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-linear-gaussian-log-likelihood" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-linear-gaussian-log-likelihood-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="2c1575c8" class="cell" data-execution_count="9">
+<div id="3d61ec6f" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="03-maximum-likelihood_files/figure-html/cell-9-output-1.png" class="figure-img" width="498" height="444"></p>
+<p><img src="03-maximum-likelihood_files/figure-html/cell-9-output-1.png" class="figure-img" width="505" height="444"></p>
 </figure>
 </div>
 </div>
@@ -752,7 +771,7 @@ Figure&nbsp;2.3: Mean-squared error <span class="math inline">\(R(\mathbf{x}, \m
 </div>
 </div>
 <p>The gradient descent algorithm will start from an initial guess for the parameters <span class="math inline">\((w_0, w_1)\)</span> and iteratively update this guess in the direction of the negative gradient of the negative log-likelihood. We’ll implement this with a simple for-loop:</p>
-<div id="c1c2f4c1" class="cell" data-execution_count="10">
+<div id="cf7a73d1" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-4"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># algorithm parameters</span></span>
 <span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a>learning_rate <span class="op">=</span> <span class="fl">0.05</span></span>
 <span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a>num_iterations <span class="op">=</span> <span class="dv">20</span></span>
@@ -777,7 +796,8 @@ Figure&nbsp;2.3: Mean-squared error <span class="math inline">\(R(\mathbf{x}, \m
 <span id="annotated-cell-4-22"><a href="#annotated-cell-4-22" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="annotated-cell-4-23"><a href="#annotated-cell-4-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># store the history of estimates</span></span>
 <span id="annotated-cell-4-24"><a href="#annotated-cell-4-24" aria-hidden="true" tabindex="-1"></a>    w0_history.append(w0_est.item())</span>
-<span id="annotated-cell-4-25"><a href="#annotated-cell-4-25" aria-hidden="true" tabindex="-1"></a>    w1_history.append(w1_est.item())</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-4-25"><a href="#annotated-cell-4-25" aria-hidden="true" tabindex="-1"></a>    w1_history.append(w1_est.item())</span>
+<span id="annotated-cell-4-26"><a href="#annotated-cell-4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
@@ -802,28 +822,28 @@ Figure&nbsp;2.3: Mean-squared error <span class="math inline">\(R(\mathbf{x}, \m
 <p><a href="#fig-linear-gaussian-gradient-descent" class="quarto-xref">Figure&nbsp;<span>2.4</span></a> shows the trajectory of the gradient descent algorithm on the negative log-likelihood surface, ultimately landing near the minimal value of the MSE and close to the true parameters used to generate the data. We also show the fitted linear model corresponding to the final estimates of <span class="math inline">\(w_0\)</span> and <span class="math inline">\(w_1\)</span>, which visually agrees well with the data.</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">3</span>))</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>im <span class="op">=</span> ax[<span class="dv">0</span>].contourf(LL.numpy(), levels<span class="op">=</span><span class="dv">20</span>, cmap<span class="op">=</span><span class="st">'inferno_r'</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].contour(LL.numpy(), levels<span class="op">=</span><span class="dv">20</span>, colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="vs">r'Intercept </span><span class="kw">(</span><span class="dv">$</span><span class="vs">w_0</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="vs">r'Slope </span><span class="kw">(</span><span class="dv">$</span><span class="vs">w_1</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im, ax<span class="op">=</span>ax[<span class="dv">0</span>])</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">'Mean-squared error for</span><span class="ch">\n</span><span class="st">linear-Gaussian model'</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(w1_history, w0_history, marker<span class="op">=</span><span class="st">'o'</span>, color<span class="op">=</span><span class="st">'black'</span>, label<span class="op">=</span><span class="st">'Gradient Descent Path'</span>, markersize<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter([w1], [w0], color<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>, label<span class="op">=</span><span class="st">'True Parameters'</span>, facecolors<span class="op">=</span><span class="st">'white'</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].scatter(x, y, color<span class="op">=</span><span class="st">'steelblue'</span>, s<span class="op">=</span><span class="dv">10</span>, label<span class="op">=</span><span class="st">'Observed Data'</span>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(x, w1_est.detach().item() <span class="op">*</span> x <span class="op">+</span> w0_est.detach().item(), color<span class="op">=</span><span class="st">'black'</span>, label<span class="op">=</span><span class="st">'Fitted Line'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].legend()</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">'Feature (x)'</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">'Target (y)'</span>)</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax[<span class="dv">1</span>].set_title(<span class="st">'Fitted model'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">3</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>im <span class="op">=</span> ax[<span class="dv">0</span>].contourf(LL.numpy(), levels<span class="op">=</span><span class="dv">20</span>, cmap<span class="op">=</span><span class="st">'inferno_r'</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].contour(LL.numpy(), levels<span class="op">=</span><span class="dv">20</span>, colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, extent <span class="op">=</span> [w1_grid[<span class="dv">0</span>], w1_grid[<span class="op">-</span><span class="dv">1</span>], w0_grid[<span class="dv">0</span>], w0_grid[<span class="op">-</span><span class="dv">1</span>]])</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="vs">r'Intercept </span><span class="kw">(</span><span class="dv">$</span><span class="vs">w_0</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="vs">r'Slope </span><span class="kw">(</span><span class="dv">$</span><span class="vs">w_1</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im, ax<span class="op">=</span>ax[<span class="dv">0</span>])</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">'Mean-squared error for</span><span class="ch">\n</span><span class="st">linear-Gaussian model'</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(w1_history, w0_history, marker<span class="op">=</span><span class="st">'o'</span>, color<span class="op">=</span><span class="st">'black'</span>, label<span class="op">=</span><span class="st">'Gradient Descent Path'</span>, markersize<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter([w1], [w0], color<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>, label<span class="op">=</span><span class="st">'True Parameters'</span>, facecolors<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].scatter(x, y, color<span class="op">=</span><span class="st">'steelblue'</span>, s<span class="op">=</span><span class="dv">10</span>, label<span class="op">=</span><span class="st">'Observed Data'</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(x, w1_est.detach().item() <span class="op">*</span> x <span class="op">+</span> w0_est.detach().item(), color<span class="op">=</span><span class="st">'black'</span>, label<span class="op">=</span><span class="st">'Fitted Line'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].legend()</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">'Feature (x)'</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">'Target (y)'</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax[<span class="dv">1</span>].set_title(<span class="st">'Fitted model'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-linear-gaussian-gradient-descent" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-linear-gaussian-gradient-descent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="5cebc0e0" class="cell" data-execution_count="11">
+<div id="c52c2b4b" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">

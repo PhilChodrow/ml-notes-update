@@ -65,6 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../chapters/06-regularization.html" rel="next">
 <link href="../chapters/03-maximum-likelihood.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -105,17 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>
-div.callout-question.callout {
-  border-left-color: lightblue;
-}
-div.callout-question.callout-style-default > .callout-header {
-  background-color: rgb(from lightblue r g b / 13%);
-}
-div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
-  content: '❓';
-  background-image: none;
-}
 div.callout-sol.callout {
   border-left-color: pink;
 }
@@ -125,6 +115,17 @@ div.callout-sol.callout-style-default > .callout-header {
 div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
   content: '📝';
+  background-image: none;
+}
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
   background-image: none;
 }
 </style>
@@ -223,6 +224,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -247,7 +254,10 @@ window.Quarto = {
   <li><a href="#vector-derivation" id="toc-vector-derivation" class="nav-link" data-scroll-target="#vector-derivation">Vector Derivation</a></li>
   <li><a href="#checking-vector-identities" id="toc-checking-vector-identities" class="nav-link" data-scroll-target="#checking-vector-identities">Checking Vector Identities</a></li>
   </ul></li>
-  <li><a href="#implementing-multivariate-regression" id="toc-implementing-multivariate-regression" class="nav-link" data-scroll-target="#implementing-multivariate-regression">Implementing Multivariate Regression</a></li>
+  <li><a href="#implementing-multivariate-regression" id="toc-implementing-multivariate-regression" class="nav-link" data-scroll-target="#implementing-multivariate-regression">Implementing Multivariate Regression</a>
+  <ul class="collapse">
+  <li><a href="#object-oriented-api-for-machine-learning-models" id="toc-object-oriented-api-for-machine-learning-models" class="nav-link" data-scroll-target="#object-oriented-api-for-machine-learning-models">Object-Oriented API for Machine Learning Models</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -274,7 +284,7 @@ window.Quarto = {
 </header>
 
 
-<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/04-more-gradients.ipynb">Open the live notebook</a> in Google Colab or <a href="https://philchodrow.prof/ml-notes-update/live-notebooks/04-more-gradients.ipynb">download the live notebook</a>.</em></p>
+<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/04-more-gradients.ipynb">Open the live notebook</a> in Google Colab.</em></p>
 <section id="recap" class="level2">
 <h2 class="anchored" data-anchor-id="recap">Recap</h2>
 <p><a href="../chapters/03-maximum-likelihood.html">Last time</a>, we developed an end-to-end example of maximum-likelihood estimation for the 1-dimensional linear-Gaussian model, which allowed us to fit a regression line to data displaying a linear trend. We saw that we could use the gradient of the log-likelihood function (or in this case, equivalently, the mean-squared error) to iteratively update a guess for the optimal parameters using gradient descent.</p>
@@ -295,7 +305,7 @@ window.Quarto = {
 \end{aligned}
 \tag{3.1}\]</span></span></p>
 <p>Here’s a visualization of a regression model with two features, <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>, alongside the plane defined by the linear function of these features.</p>
-<div id="f279da46" class="cell page-columns page-full" data-execution_count="4">
+<div id="f42408ed" class="cell page-columns page-full" data-execution_count="3">
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/native/TensorShape.cpp:4383.)
   return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]</code></pre>
@@ -468,14 +478,14 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="vector-derivation">Vector Derivation</h3>
 <div class="page-columns page-full"><p>It’s more convenient and insightful to compute the gradient in vector form. This requires a few <em>gradient identities</em>, each of which can be derived and verified using entrywise methods like the one above. For our case, we need two identities </p><div class="no-row-height column-margin column-container"><span class="margin-aside">In both these identities, the gradient is taken with respect to <span class="math inline">\(\mathbf{v}\)</span>.</span></div></div>
 <div id="prp-norm-grad" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 3.1 (Gradient of Norm Squared)</strong></span> For any <span class="math inline">\(\mathbf{v}\in \mathbb{R}^d\)</span>, if <span class="math inline">\(f(\mathbf{v}) = \lVert \mathbf{v} \rVert^2\)</span>, then <span class="math display">\[
-\nabla f(\mathbf{v}) = 2 \mathbf{v}\;.
+<p><span class="theorem-title"><strong>Proposition 3.1 (Gradient of Norm Squared)</strong></span> For any <span class="math inline">\(\mathbf{v}_0 \in \mathbb{R}^d\)</span>, if <span class="math inline">\(f(\mathbf{v}) = \lVert \mathbf{v} \rVert^2\)</span>, then <span class="math display">\[
+\nabla f(\mathbf{v}_0) = 2 \mathbf{v}_0\;.
 \]</span></p>
 </div>
 <div id="prp-linear-map-grad" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 3.2 (Compositions with Linear Maps)</strong></span> Let <span class="math inline">\(f: \mathbb{R}^m \to \mathbb{R}\)</span> be a differentiable function, and let <span class="math inline">\(\mathbf{A}\in \mathbb{R}^{m \times n}\)</span> be a matrix. Define <span class="math inline">\(g: \mathbb{R}^n \to \mathbb{R}\)</span> by <span class="math inline">\(g(\mathbf{v}) = f(\mathbf{A}\mathbf{v})\)</span>. Then, for any <span class="math inline">\(\mathbf{v}\in \mathbb{R}^n\)</span>,</p>
+<p><span class="theorem-title"><strong>Proposition 3.2 (Compositions with Linear Maps)</strong></span> Let <span class="math inline">\(f: \mathbb{R}^m \to \mathbb{R}\)</span> be a differentiable function, and let <span class="math inline">\(\mathbf{A}\in \mathbb{R}^{m \times n}\)</span> be a matrix. Define <span class="math inline">\(g: \mathbb{R}^n \to \mathbb{R}\)</span> by <span class="math inline">\(g(\mathbf{v}) = f(\mathbf{A}\mathbf{v})\)</span>. Then, for any <span class="math inline">\(\mathbf{v}_0 \in \mathbb{R}^n\)</span>,</p>
 <p><span class="math display">\[
-\nabla g(\mathbf{v}) = \mathbf{A}^T \nabla f(\mathbf{A}\mathbf{v})\;.
+\nabla g(\mathbf{v}_0) = \mathbf{A}^T \nabla f(\mathbf{A}\mathbf{v}_0)\;.
 \]</span></p>
 </div>
 <p>If we apply these identities to <a href="#eq-mse-matrix-form" class="quarto-xref">Equation&nbsp;<span>3.4</span></a>, we obtain</p>
@@ -502,53 +512,100 @@ window.Quarto = {
 </section>
 <section id="implementing-multivariate-regression" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="implementing-multivariate-regression">Implementing Multivariate Regression</h2>
-<p>Our implementation for multivariate linear regression is very similar to our implementation for univariate regression from last time, and can actually be more compact in code thanks to our use of matrix operations. <code>torch</code> supplies the syntax <code>X@w</code> for matrix-vector and matrix-matrix multiplication, which we can use to compute the predictions for all data points at once. Let’s implement functions for the MSE, its gradient, and a gradient descent step which returns a new parameter vector after one step of gradient descent.</p>
-<div id="aa23e114" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mse(X, y, w):</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> y.shape[<span class="dv">0</span>]</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    mse <span class="op">=</span> ((X <span class="op">@</span> w <span class="op">-</span> y) <span class="op">**</span> <span class="dv">2</span>).<span class="bu">sum</span>() <span class="op">/</span> n</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mse</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grad_mse(X, y, w):</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> y.shape[<span class="dv">0</span>]</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    gradient <span class="op">=</span> (<span class="dv">2</span><span class="op">/</span>n) <span class="op">*</span> X.T <span class="op">@</span> (X <span class="op">@</span> w <span class="op">-</span> y)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gradient</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Our implementation for multivariate linear regression is very similar to our implementation for univariate regression from last time, and can actually be more compact in code thanks to our use of matrix operations. <code>torch</code> supplies the syntax <code>X@w</code> for matrix-vector and matrix-matrix multiplication, which we can use to compute the predictions for all data points at once.</p>
+<section id="object-oriented-api-for-machine-learning-models" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="object-oriented-api-for-machine-learning-models">Object-Oriented API for Machine Learning Models</h3>
+<p>Starting here, we are going to implement most of our machine learning models using an object-oriented approach which will generalize nicely once we move on to complex deep learning models.</p>
+<section id="model-class" class="level4">
+<h4 class="anchored" data-anchor-id="model-class">Model Class</h4>
+<p>Under <code>torch</code>’s standard structure, a model is an instance of a <code>class</code> which holds parameters and implements a <code>forward</code> method which computes predictions given input data. Here’s a minimal implementation for linear regression:</p>
+<div id="66e49985" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LinearRegression:</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_params):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> torch.zeros(n_params, <span class="dv">1</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> X <span class="op">@</span> <span class="va">self</span>.w</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Before proceeding further, let’s generate some random synthetic data for testing.</p>
-<div id="56e6d505" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic data</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">0</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>n_samples <span class="op">=</span> <span class="dv">100</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>n_features <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.randn(n_samples, n_features)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.cat([torch.ones(n_samples, <span class="dv">1</span>), X], dim<span class="op">=</span><span class="dv">1</span>) <span class="co"># shape (n_samples, n_features + 1)</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>true_w <span class="op">=</span> torch.randn(n_features <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> X <span class="op">@</span> true_w <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> torch.randn(n_samples)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="loss-function" class="level4">
+<h4 class="anchored" data-anchor-id="loss-function">Loss Function</h4>
+<p>Alongside the model class, we need a loss function. While there are many possibilities, we’ll use our familiar mean-squared error. The loss function should accept predicted and true target values, and return a scalar loss value.</p>
+<div id="ac9d50ae" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mse(y_pred, y):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.mean((y_pred <span class="op">-</span> y)<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="optimizer" class="level4 page-columns page-full">
+<h4 class="anchored" data-anchor-id="optimizer">Optimizer</h4>
+<p>The last thing we need is an <em>algorithm</em> for optimizing the parameters of the model. Gradient descent is one such algorithm. Here, we’ll implement a simple version of gradient descent as a separate class:</p>
+<div id="1f87322d" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GradientDescentOptimizer:</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, lr<span class="op">=</span><span class="fl">1e-2</span>):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> model</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lr <span class="op">=</span> lr</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># once we begin to rely on automatic differentiation</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># we won't need to implement this ourselves</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> grad_func(<span class="va">self</span>, X, y): </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> <span class="va">self</span>.model.forward(X)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        n <span class="op">=</span> y.shape[<span class="dv">0</span>]</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        gradient <span class="op">=</span> (<span class="dv">2</span><span class="op">/</span>n) <span class="op">*</span> X.T <span class="op">@</span> (y_pred <span class="op">-</span> y)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> gradient</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(<span class="va">self</span>, X, y):</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> <span class="va">self</span>.model.forward(X)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.model.w <span class="op">-=</span> <span class="va">self</span>.lr <span class="op">*</span> <span class="va">self</span>.grad_func(X, y)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we’re ready to run multivariate linear regression. Let’s generate some random synthetic data for testing.</p>
+<div id="3864fea3" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>n_samples <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>n_features <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.randn(n_samples, n_features)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.cat([torch.ones(n_samples, <span class="dv">1</span>), X], dim<span class="op">=</span><span class="dv">1</span>) <span class="co"># shape (n_samples, n_features + 1)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>true_w <span class="op">=</span> torch.randn(n_features <span class="op">+</span> <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>signal <span class="op">=</span> X <span class="op">@</span> true_w</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> torch.randn(n_samples, <span class="dv">1</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> signal <span class="op">+</span> noise</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>With this data, we can check that our vector gradient formula matches the entrywise formula we derived earlier, which we can do via torch’s automatic differentiation:</p>
-<div id="1a20f5c6" class="cell" data-execution_count="7">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-3"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a>w0 <span class="op">=</span> torch.randn(n_features <span class="op">+</span> <span class="dv">1</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
-<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-3" class="code-annotation-target"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a>grad_manual <span class="op">=</span> grad_mse(X, y, w0)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-4" class="code-annotation-target"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> mse(X, y, w0)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-5" class="code-annotation-target"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
-<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torch.allclose(grad_manual, w0.grad))  <span class="co"># Should print True</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b30b765f" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-5"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>n_features <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model<span class="op">=</span>model, lr<span class="op">=</span><span class="fl">1e-2</span>)</span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-5" class="code-annotation-target"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a>grad_manual <span class="op">=</span> opt.grad_func(X, y)</span>
+<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> model.forward(X)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-5-8" class="code-annotation-target"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> mse(y_pred, y)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-5-9" class="code-annotation-target"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
+<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="annotated-cell-5-11"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torch.allclose(grad_manual, model.w.grad))  <span class="co"># Should print True</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="3" data-code-annotation="1">Compute the gradient manually using our <code>grad_mse</code> function.</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="5" data-code-annotation="1">Compute the gradient manually using the optimizer’s function.</span>
 </dd>
-<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="4" data-code-annotation="2">Compute the loss using the <code>mse</code> function.</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="8" data-code-annotation="2">Compute the loss using the <code>mse</code> function.</span>
 </dd>
-<dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="5" data-code-annotation="3">Use PyTorch’s automatic differentiation to compute the gradient.</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="9" data-code-annotation="3">Use PyTorch’s automatic differentiation to compute the gradient.</span>
 </dd>
 </dl>
 </div>
@@ -557,73 +614,54 @@ window.Quarto = {
 </div>
 </div>
 <div class="page-columns page-full"><p>Looks fine! Now that we have gradient descent implemented, we can consider the gradient descent algorithm itself. This time, we’ll implement gradient descent as two functions: one which performs a single step of gradient descent, and one which handles the main loop, including storing values of the loss and checking for convergence. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">There are many ways to check for convergence. Here, we’re just testing whether <span class="math inline">\(\lVert \mathbf{w}_\mathrm{new} - \mathbf{w}_\mathrm{old} \rVert\)</span> is small, which is one way to quantifying the idea that <span class="math inline">\(\mathbf{w}\)</span> “hasn’t changed much” in a single iteration.</span></div></div>
-<div id="1fc60ff8" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-4"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gradient_descent_step(X, y, w, eta):</span>
-<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a>    grad <span class="op">=</span> grad_mse(X, y, w)</span>
-<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a>    w_new <span class="op">=</span> w <span class="op">-</span> eta <span class="op">*</span> grad</span>
-<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> w_new</span>
-<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gradient_descent(X, y, w_init, eta, max_iter <span class="op">=</span> <span class="bu">int</span>(<span class="fl">1e4</span>)):</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-7" class="code-annotation-target"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a>    loss_history <span class="op">=</span> []</span>
-<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a>    w_old <span class="op">=</span> w_init</span>
-<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> iteration <span class="kw">in</span> <span class="bu">range</span>(max_iter):</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-10" class="code-annotation-target"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a>        loss_history.append(mse(X, y, w_old).item())</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-11" class="code-annotation-target"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a>        w_new <span class="op">=</span> gradient_descent_step(X, y, w_old, eta)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-4-12" class="code-annotation-target"><a href="#annotated-cell-4-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ((w_new <span class="op">-</span> w_old)<span class="op">**</span><span class="dv">2</span>).<span class="bu">sum</span>() <span class="op">&lt;</span> <span class="fl">1e-8</span>:</span>
-<span id="annotated-cell-4-13"><a href="#annotated-cell-4-13" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"Converged after"</span>, iteration, <span class="st">"iterations"</span>)</span>
-<span id="annotated-cell-4-14"><a href="#annotated-cell-4-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="annotated-cell-4-15"><a href="#annotated-cell-4-15" aria-hidden="true" tabindex="-1"></a>        w_old <span class="op">=</span> w_new </span>
-<span id="annotated-cell-4-16"><a href="#annotated-cell-4-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> w_new, loss_history</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-annotation">
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="7" data-code-annotation="1">Initialize a list to store the loss history.</span>
-</dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="10" data-code-annotation="2">Compute and store the current loss.</span>
-</dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="3">3</dt>
-<dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="11" data-code-annotation="3">Perform a single gradient descent step.</span>
-</dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="4">4</dt>
-<dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="12" data-code-annotation="4">Check for convergence by seeing if the change in parameters is small.</span>
-</dd>
-</dl>
+<div id="2c7066b7" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># training loop</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>loss_history <span class="op">=</span> []</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10000</span>):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    y_pred <span class="op">=</span> model.forward(X)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> mse(y_pred, y)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    loss_history.append(loss.item())</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    opt.step(X, y)  <span class="co"># perform a single gradient descent step</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># convergence check</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(loss_history) <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(loss_history[<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> loss_history[<span class="op">-</span><span class="dv">2</span>]) <span class="op">&lt;</span> <span class="fl">1e-6</span>:</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"Converged"</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Converged</code></pre>
 </div>
 </div>
+<ol type="1">
+<li>Initialize a list to store the loss history.</li>
+<li>Compute and store the current loss.</li>
+<li>Perform a single gradient descent step.</li>
+<li>Check for convergence by seeing if the change in parameters is small.</li>
+</ol>
 <p>Now we’re ready to run gradient descent.</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize parameters</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> torch.zeros(n_features <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>eta <span class="op">=</span> <span class="fl">0.01</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Run gradient descent!</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>w, loss_history <span class="op">=</span> gradient_descent(X, y, w, eta)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot loss history</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>plt.plot(loss_history)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Iteration'</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Mean Squared Error'</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Gradient Descent Loss History'</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot loss history</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.plot(loss_history)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Iteration'</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Mean Squared Error'</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Gradient Descent Loss History'</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-gradient-descent-loss" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-gradient-descent-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="08bb95c3" class="cell" data-execution_count="9">
-<div class="cell-output cell-output-stdout">
-<pre><code>Converged after 309 iterations</code></pre>
-</div>
+<div id="6f65f260" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="04-more-gradients_files/figure-html/cell-9-output-2.png" class="figure-img" width="569" height="442"></p>
+<p><img src="04-more-gradients_files/figure-html/cell-11-output-1.png" class="figure-img" width="569" height="442"></p>
 </figure>
 </div>
 </div>
@@ -636,12 +674,13 @@ Figure&nbsp;3.1: Loss vs.&nbsp;iteration during gradient descent for our manual 
 </div>
 <p>This time, because we implemented a convergence check, our main loop terminated automatically.</p>
 <p>We can compare the learned parameters to the true parameters:</p>
-<div id="afb1669b" class="cell" data-execution_count="10">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Learned parameters:</span><span class="ch">\n</span><span class="st">"</span>, w)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"True parameters:</span><span class="ch">\n</span><span class="st">"</span>, true_w)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="c39f33cf" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Learned parameters:</span><span class="ch">\n</span><span class="st">"</span>, model.w.flatten())</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"True parameters:</span><span class="ch">\n</span><span class="st">"</span>, true_w.flatten())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Learned parameters:
- tensor([ 0.8639,  0.3087,  0.2475,  1.0593, -0.9755, -1.2737])
+ tensor([ 0.8640,  0.3088,  0.2475,  1.0593, -0.9756, -1.2738],
+       grad_fn=&lt;ViewBackward0&gt;)
 True parameters:
  tensor([ 0.8393,  0.2479,  0.2067,  0.9928, -0.8986, -1.2028])</code></pre>
 </div>
@@ -649,6 +688,8 @@ True parameters:
 <p>The learned parameters are relatively close to the true parameters we planted in the synthetic data.</p>
 
 
+</section>
+</section>
 </section>
 
 <p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
@@ -1059,6 +1100,9 @@ True parameters:
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../chapters/06-regularization.html" class="pagination-link" aria-label="Features and Regularization">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
