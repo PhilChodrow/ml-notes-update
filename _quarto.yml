@@ -36,8 +36,8 @@ format:
 jupyter: cs451
 
 
-# execute: 
-#   cache: true
+execute: 
+  cache: true
 
 mermaid: 
   theme: neutral

@@ -128,17 +128,6 @@ div.csl-indent {
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <style>
-div.callout-question.callout {
-  border-left-color: lightblue;
-}
-div.callout-question.callout-style-default > .callout-header {
-  background-color: rgb(from lightblue r g b / 13%);
-}
-div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
-  content: '❓';
-  background-image: none;
-}
 div.callout-sol.callout {
   border-left-color: pink;
 }
@@ -148,6 +137,17 @@ div.callout-sol.callout-style-default > .callout-header {
 div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
   content: '📝';
+  background-image: none;
+}
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
   background-image: none;
 }
 </style>
@@ -272,6 +272,7 @@ window.Quarto = {
   <li><a href="#features-in-the-wild" id="toc-features-in-the-wild" class="nav-link" data-scroll-target="#features-in-the-wild">Features In the Wild</a></li>
   <li><a href="#bike-share-case-study" id="toc-bike-share-case-study" class="nav-link" data-scroll-target="#bike-share-case-study">Bike Share Case Study</a></li>
   </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
     </div>
@@ -300,7 +301,8 @@ window.Quarto = {
 
 <p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/06-regularization.ipynb">Open the live notebook</a> in Google Colab.</em></p>
 <p>Suppose that we’d like to model a distinctly <em>nonlinear</em> relationship in our data:</p>
-<div id="f580c569" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>scatterplot_kwargs <span class="op">=</span> <span class="bu">dict</span>(color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"data"</span>, facecolors <span class="op">=</span> <span class="st">"none"</span>, s <span class="op">=</span> <span class="dv">40</span>, alpha <span class="op">=</span> <span class="fl">0.6</span>)</span>
@@ -316,6 +318,11 @@ window.Quarto = {
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ax.scatter(X.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-synthetic-sin-data" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-synthetic-sin-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="f83860db" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>Text(0, 0.5, '$y$')</code></pre>
 </div>
@@ -326,6 +333,12 @@ window.Quarto = {
 </figure>
 </div>
 </div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-synthetic-sin-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.1: Nonlinear data generated from a sinusoidal signal plus Gaussian noise.
+</figcaption>
+</figure>
 </div>
 <p>One flexible candidate model for this kind of data is a nonlinear Gaussian model:</p>
 <div id="def-nonlinear-gaussian" class="theorem definition">
@@ -368,7 +381,7 @@ window.Quarto = {
 <div id="fig-nonlinear-gaussian" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-nonlinear-gaussian-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="f1c9e5a6" class="cell" data-execution_count="4">
+<div id="49ec1093" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -379,7 +392,7 @@ window.Quarto = {
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-nonlinear-gaussian-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.1: Data modeled via a nonlinear Gaussian model with mean function <span class="math inline">\(f(x) = \sin(2\pi x)\)</span> and noise level <span class="math inline">\(\sigma = 0.2\)</span>. The dashed line indicates the signal function, while the blue curves indicate the conditional distributions of <span class="math inline">\(y\)</span> given <span class="math inline">\(x\)</span>. The black circles are the observed data points.
+Figure&nbsp;4.2: Data modeled via a nonlinear Gaussian model with mean function <span class="math inline">\(f(x) = \sin(2\pi x)\)</span> and noise level <span class="math inline">\(\sigma = 0.2\)</span>. The dashed line indicates the signal function, while the blue curves indicate the conditional distributions of <span class="math inline">\(y\)</span> given <span class="math inline">\(x\)</span>. The black circles are the observed data points.
 </figcaption>
 </figure>
 </div>
@@ -429,7 +442,7 @@ Figure&nbsp;4.1: Data modeled via a nonlinear Gaussian model with mean function 
 \]</span></p>
 <p>So, to learn a model with basis function expansion, all we need to do is construct the feature matrix <span class="math inline">\(\mathbf{\Phi}\)</span> by applying the basis functions to each data point, and then run linear regression as before.</p>
 <p>Let’s try basis function expansion on our synthetic data. For this, we’ll first bring in the linear regression model that we developed previously:</p>
-<div id="2f75ee2d" class="cell" data-execution_count="5">
+<div id="e84d74a4" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LinearRegression:</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_params):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> torch.zeros(n_params, <span class="dv">1</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
@@ -438,36 +451,36 @@ Figure&nbsp;4.1: Data modeled via a nonlinear Gaussian model with mean function 
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> X <span class="op">@</span> <span class="va">self</span>.w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We’ll also write a simple training loop, this time using some of PyTorch’s built-in optimization functionality:</p>
-<div id="73504448" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-3"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mse(y_pred, y):</span>
-<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.mean((y_pred <span class="op">-</span> y) <span class="op">**</span> <span class="dv">2</span>)</span>
-<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_model(model, X_train, y_train, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">1000</span>, tol<span class="op">=</span><span class="fl">1e-4</span>, regularization <span class="op">=</span> <span class="va">None</span>, verbose <span class="op">=</span> <span class="va">False</span>):</span>
-<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> torch.optim.Adam(params<span class="op">=</span>[model.w], lr<span class="op">=</span>lr)</span>
-<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs):</span>
-<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> model.forward(X_train)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-8" class="code-annotation-target"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> mse(y_pred, y_train) <span class="op">+</span> (regularization(model.w) <span class="cf">if</span> regularization <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> <span class="fl">0.0</span>)</span>
-<span id="annotated-cell-3-9"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
-<span id="annotated-cell-3-10"><a href="#annotated-cell-3-10" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
-<span id="annotated-cell-3-11"><a href="#annotated-cell-3-11" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
-<span id="annotated-cell-3-12"><a href="#annotated-cell-3-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> model.w.grad <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="annotated-cell-3-13"><a href="#annotated-cell-3-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> model.w.grad.norm().item() <span class="op">&lt;</span> tol:</span>
-<span id="annotated-cell-3-14"><a href="#annotated-cell-3-14" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> verbose: </span>
-<span id="annotated-cell-3-15"><a href="#annotated-cell-3-15" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(<span class="ss">f"Converged at epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, Loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="annotated-cell-3-16"><a href="#annotated-cell-3-16" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
-<span id="annotated-cell-3-17"><a href="#annotated-cell-3-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> verbose <span class="kw">and</span> epoch <span class="op">%</span> <span class="dv">100</span> <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="annotated-cell-3-18"><a href="#annotated-cell-3-18" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, Loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="28f41008" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-2"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mse(y_pred, y):</span>
+<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.mean((y_pred <span class="op">-</span> y) <span class="op">**</span> <span class="dv">2</span>)</span>
+<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_model(model, X_train, y_train, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">1000</span>, tol<span class="op">=</span><span class="fl">1e-4</span>, regularization <span class="op">=</span> <span class="va">None</span>, verbose <span class="op">=</span> <span class="va">False</span>):</span>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> torch.optim.Adam(params<span class="op">=</span>[model.w], lr<span class="op">=</span>lr)</span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs):</span>
+<span id="annotated-cell-2-7"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> model.forward(X_train)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-8" class="code-annotation-target"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> mse(y_pred, y_train) <span class="op">+</span> (regularization(model.w) <span class="cf">if</span> regularization <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> <span class="fl">0.0</span>)</span>
+<span id="annotated-cell-2-9"><a href="#annotated-cell-2-9" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="annotated-cell-2-10"><a href="#annotated-cell-2-10" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="annotated-cell-2-11"><a href="#annotated-cell-2-11" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="annotated-cell-2-12"><a href="#annotated-cell-2-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> model.w.grad <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="annotated-cell-2-13"><a href="#annotated-cell-2-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> model.w.grad.norm().item() <span class="op">&lt;</span> tol:</span>
+<span id="annotated-cell-2-14"><a href="#annotated-cell-2-14" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> verbose: </span>
+<span id="annotated-cell-2-15"><a href="#annotated-cell-2-15" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(<span class="ss">f"Converged at epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, Loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="annotated-cell-2-16"><a href="#annotated-cell-2-16" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="annotated-cell-2-17"><a href="#annotated-cell-2-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> verbose <span class="kw">and</span> epoch <span class="op">%</span> <span class="dv">100</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="annotated-cell-2-18"><a href="#annotated-cell-2-18" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, Loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="8" data-code-annotation="1">This function adds a regularization term (introduced below) to the loss if provided.</span>
+<span data-code-cell="annotated-cell-2" data-code-lines="8" data-code-annotation="1">This function adds a regularization term (introduced below) to the loss if provided.</span>
 </dd>
 </dl>
 </div>
 </div>
 <p>It’s helpful to think about the minimal linear regression model, in which we simply add a constant column to the data, as an example of a basis function expansion. We’ll call this the <em>linear</em> basis function.</p>
-<div id="0bb1748e" class="cell" data-execution_count="7">
+<div id="8d21d933" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> linear_basis_function(X):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    just adds the constant feature</span></span>
@@ -478,14 +491,12 @@ Figure&nbsp;4.1: Data modeled via a nonlinear Gaussian model with mean function 
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Phi</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>If we try fitting this model to the sinusoidal data directly, we’ll be disappointed.</p>
-<div id="3d2b41fa" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>PHI <span class="op">=</span> linear_basis_function(X)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span><span class="dv">2</span>)  <span class="co"># intercept + slope</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>train_model(LR, PHI, y, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">1000</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="db0fc4b7" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>PHI <span class="op">=</span> linear_basis_function(X)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span><span class="dv">2</span>)  <span class="co"># intercept + slope</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>train_model(LR, PHI, y, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">1000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="f952ec91" class="cell" data-execution_count="9">
+<div id="20501f27" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># utility function for model visualization</span></span>
@@ -504,7 +515,7 @@ Figure&nbsp;4.1: Data modeled via a nonlinear Gaussian model with mean function 
 <div id="fig-linear-regression-sin" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-linear-regression-sin-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="19656ebb" class="cell" data-execution_count="10">
+<div id="8284639c" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>viz_model_predictions(LR, X, y, basis_fun <span class="op">=</span> linear_basis_function, ax<span class="op">=</span>ax)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Linear Regression Fit to Nonlinear Data"</span>)</span>
@@ -520,7 +531,7 @@ Figure&nbsp;4.1: Data modeled via a nonlinear Gaussian model with mean function 
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-linear-regression-sin-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.2: Example of linear regression fit to the sinusoidal data set using the linear (trivial) basis function expansion.
+Figure&nbsp;4.3: Example of linear regression fit to the sinusoidal data set using the linear (trivial) basis function expansion.
 </figcaption>
 </figure>
 </div>
@@ -535,7 +546,7 @@ Figure&nbsp;4.2: Example of linear regression fit to the sinusoidal data set usi
 \end{aligned}
 \]</span></p>
 <p>The following function constructs the feature matrix <span class="math inline">\(\mathbf{\Phi}\)</span> for this basis function expansion:</p>
-<div id="36ce019e" class="cell" data-execution_count="11">
+<div id="e8a5ef3e" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sinusoidal_features(X, max_freq<span class="op">=</span><span class="dv">4</span>):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    n_samples <span class="op">=</span> X.shape[<span class="dv">0</span>]</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    Phi <span class="op">=</span> torch.ones(n_samples, max_freq <span class="op">+</span> <span class="dv">1</span>)  </span>
@@ -544,16 +555,14 @@ Figure&nbsp;4.2: Example of linear regression fit to the sinusoidal data set usi
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Phi</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>To train models and make predictions, all we need to do is call this function to get the feature matrix, and then run linear regression as before.</p>
-<div id="f3af42c4" class="cell" data-execution_count="12">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># engineer features</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>max_freq <span class="op">=</span> <span class="dv">15</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>PHI <span class="op">=</span> sinusoidal_features(X, max_freq<span class="op">=</span>max_freq)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># train the model as usual</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>PHI.shape[<span class="dv">1</span>])</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>train_model(LR, PHI, y, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">2000</span>)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="8ccd683e" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># engineer features</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>max_freq <span class="op">=</span> <span class="dv">15</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>PHI <span class="op">=</span> sinusoidal_features(X, max_freq<span class="op">=</span>max_freq)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># train the model as usual</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>PHI.shape[<span class="dv">1</span>])</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>train_model(LR, PHI, y, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">2000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -568,7 +577,7 @@ Figure&nbsp;4.2: Example of linear regression fit to the sinusoidal data set usi
 <div id="fig-sinusoidal-basis-functions-example" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-sinusoidal-basis-functions-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="b79c9d97" class="cell" data-execution_count="13">
+<div id="0139fa72" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -579,7 +588,7 @@ Figure&nbsp;4.2: Example of linear regression fit to the sinusoidal data set usi
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-sinusoidal-basis-functions-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.3: Example fit to data using the sinusoidal basis function expansion with maximum frequency 15.
+Figure&nbsp;4.4: Example fit to data using the sinusoidal basis function expansion with maximum frequency 15.
 </figcaption>
 </figure>
 </div>
@@ -608,18 +617,18 @@ Figure&nbsp;4.3: Example fit to data using the sinusoidal basis function expansi
 <div id="fig-sinusoidal-basis-functions-varying-complexity" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-sinusoidal-basis-functions-varying-complexity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="3c000fc8" class="cell" data-execution_count="14">
+<div id="4fe67a7b" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="06-regularization_files/figure-html/cell-15-output-1.png" class="figure-img" width="767" height="470"></p>
+<p><img src="06-regularization_files/figure-html/cell-15-output-1.png" class="figure-img" width="761" height="470"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-sinusoidal-basis-functions-varying-complexity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.4: Example fits to training data using the sinusoidal basis function expansion with varying maximum frequencies.
+Figure&nbsp;4.5: Example fits to training data using the sinusoidal basis function expansion with varying maximum frequencies.
 </figcaption>
 </figure>
 </div>
@@ -633,7 +642,7 @@ k(x, c) = \exp\left(-(x - c)^2\right)\;,
 \]</span></p>
 <p>The Guassian kernel measures similarity between <span class="math inline">\(x\)</span> and a center point <span class="math inline">\(c\)</span>, with values close to 1 when <span class="math inline">\(x\)</span> is near <span class="math inline">\(c\)</span> and values close to 0 when <span class="math inline">\(x\)</span> is far from <span class="math inline">\(c\)</span>.</p>
 <p>Here’s an implementation in one dimension, where we evenly space choices of <span class="math inline">\(c\)</span> out across the range of the data:</p>
-<div id="3a501343" class="cell" data-execution_count="15">
+<div id="ea6cc2c2" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> kernel_features(X, num_kernels):</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    n_samples <span class="op">=</span> X.shape[<span class="dv">0</span>]</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    Phi <span class="op">=</span> torch.ones(n_samples, num_kernels <span class="op">+</span> <span class="dv">1</span>)  </span>
@@ -668,18 +677,18 @@ k(x, c) = \exp\left(-(x - c)^2\right)\;,
 <div id="fig-kernel-basis-functions-varying-complexity" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-kernel-basis-functions-varying-complexity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="b82a41b2" class="cell" data-execution_count="16">
+<div id="5ae0c578" class="cell" data-execution_count="16">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="06-regularization_files/figure-html/cell-17-output-1.png" class="figure-img" width="771" height="470"></p>
+<p><img src="06-regularization_files/figure-html/cell-17-output-1.png" class="figure-img" width="766" height="470"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-kernel-basis-functions-varying-complexity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.5: Visualization of fits to training data using the kernel basis function expansion with varying numbers of Gaussian radial basis kernels.
+Figure&nbsp;4.6: Visualization of fits to training data using the kernel basis function expansion with varying numbers of Gaussian radial basis kernels.
 </figcaption>
 </figure>
 </div>
@@ -697,11 +706,9 @@ Figure&nbsp;4.5: Visualization of fits to training data using the kernel basis f
 \]</span></p>
 <p>where <span class="math inline">\(\lambda\)</span> is a hyperparameter that controls the strength of the regularization. Larger values of <span class="math inline">\(\lambda\)</span> encourage smaller parameter values, while smaller values allow the model to fit the data more closely.</p>
 <p>We can implement ridge regression by adding an <span class="math inline">\(\ell_2\)</span> regularization term to our training loop. We’ll first just implement that term itself:</p>
-<div id="c1205900" class="cell" data-execution_count="17">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ell_2_regularization(w):</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.mean(w[<span class="dv">0</span>:]<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="0e90dc24" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ell_2_regularization(w):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.mean(w[<span class="dv">0</span>:]<span class="op">**</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The reason for excluding the first entry of <span class="math inline">\(w\)</span> from the regularization term is that this entry corresponds to the intercept term, which we typically don’t want to penalize. We then pass this function in to the <code>regularization</code> argument of <code>train_model</code>, where flagged line &lt;1&gt; adds the regularization term to the loss. We train again and visualize the results as we vary the regularization strength, this time keeping the maximum frequency of the sinusoidal basis functions fixed at 20:</p>
 <details class="code-fold">
@@ -724,7 +731,7 @@ Figure&nbsp;4.5: Visualization of fits to training data using the kernel basis f
 <div id="fig-ridge-regression-varying-regularization" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-ridge-regression-varying-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="0a99bc85" class="cell" data-execution_count="18">
+<div id="e034ca4a" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -735,7 +742,7 @@ Figure&nbsp;4.5: Visualization of fits to training data using the kernel basis f
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-ridge-regression-varying-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.6: Ridge regression models using sinusoidal basis functions with maximum frequency 20, for varying regularization strengths, visualized against training data.
+Figure&nbsp;4.7: Ridge regression models using sinusoidal basis functions with maximum frequency 20, for varying regularization strengths, visualized against training data.
 </figcaption>
 </figure>
 </div>
@@ -747,7 +754,7 @@ Figure&nbsp;4.6: Ridge regression models using sinusoidal basis functions with m
 \end{aligned}
 \]</span></p>
 <p>We can implement <span class="math inline">\(\ell_1\)</span> regularization similarly to before:</p>
-<div id="cf199d17" class="cell" data-execution_count="19">
+<div id="a53a92ce" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ell_1_regularization(w):</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.mean(torch.<span class="bu">abs</span>(w[:<span class="op">-</span><span class="dv">1</span>]))  <span class="co"># exclude intercept from regularization</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -772,7 +779,7 @@ Figure&nbsp;4.6: Ridge regression models using sinusoidal basis functions with m
 <div id="fig-lasso-regression-varying-regularization" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-lasso-regression-varying-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="c48cf752" class="cell" data-execution_count="20">
+<div id="4cfb7f02" class="cell" data-execution_count="20">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -783,7 +790,7 @@ Figure&nbsp;4.6: Ridge regression models using sinusoidal basis functions with m
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-lasso-regression-varying-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.7: LASSO regression models using sinusoidal basis functions with maximum frequency 20, for varying regularization strengths, visualized against training data.
+Figure&nbsp;4.8: LASSO regression models using sinusoidal basis functions with maximum frequency 20, for varying regularization strengths, visualized against training data.
 </figcaption>
 </figure>
 </div>
@@ -808,7 +815,7 @@ Figure&nbsp;4.7: LASSO regression models using sinusoidal basis functions with m
 <div id="fig-lasso-coefs" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-lasso-coefs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="9fb250f8" class="cell" data-execution_count="21">
+<div id="104f00cf" class="cell" data-execution_count="21">
 <div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>Text(0.5, 1.0, 'Lasso Regression Coefficients (white = zeroed out)')</code></pre>
 </div>
@@ -822,7 +829,7 @@ Figure&nbsp;4.7: LASSO regression models using sinusoidal basis functions with m
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-lasso-coefs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.8: Visualization of the coefficients learned by LASSO regression. Coefficients less than <span class="math inline">\(0.01\)</span> have been highlighted in white. Given a more efficient optimizer, LASSO regression would set these coefficients to exactly 0.
+Figure&nbsp;4.9: Visualization of the coefficients learned by LASSO regression. Coefficients less than <span class="math inline">\(0.01\)</span> have been highlighted in white. Given a more efficient optimizer, LASSO regression would set these coefficients to exactly 0.
 </figcaption>
 </figure>
 </div>
@@ -837,7 +844,7 @@ Figure&nbsp;4.8: Visualization of the coefficients learned by LASSO regression. 
 </section>
 <section id="bike-share-case-study" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="bike-share-case-study">Bike Share Case Study</h3>
-<div id="67e9e3fd" class="cell" data-execution_count="22">
+<div id="c45975b2" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -846,7 +853,7 @@ Figure&nbsp;4.8: Visualization of the coefficients learned by LASSO regression. 
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/bikeshare/hour.csv'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="page-columns page-full"><p>We’ve downloaded a data set containing hourly bike rental counts in Washington, D.C., along with a variety of features that might be predictive of bike rental demand.  The data contains a variety of features including weather conditions, the year, month, week, and weekday; the hour of the day. It also includes columns for the number of casual and registered users, as well as the total count of bike rentals (<code>cnt</code>). We’ll try to predict the total count of bike rentals using the other features. Let’s take a look:</p><div class="no-row-height column-margin column-container"><span class="margin-aside">This data set was collected by <span class="citation" data-cites="fanaee-tEventLabelingCombining2013">Fanaee-T and Gama (<a href="#ref-fanaee-tEventLabelingCombining2013" role="doc-biblioref">2013</a>)</span>.</span></div></div>
-<div id="31bd2a4f" class="cell" data-execution_count="23">
+<div id="e22a4268" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="23">
 <div>
@@ -997,7 +1004,7 @@ Figure&nbsp;4.8: Visualization of the coefficients learned by LASSO regression. 
 <div id="fig-daily-ridership" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-daily-ridership-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="a8aab392" class="cell" data-execution_count="24">
+<div id="56da6ec3" class="cell" data-execution_count="24">
 <div class="cell-output cell-output-display" data-execution_count="24">
 <pre><code>Text(0, 0.5, 'Total Daily Bike Rentals')</code></pre>
 </div>
@@ -1011,20 +1018,20 @@ Figure&nbsp;4.8: Visualization of the coefficients learned by LASSO regression. 
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-daily-ridership-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.9: Daily ridership in the bikeshare data set.
+Figure&nbsp;4.10: Daily ridership in the bikeshare data set.
 </figcaption>
 </figure>
 </div>
 <p>Predicting the number of bike rentals on a given day is a very helpful task for bikeshare operators, as this can help them know the urgency of rebalancing (moving bikes between stations) and scheduling maintenance.</p>
 <p>Let’s prepare our data for modeling by dropping some columns and transforming qualitative columns into one-hot encoded features:</p>
-<div id="4c208c82" class="cell" data-execution_count="25">
+<div id="83f7c52b" class="cell" data-execution_count="25">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df.drop(columns<span class="op">=</span>[<span class="st">'instant'</span>, <span class="st">'dteday'</span>, <span class="st">"workingday"</span>], inplace<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> <span class="fl">1.0</span><span class="op">*</span>pd.get_dummies(df, columns<span class="op">=</span>[<span class="st">'season'</span>, <span class="st">'weathersit'</span>, <span class="st">'mnth'</span>, <span class="st">'hr'</span>, <span class="st">'weekday'</span>], drop_first<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"intercept"</span>] <span class="op">=</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We’ll now split the data into features and targets, and then into training, validation, and test sets.</p>
-<div id="a84ea0e2" class="cell" data-execution_count="26">
+<div id="24c4d10f" class="cell" data-execution_count="26">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> <span class="fl">1.0</span><span class="op">*</span>df.drop(columns<span class="op">=</span>[<span class="st">'cnt'</span>, <span class="st">'casual'</span>, <span class="st">'registered'</span>])</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df[<span class="st">'cnt'</span>]</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1042,7 +1049,7 @@ Figure&nbsp;4.9: Daily ridership in the bikeshare data set.
 <span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>y_test  <span class="op">=</span> torch.tensor(y_test.values.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), dtype<span class="op">=</span>torch.float32)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We’ve split the data into three pieces: a small training set (3% of the data), a validation set (3% of the data), and a test set (94% of the data). Given the size of the data set, this split is reasonable – we have enough data to train models effectively, while still leaving a large amount of data for final evaluation.</p>
-<div id="bebbbd65" class="cell" data-execution_count="27">
+<div id="7a614454" class="cell" data-execution_count="27">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Training set size: </span><span class="sc">{</span>X_train<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> samples"</span>)</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Validation set size: </span><span class="sc">{</span>X_val<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> samples"</span>)</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test set size: </span><span class="sc">{</span>X_test<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> samples"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1072,19 +1079,17 @@ Test set size: 16337 samples</code></pre>
 <p>We typically say that a model has demonstrated success in learning from features if it outperforms the base rate on unseen data.</p>
 </div>
 <p>Let’s check the base rate for the bikeshare data and assess on validation data:</p>
-<div id="73dda302" class="cell" data-execution_count="28">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>y_mean <span class="op">=</span> y_train.mean()</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>base_rate_mse <span class="op">=</span> mse(y_val, y_mean)</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Base rate MSE on validation data: </span><span class="sc">{</span>base_rate_mse<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="442b136b" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>y_mean <span class="op">=</span> y_train.mean()</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>base_rate_mse <span class="op">=</span> mse(y_val, y_mean)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Base rate MSE on validation data: </span><span class="sc">{</span>base_rate_mse<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Base rate MSE on validation data: 33617.3125</code></pre>
 </div>
 </div>
 <p>So, we are looking for any reasonable candidate model to achieve validation MSE less than the above.</p>
 <p>In principle, we can already go ahead and fit a model:</p>
-<div id="96745774" class="cell" data-execution_count="29">
+<div id="629515e3" class="cell" data-execution_count="29">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>X_train.shape[<span class="dv">1</span>])</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>train_model(LR, X_train, y_train, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">50000</span>, tol<span class="op">=</span><span class="fl">1e-4</span>)</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> LR.forward(X_val)</span>
@@ -1148,7 +1153,7 @@ Fraction of base rate: 0.3646</code></pre>
 <div id="fig-ridge-regression-model-selection" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-ridge-regression-model-selection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="77d7dddf" class="cell" data-execution_count="30">
+<div id="d6d5f9d1" class="cell" data-execution_count="30">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1159,7 +1164,7 @@ Fraction of base rate: 0.3646</code></pre>
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-ridge-regression-model-selection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.10: Model selection in ridge regression on the bikeshare data set. (Left): training and validation MSE as a function of regularization strength. (Right): learned weights as a function of regularization strength.
+Figure&nbsp;4.11: Model selection in ridge regression on the bikeshare data set. (Left): training and validation MSE as a function of regularization strength. (Right): learned weights as a function of regularization strength.
 </figcaption>
 </figure>
 </div>
@@ -1215,7 +1220,7 @@ Figure&nbsp;4.10: Model selection in ridge regression on the bikeshare data set.
 <div id="fig-lasso-regression-model-selection" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-lasso-regression-model-selection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="771d1b8e" class="cell" data-execution_count="31">
+<div id="13081abe" class="cell" data-execution_count="31">
 <div class="cell-output cell-output-stdout">
 <pre><code>Epoch 0, Loss: 63828.96875
 Epoch 100, Loss: 60922.2421875
@@ -11728,19 +11733,19 @@ Epoch 49900, Loss: 14442.6572265625</code></pre>
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-lasso-regression-model-selection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.11: Model selection in LASSO regression on the bikeshare data set. (Left): training and validation MSE as a function of regularization strength. (Right): learned weights as a function of regularization strength.
+Figure&nbsp;4.12: Model selection in LASSO regression on the bikeshare data set. (Left): training and validation MSE as a function of regularization strength. (Right): learned weights as a function of regularization strength.
 </figcaption>
 </figure>
 </div>
 <p>We find that LASSO regression achieves a slightly lower MSE on validation data than ridge regression.</p>
 <p>Let’s train the LASSO model one last time with the best regularization strength and take a look at the learned coefficients:</p>
-<div id="2f03a997" class="cell" data-execution_count="32">
+<div id="d619185b" class="cell" data-execution_count="32">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>reg_strength <span class="op">=</span> reg_strengths[val_mses.index(<span class="bu">min</span>(val_mses))]</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>X_train.shape[<span class="dv">1</span>])</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>train_model(LR, X_train, y_train, lr<span class="op">=</span><span class="fl">1e-1</span>, n_epochs<span class="op">=</span><span class="dv">20000</span>, tol <span class="op">=</span> <span class="fl">1e-4</span>, regularization <span class="op">=</span> <span class="kw">lambda</span> w: reg_strength<span class="op">*</span>ell_1_regularization(w))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can inspect the coefficients to see which features the model found most important:</p>
-<div id="6ac4631c" class="cell" data-execution_count="33">
+<div id="92534442" class="cell" data-execution_count="33">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>coefs <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Feature'</span>: X.columns,</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Coefficient'</span>: LR.w.detach().numpy().flatten()</span>
@@ -11792,7 +11797,7 @@ Figure&nbsp;4.11: Model selection in LASSO regression on the bikeshare data set.
 </div>
 <p>We see that rush hours and high temperatures are identified by the model as highly predictive of bike rental demand.</p>
 <p>Finally, let’s evaluate our chosen model on the test set to get a final estimate of performance:</p>
-<div id="701315de" class="cell" data-execution_count="34">
+<div id="3564267f" class="cell" data-execution_count="34">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>y_pred_test <span class="op">=</span> LR.forward(X_test)</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>test_mse <span class="op">=</span> mse(y_pred_test, y_test)</span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test MSE: </span><span class="sc">{</span>test_mse<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
@@ -11803,6 +11808,10 @@ Fraction of base rate: 0.3417</code></pre>
 </div>
 </div>
 <p>Our final model achieves a test MSE considerably lower than the base rate, suggesting that it has successfully learned to predict bike rental demand using the available features.</p>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -11810,7 +11819,6 @@ Fraction of base rate: 0.3417</code></pre>
 Fanaee-T, Hadi, and Joao Gama. 2013. <span>“Event Labeling Combining Ensemble Detectors and Background Knowledge.”</span> <em>Progress in Artificial Intelligence</em>, 1–15. <a href="https://doi.org/10.1007/s13748-013-0040-3">https://doi.org/10.1007/s13748-013-0040-3</a>.
 </div>
 </div>
-</section>
 </section>
 
 <p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->

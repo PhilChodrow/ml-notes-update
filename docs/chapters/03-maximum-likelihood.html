@@ -106,17 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>
-div.callout-question.callout {
-  border-left-color: lightblue;
-}
-div.callout-question.callout-style-default > .callout-header {
-  background-color: rgb(from lightblue r g b / 13%);
-}
-div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
-  content: '❓';
-  background-image: none;
-}
 div.callout-sol.callout {
   border-left-color: pink;
 }
@@ -126,6 +115,17 @@ div.callout-sol.callout-style-default > .callout-header {
 div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
   content: '📝';
+  background-image: none;
+}
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
   background-image: none;
 }
 </style>
@@ -424,40 +424,38 @@ window.Quarto = {
 <section id="checking-gradients-with-torch" class="level3">
 <h3 class="anchored" data-anchor-id="checking-gradients-with-torch">Checking Gradients with <code>torch</code></h3>
 <p>The <code>pytorch</code> package, which we’ll use throughout this course, implements <em>automatic differentiation</em>. Automatic differentiation is an extraordinarily powerful tool which we’ll study later in the course. For now, we’ll just note that it provides a handy way to check calculations of derivatives and gradients. For example, we can use <code>torch</code> to check the gradient we computed in <a href="#exr-gradient-example-1" class="quarto-xref">Exercise&nbsp;<span>2.3</span></a> as follows:</p>
-<div id="0b464ac7" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-1"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>)</span>
-<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># function to differentiate</span></span>
-<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> torch.sin(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">1</span>]<span class="op">*</span>x[<span class="dv">2</span>] <span class="op">+</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">3</span> <span class="op">*</span> x[<span class="dv">0</span>]</span>
-<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># compute the gradient by hand using the formula we derived</span></span>
-<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a>our_grad <span class="op">=</span> torch.tensor([</span>
-<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span> <span class="op">*</span> x[<span class="dv">0</span>] <span class="op">*</span> torch.sin(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">3</span>,</span>
-<span id="annotated-cell-1-11"><a href="#annotated-cell-1-11" aria-hidden="true" tabindex="-1"></a>    x[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> torch.cos(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">2</span>],</span>
-<span id="annotated-cell-1-12"><a href="#annotated-cell-1-12" aria-hidden="true" tabindex="-1"></a>    x[<span class="dv">1</span>] <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> x[<span class="dv">0</span>]</span>
-<span id="annotated-cell-1-13"><a href="#annotated-cell-1-13" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="annotated-cell-1-14"><a href="#annotated-cell-1-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(our_grad)</span>
-<span id="annotated-cell-1-15"><a href="#annotated-cell-1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-16"><a href="#annotated-cell-1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># compute the gradient using automatic differentiation</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-17" class="code-annotation-target"><a href="#annotated-cell-1-17" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> f(x)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-18" class="code-annotation-target"><a href="#annotated-cell-1-18" aria-hidden="true" tabindex="-1"></a>y.backward()</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-1-19" class="code-annotation-target"><a href="#annotated-cell-1-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x.grad)</span>
-<span id="annotated-cell-1-20"><a href="#annotated-cell-1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="aad883b8" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-1"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># function to differentiate</span></span>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> torch.sin(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">1</span>]<span class="op">*</span>x[<span class="dv">2</span>] <span class="op">+</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">3</span> <span class="op">*</span> x[<span class="dv">0</span>]</span>
+<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># compute the gradient by hand using the formula we derived</span></span>
+<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a>our_grad <span class="op">=</span> torch.tensor([</span>
+<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span> <span class="op">*</span> x[<span class="dv">0</span>] <span class="op">*</span> torch.sin(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">3</span>,</span>
+<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a>    x[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> torch.cos(x[<span class="dv">1</span>]) <span class="op">+</span> x[<span class="dv">2</span>],</span>
+<span id="annotated-cell-1-11"><a href="#annotated-cell-1-11" aria-hidden="true" tabindex="-1"></a>    x[<span class="dv">1</span>] <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> x[<span class="dv">2</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> x[<span class="dv">0</span>]</span>
+<span id="annotated-cell-1-12"><a href="#annotated-cell-1-12" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="annotated-cell-1-13"><a href="#annotated-cell-1-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(our_grad)</span>
+<span id="annotated-cell-1-14"><a href="#annotated-cell-1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-15"><a href="#annotated-cell-1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># compute the gradient using automatic differentiation</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-16" class="code-annotation-target"><a href="#annotated-cell-1-16" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> f(x)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-17" class="code-annotation-target"><a href="#annotated-cell-1-17" aria-hidden="true" tabindex="-1"></a>y.backward()</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-1-18" class="code-annotation-target"><a href="#annotated-cell-1-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x.grad)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="17" data-code-annotation="1">First, we compute the value of the function we want to differentiate and store the result to a variable (in this case called <code>y</code>).</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="16" data-code-annotation="1">First, we compute the value of the function we want to differentiate and store the result to a variable (in this case called <code>y</code>).</span>
 </dd>
 <dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="18" data-code-annotation="2">Next, we call the <code>backward()</code> method on <code>y</code>, which computes the gradient of <code>y</code> with respect to its inputs (in this case, the vector <code>x</code>) using automatic differentiation.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="17" data-code-annotation="2">Next, we call the <code>backward()</code> method on <code>y</code>, which computes the gradient of <code>y</code> with respect to its inputs (in this case, the vector <code>x</code>) using automatic differentiation.</span>
 </dd>
 <dt data-target-cell="annotated-cell-1" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="19" data-code-annotation="3">Finally, we can access the computed gradient via the <code>grad</code> attribute of the input tensor <code>x</code>.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="18" data-code-annotation="3">Finally, we can access the computed gradient via the <code>grad</code> attribute of the input tensor <code>x</code>.</span>
 </dd>
 </dl>
 </div>
@@ -466,7 +464,7 @@ window.Quarto = {
 tensor([28.8186,  2.5839, 29.0000])</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/var/folders/xn/wvbwvw0d6dx46h9_2bkrknnw0000gn/T/ipykernel_33760/3637606239.py:9: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+<pre><code>/var/folders/xn/wvbwvw0d6dx46h9_2bkrknnw0000gn/T/ipykernel_29889/3637606239.py:9: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
 Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
   our_grad = torch.tensor([</code></pre>
 </div>
@@ -476,11 +474,9 @@ Consider using tensor.detach() first. (Triggered internally at /Users/runner/wor
 <section id="the-gradient-points-in-the-direction-of-greatest-increase" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="the-gradient-points-in-the-direction-of-greatest-increase">The Gradient Points In the Direction of Greatest Increase</h3>
 <p>An important feature of the gradient is that it tells us the direction in which a small change in the function inputs <span class="math inline">\(\mathbf{w}\)</span> could produce the greatest increase in the function output <span class="math inline">\(f(\mathbf{w})\)</span>. Here’s an example using the function from <a href="#exr-gradient-example-2" class="quarto-xref">Exercise&nbsp;<span>2.4</span></a>. <code>torch</code> makes it very easy to implement this function.</p>
-<div id="b89b86b2" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MSE(x, y, w0, w1):</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>((y <span class="op">-</span> (w1 <span class="op">*</span> x <span class="op">+</span> w0))<span class="op">**</span><span class="dv">2</span>).mean()</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="f505932a" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MSE(x, y, w0, w1):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>((y <span class="op">-</span> (w1 <span class="op">*</span> x <span class="op">+</span> w0))<span class="op">**</span><span class="dv">2</span>).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We first plot the function as a function of the parameters <span class="math inline">\(w_0\)</span> and <span class="math inline">\(w_1\)</span> and then we overlay arrows representing the gradients at various points in the <span class="math inline">\((w_0, w_1)\)</span> space, with the gradients calculated via automatic differentiation in <code>torch</code>.</p>
 <details class="code-fold">
@@ -532,7 +528,7 @@ Consider using tensor.detach() first. (Triggered internally at /Users/runner/wor
 <div id="fig-mse" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-mse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="da3fef4a" class="cell" data-execution_count="5">
+<div id="24b5c162" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -670,19 +666,15 @@ Figure&nbsp;2.1: Visualization of the gradients of the mean-squared error functi
 </div>
 <p>Let’s use gradient descent to find maximum-likelihood estimates for the parameters of the linear-Gaussian model in a simple example. To visualize gradient descent, we’ll start by implementing a function for the linear-Gaussian log-likelihood in terms of the parameters <span class="math inline">\(w_0\)</span> and <span class="math inline">\(w_1\)</span>:</p>
 <p>Then we’ll generate some synthetic data from a linear-Gaussian model with known parameters:</p>
-<div id="ce5b0daa" class="cell" data-execution_count="6">
+<div id="86066aa8" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># true parameters</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>w0 <span class="op">=</span> torch.tensor(<span class="fl">0.0</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>w1 <span class="op">=</span> torch.tensor(<span class="fl">2.0</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>sigma2 <span class="op">=</span> torch.tensor(<span class="fl">1.0</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># observed data</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">101</span>)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> w1 <span class="op">*</span> x <span class="op">+</span> w0 <span class="op">+</span> torch.sqrt(sigma2) <span class="op">*</span> torch.randn_like(x)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>w0 <span class="op">=</span> torch.tensor(<span class="fl">0.0</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>w1 <span class="op">=</span> torch.tensor(<span class="fl">2.0</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>sigma2 <span class="op">=</span> torch.tensor(<span class="fl">1.0</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># observed data</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">101</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> w1 <span class="op">*</span> x <span class="op">+</span> w0 <span class="op">+</span> torch.sqrt(sigma2) <span class="op">*</span> torch.randn_like(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -695,7 +687,7 @@ Figure&nbsp;2.1: Visualization of the gradients of the mean-squared error functi
 <div id="fig-linear-gaussian-data" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-linear-gaussian-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="d8fa5232" class="cell" data-execution_count="7">
+<div id="c8c32e44" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -739,7 +731,7 @@ Figure&nbsp;2.2: Sample data from a linear-Gaussian model with true parameters <
 <div id="fig-linear-gaussian-log-likelihood" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-linear-gaussian-log-likelihood-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="3d61ec6f" class="cell" data-execution_count="8">
+<div id="d3affc36" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -771,7 +763,7 @@ Figure&nbsp;2.3: Mean-squared error <span class="math inline">\(R(\mathbf{x}, \m
 </div>
 </div>
 <p>The gradient descent algorithm will start from an initial guess for the parameters <span class="math inline">\((w_0, w_1)\)</span> and iteratively update this guess in the direction of the negative gradient of the negative log-likelihood. We’ll implement this with a simple for-loop:</p>
-<div id="cf7a73d1" class="cell" data-execution_count="9">
+<div id="641373c7" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-4"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># algorithm parameters</span></span>
 <span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a>learning_rate <span class="op">=</span> <span class="fl">0.05</span></span>
 <span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a>num_iterations <span class="op">=</span> <span class="dv">20</span></span>
@@ -796,8 +788,7 @@ Figure&nbsp;2.3: Mean-squared error <span class="math inline">\(R(\mathbf{x}, \m
 <span id="annotated-cell-4-22"><a href="#annotated-cell-4-22" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="annotated-cell-4-23"><a href="#annotated-cell-4-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># store the history of estimates</span></span>
 <span id="annotated-cell-4-24"><a href="#annotated-cell-4-24" aria-hidden="true" tabindex="-1"></a>    w0_history.append(w0_est.item())</span>
-<span id="annotated-cell-4-25"><a href="#annotated-cell-4-25" aria-hidden="true" tabindex="-1"></a>    w1_history.append(w1_est.item())</span>
-<span id="annotated-cell-4-26"><a href="#annotated-cell-4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-4-25"><a href="#annotated-cell-4-25" aria-hidden="true" tabindex="-1"></a>    w1_history.append(w1_est.item())</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
@@ -843,7 +834,7 @@ Figure&nbsp;2.3: Mean-squared error <span class="math inline">\(R(\mathbf{x}, \m
 <div id="fig-linear-gaussian-gradient-descent" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-linear-gaussian-gradient-descent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="c52c2b4b" class="cell" data-execution_count="10">
+<div id="d08e10f6" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
