@@ -417,7 +417,7 @@ We can implement ridge regression by adding an $\ell_2$ regularization term to o
 ```{python}
 #---
 def ell_2_regularization(w):
-    return torch.mean(w[0:]**2)
+    return torch.mean(w[1:]**2)
 #---
 ```
 
@@ -462,7 +462,7 @@ We can implement $\ell_1$ regularization similarly to before:
 
 ```{python}
 def ell_1_regularization(w):
-    return torch.mean(torch.abs(w[:-1]))  # exclude intercept from regularization
+    return torch.mean(torch.abs(w[1:]))  # exclude intercept from regularization
 ```
 
 Now we can run the same experiment: 
@@ -511,7 +511,7 @@ ax.scatter(freqs, LR.w.detach().numpy()[:-1], c = zeros.numpy()[:-1], cmap='Grey
 
 ax.set_xlabel("Sinusoidal frequency")
 ax.set_ylabel("Coefficient value")
-plt.title("Lasso Regression Coefficients (white = zeroed out)")
+t = plt.title("Lasso Regression Coefficients (white = zeroed out)")
 ```
 
 Visualization of the coefficients learned by LASSO regression. Coefficients less than $0.01$ have been highlighted in white. Given a more efficient optimizer, LASSO regression would set these coefficients to exactly 0. 
@@ -575,7 +575,13 @@ Let's prepare our data for modeling by dropping some columns and transforming qu
 df.drop(columns=['instant', 'dteday', "workingday"], inplace=True)
 
 df = 1.0*pd.get_dummies(df, columns=['season', 'weathersit', 'mnth', 'hr', 'weekday'], drop_first=False)
+
+# ensure that the constant feature is the first column
 df["intercept"] = 1
+cols = list(df.columns)
+cols.insert(0, cols.pop(cols.index('intercept')))
+df = df.loc[:,cols]
+df.columns
 ```
 
 We'll now split the data into features and targets, and then into training, validation, and test sets.
@@ -622,9 +628,7 @@ To contextualize model performance on real data, it's helpful to compute a *base
 
 ## Base Rate
 
-A *base rate* is a measure of performance for a model which uses *no features* in the data. 
-
-We typically say that a model has demonstrated success in learning from features if it outperforms the base rate on unseen data.
+A *base rate* is a measure of performance for a model which uses *no features* in the data. We typically say that a model has demonstrated success in learning from features if it outperforms the base rate on unseen data.
 
 :::
 

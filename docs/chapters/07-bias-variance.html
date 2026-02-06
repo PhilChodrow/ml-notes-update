@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5&nbsp; More on Overfitting – Machine Learning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/06-regularization.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a14e345711173c227b21482e2eb4cc70.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d8b0bb70be28f5ebcc1c8c98afdc075d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
+  background-image: none;
+}
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/02-signal-noise.html">Machine Learning Fundamentals</a></li><li class="breadcrumb-item"><a href="../chapters/07-bias-variance.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Machine Learning</a> 
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Machine Learning Fundamentals</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-signal-noise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-maximum-likelihood.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-more-gradients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-bias-variance.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#bias-variance-decomposition" id="toc-bias-variance-decomposition" class="nav-link" data-scroll-target="#bias-variance-decomposition">Bias-Variance Decomposition</a>
+  <ul class="collapse">
+  <li><a href="#many-data-sets-many-models" id="toc-many-data-sets-many-models" class="nav-link" data-scroll-target="#many-data-sets-many-models">Many data sets, many models</a></li>
+  <li><a href="#decomposing-the-error" id="toc-decomposing-the-error" class="nav-link" data-scroll-target="#decomposing-the-error">Decomposing the Error</a></li>
+  <li><a href="#the-bias-variance-tradeoff" id="toc-the-bias-variance-tradeoff" class="nav-link" data-scroll-target="#the-bias-variance-tradeoff">The Bias-Variance Tradeoff</a></li>
+  </ul></li>
+  <li><a href="#the-modern-landscape-interpolation-and-double-descent" id="toc-the-modern-landscape-interpolation-and-double-descent" class="nav-link" data-scroll-target="#the-modern-landscape-interpolation-and-double-descent">The Modern Landscape: Interpolation and Double Descent</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/02-signal-noise.html">Machine Learning Fundamentals</a></li><li class="breadcrumb-item"><a href="../chapters/07-bias-variance.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></h1>
+<p class="subtitle lead">A theoretical framework for reasoning about model complexity.</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/07-bias-variance.ipynb">Open the live notebook</a> in Google Colab.</em></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Several times in these notes, we’ve seen the topic of <em>overfitting</em> arise. In this set of lecture notes, we’ll define overfitting more formally. We’ll then look at overfitting from two perspectives: the bias-variance decomposition, and the modern phenomenon of double descent.</p>
+<div id="def-overfitting" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 5.1 (Overfitting)</strong></span> <em>Overfitting</em> refers to any situation in which increasing the complexity of a model causes the model to improve its performance on training data but <em>worsen</em> its performance on test data.</p>
+</div>
+<p>In terms of the signal + noise paradigm of modeling,</p>
+<p><span class="math display">\[
+\begin{align}
+y &amp; = f(x) + \epsilon
+\end{align}
+\]</span></p>
+<p>overfitting occurs when an estimator begins to approximate the noise <span class="math inline">\(\epsilon\)</span> rather than the signal <span class="math inline">\(f(x)\)</span>.</p>
+<p>For several decades, the received wisdom in the statistics and machine learning communities was that models begin to overfit when they become “too complex.” Model complexity is frequently measured in terms of the number of parameters present in the model. So far in these notes, we’ve exclusively studied models where the number of parameters is equal to the number of features, so another way to think about model complexity is in terms of the total number of features.</p>
+</section>
+<section id="bias-variance-decomposition" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="bias-variance-decomposition">Bias-Variance Decomposition</h2>
+<p>One theoretical view of the sources of overfitting comes from the <em>bias-variance</em> decomposition.</p>
+<section id="many-data-sets-many-models" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="many-data-sets-many-models">Many data sets, many models</h3>
+<p>In the bias-variance decomposition, we consider a <em>series</em> of experiments. In each experiment, we pull a data set <span class="math inline">\((\mathbf{X},\mathbf{y})\)</span> from some data generating distribution, fit a model to that data, and then make a prediction about an element <span class="math inline">\(Y\)</span> in the test set. Since the data set we pull in each experiment is random, the value <span class="math inline">\(Y\)</span> in the test set is random. Furthermore, since the training data is random, the fitted model <span class="math inline">\(\hat{f}\)</span> and the resulting prediction <span class="math inline">\(\hat{Y}\)</span> will also be random.</p>
+<p>Let’s illustrate the setup. For the experiments in this chapter, we need to run a LOT of regression models. For this reason, we’ll use a special, very efficient implementation of linear regression that allows us to fit models in closed form. This is not a general approach to fitting models, but it will allow us to run the experiments in this chapter much more quickly.</p>
+<div id="4879433d" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-1"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LinearRegression:</span>
+<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_params):</span>
+<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> torch.zeros(n_params, <span class="dv">1</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X):</span>
+<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> X <span class="op">@</span> <span class="va">self</span>.w</span>
+<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_model(X, y): </span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-10" class="code-annotation-target"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a>    model.w <span class="op">=</span> torch.linalg.lstsq(X, y).solution</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-annotation">
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="10" data-code-annotation="1">This is a method that obtains the least-squares solution to the linear regression problem using specialized linear algebra methods. It’s very fast and useful for us today, but doesn’t generalize well to other kinds of machine learning problems.</span>
+</dd>
+</dl>
+</div>
+</div>
+<p>Now we’ll illustrate generating many data sets from the same data generating distribution, fitting a model, and making a prediction <span class="math inline">\(\hat{Y}\)</span> for some new unseen point <span class="math inline">\(x\)</span> in the test set. For today, we’ll consider the following data generating function, which accepts a fixed set of inputs <span class="math inline">\(x\)</span> and generates a random output <span class="math inline">\(y\)</span> for each input according to the signal + noise paradigm. Unlike in many other models, this particular data generating process gets noisier as <span class="math inline">\(x\)</span> increases, which will allow us to illustrate how the bias and variance of the model can vary across different regions of the input space.</p>
+<div id="76fdcb3b" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_data(x, sig, freq):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    signal <span class="op">=</span> torch.sin(freq <span class="op">*</span> torch.pi <span class="op">*</span> x) <span class="op">+</span> x</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    noise <span class="op">=</span> torch.randn_like(x)<span class="op">*</span>sig<span class="op">*</span>x</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> signal <span class="op">+</span> noise</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> <span class="fl">0.2</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>freq <span class="op">=</span> <span class="fl">0.8</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">2.5</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>n_points <span class="op">=</span> <span class="dv">25</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.rand(n_points,)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.sort(x).values</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>test_ix <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> generate_data(x, sig<span class="op">=</span>sig, freq<span class="op">=</span>freq)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    x_test <span class="op">=</span> x[test_ix].unsqueeze(<span class="dv">0</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    y_test <span class="op">=</span> generate_data(x_test, sig<span class="op">=</span>sig, freq<span class="op">=</span>freq)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    ax[i].scatter(x, y, alpha<span class="op">=</span><span class="fl">0.8</span>, color<span class="op">=</span><span class="st">'grey'</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    ax[i].scatter(x_test, y_test, alpha<span class="op">=</span><span class="fl">0.8</span>, color<span class="op">=</span><span class="st">'k'</span>, zorder <span class="op">=</span> <span class="dv">100</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    ax[i].set_title(<span class="ss">f"Experiment </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    ax[i].set_xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        ax[i].set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> LinearRegression(n_params<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> torch.stack([torch.ones_like(x), x], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    train_model(X, y)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    x_viz <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">200</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    X_viz <span class="op">=</span> torch.stack([torch.ones_like(x_viz), x_viz], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    y_pred <span class="op">=</span> model.forward(X_viz).detach().squeeze()</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    ax[i].plot(x_viz, y_pred, color<span class="op">=</span><span class="st">'black'</span>, label<span class="op">=</span><span class="st">"Model Prediction"</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    X_test <span class="op">=</span> torch.stack([torch.ones_like(x_test), x_test], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    y_pred_test <span class="op">=</span> model.forward(X_test).detach().squeeze()</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    ax[i].plot([x_test.item(), x_test.item()], [y_test.item(), y_pred_test.item()], color<span class="op">=</span><span class="st">'orange'</span>, label<span class="op">=</span><span class="st">"Prediction at test point"</span>, markersize<span class="op">=</span><span class="dv">10</span>, zorder <span class="op">=</span> <span class="dv">10</span>)</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-many-data-sets" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-many-data-sets-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="3cff7ddf" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-6-output-1.png" class="figure-img" width="660" height="230"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-many-data-sets-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.1: Illustration of three different experiments in which we pull a random data set from the data generating process, fit a linear regression model, and make a prediction at a random test point. The data points are shown in black, the fitted model is shown in red, and the prediction at the test point is shown with residual in blue.
+</figcaption>
+</figure>
+</div>
+<p>Note that, although each plot is somewhat similar, the data points, fitted model, and prediction at the test point are all <em>slightly</em> different across the three experiments. This is because the data we pull in each experiment is random, which causes the fitted model and resulting prediction to also be random.</p>
+<p>Let’s repeat the experiment a large number of times and store the results.</p>
+<div id="488a8996" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-3"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a>n_reps <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a>targets <span class="op">=</span> torch.zeros(n_reps, <span class="bu">len</span>(x))</span>
+<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a>predictions <span class="op">=</span> torch.zeros(n_reps, <span class="bu">len</span>(x))</span>
+<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_reps):</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-6" class="code-annotation-target"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a>    y_train <span class="op">=</span> generate_data(x, sig<span class="op">=</span>sig, freq<span class="op">=</span>freq)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-7" class="code-annotation-target"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> torch.stack([torch.ones_like(x), x], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="annotated-cell-3-8"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-9" class="code-annotation-target"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> LinearRegression(n_params<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="annotated-cell-3-10"><a href="#annotated-cell-3-10" aria-hidden="true" tabindex="-1"></a>    train_model(X, y_train)</span>
+<span id="annotated-cell-3-11"><a href="#annotated-cell-3-11" aria-hidden="true" tabindex="-1"></a>    predictions[i] <span class="op">=</span> model.forward(X)</span>
+<span id="annotated-cell-3-12"><a href="#annotated-cell-3-12" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-3-13" class="code-annotation-target"><a href="#annotated-cell-3-13" aria-hidden="true" tabindex="-1"></a>    targets[i] <span class="op">=</span> generate_data(x, sig<span class="op">=</span>sig, freq<span class="op">=</span>freq)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-annotation">
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="6" data-code-annotation="1">Generate the training data.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="7" data-code-annotation="2">Add a constant feature to the input data for the intercept term in linear regression.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="9" data-code-annotation="3">Fit the linear regression model to the training data.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="13" data-code-annotation="4">Generate the target values for the test data, <strong>independently</strong> from the training data.</span>
+</dd>
+</dl>
+</div>
+</div>
+<p>We now have 1,000 different fitted models and predictions. Let’s visualize the ensemble of fitted models:</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>test_point_ix <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_reps): </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    ax.plot([x[<span class="dv">0</span>], x[<span class="op">-</span><span class="dv">1</span>]], [predictions[i,<span class="dv">0</span>], predictions[i,<span class="op">-</span><span class="dv">1</span>]], color<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.005</span>, zorder <span class="op">=</span> <span class="dv">0</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>, title <span class="op">=</span> <span class="st">"Ensemble of Linear Regression Models"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>ax.plot([x[test_point_ix], x[test_point_ix]], [predictions[:, test_point_ix].<span class="bu">min</span>(), predictions[:, test_point_ix].<span class="bu">max</span>()],  color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">"Prediction range at test point"</span>, zorder <span class="op">=</span> <span class="dv">200</span>, linewidth <span class="op">=</span> <span class="dv">6</span>, alpha <span class="op">=</span> <span class="fl">0.3</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>ax.plot([x[test_point_ix], x[test_point_ix]], [targets[:, test_point_ix].<span class="bu">min</span>(), targets[:, test_point_ix].<span class="bu">max</span>()],  color<span class="op">=</span><span class="st">'grey'</span>, label<span class="op">=</span><span class="st">"Prediction range at test point"</span>, zorder <span class="op">=</span> <span class="dv">100</span>,  linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-many-models" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-many-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="df5baa1d" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-8-output-1.png" class="figure-img" width="507" height="368"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-many-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.2: Visualization of the ensemble of fitted linear regression models across 1,000 different experiments. The range of predictions at a particular test point is shown in red, while the range of target values at that test point is shown in grey.
+</figcaption>
+</figure>
+</div>
+<p>Collectively, the models capture the general trend, but each varies slightly from the others. The prediction <span class="math inline">\(\hat{Y}\)</span> at any given point <span class="math inline">\(x\)</span> is random, and the target value <span class="math inline">\(Y\)</span> at that point is also random.</p>
+</section>
+<section id="decomposing-the-error" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="decomposing-the-error">Decomposing the Error</h3>
+<div class="page-columns page-full"><p>So, at any given point <span class="math inline">\(x\)</span>, we have a random target value <span class="math inline">\(Y\)</span> and a random prediction <span class="math inline">\(\hat{Y}\)</span>. We can measure how close <span class="math inline">\(\hat{Y}\)</span> is to <span class="math inline">\(Y\)</span> using the <em>expected squared error</em> (this is the theoretical analogue of the MSE):  <span class="math display">\[
+\begin{align*}\mathcal{E}&amp; = \mathbb{E}[(Y - \hat{Y})^2]\end{align*}
+\]</span></p><div class="no-row-height column-margin column-container"><span class="margin-aside">Many presentations of the bias-variance decomposition consider the complete expected squared error of the model on <em>all</em> possible inputs. This has the effect of throwing an integral sign in front of the calculation, but does not otherwise change the story.</span></div></div>
+<p><strong>Important</strong>: because we are assuming that <span class="math inline">\(Y\)</span> is from the <em>test</em> data set, on which <span class="math inline">\(\hat{Y}\)</span> is not trained, <span class="math inline">\(\hat{Y}\)</span> and <span class="math inline">\(Y\)</span> are <em>independent</em> random variables.</p>
+<div class="page-columns page-full"><p>Let’s now study what contributes to the expected testing squared error <span class="math inline">\(\mathcal{E}\)</span>. We can decompose <span class="math inline">\(\mathcal{E}\)</span> into three terms: the <em>bias</em> of the model, the <em>variance</em> of the model, and the <em>noise</em> in the data. It’s helpful to define <span class="math inline">\(\mu = \mathbb{E}[Y]\)</span> and <span class="math inline">\(\hat{\mu} = \mathbb{E}[\hat{Y}]\)</span> to be the expected value of the target and prediction, respectively. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">Throughout this calculation, we are using standard algebra rules and the linearity properties of expectation: for any <span class="math inline">\(a,b\in \mathbb{R}\)</span> and random variables <span class="math inline">\(Z_1\)</span> and <span class="math inline">\(Z_1\)</span>, <span class="math inline">\(\mathbb{E}[aZ_1 + bZ_2] = a\mathbb{E}[Z_1] + b\mathbb{E}[Z_2]\)</span>. We’re also at a key point using the independence property: if <span class="math inline">\(Z_1\)</span> and <span class="math inline">\(Z_2\)</span> are independent random variables, then <span class="math inline">\(\mathbb{E}[Z_1Z_2] = \mathbb{E}[Z_1]\mathbb{E}[Z_2]\)</span>.</span></div></div>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathcal{E}&amp;= \mathbb{E}[(\hat{Y} - Y)^2] \\
+    &amp;= \mathbb{E}[\hat{Y}^2 - 2\hat{Y}Y + Y^2] \\
+    &amp;= \mathbb{E}[\hat{Y}^2] - 2\mathbb{E}[\hat{Y}]\mathbb{E}[Y] + \mathbb{E}[Y^2] \\
+    &amp;= \mathbb{E}[\hat{Y}^2] - 2\hat{\mu}\mu + \mathbb{E}[Y^2] &amp;\quad \text{(independence of $Y$ and $\hat{Y}$)} \\
+    &amp;= \mathbb{E}[\hat{Y}^2] - \hat{\mu}^2 + \hat{\mu}^2 - 2\hat{\mu}\mu + \mu^2 + \mathbb{E}[Y^2] - \mu^2 \\
+    &amp;= (\mathbb{E}[\hat{Y}^2] - \hat{\mu}^2) + (\hat{\mu} - \mu)^2 + (\mathbb{E}[Y^2] - \mu^2) \\
+    &amp;= \underbrace{\mathrm{Var}(\hat{Y})}_\text{model variance} + \underbrace{(\hat{\mu} - \mu)^2}_\text{bias} + \underbrace{\mathrm{Var}(Y)}_\text{noise}
+\end{aligned}
+\]</span></p>
+<p>Each of the terms in this expression are importantly interpretable:</p>
+<p>The <strong>model variance</strong> <span class="math inline">\(\mathrm{Var}(\hat{Y})\)</span> captures how much the prediction <span class="math inline">\(\hat{Y}\)</span> varies across different data sets and fitted models. If the model is very sensitive to the particular data set it is trained on, then the model variance will be high. Models which are more flexible (e.g.&nbsp;by having more parameters and features) tend to have higher model variance.</p>
+<p>The <strong>bias</strong> <span class="math inline">\((\hat{\mu} - \mu)^2\)</span> captures how much the expected prediction <span class="math inline">\(\hat{\mu}\)</span> differs from the expected target <span class="math inline">\(\mu\)</span>. If the model is very inflexible and cannot capture the true signal, then the bias will be high. Models which are less flexible (e.g.&nbsp;by having fewer parameters and features) tend to have higher bias.</p>
+<p>Finally, the <strong>data noise</strong> <span class="math inline">\(\mathrm{Var}(Y)\)</span> captures how much the target value <span class="math inline">\(Y\)</span> varies across different data sets. This is a property of the data generating process. <strong>It is impossible to achieve test error lower than the data noise</strong>, since the noise is a property of the data generating process and not the model.</p>
+<p>Let’s compute each of these terms from the linear regression experiment that we did earlier. Since our analysis above was at a specific data point, we are going to compute values at each data point and then compare.</p>
+<div id="61bb1cf9" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>noise    <span class="op">=</span> targets.var(dim <span class="op">=</span> <span class="dv">0</span>, correction <span class="op">=</span> <span class="dv">0</span>) </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>variance <span class="op">=</span> predictions.var(dim <span class="op">=</span> <span class="dv">0</span>, correction <span class="op">=</span> <span class="dv">0</span>) </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>bias     <span class="op">=</span> (targets.mean(dim <span class="op">=</span> <span class="dv">0</span>) <span class="op">-</span> predictions.mean(dim <span class="op">=</span> <span class="dv">0</span>))<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>mse      <span class="op">=</span> ((targets <span class="op">-</span> predictions)<span class="op">**</span><span class="dv">2</span>).mean(dim <span class="op">=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we can get a quantitative description of the sources of error in our model by plotting each one and the total mean-squared error. We’ll show this alongside an example data set and predictor for comparison:</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter(x, targets[<span class="dv">0</span>], alpha <span class="op">=</span> <span class="fl">0.5</span>, color <span class="op">=</span> <span class="st">"grey"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>y_hat <span class="op">=</span> predictions.mean(dim <span class="op">=</span> <span class="dv">0</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(x, y_hat, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, label<span class="op">=</span><span class="st">"Model Prediction"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>, title <span class="op">=</span> <span class="st">"Example data set and predictor"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(x, noise, label <span class="op">=</span> <span class="st">"data noise"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(x, variance, label <span class="op">=</span> <span class="st">"model variance"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(x, bias, label <span class="op">=</span> <span class="st">"model bias"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(x, mse, label <span class="op">=</span> <span class="st">"mse"</span>, color <span class="op">=</span> <span class="st">"black"</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="st">"Error"</span>, title <span class="op">=</span> </span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="st">"Bias-Variance Decomposition"</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-bias-variance" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="4154078f" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-10-output-1.png" class="figure-img" width="660" height="326"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.3: Illustration of the bias-variance tradeoff in the repeated linear regression experiment. The left panel shows an example data set and predictor, while the right panel shows the bias, variance, noise, and total mean-squared error as a function of <span class="math inline">\(x\)</span>.
+</figcaption>
+</figure>
+</div>
+<p>In this experiment, the noise and bias are the two primary contributors to the mean-squared error, with the model variance being quite low. The data generating process is deliberately constructed so that the data is noisier in certain regions, and so that the model bias also varies across regions.</p>
+</section>
+<section id="the-bias-variance-tradeoff" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="the-bias-variance-tradeoff">The Bias-Variance Tradeoff</h3>
+<p>Since the data noise term in the bias-variance decomposition is a property of the data generating process, the only way to reduce test error is to find a model that reduces either the bias or the variance, without increasing the other. We can often tune the bias and variance by adjusting the model complexity. For example, in the linear regression experiment above, we can increase the number of features. This will have the effect of increasing the variance, while reducing the bias. Let’s try this out, generating the same data many times and then evaluating the bias, variance, and noise for different numbers of features.</p>
+<div id="0fc22db2" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polynomial_features(x, degree):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute polynomial features for input x up to given degree."""</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> [torch.ones_like(x)]  <span class="co"># x^0</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, degree <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        features.append(x<span class="op">**</span>d)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.stack(features, dim<span class="op">=</span><span class="dv">1</span>)  <span class="co"># (n_points, degree + 1)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>feature_counts <span class="op">=</span> torch.arange(<span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>mse_list <span class="op">=</span> []</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>bias_list <span class="op">=</span> []</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>variance_list <span class="op">=</span> []</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>noise_list <span class="op">=</span> []</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> feature_counts:</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> torch.zeros(n_reps, <span class="bu">len</span>(x))</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    targets <span class="op">=</span> torch.zeros(n_reps, <span class="bu">len</span>(x))</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_reps):</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        y_train <span class="op">=</span> generate_data(x, sig<span class="op">=</span>sig, freq<span class="op">=</span>freq)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        model <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>degree <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        X <span class="op">=</span> polynomial_features(x, degree<span class="op">=</span>degree)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        train_model(X, y_train)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        predictions[i] <span class="op">=</span> model.forward(X).detach().squeeze()</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        y_test <span class="op">=</span> generate_data(x, sig<span class="op">=</span>sig, freq<span class="op">=</span>freq)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        targets[i] <span class="op">=</span> y_test</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    noise    <span class="op">=</span> targets.var(dim <span class="op">=</span> <span class="dv">0</span>, correction <span class="op">=</span> <span class="dv">0</span>) </span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    variance <span class="op">=</span> predictions.var(dim <span class="op">=</span> <span class="dv">0</span>, correction <span class="op">=</span> <span class="dv">0</span>) </span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    bias     <span class="op">=</span> (targets.mean(dim <span class="op">=</span> <span class="dv">0</span>) <span class="op">-</span> predictions.mean(dim <span class="op">=</span> <span class="dv">0</span>))<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    mse      <span class="op">=</span> ((targets <span class="op">-</span> predictions)<span class="op">**</span><span class="dv">2</span>).mean(dim <span class="op">=</span> <span class="dv">0</span>)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    mse_list.append(mse.mean())</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    bias_list.append(bias.mean())</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    variance_list.append(variance.mean())</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    noise_list.append(noise.mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ax.plot(feature_counts, noise_list, label <span class="op">=</span> <span class="st">"data noise"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ax.plot(feature_counts, variance_list, label <span class="op">=</span> <span class="st">"model variance"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax.plot(feature_counts, bias_list, label <span class="op">=</span> <span class="st">"model bias"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax.plot(feature_counts, mse_list, label <span class="op">=</span> <span class="st">"mse"</span>, color <span class="op">=</span> <span class="st">"black"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>best_degree <span class="op">=</span> feature_counts[torch.argmin(torch.tensor(mse_list))]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ax.plot(best_degree, mse_list[best_degree], marker<span class="op">=</span><span class="st">'o'</span>, color<span class="op">=</span><span class="st">'k'</span>, label<span class="op">=</span><span class="st">"Best MSE"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"Model complexity"</span>, ylabel <span class="op">=</span> <span class="st">"Mean Squared Error"</span>, title <span class="op">=</span> <span class="st">"Bias-Variance Tradeoff"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>ax.semilogy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-bias-variance-tradeoff" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-bias-variance-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="dbe80961" class="cell" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-12-output-1.png" class="figure-img" width="514" height="368"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-bias-variance-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.4: Illustration of the bias-variance tradeoff. As the model becomes more flexible, the bias decreases while the variance increases. The optimal model complexity balances these two sources of error to minimize the mean-squared error.
+</figcaption>
+</figure>
+</div>
+<p>Figures like <a href="#fig-bias-variance-tradeoff" class="quarto-xref">Figure&nbsp;<span>5.4</span></a> were canon in the machine learning literature for a long time, with a simple message: more model complexity reduces bias but increases variance. Too much complexity will have diminishing rewards for reducing bias but will tend to increase the variance indefinitely, eventually resulting in overfitting. So don’t make your models too complex!</p>
+</section>
+</section>
+<section id="the-modern-landscape-interpolation-and-double-descent" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="the-modern-landscape-interpolation-and-double-descent">The Modern Landscape: Interpolation and Double Descent</h2>
+<p>For a long time in statistics and machine learning, the single-descent curve offered the primary way in which we thought about model complexity. Models with low complexity underfit the data (high bias, low variance), while models with high complexity overfit the data (low bias, high variance). The optimal model complexity balanced these two sources of error to minimize test error. The key was to get <em>enough</em> complexity while <em>avoiding</em> overfitting. The thing you never wanted to do was to <em>interpolate</em> the data, since interpolation is perfect overfitting.</p>
+<p>This theoretical story was challenged by the advent of deep learning as a practical tool. Modern deep learning models often have parameter counts in the billions or trillions, which in principle is often enough to perfectly interpolate training data. So why is it that these models nevertheless successfully generalize?</p>
+<div class="page-columns page-full"><p>It turns out that there are both <em>bad</em> and <em>good</em> ways to interpolate your data. Models that have the capacity for “good” interpolation can achieve very low test error even while interpolating the training data. Let’s see an example. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">This example was inspired by <a href="https://maminian.github.io/">Manuchehr Aminian</a>’s <a href="https://www.siam.org/publications/siam-news/articles/characterizations-of-double-descent/">blog post</a> in SIAM News on double descent.</span></div></div>
+<div class="page-columns page-full"><p>For this problem, we’ll suppose that we need to train a model on <em>very few</em> data points: </p><div class="no-row-height column-margin column-container"><span class="margin-aside">Some aspects of this experiment, including the very small number of data sets and use of a special set of polynomial basis functions are somewhat contrived (i.e.&nbsp;carefully staged). This is because double descent is primarily a phenomenon that takes place for models with very large parameter counts. Since we want to illustrate this phenomenon in a way that’s easy to visualize, we have to set things up to make sure it happens here.</span></div></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">123</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>n_points <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> <span class="fl">0.2</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>freq <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.rand(n_points,)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>signal <span class="op">=</span> torch.sin(freq <span class="op">*</span> torch.pi <span class="op">*</span> x) <span class="op">+</span> x</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> torch.randn(n_points,)<span class="op">*</span>sig</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> signal <span class="op">+</span> noise</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>x_test <span class="op">=</span> torch.rand(<span class="dv">10</span><span class="op">*</span>n_points,)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>signal_test <span class="op">=</span> torch.sin(freq <span class="op">*</span> torch.pi <span class="op">*</span> x_test) <span class="op">+</span> x_test</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>noise_test <span class="op">=</span> torch.randn(<span class="dv">10</span><span class="op">*</span>n_points,)<span class="op">*</span>sig</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> signal_test <span class="op">+</span> noise_test</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>x_viz <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">200</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>signal_viz <span class="op">=</span> torch.sin(freq <span class="op">*</span> torch.pi <span class="op">*</span> x_viz) <span class="op">+</span> x_viz</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">8</span>,<span class="dv">5</span>))</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>ax.plot(x_viz, signal_viz, color<span class="op">=</span><span class="st">'grey'</span>, label<span class="op">=</span><span class="st">"True Signal"</span>, zorder <span class="op">=</span> <span class="op">-</span><span class="dv">10</span>, linewidth<span class="op">=</span><span class="dv">2</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>ax.scatter(x, signal <span class="op">+</span> noise, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">"Data"</span>, color <span class="op">=</span> <span class="st">"k"</span>)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>ax.scatter(x_test, signal_test <span class="op">+</span> noise_test, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">"Test Data"</span>, color<span class="op">=</span><span class="st">'k'</span>, facecolors<span class="op">=</span><span class="st">'none'</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-double-descent-data" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-double-descent-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="bef855da" class="cell" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-13-output-1.png" class="figure-img" width="663" height="423"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-double-descent-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.5: Example training and test data for the double descent experiment. The true signal is shown in grey, training data as black dots, and test data as black circles.
+</figcaption>
+</figure>
+</div>
+<p>For our feature map in this experiment, we are going to make use of a special set of polynomial features called <a href="https://en.wikipedia.org/wiki/Legendre_polynomials">Legendre polynomials</a>. The first few feature maps are:</p>
+<p><span class="math display">\[
+\begin{align*}
+\phi_0(x) &amp; = 1 \\
+\phi_1(x) &amp; = x \\
+\phi_2(x) &amp; = \frac{1}{2}(3x^2 - 1) \\
+\phi_3(x) &amp; = \frac{1}{2}(5x^3 - 3x) \\
+\phi_4(x) &amp; = \frac{1}{8}(35x^4 - 30x^2 + 3) \\
+\vdots
+\end{align*}
+\]</span></p>
+<p>It’s ok if these coefficients look quite mysterious and random to you – the study of the Legendre polynomials is a beautiful and deep topic but not our primary purpose here.</p>
+
+<div class="no-row-height column-margin column-container"><div id="9ecfb061" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> legendre_features(x, degree):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute Legendre polynomial features for input x up to given degree."""</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> [torch.ones_like(x)]  <span class="co"># P_0(x) = 1</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> degree <span class="op">&gt;=</span> <span class="dv">1</span>:</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        features.append(x)  <span class="co"># P_1(x) = x</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, degree <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        P_n <span class="op">=</span> ((<span class="dv">2</span><span class="op">*</span>n <span class="op">-</span> <span class="dv">1</span>)<span class="op">*</span>x<span class="op">*</span>features[<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> (n <span class="op">-</span> <span class="dv">1</span>)<span class="op">*</span>features[<span class="op">-</span><span class="dv">2</span>]) <span class="op">/</span> n</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        features.append(P_n)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.stack(features, dim<span class="op">=</span><span class="dv">1</span>)  <span class="co"># (n_points, degree + 1)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></div><div id="d23b8085" class="cell page-columns page-full" data-execution_count="15">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-15-output-1.png" class="figure-img" width="372" height="294"></p>
+<figcaption>The first five Legendre polynomial features on the interval [0, 1].</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p>We can fit a model using the Legendre polynomial features to data like this:</p>
+<div id="8fbec2fe" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>degree <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>degree <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> legendre_features(x, degree<span class="op">=</span>degree)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>train_model(X, y)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>x_viz <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">200</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>X_viz <span class="op">=</span> legendre_features(x_viz, degree<span class="op">=</span>degree)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> model.forward(X_viz)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="f23e598d" class="cell page-columns page-full" data-execution_count="17">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-17-output-1.png" class="figure-img" width="366" height="294"></p>
+<figcaption>Legendre polynomial regression (degree 5) on training and test data</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p>Let’s now run an experiment in which we vary the number of polynomial features over a broad range and track the training and test mean squared error (MSE). Recall that the number of features is equal to the polynomial degree plus one (to account for the constant feature).</p>
+<div id="023caf14" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>degree_list <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">70</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>train_mse_list <span class="op">=</span> []</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>test_mse_list <span class="op">=</span> []</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>feature_count <span class="op">=</span> []</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> degree_list:</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>degree <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> legendre_features(x, degree<span class="op">=</span>degree)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    train_model(X, y)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    X_test <span class="op">=</span> legendre_features(x_test, degree<span class="op">=</span>degree)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    y_pred_test <span class="op">=</span> model.forward(X_test).detach().squeeze()</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    train_mse <span class="op">=</span> torch.mean((model.forward(X) <span class="op">-</span> y)<span class="op">**</span><span class="dv">2</span>).item()</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    test_mse <span class="op">=</span> torch.mean( (y_pred_test <span class="op">-</span> y_test)<span class="op">**</span><span class="dv">2</span>).item()</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    train_mse_list.append(train_mse)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    test_mse_list.append(test_mse)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    feature_count.append(degree <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">8</span>,<span class="dv">5</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>ax.plot(feature_count, train_mse_list, color <span class="op">=</span> <span class="st">"grey"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ax.plot(feature_count, test_mse_list, color <span class="op">=</span> <span class="st">"steelblue"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"Train MSE"</span>, xy<span class="op">=</span>(feature_count[<span class="op">-</span><span class="dv">1</span>]<span class="op">-</span><span class="dv">30</span>, train_mse_list[<span class="op">-</span><span class="dv">1</span>]<span class="op">*</span><span class="dv">10</span>), color<span class="op">=</span><span class="st">'grey'</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"Test MSE"</span>, xy<span class="op">=</span>(feature_count[<span class="op">-</span><span class="dv">1</span>]<span class="op">-</span><span class="dv">30</span>, test_mse_list[<span class="op">-</span><span class="dv">1</span>]<span class="op">*</span><span class="dv">10</span>), color<span class="op">=</span><span class="st">'steelblue'</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>ax.fill_betweenx([<span class="fl">1e-20</span>, <span class="fl">1e9</span>], <span class="dv">0</span>, n_points, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"Classical</span><span class="ch">\n</span><span class="st">regime"</span>, xy<span class="op">=</span>(<span class="dv">1</span>, <span class="fl">1e-7</span>), color<span class="op">=</span><span class="st">'grey'</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>ax.fill_betweenx([<span class="fl">1e-20</span>, <span class="fl">1e9</span>], n_points, <span class="dv">2</span><span class="op">*</span>n_points, color<span class="op">=</span><span class="st">'firebrick'</span>, alpha<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"Classical</span><span class="ch">\n</span><span class="st">danger</span><span class="ch">\n</span><span class="st">zone"</span>, xy<span class="op">=</span>(n_points <span class="op">+</span> <span class="dv">1</span>, <span class="fl">1e-3</span>), color<span class="op">=</span><span class="st">'firebrick'</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>ax.fill_betweenx([<span class="fl">1e-20</span>, <span class="fl">1e9</span>], <span class="dv">2</span><span class="op">*</span>n_points, <span class="bu">max</span>(feature_count), color<span class="op">=</span><span class="st">'green'</span>, alpha<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"Modern</span><span class="ch">\n</span><span class="st">regime"</span>, xy<span class="op">=</span>(<span class="dv">4</span><span class="op">*</span>n_points <span class="op">+</span> <span class="dv">1</span>, <span class="fl">1e-5</span>), color<span class="op">=</span><span class="st">'green'</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>ax.axvline(x<span class="op">=</span>feature_count[torch.argmin(torch.tensor(test_mse_list))], color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"Best Test MSE"</span>, xy<span class="op">=</span>(feature_count[torch.argmin(torch.tensor(test_mse_list))] <span class="op">-</span><span class="dv">15</span>, <span class="bu">max</span>(test_mse_list)<span class="op">/</span><span class="dv">4</span>), color<span class="op">=</span><span class="st">'black'</span>)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>ax.axvline(x<span class="op">=</span>n_points, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"Interpolation Threshold"</span>, xy<span class="op">=</span>(n_points <span class="op">+</span> <span class="dv">1</span>, <span class="bu">max</span>(test_mse_list)<span class="op">*</span><span class="dv">10</span>), color<span class="op">=</span><span class="st">'black'</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Number of Features (Polynomial Degree + 1)"</span>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Mean Squared Error"</span>)</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="ss">f"Double descent in Legendre polynomial regression"</span>)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="bu">min</span>(<span class="bu">min</span>(test_mse_list), <span class="bu">min</span>(train_mse_list))<span class="op">/</span><span class="dv">10</span>, <span class="bu">max</span>(<span class="bu">max</span>(test_mse_list), <span class="bu">max</span>(train_mse_list))<span class="op">*</span><span class="dv">1000</span>)</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="bu">max</span>(feature_count))</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>ax.semilogy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-double-descent-curve" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-double-descent-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="448115ee" class="cell" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-19-output-1.png" class="figure-img" width="675" height="442"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-double-descent-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.6: Training and test MSE as a function of the number of features. The vertical dashed lines indicate the interpolation threshold and the optimal number of features according to the test MSE. The classical, classical danger zone, and modern regimes are indicated with different background colors.
+</figcaption>
+</figure>
+</div>
+<p>We observe that the test MSE increases considerably as we add more features up to the interpolation threshold, and peaks shortly after. However, as we continue to add features, something surprising happens: the test MSE begins to <em>decrease</em> again, and eventually reaches a minimum value <em>beyond</em> the interpolation threshold. This is what is sometimes called the “modern regime” for model complexity in high-dimensional machine learning.</p>
+<p>What does this look like in terms of the actual models we fit?</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">7</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>best_num_features <span class="op">=</span> feature_count[torch.argmin(torch.tensor(test_mse_list))]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, num_features <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">10</span>, best_num_features]): </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    degree <span class="op">=</span> num_features <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>degree <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> legendre_features(x, degree<span class="op">=</span>degree)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    train_model(X, y)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    x_viz <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">200</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    X_viz <span class="op">=</span> legendre_features(x_viz, degree<span class="op">=</span>degree)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    y_pred <span class="op">=</span> model.forward(X_viz).detach().squeeze()</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> axarr.flatten()[i]</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_viz, signal_viz, color<span class="op">=</span><span class="st">'k'</span>, label<span class="op">=</span><span class="st">"True Signal"</span>, zorder <span class="op">=</span> <span class="op">-</span><span class="dv">10</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x, signal <span class="op">+</span> noise, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"Training data"</span>, color <span class="op">=</span> <span class="st">"k"</span>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x_test, signal_test <span class="op">+</span> noise_test, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"Test Data"</span>, color<span class="op">=</span><span class="st">'k'</span>, facecolors<span class="op">=</span><span class="st">'none'</span>)</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_viz, y_pred, color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">"Model Prediction"</span>)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Num Features = </span><span class="sc">{</span>num_features<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(<span class="bu">min</span>(y_test.<span class="bu">min</span>(), y.<span class="bu">min</span>()) <span class="op">-</span> <span class="fl">0.5</span>, <span class="bu">max</span>(y_test.<span class="bu">max</span>(), y.<span class="bu">max</span>()) <span class="op">+</span> <span class="fl">0.5</span>)</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        ax.legend(ncol <span class="op">=</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-double-descent-models" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-double-descent-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="1b3b8758" class="cell" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="07-bias-variance_files/figure-html/cell-20-output-1.png" class="figure-img" width="634" height="573"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-double-descent-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.7: Legendre polynomial regression models (red) with different numbers of features, visualized with training and test data as well as the true signal (black).
+</figcaption>
+</figure>
+</div>
+<p>We observe that for small number of features, the model <em>underfits</em> the data, while as we approach the interpolation threshold the model <em>overfits</em> the data in a way that causes the model predictions to swing wildly. However, as we increase the number of features further, the model predictions become much smoother and closer to the true signal, which explains the improved test MSE.</p>
+<p>Double descent remains an actively explored area of research with major practical implications in the context of deep learning models.</p>
+
+
+</section>
+
+<p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/06-regularization.html" class="pagination-link" aria-label="Features and Regularization">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
