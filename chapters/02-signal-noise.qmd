@@ -474,7 +474,7 @@ $$
 \end{aligned}
 $$
 
-The likelihood of the complete data set is simply the product of the individual data point PDFs, evaluated at their corresponding observed values. The likelihood is a function of the predictors which we'll collect into a vector $\vx = (x_1,\ldots,x_n)^T, the targets which we'll collect into a vector  $ $\vy = (y_1,\ldots,y_n)^T$, and the parameters of the model (in this case, the function $f$ and the noise level $\sigma$):
+The likelihood of the complete data set is simply the product of the individual data point PDFs, evaluated at their corresponding observed values. The likelihood is a function of the predictors which we'll collect into a vector $\vx = (x_1,\ldots,x_n)^T$, the targets which we'll collect into a vector $\vy = (y_1,\ldots,y_n)^T$, and the parameters of the model (in this case, the function $f$ and the noise level $\sigma$):
 
 ::: {#def-gaussian-likelihood}
 
