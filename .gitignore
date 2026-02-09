@@ -10,3 +10,6 @@ _local-notes
 **/*.quarto_ipynb
 
 /.luarc.json
+
+chapters/**.html
+chapters/**_files

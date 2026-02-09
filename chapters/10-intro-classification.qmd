@@ -315,6 +315,114 @@ print(f'Training accuracy: {accuracy:.3f}')
 #---
 ```
 
+As usual, to fully assess the classifier we would evaluate the accuracy on a held-out test set. 
+
 ## Multinomial Classification
+
+What do we do with more than two classes? 
+
+![Image source: \@allisonhorst](https://allisonhorst.github.io/palmerpenguins/reference/figures/lter_penguins.png)
+
+Our data set for these notes is Palmer Penguins. This data set contains physiological measurements and species labels for several populations of Adelie, Chinstrap, and Gentoo penguins. 
+
+[The Palmer Penguins data was originally collected by @gormanEcologicalSexualDimorphism2014 and was nicely packaged and released for use in the data science community by @horstAllisonhorstPalmerpenguinsV02020. You can find [a very concise summary](https://jakevdp.github.io/PythonDataScienceHandbook/05.02-introducing-scikit-learn.html#Supervised-learning-example:-Iris-classification) of the main workflow using a similar data set in @vanderplasPythonDataScience2016.]{.aside} 
+
+Let's go ahead and acquire the data. 
+
+```{python}
+import pandas as pd
+url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/palmer-penguins/palmer-penguins.csv"
+
+df = pd.read_csv(url)
+```
+
+[You can learn much more about the capabilities of `pandas.DataFrame` objects in [Chapter 3](https://jakevdp.github.io/PythonDataScienceHandbook/03.00-introduction-to-pandas.html) of  @vanderplasPythonDataScience2016]{.aside}
+The `df` variable holds a `pandas.DataFrame` object. You can think of a data frame as a table of data with a variety of useful behaviors for data manipulation and visualization. 
+
+Let's take a look: 
+
+```{python}
+#---
+df.head() # first 5 rows
+#---
+```
+
+Each row of this data frame contains measurements for a single penguin, and the columns contain different features of the data. We'll use the `Species` column as our class labels, and the other columns as features for classification. For illustration, we'll use only two features: `Culmen Length (mm)` and `Culmen Depth (mm)`.
+
+```{python}
+df = df.dropna(subset=['Culmen Length (mm)', 'Culmen Depth (mm)', 'Species'])
+df = df[['Culmen Length (mm)', 'Culmen Depth (mm)', 'Species']]
+df["Species"] = df["Species"].str.split().str[0]  # shorten species names to first letter
+```
+
+A look at the species labels in feature space suggests that we should be able to do a pretty good job of classifying the species based on these two features.
+
+```{python}
+sns.scatterplot(data=df, x='Culmen Length (mm)', y='Culmen Depth (mm)', hue='Species', style='Species', edgecolor='k', alpha=0.7)
+```
+
+### One-Hot Encoding
+
+To apply our classification framework to our data, we need to convert the categorical species labels into numerical values. A particularly convenient way to do this is via *one-hot encoding*. 
+
+::: {#def-one-hot-encoding}
+
+## One-Hot Encoding
+
+If $y$ is a categorical variable with $K$ categories, then the one-hot encoding of $\vy$ of $y$ is a vector $\vy \in \{0, 1\}^K$ with entries
+
+$$
+y_i = \begin{cases}
+    1 & \text{if } y \text{ is in category } i \\
+    0 & \text{otherwise}
+\end{cases}\;.
+$$
+
+:::
+
+For example, in our case with class labels "Adelie", "Chinstrap", and "Gentoo", a one-hot encoding of a penguin of species "Adelie" would be the vector $\vy = (1, 0, 0)$, a penguin of species "Chinstrap" would be $\vy = (0, 1, 0)$, and a penguin of species "Gentoo" would be $\vy = (0, 0, 1)$.
+
+The `pandas` library provides a convenient way to perform one-hot encoding for data frames  via the `pd.get_dummies` function.
+
+```{python}
+df = pd.get_dummies(df, columns=['Species'])
+df.head()
+```
+
+Now we're ready to split our data into features and targets and to training and test sets. 
+
+```{python}
+
+train_ix = df.sample(frac=0.8, random_state=42).index
+test_ix = df.drop(train_ix).index
+
+feature_cols = ['Culmen Length (mm)', 'Culmen Depth (mm)']
+target_cols = ['Species_Adelie', 'Species_Chinstrap', 'Species_Gentoo']
+
+X_train = torch.tensor(df.loc[train_ix, feature_cols].values, dtype=torch.float32)
+y_train = torch.tensor(df.loc[train_ix, target_cols].values, dtype=torch.float32)
+
+X_test = torch.tensor(df.loc[test_ix, feature_cols].values, dtype=torch.float32)
+y_test = torch.tensor(df.loc[test_ix, target_cols].values, dtype=torch.float32)
+```
+
+### Data Model
+
+Now it's time to write down a data model for our multinomial classification problem. We'll follow the same approach as we did for binary classification, but we need to modify the likelihood function to account for multiple classes.     
+
+Let $\mY$ be the $n \times K$ matrix of one-hot encoded class labels, with $i$th row $\vy_i$ corresponding to the one-hot encoding of the class label for data point $i$: 
+
+$$
+\mY = \begin{bmatrix}
+    - & \vy_1^\top & - \\
+    - & \vy_2^\top & - \\
+    \vdots \\
+    - & \vy_n^\top & -
+\end{bmatrix}\;,
+$$
+
+Suppose now that we have a function $\vq: \R^d \rightarrow (0, 1)^K$ that takes in features $\vx_i$ and outputs a vector of probabilities $\vq(\vx_i)$ for each class. We can write down the likelihood of the data given this function as follows:
+
+
 
 
