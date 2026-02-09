@@ -1,0 +1,320 @@
+---
+title: Classification
+subtitle: Predicting categories and informing decisions
+execute: 
+    eval: true
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+
+## Introduction
+
+In this set of notes, we'll begin our investigation into *classification*. Whereas in regression we aimed to predict a *number* (like an amount of rainfall, or the price of a house), in classification we aim to predict a *category* (like whether an email is spam or not, or whether a tumor is malignant or benign). 
+
+### Classification and Decision-Making
+
+Classification is in many contexts a more practically-relevant task than regression, because classification relates directly to decision-making. For example, consider a spam filter. The goal of a spam filter is to classify incoming emails as either "spam" or "not spam". This classification directly informs the decision of whether to deliver the email to the user's inbox or to the spam folder. 
+
+## Data = Signal + Noise: Classification Edition
+
+When studying regression, we considered a framework in which the data $y_i$ was generated according to a process of the form 
+
+$$
+y_i = f(\vx_i) + \epsilon_i\;,
+$$
+
+where $f$ was a deterministic function of the input $\vx_i$, and $\epsilon_i$ was a random noise term. Our goal was to learn the signal $f$ rather than the noise $\epsilon_i$. For classification we still want to use the "signal + noise"
+paradigm, but the presence of categorical data means that we need to make some adjustments to the framework. 
+
+### Binary Classification
+
+In binary classification, we have two classes (e.g. "spam" vs "not spam"). We can represent the class labels as $y_i \in \{0, 1\}$, where $0$ represents one class and $1$ represents the other class.
+
+To start, let's generate some sample data with two features. 
+
+::: {#fig-classification-data}
+
+```{python}
+#| code-fold: true
+import torch
+from matplotlib import pyplot as plt
+import seaborn as sns
+w = torch.tensor([[0.0], [1.5], [1.5]])
+X = torch.randn(100, 3)
+X[:, 0] = 1.0
+
+q = torch.sigmoid(X @ w)
+y = torch.bernoulli(q)
+
+fig, ax = plt.subplots(figsize=(6, 6))
+
+markers = ['o', 's']
+for i in range(2): 
+    idx = (y.flatten() == i)
+    ax.scatter(X[idx, 1], X[idx, 2], c = y.flatten()[idx], label=f'Class {i}', edgecolor='k', marker=markers[i],   cmap = 'BrBG', vmin = -0.5, vmax = 1.5, alpha = 0.7)
+
+ax.legend()
+t = ax.set(title='Example Classification Data', xlabel=r'$x_1$', ylabel=r'$x_2$')
+```
+
+Example data for a binary classification problem with two features. The data points are colored and shaped according to their class label.
+
+:::
+
+We are going to conceptualize this data as arising according to the following process: 
+
+::: {.callout-note}
+
+## Data Generating Process for Classification
+
+1. There is some true underlying *signal function* $q$ that takes in features $\vx_i$ and outputs a *probability* of being in class 1. 
+2. For each data point $i$, we first compute the signal function $q(\vx_i)$, which gives us a probability of being in class 1.
+3. Then, we flip a biased coin with bias $q(\vx_i)$ to determine the class label $y_i$. 
+
+:::
+
+Here's a visualization of this process: 
+
+::: {#fig-classification-signal-noise}
+
+```{python}
+#| code-fold: true
+fig, axarr = plt.subplots(1, 3, figsize=(8, 3))
+x_1_grid = torch.linspace(X.min(), X.max(), 100)
+x_2_grid = torch.linspace(X.min(), X.max(), 100)
+xx, yy = torch.meshgrid(x_1_grid, x_2_grid, indexing='ij')
+grid = torch.cat([torch.ones_like(xx).reshape(-1, 1), xx.reshape(-1, 1), yy.reshape(-1, 1)], dim=1)
+with torch.no_grad():
+    q_grid = torch.sigmoid(grid @ w).reshape(xx.shape)
+
+axarr[0].contourf(xx, yy, q_grid, levels=torch.linspace(0, 1, steps=10), alpha=0.3, cmap='BrBG', extent = (x_1_grid.min(), x_1_grid.max(), x_2_grid.min(), x_2_grid.max()))
+
+axarr[1].contourf(xx, yy, q_grid, levels=torch.linspace(0, 1, steps=10), alpha=0.3, cmap='BrBG')
+
+sns.scatterplot(x=X[:, 1], y=X[:, 2], color = "black", ax=axarr[1], legend=False, edgecolor='k', facecolor = "none")
+
+
+for i in range(2): 
+    idx = (y.flatten() == i)
+    axarr[2].scatter(X[idx, 1], X[idx, 2], c = y.flatten()[idx], label=f'Class {i}', edgecolor='k', marker=markers[i],   cmap = 'BrBG', vmin = -0.5, vmax = 1.5, alpha = 0.7)
+
+for i, ax in enumerate(axarr): 
+    ax.set(xlim=(x_1_grid.min(), x_1_grid.max()), ylim=(x_2_grid.min(), x_2_grid.max()))
+    ax.set(xlabel=r'$x_1$')
+    if i == 0: 
+        ax.set(ylabel=r'$x_2$')
+    else: 
+        ax.set(ylabel='')
+
+# plt.colorbar(axarr[1].collections[0], ax=axarr[0], label='Probability of label 1 $q(\mathbf{x})$')
+axarr[0].set(title='Signal $q$')
+axarr[1].set(title='Data points in\nfeature space')
+axarr[2].set(title='Data points\nassigned categories')
+    
+plt.tight_layout()
+```
+
+(Left): example of a signal function $q$ that maps features $\vx$ to a probability of being in class 1. (Middle): the data points in feature space.  (Right): the data points with their observed class label after having been assigned categories according to the value of the signal function.
+
+:::
+
+### Likelihood Function for Binary Classification
+
+Given a signal function $q$, we can write down the likelihood of the data by remembering the Bernoulli distribution. [The notation $p_Y(y; q) = q^y (1-q)^{1-y}$ may look a bit unnecessarily fancy, but convince yourself that we have $p_Y(0; q) = 1-q$ and $p_Y(1; q) = q$.]{.aside}
+
+
+::: {#def-bernoulli}
+
+## Bernoulli Distribution
+
+Random variable $Y$ is said to be Bernoulli distributed with parameter $q$ if it takes value $1$ with probability $q$ and value $0$ with probability $1-q$. 
+
+The *probability mass function* of a Bernoulli distribution is given by
+
+$$
+p_Y(y; q) = \prob(Y = y;q) = q^y (1-q)^{1-y}\;.
+$$
+
+:::
+
+We can now write down the likelihood function for some data consisting of a feature matrix $\mX$ and a vector of class labels $\vy$ given a signal function $q$: 
+
+$$
+\begin{aligned}
+    L(\mX, \vy; q) &= \prod_{i = 1}^n p_Y(y_i; q) \\ 
+                   &= \prod_{i = 1}^n q(\vx_i)^{y_i} (1 - q(\vx_i))^{1 - y_i}\;.
+\end{aligned}
+$$      
+
+Just like with regression, it's usually more convenient to work with the log-likelihood: 
+
+$$
+\begin{aligned}
+    \ell(\mX, \vy; q) &= \log L(\mX, \vy; q) \\ 
+                   &= \sum_{i = 1}^n \left[y_i \log q(\vx_i) + (1 - y_i) \log (1 - q(\vx_i))\right]\;.
+\end{aligned}
+$${#eq-cross-entropy}
+
+@eq-cross-entropy is called the *binary cross-entropy* loss function of $q(\vx_i)$ for predicting $y_i$. Following our standard framework, we'd like to find a choice of $q$ that maximizes the log-likelihood (or equivalently minimizes the negative log-likelihood). 
+
+### Binary Logistic Regression
+
+To complete an algorithm for binary classification, we need to specify the set of possible signal functions $q$ that we are going to search over. In *logistic regression*, we consider signal functions which consist of applying the *logistic sigmoid* to a linear function of the features. 
+
+::: {#def-sigmoid}
+
+## Logistic Sigmoid 
+
+The logistic sigmoid $\sigma: \R \rightarrow (0, 1)$ is the function with formula 
+
+$$
+\sigma(z) = \frac{1}{1 + e^{-z}}\;.
+$${#eq-sigmoid}
+
+:::
+
+The logistic sigmoid sends any numerical input to a value between 0 and 1, which makes it a natural choice for modeling probabilities. In logistic regression, we apply the logistic sigmoid to a linear function of the features, which gives us the following form for the signal function $q$:
+
+$$
+\begin{aligned}
+    q(\vx_i) = \sigma(\vx_i^\top \vw)\;. 
+\end{aligned}
+$${#eq-logistic-regression}
+
+If we insert @eq-logistic-regression into @eq-cross-entropy, we get the following expression for the log-likelihood of the data given the parameters $\vw$: 
+
+$$
+\begin{aligned}
+    \cL(\mX, \vy; \vw) &= \sum_{i = 1}^n \left[y_i \log \sigma(\vx_i^\top \vw) + (1 - y_i) \log (1 - \sigma(\vx_i^\top \vw))\right]\;.
+\end{aligned}
+$$
+
+Much like with linear regression, it's typical to normalize by the number of data points $n$ to get an average log-likelihood per data point:
+
+$$
+\begin{aligned}
+    \cL(\mX, \vy; \vw) &= \frac{1}{n} \sum_{i = 1}^n \left[y_i \log \sigma(\vx_i^\top \vw) + (1 - y_i) \log (1 - \sigma(\vx_i^\top \vw))\right]\;.
+\end{aligned}
+$${#eq-logistic-regression-loss}
+
+
+### Implementation of Binary Logistic Regression
+
+To implement binary logistic regression, we can use largely the same machinery that we used for linear regression. The `forward` method will compute the value of the signal function $q(\vx_i) = \sigma(\vx_i^\top \vw)$ for each data point. 
+
+```{python}
+#---
+def sigmoid(z): 
+    return 1 / (1 + torch.exp(-z))
+
+def binary_cross_entropy(q, y): 
+    return -(y * torch.log(q) + (1 - y) * torch.log(1 - q)).mean()
+#---
+```
+
+```{python}
+#---
+class BinaryLogisticRegression: 
+    def __init__(self, n_features): 
+        self.w = torch.zeros(n_features, 1, requires_grad=True)
+
+    def forward(self, X): 
+        return sigmoid(X @ self.w)
+
+    def gradient(self, X, y): 
+        q = self.forward(X)
+        return (q - y).T @ X / len(X)
+#---
+```
+
+Now we're ready to train the model using gradient descent on the parameters $\vw$. The gradient of a single term in the binary cross-entropy loss is given by the formula
+
+$$
+\begin{aligned}
+    \nabla \cL(\vx_i, y_i; \vw) = (\sigma(\vx_i^\top \vw) - y_i) \vx_i\;,
+\end{aligned}
+$$
+
+which means that the gradient of the full loss is given by
+
+$$
+\begin{aligned}
+    \nabla \cL(\mX, \vy; \vw) = \frac{1}{n} \sum_{i = 1}^n (\sigma(\vx_i^\top \vw) - y_i) \vx_i\;.
+\end{aligned}
+$$
+
+
+```{python}
+#---
+model = BinaryLogisticRegression(n_features=3)
+
+losses = []
+for epoch in range(100): 
+    q = model.forward(X)
+    loss = binary_cross_entropy(q, y)
+    losses.append(loss.item())
+
+    grad = model.gradient(X, y)
+    with torch.no_grad(): 
+        model.w -= 0.1 * grad.T
+#---
+```
+
+Let's visualize the learned signal function: 
+
+```{python}
+#| code-fold: true
+x_1_grid = torch.linspace(X.min(), X.max(), 100)
+x_2_grid = torch.linspace(X.min(), X.max(), 100)
+xx, yy = torch.meshgrid(x_1_grid, x_2_grid, indexing='ij')
+grid = torch.cat([torch.ones_like(xx).reshape(-1, 1), xx.reshape(-1, 1), yy.reshape(-1, 1)], dim=1)
+with torch.no_grad():
+    q_grid = model.forward(grid).reshape(xx.shape)
+
+fig, axarr = plt.subplots(1, 2, figsize=(8, 4))
+
+axarr[0].plot(losses)
+axarr[0].set(title='Loss over training', xlabel='Epoch', ylabel='Binary cross-entropy loss')
+axarr[0].set_ylim(0, 1)
+axarr[1].set(title='Learned signal\nfunction $q$', xlabel=r'$x_1$', ylabel=r'$x_2$')
+
+
+axarr[1].contourf(xx, yy, q_grid, levels=torch.linspace(0, 1, steps=10), alpha=0.3, cmap='BrBG', extent = (x_1_grid.min(), x_1_grid.max(), x_2_grid.min(), x_2_grid.max()))
+axarr[1].contour(xx, yy, q_grid, levels=[0.5], colors='k', linewidths=1, extent = (x_1_grid.min(), x_1_grid.max(), x_2_grid.min(), x_2_grid.max()), linestyles='--')
+
+for i in range(2): 
+    idx = (y.flatten() == i)
+    axarr[1].scatter(X[idx, 1], X[idx, 2], c = y.flatten()[idx], label=f'Class {i}', edgecolor='k', marker=markers[i],   cmap = 'BrBG', vmin = -0.5, vmax = 1.5, alpha = 0.7)
+
+plt.tight_layout()
+```
+
+We can obtain predictions from the model by thresholding the signal function, for example at $q^* = 0.5$ as shown in the contour plot. 
+
+```{python}
+#---
+q = model.forward(X)
+y_pred = (q >= 0.5).float()
+
+# accuracy
+accuracy = (y_pred == y).float().mean()
+print(f'Training accuracy: {accuracy:.3f}')
+#---
+```
+
+## Multinomial Classification
+
+
