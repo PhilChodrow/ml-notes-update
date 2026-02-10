@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>6&nbsp; Introduction: Binary Labels – Machine Learning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/15-multinomial-classification.html" rel="next">
+<link href="../chapters/07-bias-variance.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a14e345711173c227b21482e2eb4cc70.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d8b0bb70be28f5ebcc1c8c98afdc075d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
+  background-image: none;
+}
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
+  background-image: none;
+}
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/10-intro-classification.html">Classification</a></li><li class="breadcrumb-item"><a href="../chapters/10-intro-classification.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Introduction: Binary Labels</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Machine Learning</a> 
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Machine Learning Fundamentals</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-signal-noise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-maximum-likelihood.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-more-gradients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-bias-variance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Classification</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/10-intro-classification.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Introduction: Binary Labels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/15-multinomial-classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#classification-and-decision-making" id="toc-classification-and-decision-making" class="nav-link" data-scroll-target="#classification-and-decision-making">Classification and Decision-Making</a></li>
+  <li><a href="#data-signal-noise-classification-edition" id="toc-data-signal-noise-classification-edition" class="nav-link" data-scroll-target="#data-signal-noise-classification-edition">Data = Signal + Noise: Classification Edition</a></li>
+  </ul></li>
+  <li><a href="#binary-classification" id="toc-binary-classification" class="nav-link" data-scroll-target="#binary-classification">Binary Classification</a>
+  <ul class="collapse">
+  <li><a href="#likelihood-function-for-binary-classification" id="toc-likelihood-function-for-binary-classification" class="nav-link" data-scroll-target="#likelihood-function-for-binary-classification">Likelihood Function for Binary Classification</a></li>
+  <li><a href="#binary-logistic-regression" id="toc-binary-logistic-regression" class="nav-link" data-scroll-target="#binary-logistic-regression">Binary Logistic Regression</a></li>
+  <li><a href="#implementation-of-binary-logistic-regression" id="toc-implementation-of-binary-logistic-regression" class="nav-link" data-scroll-target="#implementation-of-binary-logistic-regression">Implementation of Binary Logistic Regression</a></li>
+  <li><a href="#data-case-study" id="toc-data-case-study" class="nav-link" data-scroll-target="#data-case-study">Data Case Study</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/10-intro-classification.html">Classification</a></li><li class="breadcrumb-item"><a href="../chapters/10-intro-classification.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Introduction: Binary Labels</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Introduction: Binary Labels</span></h1>
+<p class="subtitle lead">Predicting categories and informing decisions</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/10-intro-classification.ipynb">Open the live notebook</a> in Google Colab.</em></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In this set of notes, we’ll begin our investigation into <em>classification</em>. Whereas in regression we aimed to predict a <em>number</em> (like an amount of rainfall, or the price of a house), in classification we aim to predict a <em>category</em> (like whether an email is spam or not, or whether a tumor is malignant or benign).</p>
+<section id="classification-and-decision-making" class="level3">
+<h3 class="anchored" data-anchor-id="classification-and-decision-making">Classification and Decision-Making</h3>
+<p>Classification is in many contexts a more practically-relevant task than regression, because classification relates directly to decision-making. For example, consider a spam filter. The goal of a spam filter is to classify incoming emails as either “spam” or “not spam”. This classification directly informs the decision of whether to deliver the email to the user’s inbox or to the spam folder.</p>
+</section>
+<section id="data-signal-noise-classification-edition" class="level3">
+<h3 class="anchored" data-anchor-id="data-signal-noise-classification-edition">Data = Signal + Noise: Classification Edition</h3>
+<p>When studying regression, we considered a framework in which the data <span class="math inline">\(y_i\)</span> was generated according to a process of the form</p>
+<p><span class="math display">\[
+y_i = f(\mathbf{x}_i) + \epsilon_i\;,
+\]</span></p>
+<p>where <span class="math inline">\(f\)</span> was a deterministic function of the input <span class="math inline">\(\mathbf{x}_i\)</span>, and <span class="math inline">\(\epsilon_i\)</span> was a random noise term. Our goal was to learn the signal <span class="math inline">\(f\)</span> rather than the noise <span class="math inline">\(\epsilon_i\)</span>. For classification we still want to use the “signal + noise” paradigm, but the presence of categorical data means that we need to make some adjustments to the framework. In particular, since <span class="math inline">\(y_i\)</span> is now a category rather than number, we can’t write it as the “sum” of anything, so our idea of “signal + noise” will be a bit metaphorical.</p>
+</section>
+</section>
+<section id="binary-classification" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="binary-classification">Binary Classification</h2>
+<p>In binary classification, we have two classes (e.g.&nbsp;“spam” vs “not spam”). We can represent the class labels as <span class="math inline">\(y_i \in \{0, 1\}\)</span>, where <span class="math inline">\(0\)</span> represents one class and <span class="math inline">\(1\)</span> represents the other class. Here’s an example of the kind of data we have in mind with a binary classification problem:</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> torch.tensor([[<span class="fl">0.0</span>], [<span class="fl">1.5</span>], [<span class="fl">1.5</span>]])</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.randn(<span class="dv">100</span>, <span class="dv">3</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>X[:, <span class="dv">0</span>] <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> torch.sigmoid(X <span class="op">@</span> w)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> torch.bernoulli(q)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>markers <span class="op">=</span> [<span class="st">'o'</span>, <span class="st">'s'</span>]</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>): </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> (y.flatten() <span class="op">==</span> i)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    ax.scatter(X[idx, <span class="dv">1</span>], X[idx, <span class="dv">2</span>], c <span class="op">=</span> y.flatten()[idx], label<span class="op">=</span><span class="ss">f'Class </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">'</span>, edgecolor<span class="op">=</span><span class="st">'k'</span>, marker<span class="op">=</span>markers[i],   cmap <span class="op">=</span> <span class="st">'BrBG'</span>, vmin <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span>, vmax <span class="op">=</span> <span class="fl">1.5</span>, alpha <span class="op">=</span> <span class="fl">0.7</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">'Example Classification Data'</span>, xlabel<span class="op">=</span><span class="vs">r'</span><span class="dv">$</span><span class="vs">x_1</span><span class="dv">$</span><span class="vs">'</span>, ylabel<span class="op">=</span><span class="vs">r'</span><span class="dv">$</span><span class="vs">x_2</span><span class="dv">$</span><span class="vs">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-classification-data" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-classification-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="9047f707" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10-intro-classification_files/figure-html/cell-4-output-1.png" class="figure-img" width="503" height="516"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-classification-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.1: Example data for a binary classification problem with two features. The data points are colored and shaped according to their class label.
+</figcaption>
+</figure>
+</div>
+<p>We are going to conceptualize this data as arising according to the following process:</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Data Generating Process for Classification
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>There is some true underlying <em>signal function</em> <span class="math inline">\(q\)</span> that takes in features <span class="math inline">\(\mathbf{x}_i\)</span> and outputs a <em>probability</em> of being in class 1.</li>
+<li>For each data point <span class="math inline">\(i\)</span>, we first compute the signal function <span class="math inline">\(q(\mathbf{x}_i)\)</span>, which gives us a probability of being in class 1.</li>
+<li>Then, we flip a biased coin with bias <span class="math inline">\(q(\mathbf{x}_i)\)</span> to determine the class label <span class="math inline">\(y_i\)</span>. The uncertainty of this coin flip is the <em>noise</em> in the data generating process.</li>
+</ol>
+</div>
+</div>
+<p>Here’s a visualization of this process:</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">3</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x_1_grid <span class="op">=</span> torch.linspace(X.<span class="bu">min</span>(), X.<span class="bu">max</span>(), <span class="dv">100</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>x_2_grid <span class="op">=</span> torch.linspace(X.<span class="bu">min</span>(), X.<span class="bu">max</span>(), <span class="dv">100</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>xx, yy <span class="op">=</span> torch.meshgrid(x_1_grid, x_2_grid, indexing<span class="op">=</span><span class="st">'ij'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> torch.cat([torch.ones_like(xx).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), xx.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), yy.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    q_grid <span class="op">=</span> torch.sigmoid(grid <span class="op">@</span> w).reshape(xx.shape)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].contourf(xx, yy, q_grid, levels<span class="op">=</span>torch.linspace(<span class="dv">0</span>, <span class="dv">1</span>, steps<span class="op">=</span><span class="dv">10</span>), alpha<span class="op">=</span><span class="fl">0.3</span>, cmap<span class="op">=</span><span class="st">'BrBG'</span>, extent <span class="op">=</span> (x_1_grid.<span class="bu">min</span>(), x_1_grid.<span class="bu">max</span>(), x_2_grid.<span class="bu">min</span>(), x_2_grid.<span class="bu">max</span>()))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].contourf(xx, yy, q_grid, levels<span class="op">=</span>torch.linspace(<span class="dv">0</span>, <span class="dv">1</span>, steps<span class="op">=</span><span class="dv">10</span>), alpha<span class="op">=</span><span class="fl">0.3</span>, cmap<span class="op">=</span><span class="st">'BrBG'</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(x<span class="op">=</span>X[:, <span class="dv">1</span>], y<span class="op">=</span>X[:, <span class="dv">2</span>], color <span class="op">=</span> <span class="st">"black"</span>, ax<span class="op">=</span>axarr[<span class="dv">1</span>], legend<span class="op">=</span><span class="va">False</span>, edgecolor<span class="op">=</span><span class="st">'k'</span>, facecolor <span class="op">=</span> <span class="st">"none"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>): </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> (y.flatten() <span class="op">==</span> i)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    axarr[<span class="dv">2</span>].scatter(X[idx, <span class="dv">1</span>], X[idx, <span class="dv">2</span>], c <span class="op">=</span> y.flatten()[idx], label<span class="op">=</span><span class="ss">f'Class </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">'</span>, edgecolor<span class="op">=</span><span class="st">'k'</span>, marker<span class="op">=</span>markers[i],   cmap <span class="op">=</span> <span class="st">'BrBG'</span>, vmin <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span>, vmax <span class="op">=</span> <span class="fl">1.5</span>, alpha <span class="op">=</span> <span class="fl">0.7</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axarr): </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(xlim<span class="op">=</span>(x_1_grid.<span class="bu">min</span>(), x_1_grid.<span class="bu">max</span>()), ylim<span class="op">=</span>(x_2_grid.<span class="bu">min</span>(), x_2_grid.<span class="bu">max</span>()))</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="vs">r'</span><span class="dv">$</span><span class="vs">x_1</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>: </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        ax.<span class="bu">set</span>(ylabel<span class="op">=</span><span class="vs">r'</span><span class="dv">$</span><span class="vs">x_2</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>: </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        ax.<span class="bu">set</span>(ylabel<span class="op">=</span><span class="st">''</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.colorbar(axarr[1].collections[0], ax=axarr[0], label='Probability of label 1 $q(\mathbf{x})$')</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">'Signal $q$'</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">'Data points in</span><span class="ch">\n</span><span class="st">feature space'</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">2</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">'Data points</span><span class="ch">\n</span><span class="st">assigned categories'</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-classification-signal-noise" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-classification-signal-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="fe1f5367" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10-intro-classification_files/figure-html/cell-5-output-1.png" class="figure-img" width="757" height="276"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-classification-signal-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.2: (Left): example of a signal function <span class="math inline">\(q\)</span> that maps features <span class="math inline">\(\mathbf{x}\)</span> to a probability of being in class 1. (Middle): the data points in feature space. (Right): the data points with their observed class label after having been assigned categories according to the value of the signal function.
+</figcaption>
+</figure>
+</div>
+<section id="likelihood-function-for-binary-classification" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="likelihood-function-for-binary-classification">Likelihood Function for Binary Classification</h3>
+<p>Suppose that we evaluate the signal function <span class="math inline">\(q\)</span> at some point <span class="math inline">\(\mathbf{x}\)</span>, giving us a probability <span class="math inline">\(q(\mathbf{x})\)</span> that a data point with features <span class="math inline">\(\mathbf{x}\)</span> belongs to class 1. We can then write the probability of that data point belonging to class <span class="math inline">\(y\in \{0,1\}\)</span> as</p>
+<p><span id="eq-bernoulli-pmf-piecewise"><span class="math display">\[
+\begin{align}
+    p_Y(y; q(\mathbf{x})) = \begin{cases}
+        q(\mathbf{x}) &amp; \text{if } y = 1 \\
+        1 - q(\mathbf{x}) &amp; \text{if } y = 0
+    \end{cases}  
+\end{align}
+\tag{6.1}\]</span></span></p>
+<div class="page-columns page-full"><p>Although it might seem a bit unnecessarily complicated at first, it turns out that a very useful way to write this </p><div class="no-row-height column-margin column-container"><span class="margin-aside">The notation <span class="math inline">\(p_Y(y; q(\mathbf{x})) = q(\mathbf{x})^y (1-q(\mathbf{x}))^{1-y}\)</span> may look a bit unnecessarily fancy, but convince yourself that we have <span class="math inline">\(p_Y(0; q(\mathbf{x})) = 1-q(\mathbf{x})\)</span> and <span class="math inline">\(p_Y(1; q(\mathbf{x})) = q(\mathbf{x})\)</span>, as in <a href="#eq-bernoulli-pmf-piecewise" class="quarto-xref">Equation&nbsp;<span>6.1</span></a>.</span></div></div>
+<p><span id="eq-bernoulli-pmf"><span class="math display">\[
+\begin{aligned}
+    p_Y(y; q(\mathbf{x})) &amp;= q(\mathbf{x})^y (1 - q(\mathbf{x}))^{1 - y}\;.
+\end{aligned}
+\tag{6.2}\]</span></span></p>
+<p>This is an instance of the Bernoulli distribution with parameter <span class="math inline">\(q(\mathbf{x})\)</span>:</p>
+<div id="def-bernoulli" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 6.1 (Bernoulli Distribution)</strong></span> Random variable <span class="math inline">\(Y\)</span> is said to be Bernoulli distributed with parameter <span class="math inline">\(q\)</span> if it takes value <span class="math inline">\(1\)</span> with probability <span class="math inline">\(q\)</span> and value <span class="math inline">\(0\)</span> with probability <span class="math inline">\(1-q\)</span>.</p>
+<p>The <em>probability mass function</em> of a Bernoulli distribution is given by</p>
+<p><span class="math display">\[
+p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
+\]</span></p>
+</div>
+<p>We can now write down the likelihood function for some data consisting of a feature matrix <span class="math inline">\(\mathbf{X}\)</span> and a vector of class labels <span class="math inline">\(\mathbf{y}\)</span> given a signal function <span class="math inline">\(q\)</span> by multiplying together the probabilities for each data point:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    L(\mathbf{X}, \mathbf{y}; q) &amp;= \prod_{i = 1}^n p_Y(y_i; q(\mathbf{x})) \\
+                   &amp;= \prod_{i = 1}^n q(\mathbf{x}_i)^{y_i} (1 - q(\mathbf{x}_i))^{1 - y_i}\;.
+\end{aligned}
+\]</span></p>
+<p>Just like with regression, it’s usually more convenient to work with the log-likelihood:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathcal{L}(\mathbf{X}, \mathbf{y}; q) &amp;= \log L(\mathbf{X}, \mathbf{y}; q) \\
+                   &amp;= \sum_{i = 1}^n \left[y_i \log q(\mathbf{x}_i) + (1 - y_i) \log (1 - q(\mathbf{x}_i))\right]\;.
+\end{aligned}
+\]</span></p>
+<p>Since we customarily minimize when working with optimization problems, we aim to minimize the negative log-likelihood, which is given by</p>
+<p><span id="eq-logistic-loss"><span class="math display">\[
+\begin{aligned}
+    -\mathcal{L}(\mathbf{X}, \mathbf{y}; q)  
+                   &amp;= -\sum_{i = 1}^n \left[y_i \log q(\mathbf{x}_i) + (1 - y_i) \log (1 - q(\mathbf{x}_i))\right]\;.
+\end{aligned}
+\tag{6.3}\]</span></span></p>
+<div id="def-cross-entropy" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 6.2 (Binary Cross-Entropy Loss)</strong></span> The <em>binary cross entropy</em> between a collection of predicted probabilities <span class="math inline">\(\mathbf{q}= (q_1,q_2,\ldots,q_n) \in [0,1]^n\)</span> and true labels <span class="math inline">\(\mathbf{y}= (y_1,y_2,\ldots,y_n) \in \{0,1\}^n\)</span> is given by the formula</p>
+<p><span id="eq-cross-entropy"><span class="math display">\[
+\mathrm{CE}(\mathbf{y}, \mathbf{q}) = -\sum_{i = 1}^n \left[y_i \log q_i + (1 - y_i) \log (1 - q_i)\right]\;.
+\tag{6.4}\]</span></span></p>
+</div>
+<p>While <code>torch</code> implements some bespoke cross-entropy loss functions optimized for various cases, it’s also a quick formula to implement by hand:</p>
+<div id="bd5b3122" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> binary_cross_entropy(q, y): </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>(y <span class="op">*</span> torch.log(q) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y) <span class="op">*</span> torch.log(<span class="dv">1</span> <span class="op">-</span> q)).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>So, using the binary cross entropy, our loss function for classification in this model is given by</p>
+<p><span class="math display">\[
+\begin{aligned}
+    -\mathcal{L}(\mathbf{X}, \mathbf{y}; q) = \mathrm{CE}(\mathbf{y}, \mathbf{q}(\mathbf{X}))\;,
+\end{aligned}
+\]</span></p>
+<p>where here we are letting <span class="math inline">\(\mathbf{q}(\mathbf{X}) = (q(\mathbf{x}_1), q(\mathbf{x}_2), \ldots, q(\mathbf{x}_n))\)</span> be the vector of predicted probabilities for each data point. We’d like to find a choice of the signal function <span class="math inline">\(q\)</span> that makes this loss as small as possible, which as usual is equivalent to maximizing the log-likelihood.</p>
+</section>
+<section id="binary-logistic-regression" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="binary-logistic-regression">Binary Logistic Regression</h3>
+<p>To complete an algorithm for binary classification, we need to specify the set of possible signal functions <span class="math inline">\(q\)</span> that we are going to search over. In <em>logistic regression</em>, we consider signal functions which consist of applying the <em>logistic sigmoid</em> to a linear function of the features.</p>
+<div id="def-sigmoid" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 6.3 (Logistic Sigmoid)</strong></span> The logistic sigmoid <span class="math inline">\(\sigma: \mathbb{R}\rightarrow (0, 1)\)</span> is the function with formula</p>
+<p><span id="eq-sigmoid"><span class="math display">\[
+\sigma(z) = \frac{1}{1 + e^{-z}}\;.
+\tag{6.5}\]</span></span></p>
+</div>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div id="42c6a742" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10-intro-classification_files/figure-html/cell-7-output-1.png" class="figure-img img-fluid" width="508" height="294"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Plot of the logistic sigmoid <span class="math inline">\(\sigma\)</span>.</p>
+</div></div><p>Here’s a quick implementation:</p>
+<div id="4c81b48a" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sigmoid(z): </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> torch.exp(<span class="op">-</span>z))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The logistic sigmoid sends any numerical input to a value between 0 and 1, which makes it a natural choice for modeling probabilities. In logistic regression, we apply the logistic sigmoid to a linear function of the features, which gives us the following form for the signal function <span class="math inline">\(q\)</span>:</p>
+<p><span id="eq-logistic-regression"><span class="math display">\[
+\begin{aligned}
+    q(\mathbf{x}_i) = \sigma(\mathbf{x}_i^\top \mathbf{w})\;.
+\end{aligned}
+\tag{6.6}\]</span></span></p>
+<p>If we insert <a href="#eq-logistic-regression" class="quarto-xref">Equation&nbsp;<span>6.6</span></a> into <a href="#eq-cross-entropy" class="quarto-xref">Equation&nbsp;<span>6.4</span></a>, we get the following expression for the cross-entropy of the predictions and data for a given parameter vector <span class="math inline">\(\mathbf{w}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    -\mathcal{L}(\mathbf{X}, \mathbf{y}; \mathbf{w}) &amp;= \mathrm{CE}(\mathbf{y}, \mathbf{q}(\mathbf{X})) \\
+    &amp;= \mathrm{CE}(\mathbf{y}, \sigma(\mathbf{X}\mathbf{w})) &amp;\quad \text{(sigmoid applied entrywise to $\mathbf{X}\mathbf{w}$)} \\
+    &amp;=  -\sum_{i = 1}^n \left[y_i \log \sigma(\mathbf{x}_i^\top \mathbf{w}) + (1 - y_i) \log (1 - \sigma(\mathbf{x}_i^\top \mathbf{w}))\right]\;.
+\end{aligned}
+\]</span></p>
+<div class="page-columns page-full"><p>Much like with linear regression, it’s typical to normalize by the number of data points <span class="math inline">\(n\)</span> to get an average log-likelihood per data point, which gives our final formula for the loss function in binary logistic regression: </p><div class="no-row-height column-margin column-container"><span class="margin-aside">This normalization is why we used <code>.mean()</code> instead of <code>.sum()</code> in the <code>binary_cross_entropy</code> function above.</span></div></div>
+<p><span id="eq-logistic-regression-loss"><span class="math display">\[
+\begin{aligned}
+    \mathrm{Loss} &amp;= \frac{1}{n} \sum_{i = 1}^n \left[y_i \log \sigma(\mathbf{x}_i^\top \mathbf{w}) + (1 - y_i) \log (1 - \sigma(\mathbf{x}_i^\top \mathbf{w}))\right]\;.
+\end{aligned}
+\tag{6.7}\]</span></span></p>
+</section>
+<section id="implementation-of-binary-logistic-regression" class="level3">
+<h3 class="anchored" data-anchor-id="implementation-of-binary-logistic-regression">Implementation of Binary Logistic Regression</h3>
+<p>To implement binary logistic regression, we can use largely the same machinery that we used for linear regression. The <code>forward</code> method will compute the value of the signal function <span class="math inline">\(q(\mathbf{x}_i) = \sigma(\mathbf{x}_i^\top \mathbf{w})\)</span> for each data point.</p>
+<div id="aed5b4b7" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BinaryLogisticRegression: </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_features): </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> torch.zeros(n_features, <span class="dv">1</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X): </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> sigmoid(X <span class="op">@</span> <span class="va">self</span>.w)        </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we’re ready to train the model using gradient descent on the parameters <span class="math inline">\(\mathbf{w}\)</span>. The gradient of a single term in the binary cross-entropy loss is given by the formula</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \nabla \mathcal{L}(\mathbf{x}_i, y_i; \mathbf{w}) = (\sigma(\mathbf{x}_i^\top \mathbf{w}) - y_i) \mathbf{x}_i\;,
+\end{aligned}
+\]</span></p>
+<p>which means that the gradient of the full loss is given by</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \nabla \mathcal{L}(\mathbf{X}, \mathbf{y}; \mathbf{w}) = \frac{1}{n} \sum_{i = 1}^n (\sigma(\mathbf{x}_i^\top \mathbf{w}) - y_i) \mathbf{x}_i\;.
+\end{aligned}
+\]</span></p>
+<p>Let’s build in these calculations to a class for performing gradient descent optimization.</p>
+<div id="ee20a0cf" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GradientDescentOptimizer: </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, lr<span class="op">=</span><span class="fl">0.1</span>): </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> model</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lr <span class="op">=</span> lr</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> grad_func(<span class="va">self</span>, X, y): </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> <span class="va">self</span>.model.forward(X)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">/</span>X.shape[<span class="dv">0</span>] <span class="op">*</span> ((q <span class="op">-</span> y).T <span class="op">@</span> X).T</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(<span class="va">self</span>, X, y): </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        grad <span class="op">=</span> <span class="va">self</span>.grad_func(X, y)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad(): </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.model.w <span class="op">-=</span> <span class="va">self</span>.lr <span class="op">*</span> grad</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="be4a092a" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> BinaryLogisticRegression(n_features<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model, lr<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>): </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> model.forward(X)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> binary_cross_entropy(q, y)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    losses.append(loss.item())</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    opt.step(X, y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s visualize the learned signal function:</p>
+<div id="c74f01e3" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_1_grid <span class="op">=</span> torch.linspace(X.<span class="bu">min</span>(), X.<span class="bu">max</span>(), <span class="dv">100</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>x_2_grid <span class="op">=</span> torch.linspace(X.<span class="bu">min</span>(), X.<span class="bu">max</span>(), <span class="dv">100</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>xx, yy <span class="op">=</span> torch.meshgrid(x_1_grid, x_2_grid, indexing<span class="op">=</span><span class="st">'ij'</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> torch.cat([torch.ones_like(xx).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), xx.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), yy.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    q_grid <span class="op">=</span> model.forward(grid).reshape(xx.shape)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].plot(losses, color <span class="op">=</span> <span class="st">"grey"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">'Loss over training'</span>, xlabel<span class="op">=</span><span class="st">'Epoch'</span>, ylabel<span class="op">=</span><span class="st">'Binary cross-entropy loss'</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">'Learned signal</span><span class="ch">\n</span><span class="st">function $q$'</span>, xlabel<span class="op">=</span><span class="vs">r'</span><span class="dv">$</span><span class="vs">x_1</span><span class="dv">$</span><span class="vs">'</span>, ylabel<span class="op">=</span><span class="vs">r'</span><span class="dv">$</span><span class="vs">x_2</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].contourf(xx, yy, q_grid, levels<span class="op">=</span>torch.linspace(<span class="dv">0</span>, <span class="dv">1</span>, steps<span class="op">=</span><span class="dv">10</span>), alpha<span class="op">=</span><span class="fl">0.3</span>, cmap<span class="op">=</span><span class="st">'BrBG'</span>, extent <span class="op">=</span> (x_1_grid.<span class="bu">min</span>(), x_1_grid.<span class="bu">max</span>(), x_2_grid.<span class="bu">min</span>(), x_2_grid.<span class="bu">max</span>()))</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].contour(xx, yy, q_grid, levels<span class="op">=</span>[<span class="fl">0.5</span>], colors<span class="op">=</span><span class="st">'k'</span>, linewidths<span class="op">=</span><span class="dv">1</span>, extent <span class="op">=</span> (x_1_grid.<span class="bu">min</span>(), x_1_grid.<span class="bu">max</span>(), x_2_grid.<span class="bu">min</span>(), x_2_grid.<span class="bu">max</span>()), linestyles<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>): </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> (y.flatten() <span class="op">==</span> i)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    axarr[<span class="dv">1</span>].scatter(X[idx, <span class="dv">1</span>], X[idx, <span class="dv">2</span>], c <span class="op">=</span> y.flatten()[idx], label<span class="op">=</span><span class="ss">f'Class </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">'</span>, edgecolor<span class="op">=</span><span class="st">'k'</span>, marker<span class="op">=</span>markers[i],   cmap <span class="op">=</span> <span class="st">'BrBG'</span>, vmin <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span>, vmax <span class="op">=</span> <span class="fl">1.5</span>, alpha <span class="op">=</span> <span class="fl">0.7</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10-intro-classification_files/figure-html/cell-12-output-1.png" class="figure-img" width="758" height="370"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can obtain predictions from the model by thresholding the signal function, for example at <span class="math inline">\(q^* = 0.5\)</span> as shown in the contour plot.</p>
+<div id="e3238a2f" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> model.forward(X)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> (q <span class="op">&gt;=</span> <span class="fl">0.5</span>).<span class="bu">float</span>()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># accuracy</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>accuracy <span class="op">=</span> (y_pred <span class="op">==</span> y).<span class="bu">float</span>().mean()</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Training accuracy: </span><span class="sc">{</span>accuracy<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Training accuracy: 0.810</code></pre>
+</div>
+</div>
+<p>As usual, to fully assess the classifier we would evaluate the accuracy on a held-out test set.</p>
+</section>
+<section id="data-case-study" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="data-case-study">Data Case Study</h3>
+<p>As an empirical test of our logistic regression classifier, let’s train a model to predict rainfall based on the previous day’s weather.</p>
+<div id="6ba1546b" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/middcs/data-science-notes/refs/heads/main/data/australia-weather/weatherAUS.csv"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(url)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>df.head()</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># df["Pressure9am"] = df["Pressure9am"]/1e3</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># df["Humidity3pm"] = df["Humidity3pm"]/100</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>df.dropna(subset<span class="op">=</span>[<span class="st">'RainTomorrow'</span>, <span class="st">'Humidity3pm'</span>, <span class="st">'Pressure3pm'</span>], inplace<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>For the purposes of this example, we’ll use just two features: the humidity at 3pm and the pressure at 3pm, and use these to predict whether or not rain occurs the next day.</p>
+<div id="f104d4fb" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>subset <span class="op">=</span> df.head(<span class="dv">1000</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> subset[<span class="st">'RainTomorrow'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x <span class="op">==</span> <span class="st">'Yes'</span> <span class="cf">else</span> <span class="dv">0</span>).to_numpy().reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> subset[[<span class="st">'Humidity3pm'</span>, <span class="st">'Pressure3pm'</span>]].to_numpy()</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, label <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"No rain tomorrow"</span>, <span class="st">"Rain tomorrow"</span>]): </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> y.flatten() <span class="op">==</span> i</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    ax.scatter(X[idx, <span class="dv">0</span>], X[idx, <span class="dv">1</span>], c <span class="op">=</span> y.flatten()[idx], label<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span>label<span class="sc">}</span><span class="ss">'</span>, edgecolor<span class="op">=</span><span class="st">'k'</span>, marker<span class="op">=</span>markers[i],   cmap <span class="op">=</span> <span class="st">'BrBG'</span>, vmin <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span>, vmax <span class="op">=</span> <span class="fl">1.5</span>, alpha <span class="op">=</span> <span class="fl">0.7</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">'Humidity3pm'</span>, ylabel<span class="op">=</span><span class="st">'Pressure3pm'</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> plt.title(<span class="st">"Tomorrow's rain as a function of today's humidity and pressure"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10-intro-classification_files/figure-html/cell-15-output-1.png" class="figure-img" width="517" height="516"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We’ll start our modeling pipeline by producing a feature matrix and label vector from the data.</p>
+<div id="9c1c58a7" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df[[<span class="st">'Humidity3pm'</span>, <span class="st">'Pressure3pm'</span>]].to_numpy()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> (df[<span class="st">'RainTomorrow'</span>] <span class="op">==</span> <span class="st">'Yes'</span>).to_numpy().astype(<span class="bu">float</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we’ll perform a train-test split to evaluate the model’s performance on held-out data.</p>
+<div id="b191206e" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>train_frac <span class="op">=</span> <span class="fl">0.8</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> X.shape[<span class="dv">0</span>]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>n_train <span class="op">=</span> <span class="bu">int</span>(train_frac <span class="op">*</span> n)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>X_train <span class="op">=</span> X[:n_train, :]</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> y[:n_train, :]</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>X_test <span class="op">=</span> X[n_train:, :]</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> y[n_train:, :]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we’re ready to train the logistic regression model.</p>
+<div id="751d4fae" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>n_features <span class="op">=</span> X_train.shape[<span class="dv">1</span>] <span class="op">+</span> <span class="dv">1</span>  <span class="co"># +1 for intercept</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>X_train_aug <span class="op">=</span> torch.ones((X_train.shape[<span class="dv">0</span>], n_features))</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>X_train_aug[:, <span class="dv">1</span>:] <span class="op">=</span> torch.tensor(X_train, dtype<span class="op">=</span>torch.float32)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>y_train_tensor <span class="op">=</span> torch.tensor(y_train, dtype<span class="op">=</span>torch.float32)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> BinaryLogisticRegression(n_features<span class="op">=</span>n_features)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model, lr<span class="op">=</span><span class="fl">0.00001</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20000</span>): </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> model.forward(X_train_aug)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    grad <span class="op">=</span> (q <span class="op">-</span> y_train_tensor).T<span class="op">@</span>X_train_aug <span class="op">/</span> X_train_aug.shape[<span class="dv">0</span>]</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> binary_cross_entropy(q, y_train_tensor)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    losses.append(loss.item())</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    opt.step(X_train_aug, y_train_tensor)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>plt.plot(losses, color <span class="op">=</span> <span class="st">"grey"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> plt.title(<span class="st">'Loss over training'</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Epoch'</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Binary cross-entropy loss'</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.semilogx()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-training-loss" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-training-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="0c3d8a03" class="cell" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10-intro-classification_files/figure-html/cell-19-output-1.png" class="figure-img" width="581" height="449"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-training-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.3: Visualization of the binary cross-entropy loss over training epochs.
+</figcaption>
+</figure>
+</div>
+<p>Let’s plot the learned decision boundary in feature space, along with a selection from the test data:</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>x1_grid <span class="op">=</span> torch.linspace(X[:,<span class="dv">0</span>].<span class="bu">min</span>(), X[:,<span class="dv">0</span>].<span class="bu">max</span>(), <span class="dv">100</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>x2_grid <span class="op">=</span> torch.linspace(X[:,<span class="dv">1</span>].<span class="bu">min</span>(), X[:,<span class="dv">1</span>].<span class="bu">max</span>(), <span class="dv">100</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>xx1, xx2 <span class="op">=</span> torch.meshgrid(x1_grid, x2_grid, indexing<span class="op">=</span><span class="st">'ij'</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> torch.cat([torch.ones_like(xx1).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), xx1.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), xx2.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    q_grid <span class="op">=</span> model.forward(grid).reshape(xx1.shape)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>ax.contour(xx1, xx2, q_grid, levels<span class="op">=</span>[<span class="fl">0.5</span>], colors<span class="op">=</span><span class="st">'k'</span>, linewidths<span class="op">=</span><span class="dv">1</span>, extent <span class="op">=</span> (x1_grid.<span class="bu">min</span>(), x1_grid.<span class="bu">max</span>(), x2_grid.<span class="bu">min</span>(), x2_grid.<span class="bu">max</span>()), linestyles<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">'Learned decision boundary'</span>, xlabel<span class="op">=</span><span class="st">'Humidity3pm'</span>, ylabel<span class="op">=</span><span class="st">'Pressure3pm'</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, label <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"No rain tomorrow"</span>, <span class="st">"Rain tomorrow"</span>]): </span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> (y_test[:<span class="dv">1000</span>, <span class="dv">0</span>] <span class="op">==</span> i)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    ax.scatter(X_test[:<span class="dv">1000</span>, <span class="dv">0</span>][idx], X_test[:<span class="dv">1000</span>, <span class="dv">1</span>][idx], c <span class="op">=</span> y_test[:<span class="dv">1000</span>, <span class="dv">0</span>][idx], label<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span>label<span class="sc">}</span><span class="ss">'</span>, edgecolor<span class="op">=</span><span class="st">'k'</span>, marker<span class="op">=</span>markers[i],   cmap <span class="op">=</span> <span class="st">'BrBG'</span>, vmin <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span>, vmax <span class="op">=</span> <span class="fl">1.5</span>, alpha <span class="op">=</span> <span class="fl">0.7</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>plt.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-decision-boundary" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-decision-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="2343e2a6" class="cell" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10-intro-classification_files/figure-html/cell-20-output-1.png" class="figure-img" width="528" height="516"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-decision-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.4: Learned decision boundary (dashed line) in feature space, along with 1,000 of the test data points.
+</figcaption>
+</figure>
+</div>
+<p>To evaluate this model on the test set, we need to evaluate the model on the test features and threshold the results to obtain class predictions.</p>
+<div id="0b18fcb6" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain the probabilities q_test</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>X_test_aug <span class="op">=</span> torch.ones((X_test.shape[<span class="dv">0</span>], n_features))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>X_test_aug[:, <span class="dv">1</span>:] <span class="op">=</span> torch.tensor(X_test, dtype<span class="op">=</span>torch.float32)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>y_test_tensor <span class="op">=</span> torch.tensor(y_test, dtype<span class="op">=</span>torch.float32)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>q_test <span class="op">=</span> model.forward(X_test_aug)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain class predictions via thresholding and compute accuracy</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>y_test_pred <span class="op">=</span> (q_test <span class="op">&gt;=</span> <span class="fl">0.5</span>).<span class="bu">float</span>()</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>accuracy_test <span class="op">=</span> (y_test_pred <span class="op">==</span> y_test_tensor).<span class="bu">float</span>().mean()</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy: </span><span class="sc">{</span>accuracy_test<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Test accuracy: 0.840</code></pre>
+</div>
+</div>
+<p>This accuracy is slightly better than the result we would obtain by always guessing that it won’t rain:</p>
+<div id="5f195bd1" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>baseline_accuracy <span class="op">=</span> (y_test_tensor <span class="op">==</span> <span class="dv">0</span>).<span class="bu">float</span>().mean()</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Baseline accuracy (always predict no rain): </span><span class="sc">{</span>baseline_accuracy<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Baseline accuracy (always predict no rain): 0.794</code></pre>
+</div>
+</div>
+<p>Our learned classifier does slightly better than baseline in predicting whether or not will rain tomorrow, as measured by accuracy on the test set.</p>
+
+
+</section>
+</section>
+
+<p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/07-bias-variance.html" class="pagination-link" aria-label="More on Overfitting">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/15-multinomial-classification.html" class="pagination-link" aria-label="Multinomial Classification">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

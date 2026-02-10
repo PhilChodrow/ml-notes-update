@@ -1,0 +1,537 @@
+---
+title: Multinomial Classification
+subtitle: Predicting among many categories
+execute: 
+    eval: true
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+## Recap
+
+[Recently](10-intro-classification.qmd), we developed binary classification (models that learn to predict one of two labels) using the data = signal + noise framework. In this framework, the *signal* was a function $q(\vx)$ which, when evaluated at a feature value $\vx$, gives the probability that a data point with features $\vx$ belongs to class 1. The *noise* was a Bernoulli random variable that, when sampled, gives us the observed class label for a data point. We trained our model by letting $q(\vx) = \sigma(\vw^\top \vx)$, where $\sigma$ is the logistic sigmoid function and $\vw$ is a trainable weight vector. Using gradient descent, we were able to maximize the likelihood of the observed data under this model, which we found to be equivalent to minimizing the binary cross-entropy loss. 
+
+In this lecture we'll consider a simple question: how do we extend this framework to the case where we have more than two classes? The fancy vocabulary word for "more than two classes" is *multinomial*, so we'll be developing logistic regression for *multinomial classification*.
+
+
+
+
+## Data Prep
+
+![Image source: \@allisonhorst](https://allisonhorst.github.io/palmerpenguins/reference/figures/lter_penguins.png)
+
+Our data set for these notes is Palmer Penguins. This data set contains physiological measurements and species labels for several populations of Adelie, Chinstrap, and Gentoo penguins. 
+
+[The Palmer Penguins data was originally collected by @gormanEcologicalSexualDimorphism2014 and was nicely packaged and released for use in the data science community by @horstAllisonhorstPalmerpenguinsV02020. You can find [a very concise summary](https://jakevdp.github.io/PythonDataScienceHandbook/05.02-introducing-scikit-learn.html#Supervised-learning-example:-Iris-classification) of the main workflow using a similar data set in @vanderplasPythonDataScience2016.]{.aside} 
+
+Let's go ahead and acquire the data. 
+
+```{python}
+import pandas as pd
+import torch
+from matplotlib import pyplot as plt
+import seaborn as sns
+url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/palmer-penguins/palmer-penguins.csv"
+
+df = pd.read_csv(url)
+```
+
+[You can learn much more about the capabilities of `pandas.DataFrame` objects in [Chapter 3](https://jakevdp.github.io/PythonDataScienceHandbook/03.00-introduction-to-pandas.html) of  @vanderplasPythonDataScience2016]{.aside}
+The `df` variable holds a `pandas.DataFrame` object. You can think of a data frame as a table of data with a variety of useful behaviors for data manipulation and visualization. 
+
+Let's take a look: 
+
+```{python}
+#---
+df.head() # first 5 rows
+#---
+```
+
+Each row of this data frame contains measurements for a single penguin, and the columns contain different features of the data. We'll use the `Species` column as our class labels, and the other columns as features for classification. For illustration, we'll use only two features: `Culmen Length (mm)` and `Culmen Depth (mm)`. We'll separate these into a matrix of features $\mX$ and a vector of class labels $\vy$.
+
+::: {.column-margin}
+
+![](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png)
+
+Image credit: [\@allisonhorst](https://allisonhorst.github.io/palmerpenguins/)
+
+:::
+
+```{python}
+df = df.dropna(subset=['Culmen Length (mm)', 'Culmen Depth (mm)', 'Species'])
+df = df[['Culmen Length (mm)', 'Culmen Depth (mm)', 'Species']]
+df["Species"] = df["Species"].str.split().str[0]  # shorten species names to first letter
+
+# features and targets
+X = df[['Culmen Length (mm)', 'Culmen Depth (mm)']].values
+labels = df['Species'].astype('category')
+```
+
+
+A look at the species labels in feature space suggests that we should be able to do a pretty good job of classifying the species based on these two features. We'll define a convenience function for visualizing the data points in feature space, colored by species.
+
+```{python}
+def scatter_points(X, labels, cmap, ax): 
+    if isinstance(labels, torch.Tensor):
+        y = labels
+        unique_labels = torch.unique(y.detach())
+    else:
+        y = labels.cat.codes.values
+        unique_labels = labels.cat.categories
+    
+    for i, label in enumerate(unique_labels):
+        color = cmap(i)
+        marker = ['o', 's', 'D'][i]
+        ax.scatter(X[y == i, 0], 
+                   X[y == i, 1], 
+                   color=color, 
+                   edgecolor='k', 
+                   marker=marker, 
+                   label=f"{unique_labels[i]}", 
+                   zorder = 1e3)
+    
+    ax.set(xlabel=r"$x_1$", ylabel=r"$x_2$")
+    ax.legend().set_zorder(1e7)
+```
+
+Now let's visualize our penguins: 
+
+::: {#fig-penguin-scatter}
+
+```{python}
+#| code-fold: true
+
+fig, ax = plt.subplots(figsize=(6, 6))
+cmap = plt.get_cmap('tab20b', 3)
+scatter_points(X, labels, cmap, ax)
+ax.set_title("Scatterplot of penguin species in feature space")
+ax.set_xlabel("Culmen Length (mm)")
+t = ax.set_ylabel("Culmen Depth (mm)")
+```
+
+Scatterplot culmen length and culmen depth in the Palmer Penguins data set, with data points colored by species. 
+
+:::
+
+Now that we have data, we need to extend our logistic regression framework to the multinomial setting. 
+
+## Implementing Multinomial Logistic Regression
+
+### One-Hot Encoding
+
+To apply our classification framework to our data, we need to convert the categorical species labels into numerical values. A particularly convenient way to do this is via *one-hot encoding*. 
+
+::: {#def-one-hot-encoding}
+
+## One-Hot Encoding
+
+If $y$ is a categorical variable with $K$ categories, then the one-hot encoding of $\vy$ of $y$ is a vector $\vy \in \{0, 1\}^K$ with entries
+
+$$
+y_i = \begin{cases}
+    1 & \text{if } y \text{ is in category } i \\
+    0 & \text{otherwise}
+\end{cases}\;.
+$$
+
+:::
+
+For example, in our case with class labels "Adelie", "Chinstrap", and "Gentoo", a one-hot encoding of a penguin of species "Adelie" would be the vector $\vy = (1, 0, 0)$, a penguin of species "Chinstrap" would be $\vy = (0, 1, 0)$, and a penguin of species "Gentoo" would be $\vy = (0, 0, 1)$.
+
+The `pandas` library provides a convenient way to perform one-hot encoding for data frames  via the `pd.get_dummies` function.
+
+```{python}
+df = pd.get_dummies(df, columns=['Species'])
+df.head()
+```
+
+Now we're ready to split our data into features and targets and to training and test sets. 
+
+```{python}
+
+train_ix = df.sample(frac=0.8, random_state=42).index
+test_ix = df.drop(train_ix).index
+
+feature_cols = ['Culmen Length (mm)', 'Culmen Depth (mm)']
+target_cols = ['Species_Adelie', 'Species_Chinstrap', 'Species_Gentoo']
+
+X_train = torch.tensor(df.loc[train_ix, feature_cols].values, dtype=torch.float32)
+y_train = torch.tensor(df.loc[train_ix, target_cols].values, dtype=torch.float32)
+
+X_test = torch.tensor(df.loc[test_ix, feature_cols].values, dtype=torch.float32)
+y_test = torch.tensor(df.loc[test_ix, target_cols].values, dtype=torch.float32)
+```
+
+### Data Model
+
+Let's go ahead and write down a model of the data generating process for the multinomial classification problem. We're going to follow a similar approach as we did in binary classification. Suppose that each data point can be in one of $K$ classes, and suppose that we have a *signal function* $\vq: \R^d \rightarrow (0, 1)^K$ that takes in features $\vx_i$ and outputs a vector of probabilities $\vq(\vx_i)$ for each class. To generate a class label for data point $i$, we draw from a categorical distribution with class probabilities given by $\vq(\vx_i)$. So, the likelihood of a single data point $i$ with features $\vx_i$ and one-hot encoded class label $\vy_i$ is then 
+
+$$
+\begin{aligned}
+    p(\vy_i, \vx_i; \vq) = \begin{cases}
+        q_1(\vx_i) & \text{if } y_{i1} = 1 \\  
+        q_2(\vx_i) & \text{if } y_{i2} = 1 \\
+        \vdots \\
+        q_K(\vx_i) & \text{if } y_{iK} = 1\;.
+    \end{cases}
+\end{aligned}
+$$
+
+It's convenient to write this expression in the more compact form 
+$$
+p(\vy_i , \vx_i; \vq) = \prod_{k=1}^K q_k(\vx_i)^{y_{ik}}\;.
+$$
+
+We can take the product over all data points to get the likelihood of the full data set. Let $\mY$ be the $n \times K$ matrix of one-hot encoded class labels, with $i$th row $\vy_i$ corresponding to the one-hot encoding of the class label for data point $i$: 
+
+$$
+\mY = \begin{bmatrix}
+    - & \vy_1^\top & - \\
+    - & \vy_2^\top & - \\
+    &\vdots \\
+    - & \vy_n^\top & -
+\end{bmatrix}\;,
+$$
+
+Then, the likelihood of the data set under the model is 
+
+$$
+p(\mY , \mX; \vq) = \prod_{i=1}^n \prod_{k=1}^K q_k(\vx_i)^{y_{ik}}\;. 
+$$
+
+Taking logs gives us the log-likelihood:
+
+$$
+\begin{aligned}
+    \cL(\mY, \mX; \vq) = \sum_{i = 1}^n \sum_{k = 1}^K y_{ik} \log q_k(\vx_i)\;. 
+\end{aligned}
+$${#eq-log-likelihood-multinomial}
+
+@eq-log-likelihood-multinomial is the generalization of the binary cross-entropy to the case of multiple classes.
+
+### Signal Function for Logistic Regression
+
+To complete our specification for logistic regression, we need to specify the functional form of the signal function $\vq$. We'll use the *softmax* function, which takes in a vector of real-valued scores and outputs a vector of probabilities. 
+
+::: {#def-softmax}
+
+## Softmax Function
+
+The softmax function $\softmax: \R^K \rightarrow (0, 1)^K$ is defined as 
+
+$$
+\softmax(\vs) = \frac{1}{\sum_{j = 1}^K e^{s_j}} \begin{pmatrix}
+    e^{s_1} \\ 
+    e^{s_2} \\
+    \vdots \\
+    e^{s_K}
+\end{pmatrix}\;,
+$$  
+
+for $k = 1, \ldots, K$. The $k$th entry of $\softmax(\vs)$ is given by
+
+$$
+\softmax(\vs)_k = \frac{e^{s_k}}{\sum_{j = 1}^K e^{s_j}}\;.
+$$
+
+:::
+
+Here's an example of the softmax function in action:
+
+```{python}
+#---
+def softmax(s):
+    exp_s = torch.exp(s)
+    return exp_s / torch.sum(exp_s)
+#---
+s = torch.tensor([1.0, 2.0, 3.0])
+print(softmax(s))
+```
+
+The largest values of $\vs$ correspond to the largest probabilities in $\softmax(\vs)$; the entries of $\softmax(\vs)$ are nonnegative, and sum to one, giving a valid probability vector. 
+
+In order to use the softmax function as our signal function $q$, we need to specify how to get scores $\vs\in \R^K$ from our features $\vx\in \R^d$. The simplest way to do this is to use a linear function of the features. To do this, we'll introduce a $d \times K$ matrix of trainable parameters $\mW$, and we'll compute scores as $\vs = \vx^\top \mW$. Our signal function will then be given by
+
+$$
+\begin{aligned}
+    \vq(\vx) = \softmax(\vx^\top \mW)\;.
+\end{aligned}
+$$
+
+Here, the trainable parameters are contained in the matrix $\mW$. Intuitively, we can think of $w_{jk}$ as the contribution of feature $j$ to the score for class $k$. If $w_{jk}$ is large and positive, then larger values of feature $j$ make it more likely that the data point is in class $k$. If $w_{jk}$ is large and negative, then larger values of feature $j$ make it less likely that the data point is in class $k$.
+
+### Vectorized Computation
+
+Rather than compute the score vector $\vs_i$ for each data point $i$ separately, we can compute the scores for all data points at once using matrix multiplication. Let $\mX$ be the $n \times d$ matrix of features, with $i$th row $\vx_i^\top$ corresponding to the features for data point $i$. Then, we can compute the score matrix $\mS \in \R^{n \times K}$ containing all the scores as 
+
+$$
+\begin{aligned}
+    \mS = \begin{bmatrix} 
+    - & \vs_1 & - \\
+    - & \vs_2 & - \\
+    &\vdots \\
+    - & \vs_n & -
+    \end{bmatrix} = 
+    \begin{bmatrix}
+    - & \vx_1^\top \mW& - \\
+    - & \vx_2^\top \mW& - \\
+    &\vdots \\
+    - & \vx_n^\top \mW& -
+    \end{bmatrix} 
+    = \begin{bmatrix}
+    - & \vx_1^\top & - \\
+    - & \vx_2^\top & - \\
+    &\vdots \\  
+    - & \vx_n^\top & -
+    \end{bmatrix} \mW = \mX \mW\;
+\end{aligned}
+$$
+
+To then compute the signals $\vq(\vs_i)$, we need to apply the softmax function to each *row* of the score matrix $\mS$:
+
+```{python}
+#---
+def softmax_rows(S):
+    # equivalent to torch.softmax(S, dim=1)
+    exp_S = torch.exp(S)
+    return exp_S / torch.sum(exp_S, dim=1, keepdim=True)
+#---
+```
+
+### Torch Implementation
+
+We now have everything we need to illustrate the data generation process and perform inference. Our implementation of logistic regression requires only initializing the weight matrix $\mW$ and defining a `forward` method that takes in features $\mX$ and outputs the signal function $\vq(\mX)$:
+
+```{python}
+#---
+class LogisticRegression: 
+    def __init__(self, d_features, k_classes):
+        self.W = torch.randn(d_features, k_classes, requires_grad=True)
+
+    def forward(self, X):
+        S = X @ self.W
+        return softmax_rows(S)
+#---
+```
+
+First, let's visualize the data generating process using a random weight matrix $\mW$. We'll compute the signal $\vq(\vx)$ for a grid of points in feature space, and we'll visualize the predicted class probabilities for each class.
+
+[The large code block below visualizes the three entries of the function $\vq$ for a logistic regression model with a random weight matrix, and illustrates how randomly sampled data gets classes assigned from these entries.]{.aside}
+
+::: {#fig-multinomial-classification}
+
+```{python}
+#| code-fold: true
+
+# set the random number generator for reproducibility
+torch.random.manual_seed(1234)
+
+# initialize colors
+cmap = plt.get_cmap('tab20b', 3)
+
+# create a grid of points in feature space and flatten it into a list of points
+# for prediction
+x_grid = torch.linspace(-1, 1, 100)
+y_grid = torch.linspace(-1, 1, 100)
+X_grid, Y_grid = torch.meshgrid(x_grid, y_grid, indexing='xy')
+grid = torch.stack([X_grid.flatten(), Y_grid.flatten()], dim=1)
+
+# initialize model with random weights
+model = LogisticRegression(d_features=2, k_classes=3)
+model.W = model.W * 4.0
+
+# compute predicted class probabilities for each point in the grid
+Q = model.forward(grid)
+preds = Q.argmax(dim=1)
+
+# compute opacity as the difference between the max probability and uniform probability, for visualization purposes
+opacities = Q.max(dim=1).values - 1/3
+
+# colors for each data point determined by the predicted class, with opacity determined by confidence
+colors = cmap(preds) 
+colors[:, -1] = opacities.detach().numpy()
+
+# compute predicted class for a random set of points in feature space
+X_points = 2*torch.rand(50, 2) - 1
+Q_points = model.forward(X_points)
+point_class = torch.multinomial(Q_points, num_samples=1).squeeze()
+
+# construct the visualization
+fig, axarr = plt.subplots(2, 2, figsize=(7, 7))
+
+for k in range(3):
+
+    # color for the chosen class
+    color = cmap(k)
+    
+    # colormap for individual panel
+    class_cmap_grad = plt.cm.colors.LinearSegmentedColormap.from_list('white_to_color', ['white', color])
+
+    # plot the predicted class probabilities for class k
+    axarr.ravel()[k].imshow(Q[:, k].reshape(100, 100).detach(), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', cmap=class_cmap_grad, vmin=0, vmax=1, zorder = 100)
+
+    axarr.ravel()[k].set_title(fr"$q_{k+1}(\mathbf{{x}})$ - probability of class {k}")
+
+    # labels
+    if k == 2: 
+        axarr.ravel()[k].set(xlabel=r"$x_1$", ylabel=r"$x_2$")
+    if k == 0: 
+        axarr.ravel()[k].set(ylabel=r"$x_2$")
+    
+
+# plot all the predicted class probabilities together, with opacity determined by confidence
+axarr.ravel()[3].imshow(colors.reshape(100, 100, 4), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100)
+
+# for k in range(3):
+#     color = cmap(k)
+#     marker = ['o', 's', 'D'][k]
+#     axarr.ravel()[3].scatter(X_points[point_class == k, 1], X_points[point_class == k, 0], color=color, edgecolor='k', marker=marker, zorder = 200, label=f"Class {k+1}")
+
+scatter_points(X_points, point_class, cmap, axarr.ravel()[3])
+
+# scatter_points(X_points, point_class, cmap, axarr.ravel()[3])
+
+
+axarr.ravel()[3].set_title("Predicted class (color) \nand confidence (opacity)")
+axarr.ravel()[3].set(xlabel=r"$x_1$")
+
+plt.tight_layout()
+
+```
+
+Illustration of the data generating process for multinomial logistic regression. (Top left): The predicted probability of class 1 (color intensity) across feature space. (Top right and bottom left): The predicted probabilities of classes 2 and 3. (Bottom right): The predicted class (color) and confidence (opacity) across feature space. We've included several randomly scattered points, with their assigned class given by asmpling from the predicted class probabilities.
+
+:::
+
+### Model Training
+
+Now it's time to train a model. Our approach is again gradient descent. The addition of multiple classes, reflected in the weight *matrix* $\mW \in \R^{d \times k}$ (rather than a weight *vector* $\vw \in \R^d$ as in binary classification), doesn't really change the training procedure but it does make it awkward to compute gradients by hand. We'll rely on PyTorch's automatic differentiation to compute the gradients for us. In order to compute the gradients, we first need to implement the cross-entropy loss function from equation {eq-log-likelihood-multinomial}:
+
+```{python}
+#---
+def cross_entropy_loss(q, Y):
+    return -torch.sum(Y * torch.log(q)) / Y.shape[0]
+#---
+```
+
+```{python}
+#---
+model = LogisticRegression(d_features=2, k_classes=3)
+
+losses = []
+for epoch in range(10000):
+    # compute predicted class probabilities
+    q = model.forward(X_train)
+    # compute loss
+    loss = cross_entropy_loss(q, y_train)
+    losses.append(loss.item())
+    # compute gradients
+    loss.backward()
+    # update weights using gradient descent
+    with torch.no_grad():
+        model.W -= 0.001 * model.W.grad
+        model.W.grad.zero_()
+#---
+```
+
+::: {#fig-multinomial-classification-training}
+
+```{python}
+#| code-fold: true
+fig, axarr = plt.subplots(1, 2, figsize=(8, 4))
+
+x_grid = torch.linspace(df['Culmen Length (mm)'].min()-2, df['Culmen Length (mm)'].max()+2, 100)
+y_grid = torch.linspace(df['Culmen Depth (mm)'].min()-2, df['Culmen Depth (mm)'].max()+2, 100)
+X_grid, Y_grid = torch.meshgrid(x_grid, y_grid)
+grid = torch.stack([X_grid.flatten(), Y_grid.flatten()], dim=1)
+
+Q = model.forward(grid)
+preds = Q.argmax(dim=1)
+
+colors = cmap(preds)
+colors[:, -1] = Q.max(dim=1).values.detach().numpy()
+
+axarr[0].plot(losses)
+axarr[0].set_title("Loss during training")
+axarr[0].set_xlabel("Epoch")
+axarr[0].set_ylabel("Multinomial Cross-Entropy Loss")
+axarr[0].loglog()
+
+
+axarr[1].imshow(colors.reshape(100, 100, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
+# sns.scatterplot(data=df, x='Culmen Length (mm)', y='Culmen Depth (mm)', hue='Species', style='Species', edgecolor='k', alpha=0.7, zorder = 200)
+axarr[1].set_title("Predicted class (color) \nand confidence (opacity)")
+
+y_train_labels = y_train.argmax(dim=1)
+penguin_names = ['Adelie', 'Chinstrap', 'Gentoo']
+
+y_train_labels_named = [penguin_names[i] for i in y_train_labels.numpy()]
+y_train_labels_named = pd.Series(y_train_labels_named, dtype='category')
+
+scatter_points(X_train, y_train_labels_named, cmap, axarr[1])
+axarr[1].set_xlabel("Culmen Length (mm)")
+t = axarr[1].set_ylabel("Culmen Depth (mm)")
+```
+
+Training our multinomial logistic regression model for classification on the Palmer Penguins data set. (Left): The multinomial cross-entropy loss during training. (Right): The predicted class (color) and confidence (opacity) across feature space after training, with the training data points overlaid.
+
+:::
+
+Let's finally evaluate the performance of our model on the test set. 
+
+```{python}
+#---
+s_pred = model.forward(X_test) #<1> 
+y_test_preds = s_pred.argmax(dim=1) #<2>
+y_test_labels = y_test.argmax(dim=1).int() #<3>
+acc = (1.0*(y_test_preds == y_test_labels)).mean().item() #<4>
+#---
+```
+1. Compute the score matrix $\mS$ on the test set.
+2. Compute the predicted class labels as the largest score in each row of $\mS$.
+3. Compute the true class labels by taking the argmax of the one-hot encoded labels.
+4. Compute the accuracy as the fraction of correctly classified data points.
+
+
+::: {#fig-multinomial-classification-test}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(figsize=(6, 6))
+
+ax.imshow(colors.reshape(100, 100, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
+
+y_test_labels = y_test.argmax(dim=1)
+penguin_names = ['Adelie', 'Chinstrap', 'Gentoo']
+
+y_test_labels_named = [penguin_names[i] for i in y_test_labels.numpy()]
+y_test_labels_named = pd.Series(y_test_labels_named, dtype='category')
+
+scatter_points(X_test, y_test_labels_named, cmap, ax)
+
+ax.set_title(f"Predicted class (color) \nand confidence (opacity)\nTest set accuracy: {acc:.3f}")
+
+ax.set_xlabel("Culmen Length (mm)")
+t = ax.set_ylabel("Culmen Depth (mm)")
+```
+
+Evaluating model performance on the test set, as in @fig-multinomial-classification-training (right panel), using the test set overlaid. 
+
+:::
+
+As in the case of binary classification, it may be useful to construct confusion matrices or other measures of error by class when assessing overall model performance. 
+
+## References
+

@@ -1,5 +1,6 @@
 ---
-title: Classification
+title: |
+    Introduction: Binary Labels
 subtitle: Predicting categories and informing decisions
 execute: 
     eval: true
@@ -28,7 +29,7 @@ In this set of notes, we'll begin our investigation into *classification*. Where
 
 Classification is in many contexts a more practically-relevant task than regression, because classification relates directly to decision-making. For example, consider a spam filter. The goal of a spam filter is to classify incoming emails as either "spam" or "not spam". This classification directly informs the decision of whether to deliver the email to the user's inbox or to the spam folder. 
 
-## Data = Signal + Noise: Classification Edition
+### Data = Signal + Noise: Classification Edition
 
 When studying regression, we considered a framework in which the data $y_i$ was generated according to a process of the form 
 
@@ -37,13 +38,11 @@ y_i = f(\vx_i) + \epsilon_i\;,
 $$
 
 where $f$ was a deterministic function of the input $\vx_i$, and $\epsilon_i$ was a random noise term. Our goal was to learn the signal $f$ rather than the noise $\epsilon_i$. For classification we still want to use the "signal + noise"
-paradigm, but the presence of categorical data means that we need to make some adjustments to the framework. 
+paradigm, but the presence of categorical data means that we need to make some adjustments to the framework. In particular, since $y_i$ is now a category rather than number, we can't write it as the "sum" of anything, so our idea of "signal + noise" will be a bit metaphorical. 
 
-### Binary Classification
+## Binary Classification
 
-In binary classification, we have two classes (e.g. "spam" vs "not spam"). We can represent the class labels as $y_i \in \{0, 1\}$, where $0$ represents one class and $1$ represents the other class.
-
-To start, let's generate some sample data with two features. 
+In binary classification, we have two classes (e.g. "spam" vs "not spam"). We can represent the class labels as $y_i \in \{0, 1\}$, where $0$ represents one class and $1$ represents the other class. Here's an example of the kind of data we have in mind with a binary classification problem: 
 
 ::: {#fig-classification-data}
 
@@ -82,7 +81,7 @@ We are going to conceptualize this data as arising according to the following pr
 
 1. There is some true underlying *signal function* $q$ that takes in features $\vx_i$ and outputs a *probability* of being in class 1. 
 2. For each data point $i$, we first compute the signal function $q(\vx_i)$, which gives us a probability of being in class 1.
-3. Then, we flip a biased coin with bias $q(\vx_i)$ to determine the class label $y_i$. 
+3. Then, we flip a biased coin with bias $q(\vx_i)$ to determine the class label $y_i$. The uncertainty of this coin flip is the *noise* in the data generating process. 
 
 :::
 
@@ -133,7 +132,27 @@ plt.tight_layout()
 
 ### Likelihood Function for Binary Classification
 
-Given a signal function $q$, we can write down the likelihood of the data by remembering the Bernoulli distribution. [The notation $p_Y(y; q) = q^y (1-q)^{1-y}$ may look a bit unnecessarily fancy, but convince yourself that we have $p_Y(0; q) = 1-q$ and $p_Y(1; q) = q$.]{.aside}
+Suppose that we evaluate the signal function $q$ at some point $\vx$, giving us a probability $q(\vx)$ that a data point with features $\vx$ belongs to class 1. We can then write the probability of that data point belonging to class $y\in \{0,1\}$ as 
+
+$$
+\begin{align}
+    p_Y(y; q(\vx)) = \begin{cases}
+        q(\vx) & \text{if } y = 1 \\
+        1 - q(\vx) & \text{if } y = 0
+    \end{cases}  
+\end{align}
+$${#eq-bernoulli-pmf-piecewise}
+
+Although it might seem a bit unnecessarily complicated at first, it turns out that a very useful way to write this [The notation $p_Y(y; q(\vx)) = q(\vx)^y (1-q(\vx))^{1-y}$ may look a bit unnecessarily fancy, but convince yourself that we have $p_Y(0; q(\vx)) = 1-q(\vx)$ and $p_Y(1; q(\vx)) = q(\vx)$, as in @eq-bernoulli-pmf-piecewise.]{.aside}
+
+$$
+\begin{aligned}
+    p_Y(y; q(\vx)) &= q(\vx)^y (1 - q(\vx))^{1 - y}\;.
+\end{aligned}
+$${#eq-bernoulli-pmf}
+
+
+This is an instance of the Bernoulli distribution with parameter $q(\vx)$: 
 
 
 ::: {#def-bernoulli}
@@ -150,11 +169,11 @@ $$
 
 :::
 
-We can now write down the likelihood function for some data consisting of a feature matrix $\mX$ and a vector of class labels $\vy$ given a signal function $q$: 
+We can now write down the likelihood function for some data consisting of a feature matrix $\mX$ and a vector of class labels $\vy$ given a signal function $q$ by multiplying together the probabilities for each data point: 
 
 $$
 \begin{aligned}
-    L(\mX, \vy; q) &= \prod_{i = 1}^n p_Y(y_i; q) \\ 
+    L(\mX, \vy; q) &= \prod_{i = 1}^n p_Y(y_i; q(\vx)) \\ 
                    &= \prod_{i = 1}^n q(\vx_i)^{y_i} (1 - q(\vx_i))^{1 - y_i}\;.
 \end{aligned}
 $$      
@@ -163,12 +182,50 @@ Just like with regression, it's usually more convenient to work with the log-lik
 
 $$
 \begin{aligned}
-    \ell(\mX, \vy; q) &= \log L(\mX, \vy; q) \\ 
+    \cL(\mX, \vy; q) &= \log L(\mX, \vy; q) \\ 
                    &= \sum_{i = 1}^n \left[y_i \log q(\vx_i) + (1 - y_i) \log (1 - q(\vx_i))\right]\;.
 \end{aligned}
+$$
+
+Since we customarily minimize when working with optimization problems, we aim to minimize the negative log-likelihood, which is given by 
+
+$$
+\begin{aligned}
+    -\cL(\mX, \vy; q)  
+                   &= -\sum_{i = 1}^n \left[y_i \log q(\vx_i) + (1 - y_i) \log (1 - q(\vx_i))\right]\;.
+\end{aligned}
+$${#eq-logistic-loss}
+
+::: {#def-cross-entropy}
+
+## Binary Cross-Entropy Loss
+
+The *binary cross entropy* between a collection of predicted probabilities $\vq = (q_1,q_2,\ldots,q_n) \in [0,1]^n$ and true labels $\vy = (y_1,y_2,\ldots,y_n) \in \{0,1\}^n$ is given by the formula
+
+$$
+\mathrm{CE}(\vy, \vq) = -\sum_{i = 1}^n \left[y_i \log q_i + (1 - y_i) \log (1 - q_i)\right]\;.
 $${#eq-cross-entropy}
 
-@eq-cross-entropy is called the *binary cross-entropy* loss function of $q(\vx_i)$ for predicting $y_i$. Following our standard framework, we'd like to find a choice of $q$ that maximizes the log-likelihood (or equivalently minimizes the negative log-likelihood). 
+:::
+
+While `torch` implements some bespoke cross-entropy loss functions optimized for various cases, it's also a quick formula to implement by hand: 
+
+```{python}
+#---
+def binary_cross_entropy(q, y): 
+    return -(y * torch.log(q) + (1 - y) * torch.log(1 - q)).mean()
+#---
+```
+
+So, using the binary cross entropy, our loss function for classification in this model is given by 
+
+$$
+\begin{aligned}
+    -\cL(\mX, \vy; q) = \mathrm{CE}(\vy, \vq(\mX))\;,
+\end{aligned}
+$$
+
+where here we are letting $\vq(\mX) = (q(\vx_1), q(\vx_2), \ldots, q(\vx_n))$ be the vector of predicted probabilities for each data point. We'd like to find a choice of the signal function $q$ that makes this loss as small as possible, which as usual is equivalent to maximizing the log-likelihood.
 
 ### Binary Logistic Regression
 
@@ -186,6 +243,37 @@ $${#eq-sigmoid}
 
 :::
 
+
+::: {.column-margin}
+
+```{python}
+#| echo: false
+
+def sigmoid(z): 
+    return 1 / (1 + torch.exp(-z))
+
+x_lin = torch.linspace(-10, 10, 100)
+y_sigmoid = sigmoid(x_lin)
+fig, ax = plt.subplots(figsize=(6, 3))
+ax.plot(x_lin, y_sigmoid, color = 'k')
+t = ax.set(title='Logistic sigmoid function', xlabel=r'$z$', ylabel=r'$\sigma(z)$')
+
+```
+
+Plot of the logistic sigmoid $\sigma$. 
+
+:::
+
+
+Here's a quick implementation: 
+
+```{python}
+#---
+def sigmoid(z): 
+    return 1 / (1 + torch.exp(-z))
+#---
+```
+
 The logistic sigmoid sends any numerical input to a value between 0 and 1, which makes it a natural choice for modeling probabilities. In logistic regression, we apply the logistic sigmoid to a linear function of the features, which gives us the following form for the signal function $q$:
 
 $$
@@ -194,19 +282,21 @@ $$
 \end{aligned}
 $${#eq-logistic-regression}
 
-If we insert @eq-logistic-regression into @eq-cross-entropy, we get the following expression for the log-likelihood of the data given the parameters $\vw$: 
+If we insert @eq-logistic-regression into @eq-cross-entropy, we get the following expression for the cross-entropy of the predictions and data for a given parameter vector $\vw$: 
 
 $$
 \begin{aligned}
-    \cL(\mX, \vy; \vw) &= \sum_{i = 1}^n \left[y_i \log \sigma(\vx_i^\top \vw) + (1 - y_i) \log (1 - \sigma(\vx_i^\top \vw))\right]\;.
+    -\cL(\mX, \vy; \vw) &= \mathrm{CE}(\vy, \vq(\mX)) \\ 
+    &= \mathrm{CE}(\vy, \sigma(\mX \vw)) &\quad \text{(sigmoid applied entrywise to $\mX\vw$)} \\
+    &=  -\sum_{i = 1}^n \left[y_i \log \sigma(\vx_i^\top \vw) + (1 - y_i) \log (1 - \sigma(\vx_i^\top \vw))\right]\;.
 \end{aligned}
 $$
 
-Much like with linear regression, it's typical to normalize by the number of data points $n$ to get an average log-likelihood per data point:
+Much like with linear regression, it's typical to normalize by the number of data points $n$ to get an average log-likelihood per data point, which gives our final formula for the loss function in binary logistic regression: [This normalization is why we used `.mean()` instead of `.sum()` in the `binary_cross_entropy` function above.]{.aside}
 
 $$
 \begin{aligned}
-    \cL(\mX, \vy; \vw) &= \frac{1}{n} \sum_{i = 1}^n \left[y_i \log \sigma(\vx_i^\top \vw) + (1 - y_i) \log (1 - \sigma(\vx_i^\top \vw))\right]\;.
+    \mathrm{Loss} &= \frac{1}{n} \sum_{i = 1}^n \left[y_i \log \sigma(\vx_i^\top \vw) + (1 - y_i) \log (1 - \sigma(\vx_i^\top \vw))\right]\;.
 \end{aligned}
 $${#eq-logistic-regression-loss}
 
@@ -217,26 +307,12 @@ To implement binary logistic regression, we can use largely the same machinery t
 
 ```{python}
 #---
-def sigmoid(z): 
-    return 1 / (1 + torch.exp(-z))
-
-def binary_cross_entropy(q, y): 
-    return -(y * torch.log(q) + (1 - y) * torch.log(1 - q)).mean()
-#---
-```
-
-```{python}
-#---
 class BinaryLogisticRegression: 
     def __init__(self, n_features): 
         self.w = torch.zeros(n_features, 1, requires_grad=True)
 
     def forward(self, X): 
-        return sigmoid(X @ self.w)
-
-    def gradient(self, X, y): 
-        q = self.forward(X)
-        return (q - y).T @ X / len(X)
+        return sigmoid(X @ self.w)        
 #---
 ```
 
@@ -256,20 +332,40 @@ $$
 \end{aligned}
 $$
 
+Let's build in these calculations to a class for performing gradient descent optimization. 
+
+```{python}
+#---
+class GradientDescentOptimizer: 
+    def __init__(self, model, lr=0.1): 
+        self.model = model
+        self.lr = lr
+
+    def grad_func(self, X, y): 
+        q = self.model.forward(X)
+        return 1/X.shape[0] * ((q - y).T @ X).T
+        
+
+    def step(self, X, y): 
+        grad = self.grad_func(X, y)
+        with torch.no_grad(): 
+            self.model.w -= self.lr * grad
+#---
+```
+
+
 
 ```{python}
 #---
 model = BinaryLogisticRegression(n_features=3)
+opt = GradientDescentOptimizer(model, lr=0.1)
 
 losses = []
 for epoch in range(100): 
     q = model.forward(X)
     loss = binary_cross_entropy(q, y)
     losses.append(loss.item())
-
-    grad = model.gradient(X, y)
-    with torch.no_grad(): 
-        model.w -= 0.1 * grad.T
+    opt.step(X, y)
 #---
 ```
 
@@ -286,7 +382,7 @@ with torch.no_grad():
 
 fig, axarr = plt.subplots(1, 2, figsize=(8, 4))
 
-axarr[0].plot(losses)
+axarr[0].plot(losses, color = "grey")
 axarr[0].set(title='Loss over training', xlabel='Epoch', ylabel='Binary cross-entropy loss')
 axarr[0].set_ylim(0, 1)
 axarr[1].set(title='Learned signal\nfunction $q$', xlabel=r'$x_1$', ylabel=r'$x_2$')
@@ -317,112 +413,161 @@ print(f'Training accuracy: {accuracy:.3f}')
 
 As usual, to fully assess the classifier we would evaluate the accuracy on a held-out test set. 
 
-## Multinomial Classification
+### Data Case Study
 
-What do we do with more than two classes? 
-
-![Image source: \@allisonhorst](https://allisonhorst.github.io/palmerpenguins/reference/figures/lter_penguins.png)
-
-Our data set for these notes is Palmer Penguins. This data set contains physiological measurements and species labels for several populations of Adelie, Chinstrap, and Gentoo penguins. 
-
-[The Palmer Penguins data was originally collected by @gormanEcologicalSexualDimorphism2014 and was nicely packaged and released for use in the data science community by @horstAllisonhorstPalmerpenguinsV02020. You can find [a very concise summary](https://jakevdp.github.io/PythonDataScienceHandbook/05.02-introducing-scikit-learn.html#Supervised-learning-example:-Iris-classification) of the main workflow using a similar data set in @vanderplasPythonDataScience2016.]{.aside} 
-
-Let's go ahead and acquire the data. 
+As an empirical test of our logistic regression classifier, let's train a model to predict rainfall based on the previous day's weather. 
 
 ```{python}
 import pandas as pd
-url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/palmer-penguins/palmer-penguins.csv"
+url = "https://raw.githubusercontent.com/middcs/data-science-notes/refs/heads/main/data/australia-weather/weatherAUS.csv"
 
 df = pd.read_csv(url)
+df.head()
+# df["Pressure9am"] = df["Pressure9am"]/1e3
+# df["Humidity3pm"] = df["Humidity3pm"]/100
+
+df.dropna(subset=['RainTomorrow', 'Humidity3pm', 'Pressure3pm'], inplace=True)
 ```
 
-[You can learn much more about the capabilities of `pandas.DataFrame` objects in [Chapter 3](https://jakevdp.github.io/PythonDataScienceHandbook/03.00-introduction-to-pandas.html) of  @vanderplasPythonDataScience2016]{.aside}
-The `df` variable holds a `pandas.DataFrame` object. You can think of a data frame as a table of data with a variety of useful behaviors for data manipulation and visualization. 
+For the purposes of this example, we'll use just two features: the humidity at 3pm and the pressure at 3pm, and use these to predict whether or not rain occurs the next day. 
 
-Let's take a look: 
+```{python}
+fig, ax = plt.subplots(figsize=(6, 6))
+
+subset = df.head(1000)
+y = subset['RainTomorrow'].apply(lambda x: 1 if x == 'Yes' else 0).to_numpy().reshape(-1, 1)
+X = subset[['Humidity3pm', 'Pressure3pm']].to_numpy()
+
+
+for i, label in enumerate(["No rain tomorrow", "Rain tomorrow"]): 
+    idx = y.flatten() == i
+    ax.scatter(X[idx, 0], X[idx, 1], c = y.flatten()[idx], label=f'{label}', edgecolor='k', marker=markers[i],   cmap = 'BrBG', vmin = -0.5, vmax = 1.5, alpha = 0.7)
+
+ax.set(xlabel='Humidity3pm', ylabel='Pressure3pm')
+
+plt.legend()
+
+t = plt.title("Tomorrow's rain as a function of today's humidity and pressure")
+```
+
+We'll start our modeling pipeline by producing a feature matrix and label vector from the data.
 
 ```{python}
 #---
-df.head() # first 5 rows
+X = df[['Humidity3pm', 'Pressure3pm']].to_numpy()
+y = (df['RainTomorrow'] == 'Yes').to_numpy().astype(float).reshape(-1, 1)
 #---
 ```
 
-Each row of this data frame contains measurements for a single penguin, and the columns contain different features of the data. We'll use the `Species` column as our class labels, and the other columns as features for classification. For illustration, we'll use only two features: `Culmen Length (mm)` and `Culmen Depth (mm)`.
+Now we'll perform a train-test split to evaluate the model's performance on held-out data.
 
 ```{python}
-df = df.dropna(subset=['Culmen Length (mm)', 'Culmen Depth (mm)', 'Species'])
-df = df[['Culmen Length (mm)', 'Culmen Depth (mm)', 'Species']]
-df["Species"] = df["Species"].str.split().str[0]  # shorten species names to first letter
+#---
+train_frac = 0.8
+n = X.shape[0]
+n_train = int(train_frac * n)
+
+X_train = X[:n_train, :]
+y_train = y[:n_train, :]
+
+X_test = X[n_train:, :]
+y_test = y[n_train:, :]
+#---
 ```
 
-A look at the species labels in feature space suggests that we should be able to do a pretty good job of classifying the species based on these two features.
+Now we're ready to train the logistic regression model.
 
 ```{python}
-sns.scatterplot(data=df, x='Culmen Length (mm)', y='Culmen Depth (mm)', hue='Species', style='Species', edgecolor='k', alpha=0.7)
+#---
+n_features = X_train.shape[1] + 1  # +1 for intercept
+X_train_aug = torch.ones((X_train.shape[0], n_features))
+X_train_aug[:, 1:] = torch.tensor(X_train, dtype=torch.float32)
+
+y_train_tensor = torch.tensor(y_train, dtype=torch.float32)
+model = BinaryLogisticRegression(n_features=n_features)
+opt = GradientDescentOptimizer(model, lr=0.00001)
+
+losses = []
+for epoch in range(20000): 
+
+    q = model.forward(X_train_aug)
+    grad = (q - y_train_tensor).T@X_train_aug / X_train_aug.shape[0]
+    loss = binary_cross_entropy(q, y_train_tensor)
+    
+    losses.append(loss.item())
+    opt.step(X_train_aug, y_train_tensor)
+#---
 ```
 
-### One-Hot Encoding
+::: {#fig-training-loss}
 
-To apply our classification framework to our data, we need to convert the categorical species labels into numerical values. A particularly convenient way to do this is via *one-hot encoding*. 
+```{python}
+#| code-fold: true
+plt.plot(losses, color = "grey")
+t = plt.title('Loss over training')
+plt.xlabel('Epoch')
+plt.ylabel('Binary cross-entropy loss')
+plt.ylim(0, 1)
+plt.semilogx()
+```
 
-::: {#def-one-hot-encoding}
+Visualization of the binary cross-entropy loss over training epochs.
 
-## One-Hot Encoding
+::: 
 
-If $y$ is a categorical variable with $K$ categories, then the one-hot encoding of $\vy$ of $y$ is a vector $\vy \in \{0, 1\}^K$ with entries
+Let's plot the learned decision boundary in feature space, along with a selection from the test data: 
 
-$$
-y_i = \begin{cases}
-    1 & \text{if } y \text{ is in category } i \\
-    0 & \text{otherwise}
-\end{cases}\;.
-$$
+::: {#fig-decision-boundary}
+
+```{python}
+#| code-fold: true
+
+x1_grid = torch.linspace(X[:,0].min(), X[:,0].max(), 100)
+x2_grid = torch.linspace(X[:,1].min(), X[:,1].max(), 100)
+xx1, xx2 = torch.meshgrid(x1_grid, x2_grid, indexing='ij')
+grid = torch.cat([torch.ones_like(xx1).reshape(-1, 1), xx1.reshape(-1, 1), xx2.reshape(-1, 1)], dim=1)
+with torch.no_grad():
+    q_grid = model.forward(grid).reshape(xx1.shape)
+
+fig, ax = plt.subplots(figsize=(6, 6))
+
+ax.contour(xx1, xx2, q_grid, levels=[0.5], colors='k', linewidths=1, extent = (x1_grid.min(), x1_grid.max(), x2_grid.min(), x2_grid.max()), linestyles='--')
+
+ax.set(title='Learned decision boundary', xlabel='Humidity3pm', ylabel='Pressure3pm')
+
+for i, label in enumerate(["No rain tomorrow", "Rain tomorrow"]): 
+    idx = (y_test[:1000, 0] == i)
+    ax.scatter(X_test[:1000, 0][idx], X_test[:1000, 1][idx], c = y_test[:1000, 0][idx], label=f'{label}', edgecolor='k', marker=markers[i],   cmap = 'BrBG', vmin = -0.5, vmax = 1.5, alpha = 0.7)
+
+plt.legend()
+```
+
+Learned decision boundary (dashed line) in feature space, along with 1,000 of the test data points.
 
 :::
 
-For example, in our case with class labels "Adelie", "Chinstrap", and "Gentoo", a one-hot encoding of a penguin of species "Adelie" would be the vector $\vy = (1, 0, 0)$, a penguin of species "Chinstrap" would be $\vy = (0, 1, 0)$, and a penguin of species "Gentoo" would be $\vy = (0, 0, 1)$.
-
-The `pandas` library provides a convenient way to perform one-hot encoding for data frames  via the `pd.get_dummies` function.
+To evaluate this model on the test set, we need to evaluate the model on the test features and threshold the results to obtain class predictions.
 
 ```{python}
-df = pd.get_dummies(df, columns=['Species'])
-df.head()
+# obtain the probabilities q_test
+X_test_aug = torch.ones((X_test.shape[0], n_features))
+X_test_aug[:, 1:] = torch.tensor(X_test, dtype=torch.float32)
+y_test_tensor = torch.tensor(y_test, dtype=torch.float32)
+q_test = model.forward(X_test_aug)
+
+# obtain class predictions via thresholding and compute accuracy
+y_test_pred = (q_test >= 0.5).float()
+accuracy_test = (y_test_pred == y_test_tensor).float().mean()
+print(f'Test accuracy: {accuracy_test:.3f}')
 ```
 
-Now we're ready to split our data into features and targets and to training and test sets. 
+This accuracy is slightly better than the result we would obtain by always guessing that it won't rain: 
 
 ```{python}
-
-train_ix = df.sample(frac=0.8, random_state=42).index
-test_ix = df.drop(train_ix).index
-
-feature_cols = ['Culmen Length (mm)', 'Culmen Depth (mm)']
-target_cols = ['Species_Adelie', 'Species_Chinstrap', 'Species_Gentoo']
-
-X_train = torch.tensor(df.loc[train_ix, feature_cols].values, dtype=torch.float32)
-y_train = torch.tensor(df.loc[train_ix, target_cols].values, dtype=torch.float32)
-
-X_test = torch.tensor(df.loc[test_ix, feature_cols].values, dtype=torch.float32)
-y_test = torch.tensor(df.loc[test_ix, target_cols].values, dtype=torch.float32)
+#---
+baseline_accuracy = (y_test_tensor == 0).float().mean()
+print(f'Baseline accuracy (always predict no rain): {baseline_accuracy:.3f}')
+#---
 ```
 
-### Data Model
-
-Now it's time to write down a data model for our multinomial classification problem. We'll follow the same approach as we did for binary classification, but we need to modify the likelihood function to account for multiple classes.     
-
-Let $\mY$ be the $n \times K$ matrix of one-hot encoded class labels, with $i$th row $\vy_i$ corresponding to the one-hot encoding of the class label for data point $i$: 
-
-$$
-\mY = \begin{bmatrix}
-    - & \vy_1^\top & - \\
-    - & \vy_2^\top & - \\
-    \vdots \\
-    - & \vy_n^\top & -
-\end{bmatrix}\;,
-$$
-
-Suppose now that we have a function $\vq: \R^d \rightarrow (0, 1)^K$ that takes in features $\vx_i$ and outputs a vector of probabilities $\vq(\vx_i)$ for each class. We can write down the likelihood of the data given this function as follows:
-
-
-
-
+Our learned classifier does slightly better than baseline in predicting whether or not will rain tomorrow, as measured by accuracy on the test set. 

@@ -15,6 +15,10 @@ book:
       - chapters/04-more-gradients.qmd
       - chapters/06-regularization.qmd
       - chapters/07-bias-variance.qmd
+    - part: "Classification"
+      chapters: 
+      - chapters/10-intro-classification.qmd
+      - chapters/15-multinomial-classification.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 
