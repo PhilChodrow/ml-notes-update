@@ -515,7 +515,7 @@ Visualization of the binary cross-entropy loss over training epochs.
 
 ::: 
 
-Let's plot the learned decision boundary in feature space, along with a selection from the test data: 
+Let's plot the learned signal function $q$ in feature space, along with a selection from the test data: 
 
 ::: {#fig-decision-boundary}
 
@@ -532,6 +532,8 @@ with torch.no_grad():
 fig, ax = plt.subplots(figsize=(6, 6))
 
 ax.contour(xx1, xx2, q_grid, levels=[0.5], colors='k', linewidths=1, extent = (x1_grid.min(), x1_grid.max(), x2_grid.min(), x2_grid.max()), linestyles='--')
+ax.contourf(xx1, xx2, q_grid, levels=torch.linspace(0, 1, steps=10), alpha=0.3, cmap='BrBG', extent = (x1_grid.min(), x1_grid.max(), x2_grid.min(), x2_grid.max()))
+
 
 ax.set(title='Learned decision boundary', xlabel='Humidity3pm', ylabel='Pressure3pm')
 
