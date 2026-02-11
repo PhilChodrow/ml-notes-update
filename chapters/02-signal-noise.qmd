@@ -200,9 +200,9 @@ gaussian_pdf(torch.tensor([0.0, 1.0, 2.0]), mu=0.0, sigma=1.0)
 
 The two parameters of the Gaussian distribution describe its "shape:" The mean $\mu$ indicates the "center" of the distribution, while the standard deviation $\sigma$ indicates how "spread out" the distribution is.
 
+::: {#fig-gaussian-pdfs}
+
 ```{python}
-#| fig-cap: "Gaussian distribution PDFs for different values."
-#| label: fig-gaussian-pdfs
 #| code-fold: true
 
 fig, ax = plt.subplots(figsize = (6, 4))
@@ -217,6 +217,10 @@ ax.set_xlabel('x')
 ax.set_ylabel('Probability Density')
 ax.legend()
 ```
+
+Gaussian distribution PDFs for different parameter values.
+
+:::
 
 "Gaussian noise" refers to random variables drawn from a Gaussian distribution. We can generate Gaussian noise from a given Gaussian distribution using many functions. We'll focus on PyTorch's implementation (given through `torch.normal`), which allows us to generate tensors of Gaussian noise easily: 
 
@@ -563,6 +567,7 @@ $$
 For this experiment, however, we actually don't need a designated formula for the log-likelihood -- we can just compute it directly from the definition using our `gaussian_pdf` function. To see how the log-likelihood can give us a tool to assess model fit, we can compute the likelihood of our observed data for different choices of the function $f$. This can be done in a simple grid search over possible values of the parameters $w_0, w_1$ in the linear function $f(x) = w_0 + w_1 x$. 
 
 ```{python}
+#---
 sig = 3.0  # assumed noise level
 best_ll = -float('inf') #<1>
 best_w = None
@@ -570,11 +575,12 @@ best_w = None
 for w0 in torch.linspace(-5, 5, 20):
     for w1 in torch.linspace(-1, 3, 20):
         f = lambda x: w0 + w1 * x #<2>
-        ll = gaussian_pdf(y, f(x), sig).log().sum().item() #<3>
+        ll = gaussian_pdf(y, f(x), sig).log().sum() #<3>
 
         if ll > best_ll: #<4>
             best_ll = ll
-            best_w = (w0.item(), w1.item())
+            best_w = (w0, w1)
+#---
 ```
 1. Initialize the best log-likelihood and best parameters.
 2. Define the predictor function $f$ with current parameters. 
