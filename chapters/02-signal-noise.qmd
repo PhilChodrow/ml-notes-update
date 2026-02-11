@@ -26,24 +26,32 @@ In these notes, we'll expand on the following idea:
 
 > Machine learning is the science and practice of building algorithms that distinguish between signal and noise in real-world data. 
 
-Consider the following simple data set:
-
-::: {#fig-signal-noise}
+Let's start by building up a simple data set that contains signal and noise: 
 
 ```{python}
 #| code-fold: true
 import torch 
 from matplotlib import pyplot as plt
-
 scatterplot_kwargs = dict(color = "black", label = "data", facecolors = "none", s = 40, alpha = 0.6)
+```
 
+
+
+```{python}
+#---
 n_points = 20
 x = torch.linspace(0, 10, n_points)
 signal = 2.0 * x + 1.0  # underlying pattern (signal)
 noise = torch.randn(n_points) * 3.0  # random noise
 
 y = signal + noise
+#---
+```
 
+::: {#fig-signal-noise}
+
+```{python}
+#| code-fold: true
 # Plot residual segments
 fig, ax = plt.subplots(figsize = (6, 4))
 ax.scatter(x.numpy(), y.numpy(), **scatterplot_kwargs)
@@ -124,7 +132,7 @@ We observe a number of irrelevant fluctuations in the interpolating fit that do 
 
 If we want to learn the signal $f$ in @eq-signal-plus-noise, it's helpful to learn how to talk mathematically about the noise term $\epsilon_i$. To do this, we need to step into the language of probability theory. Our standing assumption will be that the noise terms $\epsilon_i$ are *random variables* drawn independently and identically-distributed from some probability distribution. This means that each time we observe a new data point, we get a different value of $\epsilon_i$ drawn from the same distribution, without any influence from other values of $\epsilon_j$ for $j \neq i$.
 
-The noise distribution we will usually consider is the Gaussian distribution, also called the Gaussian distribution. 
+The noise distribution we will usually consider is the Gaussian distribution: 
 
 ```{python}
 #| column: margin
@@ -139,11 +147,11 @@ sigma = 0.25
 
 x_vals = torch.linspace(-1, 1, 100)
 
-def normal_pdf(x, mu, sigma):
+def gaussian_pdf(x, mu, sigma):
     return (1 / (sigma * torch.sqrt(torch.tensor(2 * 3.141592653589793)))) * \
             torch.exp(-0.5 * ((x - mu) / sigma) ** 2)
 
-pdf_vals = normal_pdf(x_vals, mu, sigma)
+pdf_vals = gaussian_pdf(x_vals, mu, sigma)
 fig, ax = plt.subplots(figsize = (3, 2))
 ax.plot(x_vals.numpy(), pdf_vals.numpy(), label='PDF of Gaussian distribution')
 ax.fill_between(x_vals.numpy(), pdf_vals.numpy(), where=(x_vals.numpy() >= a) & (x_vals.numpy() <= b), color='lightblue', alpha=0.5, label=r'Area: $P({:.1f} \leq \epsilon \leq {:.1f})$'.format(a, b))
@@ -182,40 +190,35 @@ Gaussian distributions are often called *normal* distributions in the statistics
 Here's a simple vectorized implementation of the Gaussian PDF, which can be evaluated on a PyTorch tensor of inputs:
 
 ```{python}
-pi = 3.141592653589793
 #---
-def normal_pdf(x, mu, sigma):
-    return 1 / (sigma * (2 * pi)**0.5) * torch.exp(-0.5 * ((x - mu) / sigma) ** 2)
+def gaussian_pdf(x, mu, sigma):
+    return 1 / (sigma * (2 * torch.pi)**0.5) * torch.exp(-0.5 * ((x - mu) / sigma) ** 2)
 
-normal_pdf(torch.tensor([0.0, 1.0, 2.0]), mu=0.0, sigma=1.0)
+gaussian_pdf(torch.tensor([0.0, 1.0, 2.0]), mu=0.0, sigma=1.0)
 #---
 ```
 
-
+The two parameters of the Gaussian distribution describe its "shape:" The mean $\mu$ indicates the "center" of the distribution, while the standard deviation $\sigma$ indicates how "spread out" the distribution is.
 
 ```{python}
-#| column: margin
-#| fig-cap: "Normal distribution PDFs for different values."
-#| label: fig-normal-pdfs
-#| echo: false
+#| fig-cap: "Gaussian distribution PDFs for different values."
+#| label: fig-gaussian-pdfs
+#| code-fold: true
 
-fig, ax = plt.subplots(figsize = (3, 2))
+fig, ax = plt.subplots(figsize = (6, 4))
 
 for mu, sigma in [(0, 1), (0, 2), (2, 1)]:
     x_vals = torch.linspace(mu - 4*sigma, mu + 4*sigma, 100)
-    pdf_vals = normal_pdf(x_vals, mu, sigma)
-
+    pdf_vals = gaussian_pdf(x_vals, mu, sigma)
     ax.plot(x_vals.numpy(), pdf_vals.numpy(), label=f'μ={mu}, σ={sigma}')
 
-ax.set_title('Normal Distribution PDFs')
+ax.set_title('Gaussian Distribution PDFs')
 ax.set_xlabel('x')
 ax.set_ylabel('Probability Density')
 ax.legend()
 ```
 
-The two parameters of the Gaussian distribution describe its "shape:" The mean $\mu$ indicates the "center" of the distribution, while the standard deviation $\sigma$ indicates how "spread out" the distribution is.
-
-"Gaussian noise" refers to random variables drawn from a Gaussian distribution. We can generate Gaussian noise from a given Gaussian distribution using many functions. We'll focus on PyTorch's implementation, which allows us to generate tensors of Gaussian noise easily: 
+"Gaussian noise" refers to random variables drawn from a Gaussian distribution. We can generate Gaussian noise from a given Gaussian distribution using many functions. We'll focus on PyTorch's implementation (given through `torch.normal`), which allows us to generate tensors of Gaussian noise easily: 
 
 ```{python}
 mu = 0.0
@@ -225,9 +228,6 @@ epsilon
 ```
 
 If we take many samples of Gaussian noise and plot a histogram of their values, then we'll find (via the *law of large numbers*) that the histogram approximates the PDF of the Gaussian distribution we sampled from, as illustrated in @fig-normal-histogram-comparison:
-
-
-
 
 ```{python}
 #| column: margin
@@ -240,7 +240,7 @@ samples = torch.normal(mu, sigma, size=(1000,))
 
 x_vals = torch.linspace(mu - 4*sigma, mu + 4*sigma, 100)
 
-pdf_vals = normal_pdf(x_vals, mu, sigma)
+pdf_vals = gaussian_pdf(x_vals, mu, sigma)
 
 fig, ax = plt.subplots(figsize = (3, 2))
 ax.hist(samples.numpy(), bins=30, density=True, alpha=0.6, color='steelblue', label='Sampled Data')
@@ -349,7 +349,18 @@ for constants $a$ and $b$.
 
 :::
 
+The translation and scaling properties mean that we can actually generate Gaussian noise with arbitrary mean and standard deviation without having to remember how to call `torch.normal` with the right parameters: we can just generate *standard* Gaussian noise via `torch.randn`. For example, we can generate 5 samples of Gaussian noise with mean 3 and standard deviation 2 as follows:
 
+```{python}
+mu = 3.0
+sigma = 2.0
+n_samples = 5
+
+noise = sigma*torch.randn(n_samples) + mu
+
+# equivalent
+noise_equiv = torch.normal(mu, sigma, size=(n_samples,))
+```
 
 
 ## Gaussian Noise
@@ -404,7 +415,7 @@ $$
 \end{aligned}
 $${#eq-linear-signal-1d}
 
-for parameters $w_0, w_1 \in \mathbb{R}$ is called a (1-dimensional) *linear-Gaussian model*.
+for parameters $w_0, w_1 \in \mathbb{R}$ is called a (1-dimensional) *linear-Gaussian model*. In this context we'll let $\vw = (w_0, w_1)^\top$ denote the parameters of the model, and write $f_\vw(x_i)$ to emphasize the dependence of the signal on the parameters.
 
 :::
 
@@ -427,7 +438,7 @@ def draw_gaussian_at(support, sd=1.0, height=1.0,
 support = torch.linspace(-10, 10, 1000)
 fig, ax = plt.subplots()
 
-ax.plot(x, signal, color = "black", linestyle = "--", label = r"Signal: $f(x_i) = 2x_i + 1$")
+ax.plot(x, signal, color = "black", linestyle = "--", label = r"Signal: $f_{\mathbf{w}}(x_i) = 2x_i + 1$")
 
 for each in x:
     draw_gaussian_at(support, sd=3, height=0.4, xpos=each, ypos=2.0 * each + 1.0, ax=ax, color='C0', alpha=0.4)
@@ -445,7 +456,7 @@ Illustration of the Gaussian noise model @eq-normal-noise, showing data points (
 
 :::
 
-We are modeling $y_i$ as a noisy sample from a Gaussian distribution centered at the signal value $f(x_i)$, with noise level $\sigma$ controlling how spread out the distribution is. A larger value of $\sigma$ means that the observed data points $y_i$ will tend to be further away from the signal $f(x_i)$, while a smaller value of $\sigma$ means that the data points will tend to be closer to the signal. Larger values of the noise level $\sigma$ create noisier data sets where it is more difficult to discern the underlying signal.
+We are modeling $y_i$ as a noisy sample from a Gaussian distribution centered at the signal value $f_\vw(x_i)$, with noise level $\sigma$ controlling how spread out the distribution is. A larger value of $\sigma$ means that the observed data points $y_i$ will tend to be further away from the signal $f_\vw(x_i)$, while a smaller value of $\sigma$ means that the data points will tend to be closer to the signal. Larger values of the noise level $\sigma$ create noisier data sets where it is more difficult to discern the underlying signal.
 
 ### Data Generating Distributions
 
@@ -460,7 +471,7 @@ A *data generating distribution* (also called a *data generating model*) is a pr
 
 :::
 
-The linear-Gaussian model is a simple example of a data generating model: it describes a recipe to simulate each target $y_i$ by first computing the signal value $f(x_i)$, then sampling a noise term $\epsilon_i$ from a Gaussian distribution, and finally adding the two together to get $y_i = f(x_i) + \epsilon_i$. 
+The linear-Gaussian model is a simple example of a data generating model: it describes a recipe to simulate each target $y_i$ by first computing the signal value $f_\vw(x_i)$, then sampling a noise term $\epsilon_i$ from a Gaussian distribution, and finally adding the two together to get $y_i = f_\vw(x_i) + \epsilon_i$. 
 
 A very useful feature of data generating models is that they also give us tools to measure how well our learned signal fits observed data, via the concept of a *likelihood*. 
 
@@ -484,7 +495,7 @@ The *likelihood* of the observed data $(\vx, \vy)$ under a 1d Gaussian model wit
 
 $$
 \begin{aligned}
-    L(\vx, \vy; f, \sigma) = \prod_{i = 1}^n p_{y}(y_i; f(x_i), \sigma^2) 
+    L(\vx, \vy; f) = \prod_{i = 1}^n p_{y}(y_i; f(x_i), \sigma^2) 
 \end{aligned}
 $$
 
@@ -492,22 +503,64 @@ The *log-likelihood* is the logarithm of the likelihood:
 
 $$
 \begin{aligned}
-    \cL(\vx, \vy; f, \sigma) = \log L(\vx, \vy; f, \sigma) = \sum_{i = 1}^n \log p_{y}(y_i; f(x_i), \sigma^2)\;.
+    \cL(\vx, \vy; f) = \log L(\vx, \vy; f) = \sum_{i = 1}^n \log p_{y}(y_i; f(x_i), \sigma^2)\;.
 \end{aligned}
 $${#eq-log-likelihood}
 
 :::
 
+*In this definition we are ignoring the dependence of $L$ and $\cL$ on the noise level $\sigma$ -- that's something that is typically important in statistics contexts but not in predictive ML contexts.*
+
+
 The log-likelihood $\cL$ in @eq-log-likelihood is almost always the tool we work with in applied contexts -- it turns products into sums, which is very useful in computational practice. 
 
 ### A First Look: Likelihood Maximization
 
-Let's now finally fit a machine learning model! We'll assume that the data is sampled from the linear-Gaussian model specified by @eq-gaussian-model and @eq-linear-signal-1d, and try to fit the parameters $w_0, w_1$ of the function $f$ to maximize the likelihood of the observed data. For now, we'll do this simply by choosing the combination of parameters that achieves the best likelihood from among many candidates: 
+In the context of the linear-Gaussian model specified by @eq-normal-noise and @eq-linear-signal-1d, the likelihood of the observed data is a function of the parameters $\vw = (w_0, w_1)^\top$ of the signal function $f$: 
 
+$$
+\begin{aligned}
+    L(\vx, \vy; \vw) &= \prod_{i = 1}^n p_{y}(y_i; f_\vw(x_i), \sigma^2)\;. \\ 
+    f_\vw(x_i) &= w_0 + w_1 x_i\;.
+\end{aligned}
+$$
 
+To fit the linear-Gaussian model to data, we'll use the *method of maximum likelihood*, which says that we should choose the parameters $\vw$ to maximize the likelihood of the observed data under the model.
 
+::: {#def-maximum-likelihood}
 
-To see how the likelihood can give us a tool to assess model fit, we can compute the likelihood of our observed data for different choices of the function $f$. This can be done in a simple grid search over possible values of the parameters $w_0, w_1$ in the linear function $f(x) = w_0 + w_1 x$. 
+## Maximum Likelihood Estimation
+
+Given a signal function $f_\vw$ with some parameters $\vw$ (e.g. $\vw = (w_0, w_1)$ in @eq-linear-signal-1d), the *method of maximum likelihood* says that we should choose the parameters $\hat{\vw}$ to maximize the likelihood of the observed data under the model: 
+
+$$
+\begin{aligned}
+    \hat{\vw} = \argmax_{\vw} \; L(\vx, \vy; \vw)\;.
+\end{aligned}
+$$
+
+Conventionally (and for computational convenience), this problem is almost always solved by maximizing the log-likelihood, which is equivalent to *minimizing* the *negative* log-likelihood:
+
+$$
+\begin{aligned}
+    \hat{\vw} = \argmax_{\vw} \; \cL(\vx, \vy; \vw) = \argmin_{\vw} \; -\cL(\vx, \vy; \vw)\;.
+\end{aligned}
+$$
+
+:::
+
+So, we need to be able to evaluate $-\cL(\vx, \vy; \vw)$ as a function of $\vw$ in order to solve this optimization problem. In case you're wondering, for the Gaussian likelihood this works out to: 
+
+$$
+\begin{aligned}
+    \cL(\vx, \vy; \vw) &= \sum_{i = 1}^n \log p_{y}(y_i; f_\vw(x_i), \sigma^2) \\ 
+    &= \sum_{i = 1}^n \log \left( \frac{1}{\sigma \sqrt{2 \pi}} \exp\left(-\frac{(y_i - f_\vw(x_i))^2}{2\sigma^2}\right) \right) \\ 
+    &= \sum_{i = 1}^n \left( -\log(\sigma \sqrt{2 \pi}) - \frac{(y_i - f_\vw(x_i))^2}{2\sigma^2} \right) \\ 
+    &= -n \log(\sigma \sqrt{2 \pi}) - \frac{1}{2\sigma^2} \sum_{i = 1}^n (y_i - f_\vw(x_i))^2\;.
+\end{aligned}
+$$
+
+For this experiment, however, we actually don't need a designated formula for the log-likelihood -- we can just compute it directly from the definition using our `gaussian_pdf` function. To see how the log-likelihood can give us a tool to assess model fit, we can compute the likelihood of our observed data for different choices of the function $f$. This can be done in a simple grid search over possible values of the parameters $w_0, w_1$ in the linear function $f(x) = w_0 + w_1 x$. 
 
 ```{python}
 sig = 3.0  # assumed noise level
@@ -517,8 +570,7 @@ best_w = None
 for w0 in torch.linspace(-5, 5, 20):
     for w1 in torch.linspace(-1, 3, 20):
         f = lambda x: w0 + w1 * x #<2>
-        ll = 0.0
-        ll += normal_pdf(y, f(x), sig).log().sum().item() #<3>
+        ll = gaussian_pdf(y, f(x), sig).log().sum().item() #<3>
 
         if ll > best_ll: #<4>
             best_ll = ll
@@ -526,7 +578,7 @@ for w0 in torch.linspace(-5, 5, 20):
 ```
 1. Initialize the best log-likelihood and best parameters.
 2. Define the predictor function $f$ with current parameters. 
-3. Compute the data log-likelihood. The `normal_pdf` function computes the PDF values for all data points at once, which we then log and sum to get the log-likelihood.
+3. Compute the data log-likelihood. The `gaussian_pdf` function computes the PDF values for all data points at once, which we then log and sum to get the log-likelihood.
 4. Update the best log-likelihood and parameters if the current log-likelihood is better.
 
 Let's check the predictor function $f$ we learned by heuristically maximizing the log-likelihood against the observed data:

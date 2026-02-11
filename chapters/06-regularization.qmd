@@ -172,7 +172,7 @@ class LinearRegression:
         return X @ self.w
 ```
 
-We'll also write a simple training loop, this time using some of PyTorch's built-in optimization functionality:
+We'll also write a simple training loop, this time using some of PyTorch's built-in optimization functionality: rather than implement our own `GradientDescentOptimizer` class today, we'll instead use the `torch.optim.Adam` optimizer. This enables faster training, which will help us for the experiments in these notes. 
 
 ```{python}
 def mse(y_pred, y):
@@ -183,9 +183,10 @@ def train_model(model, X_train, y_train, lr=1e-2, n_epochs=1000, tol=1e-4, regul
     for epoch in range(n_epochs):
         y_pred = model.forward(X_train)
         loss = mse(y_pred, y_train) + (regularization(model.w) if regularization is not None else 0.0) #<1>
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
+        
+        opt.zero_grad() 
+        loss.backward() #<2> automated computation of gradients for Adam optimization
+        opt.step() #<3> perform an optimization step
         if model.w.grad is not None:
             if model.w.grad.norm().item() < tol:
                 if verbose: 

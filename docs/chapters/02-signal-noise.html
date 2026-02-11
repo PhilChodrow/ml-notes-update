@@ -317,41 +317,45 @@ window.Quarto = {
 <blockquote class="blockquote">
 <p>Machine learning is the science and practice of building algorithms that distinguish between signal and noise in real-world data.</p>
 </blockquote>
-<p>Consider the following simple data set:</p>
+<p>Let’s start by building up a simple data set that contains signal and noise:</p>
+<div id="e4fc0d86" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>scatterplot_kwargs <span class="op">=</span> <span class="bu">dict</span>(color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"data"</span>, facecolors <span class="op">=</span> <span class="st">"none"</span>, s <span class="op">=</span> <span class="dv">40</span>, alpha <span class="op">=</span> <span class="fl">0.6</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>n_points <span class="op">=</span> <span class="dv">20</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">10</span>, n_points)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>signal <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> x <span class="op">+</span> <span class="fl">1.0</span>  <span class="co"># underlying pattern (signal)</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> torch.randn(n_points) <span class="op">*</span> <span class="fl">3.0</span>  <span class="co"># random noise</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> signal <span class="op">+</span> noise</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot residual segments</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>ax.scatter(x.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>ax.plot(x.numpy(), signal.numpy(), color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="vs">r"Signal: </span><span class="dv">$</span><span class="vs">f</span><span class="kw">(</span><span class="vs">x_i</span><span class="kw">)</span><span class="vs"> = 2x_i </span><span class="op">+</span><span class="vs"> 1</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_points):</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>: </span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        ax.plot([x[i].item(), x[i].item()], [signal[i].item(), y[i].item()], color <span class="op">=</span> <span class="st">"red"</span>, alpha <span class="op">=</span> <span class="fl">0.3</span>, linewidth <span class="op">=</span> <span class="fl">0.8</span>, label <span class="op">=</span> <span class="vs">r"Noise: </span><span class="dv">$</span><span class="er">\</span><span class="vs">epsilon_i</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>: </span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        ax.plot([x[i].item(), x[i].item()], [signal[i].item(), y[i].item()], color <span class="op">=</span> <span class="st">"red"</span>, alpha <span class="op">=</span> <span class="fl">0.3</span>, linewidth <span class="op">=</span> <span class="fl">0.8</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>plt.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>scatterplot_kwargs <span class="op">=</span> <span class="bu">dict</span>(color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"data"</span>, facecolors <span class="op">=</span> <span class="st">"none"</span>, s <span class="op">=</span> <span class="dv">40</span>, alpha <span class="op">=</span> <span class="fl">0.6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="881b4dec" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_points <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">10</span>, n_points)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>signal <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> x <span class="op">+</span> <span class="fl">1.0</span>  <span class="co"># underlying pattern (signal)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> torch.randn(n_points) <span class="op">*</span> <span class="fl">3.0</span>  <span class="co"># random noise</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> signal <span class="op">+</span> noise</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot residual segments</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ax.scatter(x.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ax.plot(x.numpy(), signal.numpy(), color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="vs">r"Signal: </span><span class="dv">$</span><span class="vs">f</span><span class="kw">(</span><span class="vs">x_i</span><span class="kw">)</span><span class="vs"> = 2x_i </span><span class="op">+</span><span class="vs"> 1</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_points):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>: </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        ax.plot([x[i].item(), x[i].item()], [signal[i].item(), y[i].item()], color <span class="op">=</span> <span class="st">"red"</span>, alpha <span class="op">=</span> <span class="fl">0.3</span>, linewidth <span class="op">=</span> <span class="fl">0.8</span>, label <span class="op">=</span> <span class="vs">r"Noise: </span><span class="dv">$</span><span class="er">\</span><span class="vs">epsilon_i</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>: </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        ax.plot([x[i].item(), x[i].item()], [signal[i].item(), y[i].item()], color <span class="op">=</span> <span class="st">"red"</span>, alpha <span class="op">=</span> <span class="fl">0.3</span>, linewidth <span class="op">=</span> <span class="fl">0.8</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>plt.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-signal-noise" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-signal-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="238ca096" class="cell" data-execution_count="4">
+<div id="cedef666" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="02-signal-noise_files/figure-html/cell-4-output-1.png" class="figure-img" width="503" height="349"></p>
+<p><img src="02-signal-noise_files/figure-html/cell-6-output-1.png" class="figure-img" width="503" height="349"></p>
 </figure>
 </div>
 </div>
@@ -375,27 +379,27 @@ Figure&nbsp;1.1: An illustrative decomposition of a data set (points) into a hyp
 <p>It’s important to emphasize here that the thing we want to learn is <em>not</em> the individual targets <span class="math inline">\(y_i\)</span>, but rather the underlying function <span class="math inline">\(f(x)\)</span>. To see why, let’s consider an example of what goes wrong if we try to learn the targets <span class="math inline">\(y_i\)</span> exactly. This is called <em>interpolation</em>, and is illustrated by <a href="#fig-interpolation" class="quarto-xref">Figure&nbsp;<span>1.2</span></a>:</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> interpolate</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an interpolating function</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>f_interp <span class="op">=</span> interpolate.interp1d(x.numpy(), y.numpy(), kind<span class="op">=</span><span class="st">'cubic'</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>x_dense <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">100</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>y_interp <span class="op">=</span> f_interp(x_dense.numpy())</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>ax.scatter(x.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ax.plot(x_dense.numpy(), y_interp, color <span class="op">=</span> <span class="st">"red"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="st">"interpolating fit"</span>, zorder <span class="op">=</span> <span class="op">-</span><span class="dv">10</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> interpolate</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an interpolating function</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>f_interp <span class="op">=</span> interpolate.interp1d(x.numpy(), y.numpy(), kind<span class="op">=</span><span class="st">'cubic'</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>x_dense <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">100</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>y_interp <span class="op">=</span> f_interp(x_dense.numpy())</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>ax.scatter(x.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax.plot(x_dense.numpy(), y_interp, color <span class="op">=</span> <span class="st">"red"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="st">"interpolating fit"</span>, zorder <span class="op">=</span> <span class="op">-</span><span class="dv">10</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-interpolation" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-interpolation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="08e9040c" class="cell" data-execution_count="5">
+<div id="98da64ca" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="02-signal-noise_files/figure-html/cell-5-output-1.png" class="figure-img" width="503" height="349"></p>
+<p><img src="02-signal-noise_files/figure-html/cell-7-output-1.png" class="figure-img" width="503" height="349"></p>
 </figure>
 </div>
 </div>
@@ -409,23 +413,23 @@ Figure&nbsp;1.2: A function which exactly interpolates the data, perfectly fitti
 <p>The problem with interpolation is that while we have perfectly fit our training data, we have not learned the underlying <em>signal</em> <span class="math inline">\(f(x)\)</span>. If we were to generate new data with the same signal but with different noise, we would likely find that our interpolating function doesn’t actually make very good predictions about that data at all: many of its bends and wiggles don’t have any correspondence to features in the new data.</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate new data</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>y_new <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> x_dense <span class="op">+</span> <span class="fl">1.0</span> <span class="op">+</span> torch.randn(<span class="dv">100</span>) <span class="op">*</span> <span class="fl">3.0</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ax.scatter(x_dense.numpy(), y_new.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>ax.plot(x_dense.numpy(), y_interp, color <span class="op">=</span> <span class="st">"red"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="st">"interpolating fit"</span>, zorder <span class="op">=</span> <span class="op">-</span><span class="dv">10</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate new data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>y_new <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> x_dense <span class="op">+</span> <span class="fl">1.0</span> <span class="op">+</span> torch.randn(<span class="dv">100</span>) <span class="op">*</span> <span class="fl">3.0</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.scatter(x_dense.numpy(), y_new.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>ax.plot(x_dense.numpy(), y_interp, color <span class="op">=</span> <span class="st">"red"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="st">"interpolating fit"</span>, zorder <span class="op">=</span> <span class="op">-</span><span class="dv">10</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-interpolation-2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-interpolation-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="45db6794" class="cell" data-execution_count="6">
+<div id="19b1c15b" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="02-signal-noise_files/figure-html/cell-6-output-1.png" class="figure-img" width="503" height="349"></p>
+<p><img src="02-signal-noise_files/figure-html/cell-8-output-1.png" class="figure-img" width="503" height="349"></p>
 </figure>
 </div>
 </div>
@@ -441,8 +445,8 @@ Figure&nbsp;1.3: New data plotted alongside the interpolating fit from the previ
 <section id="modeling-the-noise" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="modeling-the-noise">Modeling the Noise</h2>
 <p>If we want to learn the signal <span class="math inline">\(f\)</span> in <a href="#eq-signal-plus-noise" class="quarto-xref">Equation&nbsp;<span>1.1</span></a>, it’s helpful to learn how to talk mathematically about the noise term <span class="math inline">\(\epsilon_i\)</span>. To do this, we need to step into the language of probability theory. Our standing assumption will be that the noise terms <span class="math inline">\(\epsilon_i\)</span> are <em>random variables</em> drawn independently and identically-distributed from some probability distribution. This means that each time we observe a new data point, we get a different value of <span class="math inline">\(\epsilon_i\)</span> drawn from the same distribution, without any influence from other values of <span class="math inline">\(\epsilon_j\)</span> for <span class="math inline">\(j \neq i\)</span>.</p>
-<p>The noise distribution we will usually consider is the Gaussian distribution, also called the Gaussian distribution.</p>
-<div id="cell-fig-gaussian-area" class="cell page-columns page-full" data-execution_count="7">
+<p>The noise distribution we will usually consider is the Gaussian distribution:</p>
+<div id="cell-fig-gaussian-area" class="cell page-columns page-full" data-execution_count="9">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output cell-output-display">
 <div id="fig-gaussian-area" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -473,44 +477,57 @@ p_\epsilon(x;\mu, \sigma) = \frac{1}{\sigma \sqrt{2 \pi}} \exp\left(-\frac{(x - 
 <p>Gaussian distributions are often called <em>normal</em> distributions in the statistics literature.</p>
 </div>
 <p>Here’s a simple vectorized implementation of the Gaussian PDF, which can be evaluated on a PyTorch tensor of inputs:</p>
-<div id="7ee11c77" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pi <span class="op">=</span> <span class="fl">3.141592653589793</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normal_pdf(x, mu, sigma):</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (sigma <span class="op">*</span> (<span class="dv">2</span> <span class="op">*</span> pi)<span class="op">**</span><span class="fl">0.5</span>) <span class="op">*</span> torch.exp(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> ((x <span class="op">-</span> mu) <span class="op">/</span> sigma) <span class="op">**</span> <span class="dv">2</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>normal_pdf(torch.tensor([<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>]), mu<span class="op">=</span><span class="fl">0.0</span>, sigma<span class="op">=</span><span class="fl">1.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div id="bfdb3a70" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gaussian_pdf(x, mu, sigma):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (sigma <span class="op">*</span> (<span class="dv">2</span> <span class="op">*</span> torch.pi)<span class="op">**</span><span class="fl">0.5</span>) <span class="op">*</span> torch.exp(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> ((x <span class="op">-</span> mu) <span class="op">/</span> sigma) <span class="op">**</span> <span class="dv">2</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>gaussian_pdf(torch.tensor([<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>]), mu<span class="op">=</span><span class="fl">0.0</span>, sigma<span class="op">=</span><span class="fl">1.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="105">
 <pre><code>tensor([0.3989, 0.2420, 0.0540])</code></pre>
 </div>
 </div>
-<div id="cell-fig-normal-pdfs" class="cell page-columns page-full" data-execution_count="9">
-
-<div class="no-row-height column-margin column-container"><div class="cell-output cell-output-display">
-<div id="fig-normal-pdfs" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-normal-pdfs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="02-signal-noise_files/figure-html/fig-normal-pdfs-output-1.png" width="283" height="221" class="figure-img">
+<p>The two parameters of the Gaussian distribution describe its “shape:” The mean <span class="math inline">\(\mu\)</span> indicates the “center” of the distribution, while the standard deviation <span class="math inline">\(\sigma\)</span> indicates how “spread out” the distribution is.</p>
+<div id="cell-fig-gaussian-pdfs" class="cell page-columns page-full" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> mu, sigma <span class="kw">in</span> [(<span class="dv">0</span>, <span class="dv">1</span>), (<span class="dv">0</span>, <span class="dv">2</span>), (<span class="dv">2</span>, <span class="dv">1</span>)]:</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    x_vals <span class="op">=</span> torch.linspace(mu <span class="op">-</span> <span class="dv">4</span><span class="op">*</span>sigma, mu <span class="op">+</span> <span class="dv">4</span><span class="op">*</span>sigma, <span class="dv">100</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    pdf_vals <span class="op">=</span> gaussian_pdf(x_vals, mu, sigma)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_vals.numpy(), pdf_vals.numpy(), label<span class="op">=</span><span class="ss">f'μ=</span><span class="sc">{</span>mu<span class="sc">}</span><span class="ss">, σ=</span><span class="sc">{</span>sigma<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Gaussian Distribution PDFs'</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'x'</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Probability Density'</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display page-columns page-full">
+<div id="fig-gaussian-pdfs" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-gaussian-pdfs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02-signal-noise_files/figure-html/fig-gaussian-pdfs-output-1.png" width="514" height="368" class="figure-img">
 </div>
-<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-normal-pdfs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.5: Normal distribution PDFs for different values.
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-gaussian-pdfs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.5: Gaussian distribution PDFs for different values.
 </figcaption>
 </figure>
 </div>
-</div></div></div>
-<p>The two parameters of the Gaussian distribution describe its “shape:” The mean <span class="math inline">\(\mu\)</span> indicates the “center” of the distribution, while the standard deviation <span class="math inline">\(\sigma\)</span> indicates how “spread out” the distribution is.</p>
-<p>“Gaussian noise” refers to random variables drawn from a Gaussian distribution. We can generate Gaussian noise from a given Gaussian distribution using many functions. We’ll focus on PyTorch’s implementation, which allows us to generate tensors of Gaussian noise easily:</p>
-<div id="8cc03c81" class="cell" data-execution_count="10">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">1.0</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>epsilon <span class="op">=</span> torch.normal(mu, sigma, size<span class="op">=</span>(<span class="dv">10</span>,))</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>epsilon</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="9">
-<pre><code>tensor([ 0.1864,  1.0350,  0.8385,  0.1005, -0.8591,  0.1861, -1.9333, -1.0409,
-        -0.1336,  1.1946])</code></pre>
+</div>
+</div>
+<p>“Gaussian noise” refers to random variables drawn from a Gaussian distribution. We can generate Gaussian noise from a given Gaussian distribution using many functions. We’ll focus on PyTorch’s implementation (given through <code>torch.normal</code>), which allows us to generate tensors of Gaussian noise easily:</p>
+<div id="5142eb4a" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>epsilon <span class="op">=</span> torch.normal(mu, sigma, size<span class="op">=</span>(<span class="dv">10</span>,))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>epsilon</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="107">
+<pre><code>tensor([-0.7493, -1.2494,  0.5732,  1.2112,  0.4518, -0.8165,  0.0967, -0.1572,
+         0.1942,  1.4944])</code></pre>
 </div>
 </div>
 <p>If we take many samples of Gaussian noise and plot a histogram of their values, then we’ll find (via the <em>law of large numbers</em>) that the histogram approximates the PDF of the Gaussian distribution we sampled from, as illustrated in <a href="#fig-normal-histogram-comparison" class="quarto-xref">Figure&nbsp;<span>1.6</span></a>:</p>
-<div id="cell-fig-normal-histogram-comparison" class="cell page-columns page-full" data-execution_count="11">
+<div id="cell-fig-normal-histogram-comparison" class="cell page-columns page-full" data-execution_count="13">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output cell-output-display">
 <div id="fig-normal-histogram-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -588,7 +605,18 @@ Figure&nbsp;1.6: Histogram of samples from a Gaussian distribution compared to i
 \end{aligned}
 \]</span></p>
 <p>for constants <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>.</p>
-</div></div></section>
+</div></div><p>The translation and scaling properties mean that we can actually generate Gaussian noise with arbitrary mean and standard deviation without having to remember how to call <code>torch.normal</code> with the right parameters: we can just generate <em>standard</em> Gaussian noise via <code>torch.randn</code>. For example, we can generate 5 samples of Gaussian noise with mean 3 and standard deviation 2 as follows:</p>
+<div id="5dfbaac0" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> <span class="fl">3.0</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>n_samples <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> sigma<span class="op">*</span>torch.randn(n_samples) <span class="op">+</span> mu</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># equivalent</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>noise_equiv <span class="op">=</span> torch.normal(mu, sigma, size<span class="op">=</span>(n_samples,))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 <section id="gaussian-noise" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="gaussian-noise">Gaussian Noise</h2>
 <p>With the Gaussian distribution in mind, let’s now return to our signal-plus-noise paradigm:</p>
@@ -622,45 +650,45 @@ Figure&nbsp;1.6: Histogram of samples from a Gaussian distribution compared to i
     f(x_i) = w_0 + w_1 x_i   
 \end{aligned}
 \tag{1.4}\]</span></span></p>
-<p>for parameters <span class="math inline">\(w_0, w_1 \in \mathbb{R}\)</span> is called a (1-dimensional) <em>linear-Gaussian model</em>.</p>
+<p>for parameters <span class="math inline">\(w_0, w_1 \in \mathbb{R}\)</span> is called a (1-dimensional) <em>linear-Gaussian model</em>. In this context we’ll let <span class="math inline">\(\mathbf{w}= (w_0, w_1)^\top\)</span> denote the parameters of the model, and write <span class="math inline">\(f_\mathbf{w}(x_i)\)</span> to emphasize the dependence of the signal on the parameters.</p>
 </div>
 <p>Here’s a schematic picture of the linear-Gaussian model.</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># from https://stackoverflow.com/questions/47597119/plot-a-vertical-normal-distribution-in-python</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> draw_gaussian_at(support, sd<span class="op">=</span><span class="fl">1.0</span>, height<span class="op">=</span><span class="fl">1.0</span>, </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        xpos<span class="op">=</span><span class="fl">0.0</span>, ypos<span class="op">=</span><span class="fl">0.0</span>, ax<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs):</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ax <span class="kw">is</span> <span class="va">None</span>:</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.gca()</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    gaussian <span class="op">=</span> torch.exp((<span class="op">-</span>support <span class="op">**</span> <span class="fl">2.0</span>) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> sd <span class="op">**</span> <span class="fl">2.0</span>))</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    gaussian <span class="op">/=</span> gaussian.<span class="bu">max</span>()</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    gaussian <span class="op">*=</span> height</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax.plot(gaussian <span class="op">+</span> xpos, support <span class="op">+</span> ypos, <span class="op">**</span>kwargs)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>support <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">1000</span>)</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>ax.plot(x, signal, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="vs">r"Signal: </span><span class="dv">$</span><span class="vs">f</span><span class="kw">(</span><span class="vs">x_i</span><span class="kw">)</span><span class="vs"> = 2x_i </span><span class="op">+</span><span class="vs"> 1</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> each <span class="kw">in</span> x:</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    draw_gaussian_at(support, sd<span class="op">=</span><span class="dv">3</span>, height<span class="op">=</span><span class="fl">0.4</span>, xpos<span class="op">=</span>each, ypos<span class="op">=</span><span class="fl">2.0</span> <span class="op">*</span> each <span class="op">+</span> <span class="fl">1.0</span>, ax<span class="op">=</span>ax, color<span class="op">=</span><span class="st">'C0'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>ax.scatter(x.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Data points modeled as Gaussians around the signal"</span>)</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># from https://stackoverflow.com/questions/47597119/plot-a-vertical-normal-distribution-in-python</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> draw_gaussian_at(support, sd<span class="op">=</span><span class="fl">1.0</span>, height<span class="op">=</span><span class="fl">1.0</span>, </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        xpos<span class="op">=</span><span class="fl">0.0</span>, ypos<span class="op">=</span><span class="fl">0.0</span>, ax<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs):</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ax <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.gca()</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    gaussian <span class="op">=</span> torch.exp((<span class="op">-</span>support <span class="op">**</span> <span class="fl">2.0</span>) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> sd <span class="op">**</span> <span class="fl">2.0</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    gaussian <span class="op">/=</span> gaussian.<span class="bu">max</span>()</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    gaussian <span class="op">*=</span> height</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax.plot(gaussian <span class="op">+</span> xpos, support <span class="op">+</span> ypos, <span class="op">**</span>kwargs)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>support <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">1000</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>ax.plot(x, signal, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="vs">r"Signal: </span><span class="dv">$</span><span class="vs">f_{</span><span class="dv">\m</span><span class="vs">athbf{w}}</span><span class="kw">(</span><span class="vs">x_i</span><span class="kw">)</span><span class="vs"> = 2x_i </span><span class="op">+</span><span class="vs"> 1</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> each <span class="kw">in</span> x:</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    draw_gaussian_at(support, sd<span class="op">=</span><span class="dv">3</span>, height<span class="op">=</span><span class="fl">0.4</span>, xpos<span class="op">=</span>each, ypos<span class="op">=</span><span class="fl">2.0</span> <span class="op">*</span> each <span class="op">+</span> <span class="fl">1.0</span>, ax<span class="op">=</span>ax, color<span class="op">=</span><span class="st">'C0'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>ax.scatter(x.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Data points modeled as Gaussians around the signal"</span>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-gaussian-trend" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-gaussian-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="9a15d051" class="cell" data-execution_count="12">
+<div id="919c7926" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="02-signal-noise_files/figure-html/cell-12-output-1.png" class="figure-img" width="585" height="442"></p>
+<p><img src="02-signal-noise_files/figure-html/cell-15-output-1.png" class="figure-img" width="585" height="442"></p>
 </figure>
 </div>
 </div>
@@ -671,14 +699,14 @@ Figure&nbsp;1.7: Illustration of the Gaussian noise model <a href="#eq-normal-no
 </figcaption>
 </figure>
 </div>
-<p>We are modeling <span class="math inline">\(y_i\)</span> as a noisy sample from a Gaussian distribution centered at the signal value <span class="math inline">\(f(x_i)\)</span>, with noise level <span class="math inline">\(\sigma\)</span> controlling how spread out the distribution is. A larger value of <span class="math inline">\(\sigma\)</span> means that the observed data points <span class="math inline">\(y_i\)</span> will tend to be further away from the signal <span class="math inline">\(f(x_i)\)</span>, while a smaller value of <span class="math inline">\(\sigma\)</span> means that the data points will tend to be closer to the signal. Larger values of the noise level <span class="math inline">\(\sigma\)</span> create noisier data sets where it is more difficult to discern the underlying signal.</p>
+<p>We are modeling <span class="math inline">\(y_i\)</span> as a noisy sample from a Gaussian distribution centered at the signal value <span class="math inline">\(f_\mathbf{w}(x_i)\)</span>, with noise level <span class="math inline">\(\sigma\)</span> controlling how spread out the distribution is. A larger value of <span class="math inline">\(\sigma\)</span> means that the observed data points <span class="math inline">\(y_i\)</span> will tend to be further away from the signal <span class="math inline">\(f_\mathbf{w}(x_i)\)</span>, while a smaller value of <span class="math inline">\(\sigma\)</span> means that the data points will tend to be closer to the signal. Larger values of the noise level <span class="math inline">\(\sigma\)</span> create noisier data sets where it is more difficult to discern the underlying signal.</p>
 <section id="data-generating-distributions" class="level3">
 <h3 class="anchored" data-anchor-id="data-generating-distributions">Data Generating Distributions</h3>
 <p>One of the primary reasons to define models like <a href="#eq-normal-noise" class="quarto-xref">Equation&nbsp;<span>1.2</span></a> is that they give us principled ways for thinking about what our models should learn – the signal – and what they should ignore – the noise. These models are also very helpful as models of <em>where the data comes from</em> – that is, as <em>data generating distributions</em>.</p>
 <div id="def-data-generating-distribution" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 1.4 (Data Generating Distribution)</strong></span> A <em>data generating distribution</em> (also called a <em>data generating model</em>) is a probabilistic model that describes how data points (especially targets <span class="math inline">\(y\)</span>) are generated in terms of random variables and their distributions.</p>
 </div>
-<p>The linear-Gaussian model is a simple example of a data generating model: it describes a recipe to simulate each target <span class="math inline">\(y_i\)</span> by first computing the signal value <span class="math inline">\(f(x_i)\)</span>, then sampling a noise term <span class="math inline">\(\epsilon_i\)</span> from a Gaussian distribution, and finally adding the two together to get <span class="math inline">\(y_i = f(x_i) + \epsilon_i\)</span>.</p>
+<p>The linear-Gaussian model is a simple example of a data generating model: it describes a recipe to simulate each target <span class="math inline">\(y_i\)</span> by first computing the signal value <span class="math inline">\(f_\mathbf{w}(x_i)\)</span>, then sampling a noise term <span class="math inline">\(\epsilon_i\)</span> from a Gaussian distribution, and finally adding the two together to get <span class="math inline">\(y_i = f_\mathbf{w}(x_i) + \epsilon_i\)</span>.</p>
 <p>A very useful feature of data generating models is that they also give us tools to measure how well our learned signal fits observed data, via the concept of a <em>likelihood</em>.</p>
 </section>
 </section>
@@ -695,52 +723,82 @@ Figure&nbsp;1.7: Illustration of the Gaussian noise model <a href="#eq-normal-no
 <p><span class="theorem-title"><strong>Definition 1.5 (Gaussian Likelihood, Log-Likelihood)</strong></span> The <em>likelihood</em> of the observed data <span class="math inline">\((\mathbf{x}, \mathbf{y})\)</span> under a 1d Gaussian model with function <span class="math inline">\(f\)</span> and noise level <span class="math inline">\(\sigma\)</span> is given by:</p>
 <p><span class="math display">\[
 \begin{aligned}
-    L(\mathbf{x}, \mathbf{y}; f, \sigma) = \prod_{i = 1}^n p_{y}(y_i; f(x_i), \sigma^2)
+    L(\mathbf{x}, \mathbf{y}; f) = \prod_{i = 1}^n p_{y}(y_i; f(x_i), \sigma^2)
 \end{aligned}
 \]</span></p>
 <p>The <em>log-likelihood</em> is the logarithm of the likelihood:</p>
 <p><span id="eq-log-likelihood"><span class="math display">\[
 \begin{aligned}
-    \mathcal{L}(\mathbf{x}, \mathbf{y}; f, \sigma) = \log L(\mathbf{x}, \mathbf{y}; f, \sigma) = \sum_{i = 1}^n \log p_{y}(y_i; f(x_i), \sigma^2)\;.
+    \mathcal{L}(\mathbf{x}, \mathbf{y}; f) = \log L(\mathbf{x}, \mathbf{y}; f) = \sum_{i = 1}^n \log p_{y}(y_i; f(x_i), \sigma^2)\;.
 \end{aligned}
 \tag{1.5}\]</span></span></p>
 </div>
+<p><em>In this definition we are ignoring the dependence of <span class="math inline">\(L\)</span> and <span class="math inline">\(\mathcal{L}\)</span> on the noise level <span class="math inline">\(\sigma\)</span> – that’s something that is typically important in statistics contexts but not in predictive ML contexts.</em></p>
 <p>The log-likelihood <span class="math inline">\(\mathcal{L}\)</span> in <a href="#eq-log-likelihood" class="quarto-xref">Equation&nbsp;<span>1.5</span></a> is almost always the tool we work with in applied contexts – it turns products into sums, which is very useful in computational practice.</p>
 <section id="a-first-look-likelihood-maximization" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="a-first-look-likelihood-maximization">A First Look: Likelihood Maximization</h3>
-<p>Let’s now finally fit a machine learning model! We’ll assume that the data is sampled from the linear-Gaussian model specified by <a href="#eq-gaussian-model" class="quarto-xref">Equation&nbsp;<span>1.3</span></a> and <a href="#eq-linear-signal-1d" class="quarto-xref">Equation&nbsp;<span>1.4</span></a>, and try to fit the parameters <span class="math inline">\(w_0, w_1\)</span> of the function <span class="math inline">\(f\)</span> to maximize the likelihood of the observed data. For now, we’ll do this simply by choosing the combination of parameters that achieves the best likelihood from among many candidates:</p>
-<p>To see how the likelihood can give us a tool to assess model fit, we can compute the likelihood of our observed data for different choices of the function <span class="math inline">\(f\)</span>. This can be done in a simple grid search over possible values of the parameters <span class="math inline">\(w_0, w_1\)</span> in the linear function <span class="math inline">\(f(x) = w_0 + w_1 x\)</span>.</p>
-<div id="54581c6a" class="cell" data-execution_count="13">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-3"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> <span class="fl">3.0</span>  <span class="co"># assumed noise level</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-2" class="code-annotation-target"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a>best_ll <span class="op">=</span> <span class="op">-</span><span class="bu">float</span>(<span class="st">'inf'</span>)</span>
-<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a>best_w <span class="op">=</span> <span class="va">None</span></span>
-<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w0 <span class="kw">in</span> torch.linspace(<span class="op">-</span><span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">20</span>):</span>
-<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> w1 <span class="kw">in</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">20</span>):</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-7" class="code-annotation-target"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> <span class="kw">lambda</span> x: w0 <span class="op">+</span> w1 <span class="op">*</span> x</span>
-<span id="annotated-cell-3-8"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a>        ll <span class="op">=</span> <span class="fl">0.0</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-9" class="code-annotation-target"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a>        ll <span class="op">+=</span> normal_pdf(y, f(x), sig).log().<span class="bu">sum</span>().item()</span>
-<span id="annotated-cell-3-10"><a href="#annotated-cell-3-10" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-3-11" class="code-annotation-target"><a href="#annotated-cell-3-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ll <span class="op">&gt;</span> best_ll:</span>
-<span id="annotated-cell-3-12"><a href="#annotated-cell-3-12" aria-hidden="true" tabindex="-1"></a>            best_ll <span class="op">=</span> ll</span>
-<span id="annotated-cell-3-13"><a href="#annotated-cell-3-13" aria-hidden="true" tabindex="-1"></a>            best_w <span class="op">=</span> (w0.item(), w1.item())</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In the context of the linear-Gaussian model specified by <a href="#eq-normal-noise" class="quarto-xref">Equation&nbsp;<span>1.2</span></a> and <a href="#eq-linear-signal-1d" class="quarto-xref">Equation&nbsp;<span>1.4</span></a>, the likelihood of the observed data is a function of the parameters <span class="math inline">\(\mathbf{w}= (w_0, w_1)^\top\)</span> of the signal function <span class="math inline">\(f\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    L(\mathbf{x}, \mathbf{y}; \mathbf{w}) &amp;= \prod_{i = 1}^n p_{y}(y_i; f_\mathbf{w}(x_i), \sigma^2)\;. \\
+    f_\mathbf{w}(x_i) &amp;= w_0 + w_1 x_i\;.
+\end{aligned}
+\]</span></p>
+<p>To fit the linear-Gaussian model to data, we’ll use the <em>method of maximum likelihood</em>, which says that we should choose the parameters <span class="math inline">\(\mathbf{w}\)</span> to maximize the likelihood of the observed data under the model.</p>
+<div id="def-maximum-likelihood" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 1.6 (Maximum Likelihood Estimation)</strong></span> Given a signal function <span class="math inline">\(f_\mathbf{w}\)</span> with some parameters <span class="math inline">\(\mathbf{w}\)</span> (e.g.&nbsp;<span class="math inline">\(\mathbf{w}= (w_0, w_1)\)</span> in <a href="#eq-linear-signal-1d" class="quarto-xref">Equation&nbsp;<span>1.4</span></a>), the <em>method of maximum likelihood</em> says that we should choose the parameters <span class="math inline">\(\hat{\mathbf{w}}\)</span> to maximize the likelihood of the observed data under the model:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \hat{\mathbf{w}} = \mathop{\mathrm{arg\,max}}_{\mathbf{w}} \; L(\mathbf{x}, \mathbf{y}; \mathbf{w})\;.
+\end{aligned}
+\]</span></p>
+<p>Conventionally (and for computational convenience), this problem is almost always solved by maximizing the log-likelihood, which is equivalent to <em>minimizing</em> the <em>negative</em> log-likelihood:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \hat{\mathbf{w}} = \mathop{\mathrm{arg\,max}}_{\mathbf{w}} \; \mathcal{L}(\mathbf{x}, \mathbf{y}; \mathbf{w}) = \mathop{\mathrm{arg\,min}}_{\mathbf{w}} \; -\mathcal{L}(\mathbf{x}, \mathbf{y}; \mathbf{w})\;.
+\end{aligned}
+\]</span></p>
+</div>
+<p>So, we need to be able to evaluate <span class="math inline">\(-\mathcal{L}(\mathbf{x}, \mathbf{y}; \mathbf{w})\)</span> as a function of <span class="math inline">\(\mathbf{w}\)</span> in order to solve this optimization problem. In case you’re wondering, for the Gaussian likelihood this works out to:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathcal{L}(\mathbf{x}, \mathbf{y}; \mathbf{w}) &amp;= \sum_{i = 1}^n \log p_{y}(y_i; f_\mathbf{w}(x_i), \sigma^2) \\
+    &amp;= \sum_{i = 1}^n \log \left( \frac{1}{\sigma \sqrt{2 \pi}} \exp\left(-\frac{(y_i - f_\mathbf{w}(x_i))^2}{2\sigma^2}\right) \right) \\
+    &amp;= \sum_{i = 1}^n \left( -\log(\sigma \sqrt{2 \pi}) - \frac{(y_i - f_\mathbf{w}(x_i))^2}{2\sigma^2} \right) \\
+    &amp;= -n \log(\sigma \sqrt{2 \pi}) - \frac{1}{2\sigma^2} \sum_{i = 1}^n (y_i - f_\mathbf{w}(x_i))^2\;.
+\end{aligned}
+\]</span></p>
+<p>For this experiment, however, we actually don’t need a designated formula for the log-likelihood – we can just compute it directly from the definition using our <code>gaussian_pdf</code> function. To see how the log-likelihood can give us a tool to assess model fit, we can compute the likelihood of our observed data for different choices of the function <span class="math inline">\(f\)</span>. This can be done in a simple grid search over possible values of the parameters <span class="math inline">\(w_0, w_1\)</span> in the linear function <span class="math inline">\(f(x) = w_0 + w_1 x\)</span>.</p>
+<div id="f15a3c48" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-7"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-7-1"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> <span class="fl">3.0</span>  <span class="co"># assumed noise level</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-2" class="code-annotation-target"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a>best_ll <span class="op">=</span> <span class="op">-</span><span class="bu">float</span>(<span class="st">'inf'</span>)</span>
+<span id="annotated-cell-7-3"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a>best_w <span class="op">=</span> <span class="va">None</span></span>
+<span id="annotated-cell-7-4"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-5"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w0 <span class="kw">in</span> torch.linspace(<span class="op">-</span><span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">20</span>):</span>
+<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> w1 <span class="kw">in</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">20</span>):</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-7-7" class="code-annotation-target"><a href="#annotated-cell-7-7" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> <span class="kw">lambda</span> x: w0 <span class="op">+</span> w1 <span class="op">*</span> x</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-7-8" class="code-annotation-target"><a href="#annotated-cell-7-8" aria-hidden="true" tabindex="-1"></a>        ll <span class="op">=</span> gaussian_pdf(y, f(x), sig).log().<span class="bu">sum</span>().item()</span>
+<span id="annotated-cell-7-9"><a href="#annotated-cell-7-9" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-7-10" class="code-annotation-target"><a href="#annotated-cell-7-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ll <span class="op">&gt;</span> best_ll:</span>
+<span id="annotated-cell-7-11"><a href="#annotated-cell-7-11" aria-hidden="true" tabindex="-1"></a>            best_ll <span class="op">=</span> ll</span>
+<span id="annotated-cell-7-12"><a href="#annotated-cell-7-12" aria-hidden="true" tabindex="-1"></a>            best_w <span class="op">=</span> (w0.item(), w1.item())</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="2" data-code-annotation="1">Initialize the best log-likelihood and best parameters.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="2" data-code-annotation="1">Initialize the best log-likelihood and best parameters.</span>
 </dd>
-<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="7" data-code-annotation="2">Define the predictor function <span class="math inline">\(f\)</span> with current parameters.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="7" data-code-annotation="2">Define the predictor function <span class="math inline">\(f\)</span> with current parameters.</span>
 </dd>
-<dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="9" data-code-annotation="3">Compute the data log-likelihood. The <code>normal_pdf</code> function computes the PDF values for all data points at once, which we then log and sum to get the log-likelihood.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="8" data-code-annotation="3">Compute the data log-likelihood. The <code>gaussian_pdf</code> function computes the PDF values for all data points at once, which we then log and sum to get the log-likelihood.</span>
 </dd>
-<dt data-target-cell="annotated-cell-3" data-target-annotation="4">4</dt>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="11" data-code-annotation="4">Update the best log-likelihood and parameters if the current log-likelihood is better.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="10" data-code-annotation="4">Update the best log-likelihood and parameters if the current log-likelihood is better.</span>
 </dd>
 </dl>
 </div>
@@ -748,25 +806,25 @@ Figure&nbsp;1.7: Illustration of the Gaussian noise model <a href="#eq-normal-no
 <p>Let’s check the predictor function <span class="math inline">\(f\)</span> we learned by heuristically maximizing the log-likelihood against the observed data:</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>ax.scatter(x.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>ax.plot(x.numpy(), (best_w[<span class="dv">0</span>] <span class="op">+</span> best_w[<span class="dv">1</span>] <span class="op">*</span> x).numpy(), color <span class="op">=</span> <span class="st">"firebrick"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">f</span><span class="kw">(</span><span class="vs">x</span><span class="kw">)</span><span class="vs"> = w_0 </span><span class="op">+</span><span class="vs"> w_1 x</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ax.plot(x.numpy(), signal.numpy(), color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="vs">r"True signal: </span><span class="dv">$</span><span class="vs">f</span><span class="kw">(</span><span class="vs">x</span><span class="kw">)</span><span class="vs"> = 2x </span><span class="op">+</span><span class="vs"> 1</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="vs">fr"Best LL: </span><span class="sc">{</span>best_ll<span class="sc">:.2f}</span><span class="vs">   </span><span class="dv">$</span><span class="vs">w_1 = </span><span class="sc">{</span>best_w[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="vs">, w_0 = </span><span class="sc">{</span>best_w[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>ax.scatter(x.numpy(), y.numpy(), <span class="op">**</span>scatterplot_kwargs)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>ax.plot(x.numpy(), (best_w[<span class="dv">0</span>] <span class="op">+</span> best_w[<span class="dv">1</span>] <span class="op">*</span> x).numpy(), color <span class="op">=</span> <span class="st">"firebrick"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">f</span><span class="kw">(</span><span class="vs">x</span><span class="kw">)</span><span class="vs"> = w_0 </span><span class="op">+</span><span class="vs"> w_1 x</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>ax.plot(x.numpy(), signal.numpy(), color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="vs">r"True signal: </span><span class="dv">$</span><span class="vs">f</span><span class="kw">(</span><span class="vs">x</span><span class="kw">)</span><span class="vs"> = 2x </span><span class="op">+</span><span class="vs"> 1</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>, ylabel <span class="op">=</span> <span class="vs">r"</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="vs">fr"Best LL: </span><span class="sc">{</span>best_ll<span class="sc">:.2f}</span><span class="vs">   </span><span class="dv">$</span><span class="vs">w_1 = </span><span class="sc">{</span>best_w[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="vs">, w_0 = </span><span class="sc">{</span>best_w[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-likelihood-fit" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-likelihood-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="8afa601c" class="cell" data-execution_count="14">
+<div id="157cc72e" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="02-signal-noise_files/figure-html/cell-14-output-1.png" class="figure-img" width="503" height="369"></p>
+<p><img src="02-signal-noise_files/figure-html/cell-17-output-1.png" class="figure-img" width="503" height="369"></p>
 </figure>
 </div>
 </div>

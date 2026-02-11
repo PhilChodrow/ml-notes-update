@@ -63,8 +63,16 @@ class LinearRegression:
     def forward(self, X):
         return X @ self.w
 
-def train_model(X, y): 
-    model.w = torch.linalg.lstsq(X, y).solution #<1>
+class ClosedFormOptimizer: 
+    def __init__(self, model):
+        self.model = model
+    
+    def step(self, X, y):
+        self.model.w = torch.linalg.lstsq(X, y).solution
+
+def train(model, X, y): 
+    opt = ClosedFormOptimizer(model)
+    opt.step(X, y)
 #---
 ```
 1. This is a method that obtains the least-squares solution to the linear regression problem using specialized linear algebra methods. It's very fast and useful for us today, but doesn't generalize well to other kinds of machine learning problems. 
@@ -112,7 +120,7 @@ for i in range(3):
 
     model = LinearRegression(n_params=2)
     X = torch.stack([torch.ones_like(x), x], dim=1)
-    train_model(X, y)
+    train(model, X, y)
 
     x_viz = torch.linspace(0, 1, 200)
     X_viz = torch.stack([torch.ones_like(x_viz), x_viz], dim=1)
@@ -145,7 +153,7 @@ for i in range(n_reps):
     X = torch.stack([torch.ones_like(x), x], dim=1) #<2>
     
     model = LinearRegression(n_params=2)#<3>
-    train_model(X, y_train)
+    train(model, X, y_train)
     predictions[i] = model.forward(X)
 
     targets[i] = generate_data(x, sig=sig, freq=freq)#<4>
@@ -169,7 +177,7 @@ for i in range(n_reps):
     ax.set(xlabel = r"$x$", ylabel = r"$y$", title = "Ensemble of Linear Regression Models")
 
 ax.plot([x[test_point_ix], x[test_point_ix]], [predictions[:, test_point_ix].min(), predictions[:, test_point_ix].max()],  color='red', label="Prediction range at test point", zorder = 200, linewidth = 6, alpha = 0.3)
-ax.plot([x[test_point_ix], x[test_point_ix]], [targets[:, test_point_ix].min(), targets[:, test_point_ix].max()],  color='grey', label="Prediction range at test point", zorder = 100,  linestyle='--')
+ax.plot([x[test_point_ix], x[test_point_ix]], [targets[:, test_point_ix].min(), targets[:, test_point_ix].max()],  color='grey', label="Range across ensemble of data sets at test point", zorder = 100,  linestyle='--')
 
 l = ax.legend()
 ```
@@ -177,6 +185,7 @@ l = ax.legend()
 Visualization of the ensemble of fitted linear regression models across 1,000 different experiments. The range of predictions at a particular test point is shown in red, while the range of target values at that test point is shown in grey.
 
 :::
+
 Collectively, the models capture the general trend, but each varies slightly from the others. The prediction $\hat{Y}$ at any given point $x$ is random, and the target value $Y$ at that point is also random.
 
 ### Decomposing the Error
@@ -281,7 +290,7 @@ for degree in feature_counts:
         
         model = LinearRegression(n_params=degree + 1)
         X = polynomial_features(x, degree=degree)
-        train_model(X, y_train)
+        train(model, X, y_train)
         predictions[i] = model.forward(X).detach().squeeze()
 
         y_test = generate_data(x, sig=sig, freq=freq)
@@ -432,7 +441,7 @@ We can fit a model using the Legendre polynomial features to data like this:
 degree = 5
 model = LinearRegression(n_params=degree + 1)
 X = legendre_features(x, degree=degree)
-train_model(X, y)
+train(model, X, y)
 
 x_viz = torch.linspace(0, 1, 200)
 X_viz = legendre_features(x_viz, degree=degree)
@@ -468,7 +477,7 @@ feature_count = []
 for degree in degree_list:
     model = LinearRegression(n_params=degree + 1)
     X = legendre_features(x, degree=degree)
-    train_model(X, y)
+    train(model, X, y)
 
     X_test = legendre_features(x_test, degree=degree)
     y_pred_test = model.forward(X_test).detach().squeeze()
@@ -535,7 +544,7 @@ for i, num_features in enumerate([2, 5, 10, best_num_features]):
     degree = num_features - 1
     model = LinearRegression(n_params=degree + 1)
     X = legendre_features(x, degree=degree)
-    train_model(X, y)
+    train(model, X, y)
 
     x_viz = torch.linspace(0, 1, 200)
     X_viz = legendre_features(x_viz, degree=degree)
