@@ -333,7 +333,7 @@ Our implementation for multivariate linear regression is very similar to our imp
 
 ### Object-Oriented API for Machine Learning Models
 
-Starting here, we are going to implement most of our machine learning models using an object-oriented approach which will generalize nicely once we move on to complex deep learning models. 
+We are going to implement most of our machine learning models using an object-oriented approach which will generalize nicely once we move on to complex deep learning models. 
 
 #### Model Class
 

@@ -2,8 +2,6 @@
 title: |
     Introduction: Binary Labels
 subtitle: Predicting categories and informing decisions
-execute: 
-    eval: true
 ---
 
 {{< include ../assets/includes/_colab-link.qmd >}}

@@ -1,4 +1,11 @@
+format:
+  html:
+    filters: 
+      - quarto
+      - scripts/unfold-code.lua
+
 project: 
   output-dir: _local-notes
 
 solution: true
+code-fold: false

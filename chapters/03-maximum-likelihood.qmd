@@ -88,12 +88,6 @@ $$
 :::
 
 
-::: {#exr-partial-derivative-example-2}
-
-## Partial Derivative of the Gaussian Log-Likelihood
-
-
-:::
 
 
 ::: {#def-gradient}
@@ -150,14 +144,14 @@ $$
 
 :::
 
-::: {#exr-gradient-example-2}
+::: {#exr-linear-gaussian-gradient}
 
 Consider the *mean-squared error* function for a simple linear model with parameters $w_0$ and $w_1$:
 
 $$
 \begin{aligned}
     R(\vx, \vy; w_0, w_1) = \frac{1}{n} \sum_{i = 1}^n (y_i - w_1x_i - w_0)^2\;. 
-\end{aligned}
+\end{aligned} 
 $$
 
 Compute the gradient $\nabla R(\vx, \vy; w_0, w_1)$ with respect to the parameters $w_0$ and $w_1$.
@@ -168,7 +162,7 @@ Compute the gradient $\nabla R(\vx, \vy; w_0, w_1)$ with respect to the paramete
 
 ::: {.sol}
 
-## Solution for @exr-gradient-example-2
+## Solution for @exr-linear-gaussian-gradient
 
 We can compute the gradient by computing each partial derivative in turn:
 
@@ -206,7 +200,7 @@ The `pytorch` package, which we'll use throughout this course, implements *autom
 ```{python}
 #---
 import torch
-x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+x = torch.tensor([1.0, 2.0, 3.0])
 
 # function to differentiate
 f = lambda x: x[0]**2 * torch.sin(x[1]) + x[1]*x[2] + x[2]**3 * x[0]
@@ -220,6 +214,7 @@ our_grad = torch.tensor([
 print(our_grad)
 
 # compute the gradient using automatic differentiation
+x.requires_grad_() #<1>
 y = f(x) #<1>
 y.backward() #<2>
 print(x.grad) #<3>
@@ -234,7 +229,7 @@ The two approaches agree! As we grow comfortable with the calculus, we'll begin 
 
 ### The Gradient Points In the Direction of Greatest Increase
 
-An important feature of the gradient is that it tells us the direction in which a small change in the function inputs $\vw$ could produce the greatest increase in the function output $f(\vw)$. Here's an example using the function from @exr-gradient-example-2. `torch` makes it very easy to implement this function. 
+An important feature of the gradient is that it tells us the direction in which a small change in the function inputs $\vw$ could produce the greatest increase in the function output $f(\vw)$. Here's an example using the function from @exr-linear-gaussian-gradient. `torch` makes it very easy to implement this function. 
 
 ```{python}
 #---
@@ -400,39 +395,10 @@ $$
 \end{aligned}
 $${#eq-linear-gaussian-to-mse}
 
-We've collected terms that do not depend on $w_0$ or $w_1$ into a constant term $C$, and noticed that there's a copy of the mean-squared error function $R(\vx, \vy; w_0, w_1) = \frac{1}{n}\sum_{i=1}^n (y_i - w_1 x_i - w_0)^2$ from @exr-gradient-example-2 appearing in the likelihood expression. Indeed, this term is the only that involves the parameters $w_0$ and $w_1$. This means: 
+We've collected terms that do not depend on $w_0$ or $w_1$ into a constant term $C$, and noticed that there's a copy of the mean-squared error function $R(\vx, \vy; w_0, w_1) = \frac{1}{n}\sum_{i=1}^n (y_i - w_1 x_i - w_0)^2$ from @exr-linear-gaussian-gradient appearing in the likelihood expression. Indeed, this term is the only that involves the parameters $w_0$ and $w_1$. This means: 
 
 > To **maximize** the likelihood $\cL$ with respect to $w_0$ and $w_1$, we can equivalently **minimize** the mean-squared error $R(\vx, \vy; w_0, w_1)$.
 
-
-::: {#exr-linear-gaussian-gradient}
-
-Compute the gradient $\nabla R(\vx, \vy; w_0, w_1)$ of the sum of squared errors for the linear-Gaussian model with respect to the parameters $w_0$ and $w_1$.
-
-:::
-
-::: {.sol}
-
-## Solution for @exr-linear-gaussian-gradient
-
-We have 
-
-$$
-\begin{aligned}
-    \frac{\partial R}{\partial w_0} = \frac{1}{n} \sum_{i=1}^n 2(y_i - w_1 x_i - w_0)(-1) &= -\frac{2}{n} \sum_{i=1}^n (y_i - w_1 x_i - w_0) \\
-\end{aligned}
-$$
-
-and 
-
-$$
-\begin{aligned}
-    \frac{\partial R}{\partial w_1} = \frac{1}{n} \sum_{i=1}^n 2(y_i - w_1 x_i - w_0)(-x_i) &= -\frac{2}{n} \sum_{i=1}^n x_i (y_i - w_1 x_i - w_0)\;.
-\end{aligned}
-$$
-
-
-:::
 
 ## A First Look: Gradient Descent for Maximum Likelihood Estimation
 
@@ -472,17 +438,15 @@ Then we'll generate some synthetic data from a linear-Gaussian model with known 
 
 ```{python}
 # true parameters
-#---
 w0 = torch.tensor(0.0)
 w1 = torch.tensor(2.0)
 sigma2 = torch.tensor(1.0)
-#---
 
 # observed data
-#---
 x = torch.linspace(-2, 2, 101)
-y = w1 * x + w0 + torch.sqrt(sigma2) * torch.randn_like(x)
-#---
+signal = w1 * x + w0
+noise = torch.sqrt(sigma2) * torch.randn_like(x)
+y = signal + noise
 ```
 
 ::: {#fig-linear-gaussian-data}
@@ -543,41 +507,81 @@ It is convenient! The uniqueness of the local minimum is due to a property calle
 :::
 
 
-The gradient descent algorithm will start from an initial guess for the parameters $(w_0, w_1)$ and iteratively update this guess in the direction of the negative gradient of the negative log-likelihood. We'll implement this with a simple for-loop: 
+The gradient descent algorithm will start from an initial guess for the parameters $(w_0, w_1)$ and iteratively update this guess in the direction of the negative gradient of the negative log-likelihood. 
+
+### Object-Oriented API for ML Models 
+
+Here we'll introduce our the *object-oriented API* for machine learning models which we'll use throughout this course. For this we need a *model class* which will represent the linear-Gaussian model and an *optimizer class* which will implement the gradient descent algorithm.
+
+#### Model Class
+
+The primary responsibility of the model class is to store the weight parameters and to implement a method called `forward` which computes the model's predictions (estimate of the signal) given an input $x$. Here's a simple implementation of a model class for 1d linear regression:
 
 ```{python}
-
-# algorithm parameters
-learning_rate = 0.05
-num_iterations = 20
-n = x.shape[0] # number of data points
-
-# initial guesses
-w0_est = torch.tensor(-0.5, requires_grad=True)
-w1_est = torch.tensor(1.5, requires_grad=True)
-
-# store the history of estimates
-w0_history = [w0_est.item()]
-w1_history = [w1_est.item()]
-
-# main loop
-for t in range(num_iterations):
-
-    w0_grad = -2/n * torch.sum(y - (w1_est * x + w0_est))  #<1>
-    w1_grad = -2/n * torch.sum(x * (y - (w1_est * x + w0_est)))  #<2>
-
-    w1_est = w1_est - learning_rate * w1_grad  #<3>
-    w0_est = w0_est - learning_rate * w0_grad  #<4> 
+#---
+class LinearRegression1D:
+    def __init__(self): #<1>
+        self.w0 = torch.tensor(1.0)
+        self.w1 = torch.tensor(1.0)
     
-    # store the history of estimates
-    w0_history.append(w0_est.item())
-    w1_history.append(w1_est.item())
+    def forward(self, x): #<2>
+        return self.w1 * x + self.w0
 #---
 ```
-1. Compute the gradient of the negative log-likelihood with respect to $w_0$ using the formula derived in @exr-linear-gaussian-gradient.
-2. Compute the gradient of the negative log-likelihood with respect to $w_1$ using the formula derived in @exr-linear-gaussian-gradient.
-3. Update the estimate of $w_1$ by taking a step in the direction of the negative gradient, scaled by the learning rate.
-4. Update the estimate of $w_0$ by taking a step in the direction of the negative gradient, scaled by the learning rate.
+1. Initialize the model with a guess for the parameters $w_0$ and $w_1$. Later, we'll use just a single instance variable which holds a vector of weights. 
+2. Method for computing the model's predictions (estimate of the signal) given an input $x$.
+
+#### Optimizer Class
+
+The primary responsibility of the optimizer class is to implement the optimization algorithm of choice in the `step` method. If we aren't using automatic differentiation, then the optimizer is also a good place to compute the gradients of the loss function with respect to the model parameters. Here's a simple implementation of a gradient descent optimizer for 1d linear regression:
+
+```{python}
+#---
+class GradientDescentOptimizer1D: 
+
+    def __init__(self, model, lr=0.01):
+        self.model = model
+        self.lr = lr
+
+    def grad_func(self, x, y): #<1>
+        n = x.shape[0]
+        w0_grad = -2/n * torch.sum(y - (self.model.w1 * x + self.model.w0))  
+        w1_grad = -2/n * torch.sum(x * (y - (self.model.w1 * x + self.model.w0)))  
+        return w0_grad, w1_grad
+
+    def step(self, x, y): 
+        # compute the gradients
+        w0_grad, w1_grad = self.grad_func(x, y) #<3>
+        # update the parameters
+        self.model.w0 = self.model.w0 - self.lr * w0_grad  #<4>
+        self.model.w1 = self.model.w1 - self.lr * w1_grad
+#---
+```
+1. Method for computing the gradients of the negative log-likelihood with respect to the parameters $w_0$ and $w_1$, which we did in @exr-linear-gaussian-gradient.
+2. Get the gradients. 
+3. Update the parameters by taking a step in the direction of the negative gradient, scaled by the learning rate.
+
+
+#### Training Loop
+
+Once we've implemented our two classes, the main "training loop" just requires us to repeatedly call the `step` method of the optimizer, which updates `model.w0` and `model.w1` at each iteration. We can also keep track of the history of parameter values across iterations to visualize the trajectory of the algorithm on the surface of the mean-squared error function. 
+
+```{python}
+#---
+model = LinearRegression1D()
+opt = GradientDescentOptimizer1D(model, lr=0.05)
+
+w0_history = [model.w0.item()]
+w1_history = [model.w1.item()]
+
+epochs = 100
+for t in range(epochs): 
+    opt.step(x, y)
+    w0_history.append(model.w0.item())
+    w1_history.append(model.w1.item())
+#---
+```
+
 
 @fig-linear-gaussian-gradient-descent shows the trajectory of the gradient descent algorithm on the negative log-likelihood surface, ultimately landing near the minimal value of the MSE and close to the true parameters used to generate the data. We also show the fitted linear model corresponding to the final estimates of $w_0$ and $w_1$, which visually agrees well with the data. 
 
@@ -597,7 +601,7 @@ ax[0].plot(w1_history, w0_history, marker='o', color='black', label='Gradient De
 ax[0].scatter([w1], [w0], color='black', s=50, label='True Parameters', facecolors='white')
 
 ax[1].scatter(x, y, color='steelblue', s=10, label='Observed Data')
-ax[1].plot(x, w1_est.detach().item() * x + w0_est.detach().item(), color='black', label='Fitted Line', linestyle='--')
+ax[1].plot(x, model.w1.detach().item() * x + model.w0.detach().item(), color='black', label='Fitted Line', linestyle='--')
 ax[1].legend()
 ax[1].set_xlabel('Feature (x)')
 ax[1].set_ylabel('Target (y)')

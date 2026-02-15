@@ -22,3 +22,4 @@ publish:
 	git add docs chapters assets data _quarto.yml
 	git commit -m "Update site"
 	git push origin main
+	quarto render --profile private

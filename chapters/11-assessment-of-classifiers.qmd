@@ -1,0 +1,52 @@
+---
+title: |
+    Assessment of Classifiers
+subtitle: Evaluating performance and making decisions
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+## Introduction
+
+[Last time](10-intro-classification.qmd) we introduced the problem of classification, and we implemented logistic regression as a simple model for binary classification. We considered a loss function based on the log-likelihood of the data under a model which included a signal function $q(\vx)$ as well as Bernoulli-distributed noise at each data point. We considered a data case study of precipitation prediction, where we trained the model using gradient descent and made a final assessment of the model on a test set by measuring the model's accuracy. 
+
+However, accuracy is rarely the most useful way to evaluate a classifier. In this set of notes, we'll study several of the most important considerations that go into measuring the success of a binary classification model in learning from data. In the following chapter we'll study some of the considerations in play when using classifiers to not only make predictions but also to inform decisions.
+
+
+## Evaluation Metrics for Classification
+
+Confusion matrix, error rates. 
+
+Positive predictive value. 
+
+Precision, recall, F1 score.
+
+### ROC curve, AUC
+
+
+
+## Classification Tasks
+
+Maybe mention something about Life2Vec here, and the importance of clarifying quite specifically what the task is that is being scored. 
+
+## Model Comparison
+
+Maybe just use something simpler? Simpler model, fewer features, etc? Difficult Lessons for Prediction
+
+https://dl.acm.org/doi/pdf/10.1145/3715275.3732175
+
+## Assessment of Data Sets
+
+Case study from Calling Bull on criminal face detection. 
