@@ -520,11 +520,9 @@ Figure&nbsp;4.2: Data modeled via a nonlinear Gaussian model with mean function 
 </div>
 <p>If we try fitting this model to the sinusoidal data directly, we’ll be disappointed.</p>
 <div id="a74c443a" class="cell" data-execution_count="9">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>PHI <span class="op">=</span> linear_basis_function(X)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span><span class="dv">2</span>)  <span class="co"># intercept + slope</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>train_model(LR, PHI, y, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">1000</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>PHI <span class="op">=</span> linear_basis_function(X)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span><span class="dv">2</span>)  <span class="co"># intercept + slope</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>train_model(LR, PHI, y, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">1000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="abb96235" class="cell" data-execution_count="10">
 <details class="code-fold">
@@ -586,15 +584,13 @@ Figure&nbsp;4.3: Example of linear regression fit to the sinusoidal data set usi
 </div>
 <p>To train models and make predictions, all we need to do is call this function to get the feature matrix, and then run linear regression as before.</p>
 <div id="45468b0b" class="cell" data-execution_count="13">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># engineer features</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>max_freq <span class="op">=</span> <span class="dv">15</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>PHI <span class="op">=</span> sinusoidal_features(X, max_freq<span class="op">=</span>max_freq)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># train the model as usual</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>PHI.shape[<span class="dv">1</span>])</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>train_model(LR, PHI, y, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">2000</span>)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># engineer features</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>max_freq <span class="op">=</span> <span class="dv">15</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>PHI <span class="op">=</span> sinusoidal_features(X, max_freq<span class="op">=</span>max_freq)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># train the model as usual</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LinearRegression(n_params<span class="op">=</span>PHI.shape[<span class="dv">1</span>])</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>train_model(LR, PHI, y, lr<span class="op">=</span><span class="fl">1e-2</span>, n_epochs<span class="op">=</span><span class="dv">2000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -739,10 +735,8 @@ Figure&nbsp;4.6: Visualization of fits to training data using the kernel basis f
 <p>where <span class="math inline">\(\lambda\)</span> is a hyperparameter that controls the strength of the regularization. Larger values of <span class="math inline">\(\lambda\)</span> encourage smaller parameter values, while smaller values allow the model to fit the data more closely.</p>
 <p>We can implement ridge regression by adding an <span class="math inline">\(\ell_2\)</span> regularization term to our training loop. We’ll first just implement that term itself:</p>
 <div id="3165a233" class="cell" data-execution_count="18">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ell_2_regularization(w):</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.mean(w[<span class="dv">1</span>:]<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ell_2_regularization(w):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.mean(w[<span class="dv">1</span>:]<span class="op">**</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The reason for excluding the first entry of <span class="math inline">\(w\)</span> from the regularization term is that this entry corresponds to the intercept term, which we typically don’t want to penalize. We then pass this function in to the <code>regularization</code> argument of <code>train_model</code>, where flagged line &lt;1&gt; adds the regularization term to the loss. We train again and visualize the results as we vary the regularization strength, this time keeping the maximum frequency of the sinusoidal basis functions fixed at 20:</p>
 <details class="code-fold">
@@ -1126,11 +1120,9 @@ Test set size: 16337 samples</code></pre>
 </div>
 <p>Let’s check the base rate for the bikeshare data and assess on validation data:</p>
 <div id="67bce20d" class="cell" data-execution_count="29">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>y_mean <span class="op">=</span> y_train.mean()</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>base_rate_mse <span class="op">=</span> mse(y_val, y_mean)</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co">#---</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Base rate MSE on validation data: </span><span class="sc">{</span>base_rate_mse<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>y_mean <span class="op">=</span> y_train.mean()</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>base_rate_mse <span class="op">=</span> mse(y_val, y_mean)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Base rate MSE on validation data: </span><span class="sc">{</span>base_rate_mse<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Base rate MSE on validation data: 33617.3125</code></pre>
 </div>
