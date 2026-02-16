@@ -18,28 +18,401 @@ import style
 ```
 :::
 
-## Introduction
+## Introduction: Is Your Classifier Working? 
 
 [Last time](10-intro-classification.qmd) we introduced the problem of classification, and we implemented logistic regression as a simple model for binary classification. We considered a loss function based on the log-likelihood of the data under a model which included a signal function $q(\vx)$ as well as Bernoulli-distributed noise at each data point. We considered a data case study of precipitation prediction, where we trained the model using gradient descent and made a final assessment of the model on a test set by measuring the model's accuracy. 
 
 However, accuracy is rarely the most useful way to evaluate a classifier. In this set of notes, we'll study several of the most important considerations that go into measuring the success of a binary classification model in learning from data. In the following chapter we'll study some of the considerations in play when using classifiers to not only make predictions but also to inform decisions.
 
 
+
+
 ## Evaluation Metrics for Classification
 
-Confusion matrix, error rates. 
+To begin our discussion of evaluation metrics in classification, let's return to the weather prediction problem. The code block below imports and prepares our data, and trains a logistic regression model on the training data using the same code as in the previous chapter. 
 
-Positive predictive value. 
+```{python}
+#| code-fold: true
 
-Precision, recall, F1 score.
+import pandas as pd
+import torch
+from matplotlib import pyplot as plt
 
-### ROC curve, AUC
+# acquire the dat
+url = "https://raw.githubusercontent.com/middcs/data-science-notes/refs/heads/main/data/australia-weather/weatherAUS.csv"
+
+df = pd.read_csv(url)
+
+# drop rows with missing data in the relevant columns
+df.dropna(subset=['RainTomorrow', 'Humidity3pm', 'Pressure3pm'], inplace=True)
+
+# # column
+# df["Pressure9am"] = df["Pressure9am"]/1e3
+# df["Humidity3pm"] = df["Humidity3pm"]/100
+
+# separate into features we'll use and the target vector
+X = df[['Humidity3pm', 'Pressure3pm']].to_numpy()
+
+# pad with a constant column
+X_aug = torch.ones((X.shape[0], 3), dtype=torch.float32)
+X_aug[:, 1:] = torch.tensor(X, dtype=torch.float32)
+X = X_aug.numpy()
+
+y = (df['RainTomorrow'] == 'Yes').to_numpy().astype(float).reshape(-1, 1)
+
+# train-test split
+train_frac = 0.8
+n = X.shape[0]
+n_train = int(train_frac * n)
+
+X_train = torch.tensor(X[:n_train, :], dtype=torch.float32)
+y_train = torch.tensor(y[:n_train, :], dtype=torch.float32)
+
+X_test = torch.tensor(X[n_train:, :], dtype=torch.float32)
+y_test = torch.tensor(y[n_train:, :], dtype=torch.float32)
+```
+
+```{python}
+#| code-fold: true
+# model training
+
+# used for the loss function
+def binary_cross_entropy(q, y): 
+    return -(y * torch.log(q) + (1 - y) * torch.log(1 - q)).mean()
+
+def sigmoid(z): 
+    return 1 / (1 + torch.exp(-z))
+
+# model class
+class BinaryLogisticRegression: 
+    def __init__(self, n_features): 
+        self.w = torch.zeros(n_features, 1, requires_grad=True)
+
+    def forward(self, X): 
+        return sigmoid(X @ self.w)    
+
+# optimizer class
+class GradientDescentOptimizer: 
+    def __init__(self, model, lr=0.1): 
+        self.model = model
+        self.lr = lr
+
+    def grad_func(self, X, y): 
+        q = self.model.forward(X)
+        return 1/X.shape[0] * ((q - y).T @ X).T
+        
+    def step(self, X, y): 
+        grad = self.grad_func(X, y)
+        with torch.no_grad(): 
+            self.model.w -= self.lr * grad
+
+```
+
+Now we'll run a training loop: 
+
+```{python}
+# training loop
+model = BinaryLogisticRegression(n_features=3)
+opt = GradientDescentOptimizer(model, lr=0.00001)
+
+losses = []
+
+for epoch in range(2000): 
+    q = model.forward(X_train)
+    loss = binary_cross_entropy(q, y_train)
+    losses.append(loss.item())
+    opt.step(X_train, y_train)
+```
+
+
+### Thresholding Scores
+
+Having trained the model, we're ready to evaluate its performance on the training data. As usual, the simplest way to do this is via the model's *accuracy* on training data. However, the model doesn't make binary yes/no predictions yet; the output is the signal function $q(\vx) = \sigma(\vw^\top \vx)$, a predicted probability of the positive class. To get a binary prediction, we need to choose a *threshold* $\tau$ such that we predict "yes" if $q(\vx) > \tau$ and "no" otherwise. Syntactically, the simplest way to do this is: 
+
+```{python}
+#---
+tau = 0.5
+y_pred = (model.forward(X_train) > tau).float()
+acc = (y_pred == y_train).float().mean()
+#---
+print(f"Accuracy on training data: {acc.item():.2f}")
+```
+
+
+Let's see how the choice of threshold affects the model's accuracy on the training data:
+
+::: {#fig-threshold-accuracy}
+
+```{python}
+#| code-fold: true
+accs = []
+
+TAU = torch.linspace(0, 1, 100)
+
+for tau in TAU: 
+    y_pred = (model.forward(X_train) > tau).float()
+    acc = (y_pred == y_train).float().mean()
+    accs.append(acc.item())
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(TAU, accs)
+ax.set_xlabel(r"Threshold $\tau$")
+ax.set_ylabel("Accuracy")
+ax.set_title("Accuracy as a function of threshold")
+
+best_thresh = TAU[torch.tensor(accs).argmax()]
+ax.axvline(best_thresh, color="grey", linestyle="--", label=f"Best threshold: {best_thresh:.2f} with accuracy {max(accs):.2f}")
+ax.legend()
+```
+
+Accuracy-based optimal thresholding for rain prediction in logistic regression. 
+
+:::
+
+Interestingly, the best threshold on the training data is not the usual default choice of 0.5. 
+
+### Types of Error
+
+Accuracy is an answer to the question: *how often does the model prediction match the true label?* However, in many applications, different *kinds* of errors matter. 
+
+#### Confusion Matrix
+
+Given that we have a vector $\hat{\vy}$ of binary predictions and a vector $\vy$ of true labels, many common ways to assess model performance begin with the *confusion matrix*, a table which compares predicted and true labels. 
+
+
+::: {#def-confusion-matrix}
+
+## Confusion Matrix
+
+Given a vector of binary labels $\vy$ and a vector of binary predictions $\hat{\vy}$, the *confusion matrix* is a 2x2 table which counts the number of instances in each of the following categories:
+
+
+|               | Predicted 0 | Predicted 1 |
+|---------------|--------------|---------------|
+| **True 0**    | TN           | FP            |
+| **True 1**    | FN           | TP            |
+
+The entries of the confusion matrix are counts of the number of instances in each category:
+
+- **True Negatives (TN)**: The number of instances where the true label is 0 and the model correctly predicted 0.
+- **False Positives (FP)**: The number of instances where the true label is 0 but the model incorrectly predicted 1.
+- **False Negatives (FN)**: The number of instances where the true label is 1 but the model incorrectly predicted 0.
+- **True Positives (TP)**: The number of instances where the true label is 1 and the model correctly predicted 1.
+
+:::
+
+
+We can compute a 2x2 confusion matrix for our model's predictions (on the training data) with specified threshold as follows: 
+
+```{python}
+
+#---
+def confusion_matrix(y_true, y_pred): 
+    # initialize a 2x2 matrix of zeros
+    cm = torch.zeros((2, 2), dtype=torch.int32)
+    for i in range(2): 
+        for j in range(2): 
+            cm[i, j] = ((y_true == i) & (y_pred == j)).sum().item()
+    return cm
+#---
+
+tau = 0.42
+y_pred = (model.forward(X_train) > tau).float()
+cm = confusion_matrix(y_train, y_pred)
+print("Confusion Matrix:")
+print(cm)
+```
+
+Entries on the diagonal of the confusion matrix correspond to correct predictions, while entries off the diagonal correspond to errors. 
+
+
+From the confusion matrix, we can compute a variety of different performance metrics. For example, the accuracy can be computed as the sum of the diagonal entries divided by the total number of instances:
+
+```{python}
+print("Accuracy:", (cm[0, 0] + cm[1, 1]) / cm.sum())
+```
+
+#### Error Rates 
+
+There are several *error rates* which are commonly used to evaluate classifiers and which can be computed from the confusion matrix: 
+
+::: {#def-error-rates}
+
+## Error Rates in Binary Classification
+
+- The **true positive rate** (TPR, also known as *sensitivity* or *recall*) is the proportion of true positives out of all actual positives:
+$$\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}}$$
+
+- The **false positive rate** (FPR) is the proportion of false positives out of all actual negatives:
+$$\text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}}$$
+- The **true negative rate** (TNR, also known as *specificity*) is the proportion of true negatives out of all actual negatives:
+$$\text{TNR} = \frac{\text{TN}}{\text{FP} + \text{TN}}$$
+- The **false negative rate** (FNR) is the proportion of false negatives out of all actual positives:
+$$\text{FNR} = \frac{\text{FN}}{\text{TP} + \text{FN}}$$
+
+:::
+
+
+For example: 
+
+```{python}
+print("False positive rate:", cm[0, 1] / (cm[0, 0] + cm[0, 1]))
+print("True positive rate:", cm[1, 1] / (cm[1, 0] + cm[1, 1]))
+```
+
+In general it's not usually required to calculate all four error rates due to the mathematical relationships 
+
+$$
+\begin{aligned}
+    \TPR = 1 - \FNR \\
+    \FPR = 1 - \TNR\;.
+\end{aligned}
+$$
 
 
 
-## Classification Tasks
+#### Precision, Recall, F1 Score
 
-Maybe mention something about Life2Vec here, and the importance of clarifying quite specifically what the task is that is being scored. 
+Another common set of performance metrics are *precision* and *recall*, which can be combined into the *F1 score*. These metrics are particularly useful in cases where the classes are imbalanced, meaning that one class is much more common than the other.
+
+::: {#def-precision-recall-f1}
+
+## Precision, Recall, and F1 Score
+
+- **Precision** is the proportion of true positives out of all predicted positives:
+$$\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}$$
+
+- **Recall** is the same as the true positive rate:
+$$\text{Recall} = \text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}}$$
+
+Precision and recall are often combined into a single metric called the **F1 score**, which is the harmonic mean of precision and recall:
+$$\text{F1} = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$$
+
+:::
+
+
+Here's the F1 score for our model: 
+
+```{python}
+#---
+precision = cm[1, 1] / (cm[1, 1] + cm[0, 1])
+recall = cm[1, 1] / (cm[1, 1] + cm[1, 0])
+f1 = 2 * (precision * recall) / (precision + recall)
+#---
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1 Score:", f1)
+```
+
+Precision and recall are often more informative than accuracy in cases where the classes are imbalanced, meaning that one class is much more common than the other. In such cases, a model could achieve high accuracy by simply predicting the majority class, but it would perform poorly in terms of precision and recall for the minority class. The F1 score is often used as a single metric to evaluate the performance of a classifier in the presence of imbalanced classes.
+
+### ROC curve and AUC
+
+Error rates and metrics like precision/recall/F1 are useful for evaluating a *specific* set of predictions, e.g. ones that we would obtain from a model like logistic regression with a specific threshold $\tau$. However, we might want to evaluate the model's performance across *all* possible thresholds. One way to do this is via the **Receiver Operating Characteristic (ROC) curve**, which plots the true positive rate (TPR) against the false positive rate (FPR) as the threshold $\tau$ varies. The area under the ROC curve (AUC) is a common summary statistic for evaluating the overall performance of a classifier across all thresholds. Computing the ROC simply requires sweeping across thresholds and computing the TPR and FPR at each threshold. Note that the input here is not a vector of binary predictions $\hat{\vy}$ but rather the vector of predicted probabilities $q(\vx)$, which we can threshold at different levels to get different binary predictions.
+
+::: {#fig-roc}
+
+```{python}
+def roc_curve(y_true, q): 
+    TPR = []
+    FPR = []
+    for tau in torch.linspace(0, 1, 100): 
+        y_pred = (q > tau).float()
+        cm = confusion_matrix(y_true, y_pred)
+        tpr = cm[1, 1] / (cm[1, 0] + cm[1, 1])
+        fpr = cm[0, 1] / (cm[0, 0] + cm[0, 1])
+        TPR.append(tpr)
+        FPR.append(fpr)
+    return FPR, TPR
+
+q_train = model.forward(X_train)
+fpr_train, tpr_train = roc_curve(y_train, q_train)
+
+fpr_test, tpr_test = roc_curve(y_test, model.forward(X_test))
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(fpr_train, tpr_train, label="ROC Curve (Training)")
+ax.plot(fpr_test, tpr_test, label="ROC Curve (Test)")
+ax.plot([0, 1], [0, 1], color="grey", linestyle="--", label="Random Classifier")
+ax.set_xlim(0, 1)
+ax.set_ylim(0, 1)
+ax.set_xlabel("False Positive Rate")
+ax.set_ylabel("True Positive Rate")
+ax.set_title("ROC Curve for Logistic Regression")
+ax.legend()
+```
+
+ROC curve (on training data) for logistic regression, evaluated on both training and test data. 
+
+:::
+
+The Area Under the Curve (AUC) is a measure of the overall performance of the classifier across all thresholds. An ideal classifier which makes no errors has an AUC of 1, while a random classifier has an AUC of 0.5. The AUC can be computed using numerical integration, for example via the trapezoidal rule:
+
+::: {#fig-roc-auc}
+
+```{python}
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(fpr_test, tpr_test, label="ROC Curve (Test)")
+ax.plot([0, 1], [0, 1], color="grey", linestyle="--", label="Random Classifier")
+ax.set_xlim(0, 1)
+ax.set_ylim(0, 1)
+ax.set_xlabel("False Positive Rate")
+ax.set_ylabel("True Positive Rate")
+ax.set_title("ROC Curve for Logistic Regression")
+ax.fill_between(fpr_test, tpr_test, alpha=0.2,  label=f"AUC (Test) = {torch.abs(torch.trapz(torch.tensor(tpr_test), torch.tensor(fpr_test))):.2f}")
+ax.legend()
+```
+
+Area under the ROC curve (AUC) for logistic regression on test data.
+
+::: 
+
+
+
+
+
+
+
+
+
+
+## Clarifying the Task 
+
+[This is a brief discussion of a published academic article. The authors of the article were very careful in describing their findings and put up a very helpful [FAQ website](https://life2vec.dk/) clarifying some important points. The brief discussion below is not a dunk on the authors, but a brief lesson in the importance of very carefully parsing hype in media.]{.aside}
+
+A few years ago, an international group of authors published a model aimed at predicting live outcomes for patients based on sequences of life events @savcisens2024using. One of the key functionalities of the model was *death prediction*; the researchers scored the model on a prediction task in which the model attempted to predict whether a given individual was alive four years after the end of the training data. A [media writeup](https://www.lex18.com/ai-death-calculator-can-predict-when-you-ll-die-with-eery-accuracy) of the model said: 
+
+> Researchers analyzed aspects of a person’s life story between 2008 and 2016, with the model seeking patterns in the data. Then, they used the algorithm to determine whether someone had died by 2020.
+> The Life2vec model made predictions with 78% accuracy.
+
+Wow! 78% accuracy sounds impressive (and also scary!!). 
+
+Writeups like these pose interesting questions about how we want to live our lives and what kinds of knowledge are healthy for us to have. If a model had a 78% accuracy in predicting whether you were going to die in the next four years, would you want to know? 
+
+Before we get carried away by deep questions like that, however, it's important to ask some technical questions to help us understand how the model is *actually* scored and what that 78% accuracy really means.
+
+### What's the population?
+
+Does the model work for everybody? Not necessarily: as the researchers write in their [FAQ](https://life2vec.dk/) about the paper, the model is trained on Danish individuals ages 35-65. The model's performance on older, younger, or non-Danish individuals is unknown. 
+
+
+### What's the base rate? 
+
+One important piece of context is the *base rate* in the data. In a country in which the average length of a human life is 80 years (representative of many developed countries), the base rate of death in a single year is roughly $1/80 = 1.25\%$. In a four-year period, the base rate of death is roughly $4/80 = 5\%$. Of course, this is an average across a population, with considerably variability by age: 
+
+<iframe src="https://ourworldindata.org/grapher/annual-death-rate-by-age-group?tab=chart" loading="lazy" style="width: 100%; height: 600px; border: 0px none;" allow="web-share; clipboard-write"></iframe>
+
+That said, a model which always predicted "not dead in the next four years" would be correct on average about 95% of the time. So, the researchers must have done something more subtle. 
+
+### What's the task? 
+
+Indeed, the researchers *balanced* their testing data set between the two classes "alive in 2020" and "dead in 2020". This means that they selected instances for the test data to overrepresent cases of death, resulting in a test set in which the base rate of death was 50% instead of 5%. This makes it *harder* for the model to achieve high accuracy, since just predicting "alive" doesn't work anymore. However, it also means that the 78% accuracy isn't directly relevant to a random individual in the population: it's a specific, narrowly-interpretable measure of performance describing the model's ability to make predictions in an artificially balanced dataset.
+
+
+
+
+
 
 ## Model Comparison
 

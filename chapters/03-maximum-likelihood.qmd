@@ -229,12 +229,12 @@ The two approaches agree! As we grow comfortable with the calculus, we'll begin 
 
 ### The Gradient Points In the Direction of Greatest Increase
 
-An important feature of the gradient is that it tells us the direction in which a small change in the function inputs $\vw$ could produce the greatest increase in the function output $f(\vw)$. Here's an example using the function from @exr-linear-gaussian-gradient. `torch` makes it very easy to implement this function. 
+An important feature of the gradient is that it tells us the direction in which a small change in the function inputs $\vw$ could produce the greatest increase in the function output $f(\vw)$. Equivalently, the gradient points directly *away* from the direction of greatest decrease in the function output. Here's an example using the function from @exr-linear-gaussian-gradient. `torch` makes it very easy to implement this function. 
 
 ```{python}
 #---
 def MSE(x, y, w0, w1):
-    return -((y - (w1 * x + w0))**2).mean()
+    return ((y - (w1 * x + w0))**2).mean()
 #---
 ```
 
@@ -265,7 +265,7 @@ for i in range(W0.shape[0]):
 fig, ax = plt.subplots()
 
 # show the log-likelihood as a contour plot
-im = ax.contourf(LL.numpy(), levels=100, cmap='inferno', extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+im = ax.contourf(LL.numpy(), levels=100, cmap='inferno_r', extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
 ax.contour(LL.numpy(), levels=100, colors='black', linewidths=0.5, extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
 
 ax.set_ylabel(r'$w_1$')
@@ -282,7 +282,7 @@ for w0, w1 in [( -0.5, 1.5), (0.0, 1.0), (0.5, 1.5), (.25, 0.5), (0.75, 1.0)]:
     grad_w0 = w0_tensor.grad.item()
     grad_w1 = w1_tensor.grad.item()
     
-    ax.quiver(w1, w0, grad_w1, grad_w0, color='black', scale=20, width=0.01)
+    ax.quiver(w1, w0, -grad_w1, -grad_w0, color='black', scale=20, width=0.01)
     ax.scatter(w1, w0, color='black', s=30)
 
 plt.colorbar(im)
@@ -479,7 +479,7 @@ LL = torch.zeros(W0.shape)
 
 for i in range(W0.shape[0]):
     for j in range(W0.shape[1]):
-        LL[i, j] = -MSE(x, y, W0[i, j], W1[i, j])
+        LL[i, j] = MSE(x, y, W0[i, j], W1[i, j])
 
 # visualize the log-likelihood surface
 fig, ax = plt.subplots(figsize=(6, 5))

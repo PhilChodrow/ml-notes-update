@@ -489,7 +489,6 @@ losses = []
 for epoch in range(20000): 
 
     q = model.forward(X_train_aug)
-    grad = (q - y_train_tensor).T@X_train_aug / X_train_aug.shape[0]
     loss = binary_cross_entropy(q, y_train_tensor)
     
     losses.append(loss.item())
