@@ -70,7 +70,7 @@ ax.set_zlabel('Target y')
 ax.set_title('3D Scatter Plot of Synthetic Data')
 
 # plot the regression plane
-xx1, xx2 = torch.meshgrid(torch.linspace(-3, 3, 10), torch.linspace(-3, 3, 10))
+xx1, xx2 = torch.meshgrid(torch.linspace(-3, 3, 10), torch.linspace(-3, 3, 10), indexing='ij')
 zz = true_w[0] * xx1 + true_w[1] * xx2 + true_b
 ax.plot_surface(xx1.numpy(), xx2.numpy(), zz.numpy(), alpha=0.2, color='b')
 
@@ -152,7 +152,7 @@ The log-likelihood function of the multivariate linear-Gaussian model is given b
 
 $$
 \begin{aligned}
-    \cL(\vw) &= \sum_{i=1}^n \log p_Y(y_i ; s_i \sigma^2) \\
+    \cL(\vw) &= \sum_{i=1}^n \log p_Y(y_i ; s_i, \sigma^2) \\
     &= \sum_{i=1}^n \log \left( \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left(-\frac{(y_i - s_i)^2}{2 \sigma^2}\right) \right) \\
     &= -\frac{n}{2} \log(2 \pi \sigma^2) - \frac{1}{2 \sigma^2} \sum_{i=1}^n (y_i - s_i)^2\;,
 \end{aligned}
