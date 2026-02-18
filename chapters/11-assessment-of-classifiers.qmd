@@ -27,7 +27,7 @@ However, accuracy is rarely the most useful way to evaluate a classifier. In thi
 
 
 
-## Evaluation Metrics for Classification
+## Quantitative Evaluation Metrics for Classification
 
 To begin our discussion of evaluation metrics in classification, let's return to the weather prediction problem. The code block below imports and prepares our data, and trains a logistic regression model on the training data using the same code as in the previous chapter. 
 
@@ -316,7 +316,7 @@ Error rates and metrics like precision/recall/F1 are useful for evaluating a *sp
 def roc_curve(y_true, q): 
     TPR = []
     FPR = []
-    for tau in torch.linspace(0, 1, 100): 
+    for tau in torch.linspace(1, 0, 100): 
         y_pred = (q > tau).float()
         cm = confusion_matrix(y_true, y_pred)
         tpr = cm[1, 1] / (cm[1, 0] + cm[1, 1])
@@ -346,7 +346,13 @@ ROC curve (on training data) for logistic regression, evaluated on both training
 
 :::
 
-The Area Under the Curve (AUC) is a measure of the overall performance of the classifier across all thresholds. An ideal classifier which makes no errors has an AUC of 1, while a random classifier has an AUC of 0.5. The AUC can be computed using numerical integration, for example via the trapezoidal rule:
+The Area Under the Curve (AUC) is a measure of the overall performance of the classifier across all thresholds. An ideal classifier which makes no errors has an AUC of 1, while a random classifier has an AUC of 0.5. The AUC can be computed using numerical integration, for example via the trapezoidal rule. 
+
+```{python}
+#---
+auc_test = torch.trapz(torch.tensor(tpr_test), torch.tensor(fpr_test))
+#---
+```
 
 ::: {#fig-roc-auc}
 
@@ -360,7 +366,7 @@ ax.set_ylim(0, 1)
 ax.set_xlabel("False Positive Rate")
 ax.set_ylabel("True Positive Rate")
 ax.set_title("ROC Curve for Logistic Regression")
-ax.fill_between(fpr_test, tpr_test, alpha=0.2,  label=f"AUC (Test) = {torch.abs(torch.trapz(torch.tensor(tpr_test), torch.tensor(fpr_test))):.2f}")
+ax.fill_between(fpr_test, tpr_test, alpha=0.2,  label=f"AUC (Test) = {auc_test:.2f}")
 ax.legend()
 ```
 
@@ -369,15 +375,10 @@ Area under the ROC curve (AUC) for logistic regression on test data.
 ::: 
 
 
+## Some Important Questions in Evaluating Classifiers
 
 
-
-
-
-
-
-
-## Clarifying the Task 
+### What task are we evaluating? 
 
 [This is a brief discussion of a published academic article. The authors of the article were very careful in describing their findings and put up a very helpful [FAQ website](https://life2vec.dk/) clarifying some important points. The brief discussion below is not a dunk on the authors, but a brief lesson in the importance of very carefully parsing hype in media.]{.aside}
 
@@ -392,12 +393,11 @@ Writeups like these pose interesting questions about how we want to live our liv
 
 Before we get carried away by deep questions like that, however, it's important to ask some technical questions to help us understand how the model is *actually* scored and what that 78% accuracy really means.
 
-### What's the population?
+#### What's the population?
 
 Does the model work for everybody? Not necessarily: as the researchers write in their [FAQ](https://life2vec.dk/) about the paper, the model is trained on Danish individuals ages 35-65. The model's performance on older, younger, or non-Danish individuals is unknown. 
 
-
-### What's the base rate? 
+#### What's the base rate? 
 
 One important piece of context is the *base rate* in the data. In a country in which the average length of a human life is 80 years (representative of many developed countries), the base rate of death in a single year is roughly $1/80 = 1.25\%$. In a four-year period, the base rate of death is roughly $4/80 = 5\%$. Of course, this is an average across a population, with considerably variability by age: 
 
@@ -405,21 +405,42 @@ One important piece of context is the *base rate* in the data. In a country in w
 
 That said, a model which always predicted "not dead in the next four years" would be correct on average about 95% of the time. So, the researchers must have done something more subtle. 
 
-### What's the task? 
+#### What's the task? 
 
 Indeed, the researchers *balanced* their testing data set between the two classes "alive in 2020" and "dead in 2020". This means that they selected instances for the test data to overrepresent cases of death, resulting in a test set in which the base rate of death was 50% instead of 5%. This makes it *harder* for the model to achieve high accuracy, since just predicting "alive" doesn't work anymore. However, it also means that the 78% accuracy isn't directly relevant to a random individual in the population: it's a specific, narrowly-interpretable measure of performance describing the model's ability to make predictions in an artificially balanced dataset.
 
+### Does the model need to be this complicated? 
 
+@perdomoDifficultLessonsSocial2025 conducted a recent study of *early warning systems* (EWS) for predicting the likelihood that an individual student will graduate public high school in Wisconsin. The idea of an early warning system is to identify students who are at increased dropout risk so that the school can allocate more resources to supporting those students. 
 
+Typical **features** $\mX$ used in a EWS include information about: 
 
+- **The student**: demographics and family background, health and mental health, grades, attendance, disciplinary record, etc. 
+- The student's educational **environment**, which includes:  
+    - **The school**: dropout rates at the school overall, class sizes, availability of support resources, average test scores, etc.
+    - **The district**: funding levels, median income, district-wide dropout rates, etc.
 
+The typical **target** $\vy$ is a binary variable describing whether or not the student drops out of high school rather than graduating on time. A typical **prediction** is a risk score, of which a probability like $\vq$ from our discussion of logistic regression is an example. Schematically, we can write a prediction of the model like this: 
 
-## Model Comparison
+$$
+\begin{aligned}
+    q(\vx_{\text{student}}, \vx_{\text{environment}})\;,
+\end{aligned}
+$$
 
-Maybe just use something simpler? Simpler model, fewer features, etc? Difficult Lessons for Prediction
+where $q$ could be calculated from its input features using logistic regression or one of many other methods. Let's call this $\mathcal{M}_\mathrm{individual}$. 
 
-https://dl.acm.org/doi/pdf/10.1145/3715275.3732175
+In their extensive study, @perdomoDifficultLessonsSocial2025 find some inconclusive evidence that the EWS system used in Wisconsin may have improved graduation rates by approximately 5% among students who received high risk scores, but that evidence was not statistically conclusive. 
 
-## Assessment of Data Sets
+#### Environmental Risk Scores and Unnecessary Personalization
 
-Case study from Calling Bull on criminal face detection. 
+A purported feature of $\mathcal{M}_\mathrm{individual}$ is that it produces *personalized*, individual risk scores which aim to give the probability that an individual student will drop out of high school. However, @perdomoDifficultLessonsSocial2025 find that the personalization of $\mathcal{M}_\mathrm{individual}$ is largely unnecessary, writing: 
+
+> Are individual risk scores necessary for effectively targeting interventions? Our analysis shows that if we already know these environmental features, incorporating individual features into the predictive model only leads to a slight, marginal improvement in identifying future dropouts...**That is, intervening on students identified as being at high risk by this alternative, environmental-based targeting strategy would have the same aggregate effect on high school graduation rates in Wisconsin as the individually-focused DEWS predictions.**
+
+The authors develop and test an alternative model $\mathcal{M}_{\mathrm{environmental}}$ which uses only environmental features. They find that $\mathcal{M}_{\mathrm{environmental}}$ yields almost the same predictions as the individualized $\mathcal{M}_{\mathrm{individual}}$, and that the result of using $\mathcal{M}_{\mathrm{environmental}}$ to allocate resources to students would have an almost identical impact on graduation rates. 
+
+### Is my result plausible? 
+
+If your classifier is giving you a result that would shock you if you read it in a newspaper or seems like something out of a dystopian scifi novel, then you should ask yourself some careful questions about the design of your study and especially about the structure of your training data. Here's a [case study](https://www.callingbull.org/case_studies/case_study_criminal_machine_learning.html) by Carl Bergstrom and Jevin West about @wu2016automated, a paper which purports to show that people's facial features can be used to predict whether or not those people will commit a crime. 
+

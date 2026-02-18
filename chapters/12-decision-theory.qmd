@@ -1,0 +1,266 @@
+---
+title: Decision Theory in Classification
+subtitle: From Predictions to Decisions
+execute: 
+    eval: true
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+
+## Introduction
+
+[Last time](11-assessment-of-classifiers.qmd), we studied a range of metrics for evaluating the performance of a classification model based purely on the correctness or incorrectness of the model's predictions. In practice, however, we don't typically use predictive models *just* for predictions -- we use them to *inform decisions*. 
+
+- A model which *predicts* whether or not it will rain tomorrow is used to help me *decide* whether or not to bring an umbrella. 
+- A model which *predicts* whether or not a tumor is malignant based on medical imaging is used to help a doctor *decide* what treatment to recommend. 
+- A model which *predicts* whether or not a customer will click on an ad is used to help an advertiser *decide* how much to bid for that ad placement.
+
+Let's go back for a moment to the confusion matrix of a binary classifier: 
+
+|               | Predicted 0  | Predicted 1   |
+|---------------|--------------|---------------|
+| **True 0**    | TN           | FP            |
+| **True 1**    | FN           | TP            |
+
+An important property of decision-making in the real world is that there are *costs* and *benefits* associated with each entry of the confusion matrix. In the example of weather prediction: 
+
+1. **True Negative (TN)**: The model predicts no rain, and no rain occurs. I do not bring my umbrella, but I remain dry and happy. 
+2. **False Positive (FP)**: The model predicts rain, but no rain occurs. I bring my umbrella unnecessarily. I am dry and happy, though slightly inconvenienced. 
+3. **False Negative (FN)**: The model predicts no rain, but it rains. I do not bring my umbrella. I am soaked and unhappy. 
+4. **True Positive (TP)**: The model predicts rain, and it rains. I bring my umbrella, and I remain dry and happy.
+
+Of these four outcomes, the false negative outcome is by far the worst. Thus, if the sole purpose of my model is to help me decide whether or not to bring an umbrella, I should want the model not just to be *accurate overall*, but more specifically to *minimize false negatives* (within reason).
+
+## Cost in Decision Making 
+
+Somewhat more generally, I can assign numerical scores to each of the four outcomes in the confusion matrix, each of which represent the *Cost* associated with that outcome. 
+
+Suppose that I evaluated my model on a validation set of 100 examples, finding that the model made 70 true negative predictions, 10 false positives, 5 false negatives, and 15 true positives. I can collect these in the confusion matrix, and then assign costs to each entry of the confusion matrix, as follows:
+
+::: {#tbl-panel layout-ncol=2}
+|               | Predicted 0  | Predicted 1   |
+|---------------|--------------|---------------|
+| **True 0**    | 70           | 10            |
+| **True 1**    | 5            | 15            |
+
+: Confusion matrix: the number of times each combination of prediction and outcome occurred. {#tbl-first}
+
+|               | Predicted 0  | Predicted 1   |
+|---------------|--------------|---------------|
+| **True 0**    | 0            | -1            |
+| **True 1**    | -10          | -1            |
+
+: Cost matrix: the cost associated with each combination of prediction and outcome. {#tbl-second}
+
+Example confusion matrix and cost matrix for a binary prediction problem. 
+
+::: 
+
+The *expected cost* associated with this model is then the sum of the products of the entries of the confusion matrix and the cost matrix, divided by the total number of examples:
+$$
+\text{Expected Cost} = \frac{70 \cdot 0 + 10 \cdot (-1) + 5 \cdot (-10) + 15 \cdot (-1)}{100} =  \frac{-75}{100} = -0.75
+$$
+
+Let's formalize this idea with some definitions: 
+
+::: {#def-cost-matrix}
+
+## Cost Matrix
+
+The *cost matrix* associated to a binary classification problem is matrix $\mC \in \R^{2\times 2}$ whose $ij$th entry gives the cost associated with predicting outcome $j$ when the true outcome is $i$. We typically denote the cost matrix as follows:
+
+$$
+\mC = \begin{bmatrix}
+    c_{00} & c_{01} \\
+    c_{10} & c_{11}
+\end{bmatrix}
+$$
+:::
+
+::: {#def-confusion-matrix}
+
+## Confusion Matrix, Mathematical Notation
+
+The *confusion matrix* associated to a binary classification problem is matrix $\mM \in \R^{2\times 2}$ whose $ij$th entry gives the number of examples for which the true outcome is $i$ and the predicted outcome is $j$. We typically denote the confusion matrix as follows:
+
+$$
+\mM = \begin{bmatrix}
+    m_{00} & m_{01} \\
+    m_{10} & m_{11}
+\end{bmatrix}
+$$
+:::
+
+
+
+::: {#def-expected-cost}
+
+## Expected Cost Of a Binary Classifier
+
+Given a cost matrix $\mC \in \R^{2\times 2}$, the expected cost of a binary classifier is the sum over all entries of the confusion matrix of the product of the confusion matrix entry and the corresponding cost matrix entry, divided by the total number of examples: 
+
+$$
+\begin{aligned}
+    \text{Expected Cost} &= \frac{1}{m} \sum_{i=0}^1 \sum_{j=0}^1 m_{ij} c_{ij}\;, \\ 
+    m &= \sum_{i=0}^1 \sum_{j=0}^1 m_{ij}
+\end{aligned}
+$$
+
+The expected cost is a function of the cost matrix $\mC$. Usually we have the ability to modify the confusion matrix $\mM$ but not the cost matrix $\mC$ (since the costs are determined by the real-world consequences of the model's predictions), so we typically think of the expected cost as a function of the confusion matrix and write it $c(\mM)$. 
+
+:::
+
+::: {.question}
+
+## Where does the cost matrix come from?
+
+The cost matrix is an input to the expected cost, but is not typically something that can be learned from the data set on which we're making predictions. Rather, the cost matrix usually must be *specified* by the designers or users of a given machine learning model. This can raise some difficult questions. 
+
+
+- How much worse is it to get wet from rain than it is to carry an umbrella unnecessarily? Twice as bad? Ten times as bad...?
+- Autonomous vehicles must make high-frequency decisions about how to respond to unexpected events in their environment. In some cases, this may involve assigning costs associated with injury or death to both the passenger and other drivers, cyclists, or pedestrians. What should the relative costs be, and who decides? 
+- An early automated screen for a rare disease may be used to order expensive follow-up tests. The cost of a false positive is that an unnecessary, costly follow-up test is performed, while the cost of a false negative is that the disease may go undetected and untreated. Constructing a cost matrix here requires matching the "units" of cost in each of these cases, which may in practice mean that a dollar value must be assigned to human health or human life. 
+
+:::
+
+## Model Selection via Expected Cost
+
+The expected cost gives us a new way to score models, differently from metrics like log-likelihood, accuracy, or AUC. If we have a cost matrix $\mC$ that describes the costs associated with our decision context, then we can choose a best model among candidates by choosing the one with the best expected cost, usually as evaluated on validation data. 
+
+::: {.question}
+
+## Why not train the model to minimize expected cost?
+
+Unfortunately it's often not practical to train the model directly to minimize the expected cost. One of the primary reasons is that the entries of the confusion matrix (like the number of false positives, for example) are not differentiable functions of the model parameters $\vw$. This means that we can't use gradient-based optimization to directly minimize the expected cost. 
+:::
+
+Let's return to the rain prediction problem with logistic regression. 
+
+```{python}
+import pandas as pd
+import torch
+url = "https://raw.githubusercontent.com/middcs/data-science-notes/refs/heads/main/data/australia-weather/weatherAUS.csv"
+
+df = pd.read_csv(url)
+df.dropna(inplace=True)
+df["y"] = df["RainTomorrow"].map({"No": 0, "Yes": 1})
+df["RainToday"] = df["RainToday"].map({"No": 0, "Yes": 1})
+df.drop(columns=["Date", "Location", "RainTomorrow"], inplace=True)
+
+df = pd.get_dummies(df, columns=["WindGustDir", "WindDir9am", "WindDir3pm"], drop_first=True, dtype=int, prefix=["gustdir", "wind9", "wind3"], prefix_sep="_")
+
+df["constant"] = 1
+
+```
+
+We'll split the data into training, validation, and test sets: 
+
+```{python}
+ix = torch.randperm(len(df))
+n_train = int(0.6 * len(df))
+n_val = int(0.2 * len(df))
+train_ix = ix[:n_train]
+val_ix = ix[n_train:n_train+n_val]
+test_ix = ix[n_train+n_val:]
+
+X_train_df = df.iloc[train_ix].drop(columns=["y"])
+y_train = torch.tensor(df.iloc[train_ix]["y"].values, dtype=torch.float32).reshape(-1, 1)
+
+X_val_df = df.iloc[val_ix].drop(columns=["y"])
+y_val = torch.tensor(df.iloc[val_ix]["y"].values, dtype=torch.float32).reshape(-1, 1)
+X_test_df = df.iloc[test_ix].drop(columns=["y"])
+y_test = torch.tensor(df.iloc[test_ix]["y"].values, dtype=torch.float32).reshape(-1, 1)
+```
+
+```{python}
+
+def sigmoid(x): 
+    return 1/(1 + torch.exp(-x))
+
+def binary_cross_entropy(q, y): 
+    return -torch.mean(y * torch.log(q) + (1-y) * torch.log(1-q))
+
+class BinaryLogisticRegression: 
+    def __init__(self, n_features): 
+        self.w = torch.zeros(n_features, 1, requires_grad=True)
+
+    def forward(self, X): 
+        return sigmoid(X @ self.w)    
+```
+
+```{python}
+class GradientDescentOptimizer: 
+    def __init__(self, model, lr=0.1): 
+        self.model = model
+        self.lr = lr
+
+    def grad_func(self, X, y): 
+        q = self.model.forward(X)
+        return 1/X.shape[0] * ((q - y).T @ X).T
+        
+
+    def step(self, X, y): 
+        grad = self.grad_func(X, y)
+        with torch.no_grad(): 
+            self.model.w -= self.lr * grad
+```
+
+```{python}
+def select_features(X_df, cols):
+    if "constant" not in cols: 
+        cols = ["constant"] + cols
+    return torch.tensor(X_df[cols].values, dtype=torch.float32)
+
+```
+
+
+```{python}
+model = BinaryLogisticRegression(n_features=3)
+opt = GradientDescentOptimizer(model, lr=0.1)
+
+cols = ["RainToday", "Humidity3pm"]
+
+X_train = select_features(X_train_df, cols)
+
+losses = []
+for epoch in range(100): 
+    q = model.forward(X_train)
+    loss = binary_cross_entropy(q, y_train)
+    losses.append(loss.item())
+    opt.step(X_train, y_train)
+
+
+```
+
+
+
+
+
+
+
+
+### Threshold Tuning 
+
+### Class Weighting
+
+## Refusing to Classify: The Reject Option
+
+
+
+
+
+
+

@@ -47,7 +47,7 @@ Here's a visualization of a regression model with two features, $x_1$ and $x_2$,
 
 ```{python}
 #| column: margin
-#| echo: false
+#| code-fold: true
 #| fig-cap: "3D Scatter Plot of Synthetic Data with Regression Plane and Residuals"
 import torch 
 from matplotlib import pyplot as plt

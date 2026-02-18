@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>7&nbsp; Multinomial Classification – Machine Learning</title>
+<title>9&nbsp; Multinomial Classification – Machine Learning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -85,7 +85,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../chapters/10-intro-classification.html" rel="prev">
+<link href="../chapters/12-decision-theory.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -194,7 +194,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/10-intro-classification.html">Classification</a></li><li class="breadcrumb-item"><a href="../chapters/15-multinomial-classification.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/10-intro-classification.html">Classification</a></li><li class="breadcrumb-item"><a href="../chapters/15-multinomial-classification.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -277,8 +277,20 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../chapters/11-assessment-of-classifiers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Assessment of Classifiers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/12-decision-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Decision Theory in Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../chapters/15-multinomial-classification.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></span></a>
   </div>
 </li>
       </ul>
@@ -311,9 +323,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/10-intro-classification.html">Classification</a></li><li class="breadcrumb-item"><a href="../chapters/15-multinomial-classification.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/10-intro-classification.html">Classification</a></li><li class="breadcrumb-item"><a href="../chapters/15-multinomial-classification.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></h1>
+<h1 class="title"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></h1>
 <p class="subtitle lead">Predicting among many categories</p>
 </div>
 
@@ -557,7 +569,7 @@ window.Quarto = {
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-penguin-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.1: Scatterplot culmen length and culmen depth in the Palmer Penguins data set, with data points colored by species.
+Figure&nbsp;9.1: Scatterplot culmen length and culmen depth in the Palmer Penguins data set, with data points colored by species.
 </figcaption>
 </figure>
 </div>
@@ -569,7 +581,7 @@ Figure&nbsp;7.1: Scatterplot culmen length and culmen depth in the Palmer Pengui
 <h3 class="anchored" data-anchor-id="one-hot-encoding">One-Hot Encoding</h3>
 <p>To apply our classification framework to our data, we need to convert the categorical species labels into numerical values. A particularly convenient way to do this is via <em>one-hot encoding</em>.</p>
 <div id="def-one-hot-encoding" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 7.1 (One-Hot Encoding)</strong></span> If <span class="math inline">\(y\)</span> is a categorical variable with <span class="math inline">\(K\)</span> categories, then the one-hot encoding of <span class="math inline">\(\mathbf{y}\)</span> of <span class="math inline">\(y\)</span> is a vector <span class="math inline">\(\mathbf{y}\in \{0, 1\}^K\)</span> with entries</p>
+<p><span class="theorem-title"><strong>Definition 9.1 (One-Hot Encoding)</strong></span> If <span class="math inline">\(y\)</span> is a categorical variable with <span class="math inline">\(K\)</span> categories, then the one-hot encoding of <span class="math inline">\(\mathbf{y}\)</span> of <span class="math inline">\(y\)</span> is a vector <span class="math inline">\(\mathbf{y}\in \{0, 1\}^K\)</span> with entries</p>
 <p><span class="math display">\[
 y_i = \begin{cases}
     1 &amp; \text{if } y \text{ is in category } i \\
@@ -693,14 +705,14 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 \begin{aligned}
     \mathcal{L}(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \sum_{i = 1}^n \sum_{k = 1}^K y_{ik} \log q_k(\mathbf{x}_i)\;.
 \end{aligned}
-\tag{7.1}\]</span></span></p>
-<p><a href="#eq-log-likelihood-multinomial" class="quarto-xref">Equation&nbsp;<span>7.1</span></a> is the generalization of the binary cross-entropy to the case of multiple classes.</p>
+\tag{9.1}\]</span></span></p>
+<p><a href="#eq-log-likelihood-multinomial" class="quarto-xref">Equation&nbsp;<span>9.1</span></a> is the generalization of the binary cross-entropy to the case of multiple classes.</p>
 </section>
 <section id="signal-function-for-logistic-regression" class="level3">
 <h3 class="anchored" data-anchor-id="signal-function-for-logistic-regression">Signal Function for Logistic Regression</h3>
 <p>To complete our specification for logistic regression, we need to specify the functional form of the signal function <span class="math inline">\(\mathbf{q}\)</span>. We’ll use the <em>softmax</em> function, which takes in a vector of real-valued scores and outputs a vector of probabilities.</p>
 <div id="def-softmax" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 7.2 (Softmax Function)</strong></span> The softmax function <span class="math inline">\(\boldsymbol{\sigma}: \mathbb{R}^K \rightarrow (0, 1)^K\)</span> is defined as</p>
+<p><span class="theorem-title"><strong>Definition 9.2 (Softmax Function)</strong></span> The softmax function <span class="math inline">\(\boldsymbol{\sigma}: \mathbb{R}^K \rightarrow (0, 1)^K\)</span> is defined as</p>
 <p><span class="math display">\[
 \boldsymbol{\sigma}(\mathbf{s}) = \frac{1}{\sum_{j = 1}^K e^{s_j}} \begin{pmatrix}
     e^{s_1} \\
@@ -871,7 +883,7 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-multinomial-classification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.2: Illustration of the data generating process for multinomial logistic regression. (Top left): The predicted probability of class 1 (color intensity) across feature space. (Top right and bottom left): The predicted probabilities of classes 2 and 3. (Bottom right): The predicted class (color) and confidence (opacity) across feature space. We’ve included several randomly scattered points, with their assigned class given by asmpling from the predicted class probabilities.
+Figure&nbsp;9.2: Illustration of the data generating process for multinomial logistic regression. (Top left): The predicted probability of class 1 (color intensity) across feature space. (Top right and bottom left): The predicted probabilities of classes 2 and 3. (Bottom right): The predicted class (color) and confidence (opacity) across feature space. We’ve included several randomly scattered points, with their assigned class given by asmpling from the predicted class probabilities.
 </figcaption>
 </figure>
 </div>
@@ -950,7 +962,7 @@ Figure&nbsp;7.2: Illustration of the data generating process for multinomial log
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-multinomial-classification-training-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.3: Training our multinomial logistic regression model for classification on the Palmer Penguins data set. (Left): The multinomial cross-entropy loss during training. (Right): The predicted class (color) and confidence (opacity) across feature space after training, with the training data points overlaid.
+Figure&nbsp;9.3: Training our multinomial logistic regression model for classification on the Palmer Penguins data set. (Left): The multinomial cross-entropy loss during training. (Right): The predicted class (color) and confidence (opacity) across feature space after training, with the training data points overlaid.
 </figcaption>
 </figure>
 </div>
@@ -1014,7 +1026,7 @@ Figure&nbsp;7.3: Training our multinomial logistic regression model for classifi
 </div>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-multinomial-classification-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.4: Evaluating model performance on the test set, as in <a href="#fig-multinomial-classification-training" class="quarto-xref">Figure&nbsp;<span>7.3</span></a> (right panel), using the test set overlaid.
+Figure&nbsp;9.4: Evaluating model performance on the test set, as in <a href="#fig-multinomial-classification-training" class="quarto-xref">Figure&nbsp;<span>9.3</span></a> (right panel), using the test set overlaid.
 </figcaption>
 </figure>
 </div>
@@ -1441,8 +1453,8 @@ Vanderplas, Jacob T. 2016. <em>Python Data Science Handbook: Essential Tools for
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../chapters/10-intro-classification.html" class="pagination-link" aria-label="Introduction: Binary Labels">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Introduction: Binary Labels</span></span>
+      <a href="../chapters/12-decision-theory.html" class="pagination-link" aria-label="Decision Theory in Classification">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Decision Theory in Classification</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

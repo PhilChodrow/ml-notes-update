@@ -168,7 +168,7 @@ We can compute the gradient by computing each partial derivative in turn:
 
 $$
 \begin{aligned}
-    \frac{\partial R}{\partial w_0} &= \frac{2}{n} (y_i - w_1x_i - w_0) \\ 
+    \frac{\partial R}{\partial w_0} &= \frac{-2}{n} (y_i - w_1x_i - w_0) \\ 
     \frac{\partial R}{\partial w_1} &= \frac{-2}{n} x_i(y_i - w_1x_i - w_0) \;,
 \end{aligned}
 $$
@@ -183,14 +183,7 @@ $$
 \end{aligned}
 $$
 
-
-
-
 :::
-
-
-
-
 
 
 ### Checking Gradients with `torch`
