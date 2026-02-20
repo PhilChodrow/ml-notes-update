@@ -176,7 +176,7 @@ where we've used the rules for derivatives. Stacking these into a vector gives
 
 $$
 \begin{aligned}
-    \nabla R(\vx, \vy; w_0, w_1) = \frac{2}{n} \begin{pmatrix}
+    \nabla R(\vx, \vy; w_0, w_1) = -\frac{2}{n} \begin{pmatrix}
     \sum_{i=1}^n (y_i - w_1x_i - w_0) \\
     \sum_{i=1}^n x_i (y_i - w_1x_i - w_0)
     \end{pmatrix}

@@ -273,6 +273,29 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modern Optimization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/30-autograd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Automatic Differentiation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/31-gradient-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">More on Gradient Methods</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -736,7 +759,7 @@ Figure&nbsp;1.7: Illustration of the Gaussian noise model <a href="#eq-normal-no
 \]</span></p>
 <p>The likelihood of the complete data set is simply the product of the individual data point PDFs, evaluated at their corresponding observed values. The likelihood is a function of the predictors which we’ll collect into a vector <span class="math inline">\(\mathbf{x}= (x_1,\ldots,x_n)^T\)</span>, the targets which we’ll collect into a vector <span class="math inline">\(\mathbf{y}= (y_1,\ldots,y_n)^T\)</span>, and the parameters of the model (in this case, the function <span class="math inline">\(f\)</span> and the noise level <span class="math inline">\(\sigma\)</span>):</p>
 <div id="def-gaussian-likelihood" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 1.5 (Gaussian Likelihood, Log-Likelihood)</strong></span> The <em>likelihood</em> of the observed data <span class="math inline">\((\mathbf{x}, \mathbf{y})\)</span> under a 1d Gaussian model with function <span class="math inline">\(f\)</span> and noise level <span class="math inline">\(\sigma\)</span> is given by:</p>
+<p><span class="theorem-title"><strong>Definition 1.5 (Likelihood and Log-Likelihood for the Linear-Gaussian Model)</strong></span> The <em>likelihood</em> of the observed data <span class="math inline">\((\mathbf{x}, \mathbf{y})\)</span> under a 1d Gaussian model with function <span class="math inline">\(f\)</span> and noise level <span class="math inline">\(\sigma\)</span> is given by:</p>
 <p><span class="math display">\[
 \begin{aligned}
     L(\mathbf{x}, \mathbf{y}; f) = \prod_{i = 1}^n p_{y}(y_i; f(x_i), \sigma^2)

@@ -1,0 +1,22 @@
+---
+title: More on Gradient Methods
+subtitle: Beyond Gradient Descent
+execute: 
+    eval: true
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+## Under Construction!

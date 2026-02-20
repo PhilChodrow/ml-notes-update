@@ -21,6 +21,10 @@ book:
       - chapters/11-assessment-of-classifiers.qmd
       - chapters/12-decision-theory.qmd
       - chapters/15-multinomial-classification.qmd
+    - part: "Modern Optimization"
+      chapters: 
+      - chapters/30-autograd.qmd
+      - chapters/31-gradient-methods.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 

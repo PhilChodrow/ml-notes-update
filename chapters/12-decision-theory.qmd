@@ -44,6 +44,19 @@ An important property of decision-making in the real world is that there are *co
 
 Of these four outcomes, the false negative outcome is by far the worst. Thus, if the sole purpose of my model is to help me decide whether or not to bring an umbrella, I should want the model not just to be *accurate overall*, but more specifically to *minimize false negatives* (within reason).
 
+More generally: 
+
+::: {.callout-note}
+
+## Context Matters
+
+The best machine learning model for your application is not necessarily the model with the lowest mean-squared error, cross-entropy, or accuracy. 
+
+**The best model is the model which achieves the best outcomes (on average) as measured by the costs and benefits in your decision-context.** 
+
+:::
+
+
 ## Cost in Decision Making 
 
 Somewhat more generally, I can assign numerical scores to each of the four outcomes in the confusion matrix, each of which represent the *Cost* associated with that outcome. 
@@ -60,8 +73,8 @@ Suppose that I evaluated my model on a validation set of 100 examples, finding t
 
 |               | Predicted 0  | Predicted 1   |
 |---------------|--------------|---------------|
-| **True 0**    | 0            | -1            |
-| **True 1**    | -10          | -1            |
+| **True 0**    | 0            | 1             |
+| **True 1**    | 10           | 1             |
 
 : Cost matrix: the cost associated with each combination of prediction and outcome. {#tbl-second}
 
@@ -71,7 +84,7 @@ Example confusion matrix and cost matrix for a binary prediction problem.
 
 The *expected cost* associated with this model is then the sum of the products of the entries of the confusion matrix and the cost matrix, divided by the total number of examples:
 $$
-\text{Expected Cost} = \frac{70 \cdot 0 + 10 \cdot (-1) + 5 \cdot (-10) + 15 \cdot (-1)}{100} =  \frac{-75}{100} = -0.75
+\text{Expected Cost} = \frac{1}{100} (70 \cdot 0 + 10 \cdot 1 + 5 \cdot 10 + 15 \cdot 0) = 0.6
 $$
 
 Let's formalize this idea with some definitions: 
@@ -147,11 +160,18 @@ The expected cost gives us a new way to score models, differently from metrics l
 Unfortunately it's often not practical to train the model directly to minimize the expected cost. One of the primary reasons is that the entries of the confusion matrix (like the number of false positives, for example) are not differentiable functions of the model parameters $\vw$. This means that we can't use gradient-based optimization to directly minimize the expected cost. 
 :::
 
-Let's return to the rain prediction problem with logistic regression. 
+In this experiment, we'll consider two ways in which we can select among trained models to minimize expected cost. 
+
+
+Let's return to the rain prediction problem with logistic regression. We'll use the same Australian weather data set that [we used](10-intro-classification.qmd) when introducing classification. This time we're going to take two additional steps in our data preprocessing:
+
+1. We are going to *standardize* the numerical features. [Standardizing the data features helps optimization algorithms converge more quickly; technically, this reduces the *condition number of the Hessian matrix of the loss function*.]{.aside} Standardization entails subtracting off the mean of the feature and dividing by the standard deviation of the feature, so that the resulting standardized feature has mean 0 and standard deviation 1.
+2. We are going to use one-hot encoding to convert the categorical features into multiple binary features. 
 
 ```{python}
 import pandas as pd
 import torch
+from matplotlib import pyplot as plt
 url = "https://raw.githubusercontent.com/middcs/data-science-notes/refs/heads/main/data/australia-weather/weatherAUS.csv"
 
 df = pd.read_csv(url)
@@ -160,33 +180,32 @@ df["y"] = df["RainTomorrow"].map({"No": 0, "Yes": 1})
 df["RainToday"] = df["RainToday"].map({"No": 0, "Yes": 1})
 df.drop(columns=["Date", "Location", "RainTomorrow"], inplace=True)
 
+# standardize the features of the data frame
+for col in ["MinTemp", "MaxTemp", "Rainfall", "Evaporation", "Sunshine", "WindGustSpeed", "WindSpeed9am", "WindSpeed3pm", "Humidity9am", "Humidity3pm", "Pressure9am", "Pressure3pm", "Cloud9am", "Cloud3pm", "Temp9am", "Temp3pm"]: 
+    df[col] = (df[col] - df[col].mean()) / df[col].std()
+
+# one-hot encode the categorical features
 df = pd.get_dummies(df, columns=["WindGustDir", "WindDir9am", "WindDir3pm"], drop_first=True, dtype=int, prefix=["gustdir", "wind9", "wind3"], prefix_sep="_")
 
+# add the constant feature
 df["constant"] = 1
-
 ```
 
 We'll split the data into training, validation, and test sets: 
 
 ```{python}
-ix = torch.randperm(len(df))
-n_train = int(0.6 * len(df))
-n_val = int(0.2 * len(df))
-train_ix = ix[:n_train]
-val_ix = ix[n_train:n_train+n_val]
-test_ix = ix[n_train+n_val:]
+from sklearn.model_selection import train_test_split
+X = df.drop(columns=["y"])
+y = torch.tensor(df["y"].values, dtype=torch.float32).reshape(-1, 1)
 
-X_train_df = df.iloc[train_ix].drop(columns=["y"])
-y_train = torch.tensor(df.iloc[train_ix]["y"].values, dtype=torch.float32).reshape(-1, 1)
-
-X_val_df = df.iloc[val_ix].drop(columns=["y"])
-y_val = torch.tensor(df.iloc[val_ix]["y"].values, dtype=torch.float32).reshape(-1, 1)
-X_test_df = df.iloc[test_ix].drop(columns=["y"])
-y_test = torch.tensor(df.iloc[test_ix]["y"].values, dtype=torch.float32).reshape(-1, 1)
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 ```
 
-```{python}
+Now we're ready to implement our model. We'll use the same binary logistic regression model that we used in [the introduction to classification](10-intro-classification.qmd). 
 
+
+```{python}
 def sigmoid(x): 
     return 1/(1 + torch.exp(-x))
 
@@ -194,14 +213,12 @@ def binary_cross_entropy(q, y):
     return -torch.mean(y * torch.log(q) + (1-y) * torch.log(1-q))
 
 class BinaryLogisticRegression: 
-    def __init__(self, n_features): 
-        self.w = torch.zeros(n_features, 1, requires_grad=True)
+    def __init__(self, p_features): 
+        self.w = torch.zeros(p_features, 1)
 
     def forward(self, X): 
         return sigmoid(X @ self.w)    
-```
 
-```{python}
 class GradientDescentOptimizer: 
     def __init__(self, model, lr=0.1): 
         self.model = model
@@ -211,56 +228,321 @@ class GradientDescentOptimizer:
         q = self.model.forward(X)
         return 1/X.shape[0] * ((q - y).T @ X).T
         
-
     def step(self, X, y): 
-        grad = self.grad_func(X, y)
-        with torch.no_grad(): 
-            self.model.w -= self.lr * grad
+        self.model.w -= self.lr * self.grad_func(X, y)
+```
+
+This time let's wrap the training loop inside a function: 
+
+```{python}
+#---
+def train(model, X_train, y_train, max_epochs = 1000, tol = 1e-8, lr = 0.01):
+    opt = GradientDescentOptimizer(model, lr=lr)
+    losses = []
+    for epoch in range(max_epochs): 
+        q = model.forward(X_train)
+        loss = binary_cross_entropy(q, y_train)
+        losses.append(loss.item())
+        opt.step(X_train, y_train)
+
+        if len(losses) > 1 and abs(losses[-1] - losses[-2]) < tol: 
+            break
+    return losses
+#---
 ```
 
 ```{python}
+model = BinaryLogisticRegression(p_features=X_train.shape[1])
+losses = train(model, torch.tensor(X_train.values, dtype=torch.float32), y_train, max_epochs=1000, tol=1e-8, lr=0.1)
+```
+
+
+### Model Selection via Expected Cost
+
+With our model in hand, let's implement the experiment in which we select a model based on expected cost. We'll first implement the confusion matrix and expected cost as functions: 
+
+```{python}
+#---
+def confusion_matrix(y_pred, y_true, threshold=0.5): 
+    counts = torch.zeros((2, 2), dtype=torch.float32)
+    for i in range(2): 
+        for j in range(2): 
+            counts[i, j] = ((y_pred == j) & (y_true == i)).sum()
+    return counts
+
+def expected_cost(confusion_matrix, cost_matrix): 
+    m = confusion_matrix.sum().item()
+    return (confusion_matrix * cost_matrix).sum().item() / m
+#---
+```
+
+Now we'll do our main experiment. In this experiment, we'll pick two sets of features and train our model on each of these feature sets. We'll then evaluate the expected cost and accuracy of each model on the validation set across a range of thresholds, and we'll compare the results. We'll first define our two sets of features and our cost matrix:
+
+```{python}
+
+col_sets = {
+    "Simple" : ["RainToday", "Humidity3pm"],
+    "Full" : X_train.columns.drop("constant").tolist()
+}
+
+C = torch.tensor([[0, 1], [10, 0]], dtype=torch.float32)
+```
+
+In our main experimental loop, we train a model on the specified set of features and then evaluate the expected cost and accuracy of the model on the validation set across a range of thresholds.
+
+```{python}
+
+# convenience function for selecting the specified features from a data frame and converting to a tensor
 def select_features(X_df, cols):
     if "constant" not in cols: 
         cols = ["constant"] + cols
     return torch.tensor(X_df[cols].values, dtype=torch.float32)
 
-```
+# train the simple model and obtain predicted probabilities on the validation set
+X_train_tensor = select_features(X_train, col_sets["Simple"])
 
+model_simple = BinaryLogisticRegression(p_features=X_train_tensor.shape[1])
+losses = train(model_simple, X_train_tensor, y_train, max_epochs=1000, tol=1e-8, lr=0.1)
+q_val_simple = model_simple.forward(select_features(X_val, col_sets["Simple"]))
+
+X_train_tensor = select_features(X_train, col_sets["Full"])
+model_full = BinaryLogisticRegression(p_features=X_train_tensor.shape[1])
+losses = train(model_full, select_features(X_train, col_sets["Full"]), y_train, max_epochs=1000, tol=1e-8, lr=0.1)
+q_val_full = model_full.forward(select_features(X_val, col_sets["Full"]))
+```
 
 ```{python}
-model = BinaryLogisticRegression(n_features=3)
-opt = GradientDescentOptimizer(model, lr=0.1)
+#---
+def costs_and_accuracies(q_val, y_val, C): 
+    costs = []
+    accuracies = []
+    for t in torch.linspace(0, 1, 101): 
+        y_pred = (q_val >= t).int()
 
-cols = ["RainToday", "Humidity3pm"]
-
-X_train = select_features(X_train_df, cols)
-
-losses = []
-for epoch in range(100): 
-    q = model.forward(X_train)
-    loss = binary_cross_entropy(q, y_train)
-    losses.append(loss.item())
-    opt.step(X_train, y_train)
-
-
+        cm = confusion_matrix(y_pred, y_val, threshold=t)
+        c = expected_cost(cm, C)
+        acc = (cm[0, 0] + cm[1, 1]) / cm.sum()
+        accuracies.append(acc.item())
+        costs.append(c)
+    return costs, accuracies
+#---
 ```
 
+Now we're ready to run the experiment and plot the results.
+
+::: {#fig-model-selection-experiment}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(2, 1, figsize=(5, 5))
+T = torch.linspace(0, 1, 101)
+
+costs_simple, accuracies_simple = costs_and_accuracies(q_val_simple, y_val, C)
+costs_full, accuracies_full = costs_and_accuracies(q_val_full, y_val, C)
+
+ax[0].plot(T, costs_simple, label="Simple model")
+ax[0].plot(T, costs_full, label="Full model")
+ax[1].plot(T, accuracies_simple, label="Simple model")
+ax[1].plot(T, accuracies_full, label="Full model")
+
+ax[0].vlines(T[torch.argmin(torch.tensor(costs_full))], min(costs_full), max(costs_full), color="black", linestyle="dashed")
+ax[1].vlines(T[torch.argmax(torch.tensor(accuracies_full))], min(accuracies_full), max(accuracies_full), color="black", linestyle="dashed")
 
 
+ax[0].set_ylim(0, None)
+ax[1].set_ylim(0, 1)
 
+ax[0].set_ylabel("Expected Cost (Validation Set)")
+ax[0].set_title("Cost and Accuracy for Two Models")
+ax[1].set_xlabel("Threshold")
+ax[1].set_ylabel("Accuracy (Validation Set)")
+plt.tight_layout()
+plt.legend()
+```
 
+Illustration of model selection using accuracy (bottom) and expected cost (top) for a range of thresholds (horizontal axis). The dashed vertical lines indicate the threshold at which the full model achieves its best expected cost and accuracy. 
 
+:::
 
+In this experiment, scoring the model by expected cost and scoring the model by accuracy both lead to use choosing the full model over the simpler one. However, when scoring by accuracy the different might seem negligible: 
 
-### Threshold Tuning 
+```{python}
+print(f"Simple model: best accuracy = {max(accuracies_simple):.3f} at t={T[torch.argmax(torch.tensor(accuracies_simple))]:.2f}")
+print(f"Full model: best accuracy = {max(accuracies_full):.3f} at t={T[torch.argmax(torch.tensor(accuracies_full))]:.2f}")
+```
 
-### Class Weighting
+Although there is a noticeable difference in accuracy, it doesn't necessarily appear that it should be a big deal. However, the expected cost highlights the difference between the two models much more starkly:
 
-## Refusing to Classify: The Reject Option
+```{python}
+print(f"Simple model: best expected cost = {min(costs_simple):.3f} at t={T[torch.argmin(torch.tensor(costs_simple))]:.2f}")
+print(f"Full model: best expected cost = {min(costs_full):.3f} at t={T[torch.argmin(torch.tensor(costs_full))]:.2f}")
+```
 
+Here's one way to think about what's happening here: 
 
+When we score the models by *accuracy*, the models achieve best accuracy in a region of threshold space in which their two accuracies are relatively close. 
 
+On the other hand, the cost matrix $\mC$ that we used in this experiment assigns a very high cost to false negatives. This means that the expected cost favors models that more frequently predict positives, which corresponds to lowering the threshold. However, in the low-threshold region of the threshold space, the full model is considerably more accurate than the simple model, which in turn means that the full model has a much lower expected cost than the simple model in this region.
 
+## "I Don't Know": The Reject Option
 
+In many application settings, it may be desirable for a model to have an option to "reject" or decline to make a prediction. For example, a model that predicts whether or not a tumor is malignant may be used to help a doctor decide what treatment to recommend. In some cases, the model may be very uncertain about its prediction for a given patient, and it may be desirable for the model to have the option to "reject" making a prediction for that patient, and instead pass the data off to a human expert for further analysis. The process of manual analysis likely to be more expensive than the automated prediction of the model, but is also likely to be more accurate. 
 
+Generalizing slightly, we can think of the **reject option** as a third possible outcome for a binary classifier, in which the classifier's confidence is sufficiently low that the classifier actually opts to pass the predictive task to a more expensive process (such as a human or a more expensive model). 
+
+In the context of binary classification, we would typically implement a reject option by introducing *two* thresholds $t_1$ and $t_2$, with $t_1 < t_2$. 
+
+::: {#def-reject-option}
+
+## The Reject Option in Binary Classification
+
+A binary classifier with a *reject option* has three possible outcomes based on the predicted score $q(\mathbf{x})$ and two thresholds $t_1 < t_2$:
+
+- If $q(\mathbf{x}) < t_1$, then the classifier predicts 0.
+- If $q(\mathbf{x}) > t_2$, then the classifier predicts 1.
+- If $t_1 \leq q(\mathbf{x}) \leq t_2$, then the classifier *rejects* or *declines* to make a prediction.
+
+There is typically a *cost* associated with the reject option, which is usually less than the cost of a false positive or false negative, but more than the cost of a true positive or true negative.
+
+:::
+
+### Example in Rain Prediction
+
+Suppose that we have access to the simple model as part of the free tier of an API. This model is useful, but also less reliable than the full model, which is only available on the paid tier. Each query to the full model costs 0.2 units. So, if we need to make an informed decision each day about the likelihood of rain, we may wish to use the simple model on days when the simple model is relatively certain about the likelihood of rain, and to use the full model on days when the simple model is relatively uncertain about the likelihood of rain.
+
+::: {#fig-example-reject-option}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+counts, bin_edges = torch.histogram(q_val_simple, bins=20)
+ax.scatter((bin_edges[:-1] + bin_edges[1:]) / 2, counts, label="Simple model")
+ax.set_xlabel(r"""
+    More confident (no rain) <-- Uncertain --> More confident (rain)
+    $q(\mathbf{x})$
+    """)
+
+ax.fill_between([0.3, 0.7], 0, max(counts), color="grey", alpha=0.1, label="Use simple model")
+ax.annotate("Example reject region", xy=(0.5, max(counts)/2), xytext=(0.5, max(counts)/1.5), ha="center")
+ax.set_ylabel("Count")
+ax.set_xlim(0, 1)
+t = ax.set_title("Distribution of Predicted Probabilities on the Validation Set")
+```
+
+Histogram of the predicted probabilities of rain from `model_simple` on the validation set. The shaded region indicates an example reject region, in which we might want to query `model_full` instead of `model_simple`.
+
+:::
+
+For this reason, we might want to develop a strategy that incorporates *both* models. 
+
+- First, we query the free, simple model. 
+- If the simple model is relatively certain about the likelihood of rain, then we use the simple model's prediction to make our decision.
+- If the simple model is relatively uncertain about the likelihood of rain, then we query the paid, full model, and we use the full model's prediction to make our decision.
+
+This will work out well for us *if* the benefit of using the more expensive full model on the uncertain days outweighs the cost of querying the full model on those days.
+
+As a baseline, let's compute the expected cost of using the simple model all the time (with its optimal threshold) and the expected cost of using the full model all the time (with its optimal threshold), including the cost of querying the full model in the latter case.
+
+```{python}
+reject_cost = 0.2
+print(f"{min(costs_simple):.3f} = expected cost of using simple model all the time")
+print(f"{min(costs_full) + reject_cost:.3f} = expected cost of using full model all the time (including cost of querying full model)")
+```
+
+So, using the simple model  all the time is better than using the full model all the time, but maybe we can do better by using the simple model when it's relatively certain and using the full model when the simple model is relatively uncertain. Let's find out by searching over a grid of possible values for $t_1$ and $t_2$.
+
+### Rejection Threshold Selection 
+
+As before, we can use the expected cost to help us select the thresholds $t_1$ and $t_2$, but this time our expected cost becomes more complex. We need to define the two thresholds that we'll use to define the positive, reject, and negative regions of prediction. We'll also need to supply the optimal threshold for the full model. 
+
+```{python}
+def expected_cost_reject_option(q_val, t_1, t_2, t_full, reject_cost = 0.5): 
+
+    # calculate the indices for which we are going to reject, and the total cost of those rejections
+    reject_ix = (t_1 <= q_val) & (q_val <= t_2)
+    total_reject_cost = reject_ix.sum().item() * reject_cost 
+
+    # for the non-rejected examples, we predict 1 if q_val > t_2 and 0 if q_val < t_1. For the rejected examples, we predict according to the full model with threshold t_full.
+    y_pred = torch.zeros_like(q_val, dtype=torch.int32)
+    y_pred[q_val > t_2] = 1
+    y_pred[reject_ix] = (q_val_full[reject_ix] >= t_full).int()
+    
+    # calculate the confusion matrix and expected cost for the non-rejected examples
+    cm = confusion_matrix(y_pred, y_val, threshold=0) 
+    total_cost = expected_cost(cm, C) * cm.sum().item() + total_reject_cost 
+    cost_per_example = total_cost / cm.sum().item()
+    return cost_per_example
+```
+
+Now we can run our grid search: 
+
+```{python}
+t_1_lim = (0.0, 1)
+t_2_lim = (0.0, 1)
+
+n_grid = 101
+costs = torch.zeros((n_grid, n_grid))
+best_cost = float("inf")
+best_t_1 = None
+best_t_2 = None
+for i, t_1 in enumerate(torch.linspace(t_1_lim[0], t_1_lim[1], n_grid)): 
+    for j, t_2 in enumerate(torch.linspace(t_2_lim[0], t_2_lim[1], n_grid)): 
+        if t_2 >= t_1:
+            cost = expected_cost_reject_option(q_val_simple, t_1, t_2, t_full=T[torch.argmin(torch.tensor(costs_full))], reject_cost=0.2)
+            costs[i,j] = cost
+            if cost < best_cost: 
+                best_cost, best_t_1, best_t_2 = cost, t_1, t_2
+```
+
+Let's go ahead and visualize the results: 
+
+::: {#fig-reject-option-costs}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+im = ax.imshow(costs, origin="lower", aspect="auto", zorder = 100, extent = [t_1_lim[0], t_1_lim[1], t_2_lim[0], t_2_lim[1]], )
+ax.set_xlabel(r"$t_2$ (threshold for predicting 1)")
+ax.set_ylabel(r"$t_1$ (threshold for predicting 0)")
+
+ax.scatter(best_t_2, best_t_1, color="red", label="Best thresholds", zorder=200)
+fig.colorbar(im, ax=ax, label="Expected Cost")
+
+t = ax.set_title(
+    fr"""Expected Cost for Different Thresholds with Reject Option
+    Optimal cost = {best_cost:.3f} at $t_1$ = {best_t_1:.2f} and $t_2$ = {best_t_2:.2f}""")
+```
+
+Costs associated with different choices of the thresholds $t_1$ and $t_2$ for the reject option. The red point indicates the optimal thresholds, which achieve an expected cost of {best_cost:.3f}.
+
+:::
+
+We are able to reduce our expected cost in the rain prediction problem by strategically using the full model on the examples for which the simple model is relatively uncertain. Comparison to @fig-model-selection-experiment indicates that the optimal reject region corresponds to a threshold zone in which the full model has an especially large advantage in expected cost over the simple model.
+
+::: {#fig-reject-option-costs-geometric}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+T = torch.linspace(0, 1, 101)
+costs_simple, accuracies_simple = costs_and_accuracies(q_val_simple, y_val, C)
+costs_full, accuracies_full = costs_and_accuracies(q_val_full, y_val, C)
+
+ax.plot(T, costs_simple, label="Simple model")
+
+ax.plot([best_t_1, best_t_2], [min(costs_full) + 0.2, min(costs_full) + 0.2], color="black", linestyle="--", label="Minimum cost of full model + reject cost")
+
+# ax.plot(T, costs_full, label="Full model")
+ax.fill_between([best_t_1, best_t_2], 0, max(costs_full), color="grey", alpha=0.1, label="Reject region")
+ax.set_xlabel("Threshold")
+ax.set_ylabel("Expected Cost (Validation Set)")
+ax.set_title("Visualizing the Rejection Region")
+plt.legend()
+```
+
+Visualization of the rejection region in threshold-cost space. The optimal rejection region corresponds to a region of threshold space in which the simple model has a much higher expected cost than the full model, and in which the expected cost of the full model plus the reject cost is lower than the expected cost of the simple model.
+
+:::
+
+The topic of decision theory is very rich both experimentally and theoretically, and we have only scratched the surface here. 
 

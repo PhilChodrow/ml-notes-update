@@ -273,6 +273,29 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modern Optimization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/30-autograd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Automatic Differentiation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/31-gradient-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">More on Gradient Methods</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -453,7 +476,7 @@ window.Quarto = {
 \]</span> where we’ve used the rules for derivatives. Stacking these into a vector gives</p>
 <p><span class="math display">\[
 \begin{aligned}
-    \nabla R(\mathbf{x}, \mathbf{y}; w_0, w_1) = \frac{2}{n} \begin{pmatrix}
+    \nabla R(\mathbf{x}, \mathbf{y}; w_0, w_1) = -\frac{2}{n} \begin{pmatrix}
     \sum_{i=1}^n (y_i - w_1x_i - w_0) \\
     \sum_{i=1}^n x_i (y_i - w_1x_i - w_0)
     \end{pmatrix}

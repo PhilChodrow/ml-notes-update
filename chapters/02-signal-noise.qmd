@@ -493,7 +493,7 @@ The likelihood of the complete data set is simply the product of the individual 
 
 ::: {#def-gaussian-likelihood}
 
-## Gaussian Likelihood, Log-Likelihood
+## Likelihood and Log-Likelihood for the Linear-Gaussian Model
 
 The *likelihood* of the observed data $(\vx, \vy)$ under a 1d Gaussian model with function $f$ and noise level $\sigma$ is given by:
 

@@ -34,7 +34,7 @@ $$
 \end{aligned}
 $$
 
-Suppose now that we have more than one predictive feature, which we would like to use in our model. Given $p$ features $x_1,\ldots,x_p$, we can extend the linear-Gaussian model to incorpoate all of them: 
+Suppose now that we have more than one predictive feature, which we would like to use in our model. Given $p$ features $x_1,\ldots,x_p$, we can extend the linear-Gaussian model to incorporate all of them: 
 
 $$
 \begin{aligned}
@@ -64,8 +64,8 @@ y = X @ true_w + true_b + 1 * torch.randn(n_samples)
 fig = plt.figure(figsize=(4, 3))
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(X[:, 0].numpy(), X[:, 1].numpy(), y.numpy(), c='b', marker='o')
-ax.set_xlabel(r'Feature $x_1$')
-ax.set_ylabel(r'Feature $x_2$')
+ax.set_xlabel(r'$x_1$')
+ax.set_ylabel(r'$x_2$')
 ax.set_zlabel('Target y')
 ax.set_title('3D Scatter Plot of Synthetic Data')
 
@@ -343,7 +343,7 @@ Under `torch`'s standard structure, a model is an instance of a `class` which ho
 #--- 
 class LinearRegression:
     def __init__(self, n_params):
-        self.w = torch.zeros(n_params, 1, requires_grad=True)
+        self.w = torch.zeros(n_params, 1)
 
     def forward(self, X):
         return X @ self.w
@@ -356,8 +356,8 @@ Alongside the model class, we need a loss function. While there are many possibi
 
 ```{python}
 #---
-def mse(y_pred, y):
-    return torch.mean((y_pred - y)**2)
+def mse(s, y):
+    return torch.mean((s - y)**2)
 #---
 ```
 
@@ -375,16 +375,13 @@ class GradientDescentOptimizer:
     # once we begin to rely on automatic differentiation
     # we won't need to implement this ourselves
     def grad_func(self, X, y): 
-        y_pred = self.model.forward(X)
+        s = self.model.forward(X)
         n = y.shape[0]
-        gradient = (2/n) * X.T @ (y_pred - y)
+        gradient = (2/n) * X.T @ (s - y)
         return gradient
 
     def step(self, X, y):
-        y_pred = self.model.forward(X)
-
-        with torch.no_grad():
-            self.model.w -= self.lr * self.grad_func(X, y)
+        self.model.w -= self.lr * self.grad_func(X, y)
 #---
 ```
 
@@ -413,12 +410,15 @@ opt = GradientDescentOptimizer(model=model, lr=1e-2)
 
 grad_manual = opt.grad_func(X, y) #<1>
 
-y_pred = model.forward(X)
-loss = mse(y_pred, y) #<2>
+model.w.requires_grad_() # enable automatic differentiation for the parameters
+s = model.forward(X)
+loss = mse(s, y) #<2>
 loss.backward() #<3>
 #---
 
 print(torch.allclose(grad_manual, model.w.grad))  # Should print True
+
+model.w.requires_grad_(False) # disable automatic differentiation for the parameters
 ```
 1. Compute the gradient manually using the optimizer's function.
 2. Compute the loss using the `mse` function.
@@ -433,8 +433,8 @@ Looks fine! Now that we have gradient descent implemented, we can consider the g
 loss_history = []
 
 for _ in range(10000):
-    y_pred = model.forward(X)
-    loss = mse(y_pred, y)
+    s = model.forward(X)
+    loss = mse(s, y)
     loss_history.append(loss.item())
 
     opt.step(X, y)  # perform a single gradient descent step
@@ -482,3 +482,6 @@ print("True parameters:\n", true_w.flatten())
 ```
 
 The learned parameters are relatively close to the true parameters we planted in the synthetic data. 
+
+
+
