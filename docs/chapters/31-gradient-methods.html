@@ -397,12 +397,12 @@ window.Quarto = {
 <section id="sidebar-torch-devices" class="level2">
 <h2 class="anchored" data-anchor-id="sidebar-torch-devices">Sidebar: Torch Devices</h2>
 <p>Torch’s automatic differentiation system can be used on any modern computer, but the system truly shines when supported by <em>hardware acceleration</em> via a GPU or similar processor. The following code snippet is a common boilerplate for setting up a Torch device which will use GPU acceleration if it is available, and will fall back to CPU computation if not.</p>
-<div id="abc1c5e1" class="cell" data-execution_count="3">
+<div id="abc1c5e1" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We’ll then place tensors on the device like this:</p>
-<div id="3b66ec2e" class="cell" data-execution_count="4">
+<div id="3b66ec2e" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="fl">1.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>, device<span class="op">=</span>device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Use of the <code>device</code> argument can be expected to make many torch operations much faster when a GPU is available.</p>
@@ -417,7 +417,7 @@ window.Quarto = {
     R(w_1, w_2) = (1 - w_1)^2 + 10 (w_2 - w_1^2)^2\;.
 \end{aligned}
 \]</span></p>
-<div id="43c8ef99" class="cell" data-execution_count="5">
+<div id="43c8ef99" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -451,7 +451,7 @@ window.Quarto = {
 <div id="fig-rosenbrock" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-rosenbrock-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="1146f21c" class="cell" data-execution_count="6">
+<div id="1146f21c" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/native/TensorShape.cpp:4383.)
   return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]</code></pre>
@@ -471,7 +471,7 @@ Figure&nbsp;11.1: Contour plot of the Rosenbrock function.
 </figure>
 </div>
 <p>Let’s implement a function which will take a given pre-built optimizer from Torch and run it on the Rosenbrock function, starting from the initial point <span class="math inline">\(\mathbf{w}^{(0)} = (0, 1)\)</span>, and return the history of parameter values and loss values during the optimization process.</p>
-<div id="91cc5c39" class="cell" data-execution_count="7">
+<div id="91cc5c39" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_optimizer_on_rosenbrock(optimizer, n_epochs<span class="op">=</span><span class="dv">1000</span>, <span class="op">**</span>optimizer_kwargs):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="fl">1.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>, device<span class="op">=</span>device)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> optimizer([x], <span class="op">**</span>optimizer_kwargs)</span>
@@ -487,7 +487,7 @@ Figure&nbsp;11.1: Contour plot of the Rosenbrock function.
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x_history, loss_history</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we can try running vanilla gradient descent and visualizing the results. The <code>torch.optim.SGD</code> optimizer implements gradient descent with momentum (which we’ll discuss below). To run vanilla gradient descent, we set the <code>momentum</code> parameter to 0.</p>
-<div id="ffbd319a" class="cell" data-execution_count="8">
+<div id="ffbd319a" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_history, loss_history <span class="op">=</span> run_optimizer_on_rosenbrock(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        torch.optim.SGD, </span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        n_epochs<span class="op">=</span><span class="dv">100</span>, </span>
@@ -519,7 +519,7 @@ Figure&nbsp;11.1: Contour plot of the Rosenbrock function.
 <div id="fig-gradient-descent" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-gradient-descent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="46e9e815" class="cell" data-execution_count="9">
+<div id="46e9e815" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -551,7 +551,7 @@ Figure&nbsp;11.2: Progress of gradient descent on the Rosenbrock test function o
 <p>In interpreting <a href="#eq-momentum" class="quarto-xref">Equation&nbsp;<span>11.2</span></a>, we can think of the velocity vector <span class="math inline">\(\mathbf{v}^{(t+1)}\)</span> as an estimate of the “overall” direction we should be trying to move in; this estimate is a weighted average of the previous velocity <span class="math inline">\(\mathbf{v}^{(t)}\)</span> and the current gradient <span class="math inline">\(\nabla R(\mathbf{w}^{(t)})\)</span>. So, when we measure the current gradient <span class="math inline">\(\nabla R(\mathbf{w}^{(t)})\)</span>, we don’t just use that gradient to update our parameters; instead, we use it to update our velocity <span class="math inline">\(\mathbf{v}^{(t+1)}\)</span>. Then, we use the velocity <span class="math inline">\(\mathbf{v}^{(t+1)}\)</span> to update our parameters <span class="math inline">\(\mathbf{w}^{(t+1)}\)</span>. The new parameter <span class="math inline">\(\beta\)</span>, often called the momentum parameter, controls how much weight we give to the previous velocity <span class="math inline">\(\mathbf{v}^{(t)}\)</span> versus the current gradient <span class="math inline">\(\nabla R(\mathbf{w}^{(t)})\)</span> when calculating the new velocity <span class="math inline">\(\mathbf{v}^{(t+1)}\)</span>.</p>
 <p>The parameter <span class="math inline">\(\beta\)</span> controls how much weight we give to the previous velocity versus the current gradient. When <span class="math inline">\(\beta = 0\)</span>, we have <span class="math inline">\(\mathbf{v}^{(t+1)} = \nabla R(\mathbf{w}^{(t)})\)</span>, so we are just doing vanilla gradient descent. When <span class="math inline">\(\beta\)</span> is close to 1, we give more weight to the previous velocity, which can help us maintain momentum in a particular direction and potentially escape from local minima or navigate narrow valleys more effectively. A value of <span class="math inline">\(\beta\)</span> around 0.9 is a common default choice.</p>
 <p>Let’s give it a try:</p>
-<div id="0f9f99fb" class="cell" data-execution_count="10">
+<div id="0f9f99fb" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x_history, loss_history <span class="op">=</span> run_optimizer_on_rosenbrock(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        torch.optim.SGD, </span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        n_epochs<span class="op">=</span><span class="dv">100</span>, </span>
@@ -582,7 +582,7 @@ Figure&nbsp;11.2: Progress of gradient descent on the Rosenbrock test function o
 <div id="fig-momentum" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-momentum-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="abb1373b" class="cell" data-execution_count="11">
+<div id="abb1373b" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -602,7 +602,7 @@ Figure&nbsp;11.3: Progress of gradient descent with momentum on the Rosenbrock t
 <section id="adam" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="adam">Adam</h3>
 <p>Adam is an optimization method which combines the idea of momentum with the idea of <em>adaptive learning rates.</em> Adam uses information about previous gradients to adjust the learning rate for each parameter individually, which can lead to substantially better performance on complex, high-dimensional problems. Adam is a common default choice for training deep neural networks, and the paper introducing the Adam algorithm is one of the most highly-cited papers in machine learning <span class="citation" data-cites="kingma2015adam">(<a href="#ref-kingma2015adam" role="doc-biblioref">Kingma and Ba 2015</a>)</span>.</p>
-<div id="c8b00b12" class="cell" data-execution_count="12">
+<div id="c8b00b12" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>x_history, loss_history <span class="op">=</span> run_optimizer_on_rosenbrock(</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>        torch.optim.Adam, </span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        n_epochs<span class="op">=</span><span class="dv">100</span>, </span>
@@ -632,7 +632,7 @@ Figure&nbsp;11.3: Progress of gradient descent with momentum on the Rosenbrock t
 <div id="fig-adam" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-adam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="de8157eb" class="cell" data-execution_count="13">
+<div id="de8157eb" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -699,7 +699,7 @@ Figure&nbsp;11.4: Progress of the Adam optimizer on the Rosenbrock test function
 <div id="fig-optimizer-comparison-high-lr" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-optimizer-comparison-high-lr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="a366ee9d" class="cell" data-execution_count="14">
+<div id="a366ee9d" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -755,7 +755,7 @@ Figure&nbsp;11.5: Comparison of three gradient methods for optimization.
 <section id="epochs-in-stochastic-optimization" class="level3">
 <h3 class="anchored" data-anchor-id="epochs-in-stochastic-optimization">Epochs in Stochastic Optimization</h3>
 <p>A standard way to handle the selection of the subset <span class="math inline">\(B\)</span> is to choose the first subset, <em>remove those indices from the pool</em>, and then repeat until we are all out of indices. Schematically,</p>
-<div id="0acea62d" class="cell" data-execution_count="15">
+<div id="0acea62d" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">3</span></span>
@@ -782,7 +782,7 @@ Completed pass through data</code></pre>
 <section id="data-loaders-in-torch" class="level3">
 <h3 class="anchored" data-anchor-id="data-loaders-in-torch">Data Loaders in Torch</h3>
 <p>It can be pretty tedious for us to implement logic for sampling batches of data and keeping track of which indices we’ve used and which we haven’t. Fortunately, PyTorch provides a convenient utility for this called the <code>DataLoader</code>, which can be used to create an iterable over batches of data. Here’s a small example:</p>
-<div id="a33191b7" class="cell" data-execution_count="16">
+<div id="a33191b7" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader, TensorDataset</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># random data with 100 examples and 10 features, and binary labels</span></span>
@@ -812,7 +812,7 @@ torch.Size([4, 10]) torch.Size([4])</code></pre>
 <section id="data-case-study-sign-language-mnist" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="data-case-study-sign-language-mnist">Data Case Study: Sign Language MNIST</h2>
 <p>Now let’s do a small computational example in which we illustrate some of the choices that go into choosing optimization methods for training a model on a data set. We’ll work with the Sign Language MNIST data set, which consists of images of hand signs corresponding to the letters of the alphabet. The task is to train a model to classify these images into the correct letter category.</p>
-<div id="4be5f710" class="cell" data-execution_count="17">
+<div id="4be5f710" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
@@ -823,7 +823,7 @@ torch.Size([4, 10]) torch.Size([4])</code></pre>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> torch.tensor(df_train[<span class="st">"label"</span>].values, dtype<span class="op">=</span>torch.<span class="bu">long</span>, device<span class="op">=</span>device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The shape of the data here is</p>
-<div id="cdaf8ae5" class="cell" data-execution_count="18">
+<div id="cdaf8ae5" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(X_train.shape, y_train.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>torch.Size([27455, 784]) torch.Size([27455])</code></pre>
@@ -831,7 +831,7 @@ torch.Size([4, 10]) torch.Size([4])</code></pre>
 </div>
 <p>There are 27455 examples, each of which is a 784-dimensional vector corresponding to the pixel values of a 28x28 image. The labels are integers from 0 to 25, corresponding to the letters A-Z (except for J and Z, which are not included in the data set).</p>
 <p>If we reshape the data back into images, we can visualize some of the examples:</p>
-<div id="975685d4" class="cell" data-execution_count="19">
+<div id="975685d4" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>ALPHABET <span class="op">=</span> <span class="st">"ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>images <span class="op">=</span> X_train.view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>)</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> y_train</span>
@@ -852,7 +852,7 @@ torch.Size([4, 10]) torch.Size([4])</code></pre>
 </div>
 </div>
 <p>This is a relatively rich problem for which we’ll eventually learn to use deep neural networks. For today, however, we’ll use logistic regression and vary our optimizer choices.</p>
-<div id="11fa66a8" class="cell" data-execution_count="20">
+<div id="11fa66a8" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LogisticRegression:</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_features, n_classes):</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> torch.zeros(n_features, n_classes, requires_grad<span class="op">=</span><span class="va">True</span>, device<span class="op">=</span>device)</span>
@@ -940,7 +940,7 @@ torch.Size([4, 10]) torch.Size([4])</code></pre>
 <div id="fig-optimizer-comparison-mnist" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-optimizer-comparison-mnist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="c68fbbf6" class="cell" data-execution_count="21">
+<div id="c68fbbf6" class="cell" data-execution_count="22">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -957,7 +957,7 @@ Figure&nbsp;11.6
 </div>
 <p>As before, we can see that Adam is able to make use of a much larger learning rate than the other methods, which allows it to converge much faster.</p>
 <p>Now let’s test the effect of different batch sizes on the training process. We’ll try a range of batch sizes and we’ll use the Adam optimizer with a learning rate of <span class="math inline">\(1e-5\)</span> for all of them.</p>
-<div id="2099dee4" class="cell" data-execution_count="22">
+<div id="2099dee4" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>batch_sizes <span class="op">=</span> [<span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">64</span>, <span class="dv">1024</span>, <span class="dv">4096</span>]</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">4</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -1006,7 +1006,7 @@ Figure&nbsp;11.6
 </div>
 <p>We observe that the smaller batch sizes can reduce the training loss more quickly, especially early in the training run, but that the increased randomness associated with small batches can produce more erratic fluctuations as the loss shrinks. Larger batch sizes tend to produce a smoother, slower training curve.</p>
 <p>As an exercise, let’s train our model one more time and evaluate on the test set. We’ll use the best batch size from the previous experiment:</p>
-<div id="a0a1b6ab" class="cell" data-execution_count="23">
+<div id="a0a1b6ab" class="cell" data-execution_count="24">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(n_features, n_classes)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>data_loader <span class="op">=</span> DataLoader(data_set, batch_size<span class="op">=</span><span class="dv">16</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.Adam([model.w], lr<span class="op">=</span><span class="fl">1e-5</span>)</span>
@@ -1020,14 +1020,14 @@ Figure&nbsp;11.6
 <span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>        optimizer.step()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we’ll acquire the test data and transform it into tensors.</p>
-<div id="5d4fa2c5" class="cell" data-execution_count="24">
+<div id="5d4fa2c5" class="cell" data-execution_count="25">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>test_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_test.csv"</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>df_test <span class="op">=</span> pd.read_csv(test_url)</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>X_test <span class="op">=</span> torch.tensor(df_test.drop(<span class="st">"label"</span>, axis<span class="op">=</span><span class="dv">1</span>).values, dtype<span class="op">=</span>torch.float32, device<span class="op">=</span>device)</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> torch.tensor(df_test[<span class="st">"label"</span>].values, dtype<span class="op">=</span>torch.<span class="bu">long</span>, device<span class="op">=</span>device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Evaluation time! We’ll just check the accuracy. This a 24-way classification problem, so the base rate would be around 4%.</p>
-<div id="e08f38a7" class="cell" data-execution_count="25">
+<div id="e08f38a7" class="cell" data-execution_count="26">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>y_pred_test <span class="op">=</span> model.forward(X_test)</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>y_pred_labels <span class="op">=</span> torch.argmax(y_pred_test, dim<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>accuracy <span class="op">=</span> (y_pred_labels <span class="op">==</span> y_test).<span class="bu">float</span>().mean().item()</span>

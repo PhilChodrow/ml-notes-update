@@ -300,7 +300,6 @@ viz_model_predictions(LR, X, y, basis_fun = sinusoidal_features, ax=ax, max_freq
 
 plt.title(f"Sinusoidal Basis Functions with max_freq={max_freq}")
 plt.legend()
-
 ```
 
 Example fit to data using the sinusoidal basis function expansion with maximum frequency 15.
@@ -516,6 +515,118 @@ t = plt.title("Lasso Regression Coefficients (white = zeroed out)")
 ```
 
 Visualization of the coefficients learned by LASSO regression. Coefficients less than $0.01$ have been highlighted in white. Given a more efficient optimizer, LASSO regression would set these coefficients to exactly 0. 
+
+:::
+
+
+Why does LASSO regularization tend to set weights exactly to 0? The intuition here lies with the geometry of the regularization penalty. The $\ell_2$ penalty has circular contours, while the $\ell_1$ penalty has diamond-shaped contours. 
+There is therefore a possibility for the contours of the loss function to intersect with the corners of the $\ell_1$ penalty, which correspond to points where one or more coefficients are exactly zero. $\ell_2$ regularization, on the other hand, has no corners, so the contours of the loss function will almost never intersect with points where coefficients are exactly zero. @fig-regularization-geometry illustrates this intuition. 
+
+::: {#fig-regularization-geometry}
+
+```{python}
+#| code-fold: true
+W0 = torch.linspace(-1, 2, 301)
+W1 = torch.linspace(-1, 2, 301)
+W0, W1 = torch.meshgrid(W0, W1)
+
+x = torch.tensor([[8.0, 2.0], [2.0, 1.0], [5.0, 3.0]])
+y = torch.tensor([[5.0], [1.0], [3.0]])
+
+def compute_loss(w0, w1, x, y):
+    w = torch.stack([w0, w1])
+    predictions = x @ w.T
+    mse_loss = torch.mean((predictions - y) ** 2)
+    return mse_loss
+
+def compute_regularization(w0, w1):
+    return torch.abs(w1) + torch.abs(w0)
+
+reg_strength = 3.0
+loss_values = torch.zeros_like(W0)
+ell_1_values = torch.zeros_like(W0)
+ell_2_values = torch.zeros_like(W0)
+for i in range(W0.shape[0]):
+    for j in range(W0.shape[1]):
+        loss_values[i, j] = compute_loss(W0[i, j], W1[i, j], x, y)
+        ell_1_values[i, j] = torch.abs(W0[i, j]) + torch.abs(W1[i, j])
+        ell_2_values[i, j] = W0[i, j]**2 + W1[i, j]**2
+
+fig, axarr = plt.subplots(1, 2, figsize = (8, 4))
+
+
+# l2 regularization
+loss = loss_values + reg_strength*ell_2_values
+minimizer = torch.argmin(loss)
+min_w0 = W0.flatten()[minimizer]
+min_w1 = W1.flatten()[minimizer]
+
+best_loss = loss_values.flatten()[minimizer]
+best_reg = ell_2_values.flatten()[minimizer]
+
+loss_min = torch.min(loss_values)
+
+
+ax = axarr[0]
+# ax.imshow(loss_values.numpy() + reg_strength*ell_2_values.numpy(), extent=(-1, 1, -1, 1), origin='lower', cmap='viridis_r')
+ax.grid(False)
+ax.set_xlabel(r"$w_1$")
+ax.set_title(r"Loss Landscape with $\ell_2$ Regularization")
+
+
+levels = [loss_min + (i)*0.5*(best_loss - loss_min) for i in range(5)]
+
+ax.contour(W1.numpy(), W0.numpy(), loss_values.numpy(), levels=levels, origin='lower', cmap = "Reds_r")
+ax.contour(W1.numpy(), W0.numpy(), ell_2_values.numpy(), levels=[i/3*best_reg for i in range(4)], linestyles='dashed', origin='lower')
+ax.scatter(min_w1, min_w0, color='black', label='Minimizer', zorder=5)
+# ax.legend()
+
+ax.plot([-1, 2], [0, 0], color='grey', label='w0=0', zorder = -100)
+ax.plot([0, 0], [-1, 2], color='grey', label='w1=0', zorder = -100)
+ax.set_ylabel(r"$w_0$")
+
+
+
+
+# l1 regularization
+loss = loss_values + reg_strength*ell_1_values
+minimizer = torch.argmin(loss)
+min_w0 = W0.flatten()[minimizer]
+min_w1 = W1.flatten()[minimizer]
+
+best_loss = loss_values.flatten()[minimizer]
+best_reg = ell_1_values.flatten()[minimizer]
+
+ax = axarr[1]
+# ax.imshow(loss_values.numpy() + reg_strength*ell_1_values.numpy(), extent=(-1, 1, -1, 1), origin='lower', cmap='viridis_r')
+
+ax.grid(False)
+
+levels = [loss_min + (i)*0.5*(best_loss - loss_min) for i in range(5)]
+
+c_loss = ax.contour(W1.numpy(), W0.numpy(), loss_values.numpy(), levels=levels,  origin='lower', cmap = "Reds_r")
+
+c_reg = ax.contour(W1.numpy(), W0.numpy(), ell_1_values.numpy(), levels=[i/3*best_reg for i in range(4)], linestyles='dashed', origin='lower')
+
+
+# ax.contour(W1.numpy(), W0.numpy(), loss_values.numpy() + reg_strength*reg_values.numpy(), levels=20, colors='white',  origin='lower')
+
+ax.scatter(min_w1, min_w0, color='black', label='Minimizer', zorder=5)
+
+ax.set_xlabel(r"$w_1$")
+ax.set_title(r"Loss Landscape with $\ell_1$ Regularization")
+# ax.legend()
+
+ax.plot([-1, 2], [0, 0], color='grey', label='w0=0', zorder = -100)
+ax.plot([0, 0], [-1, 2], color='grey', label='w1=0', zorder = -100)
+
+plt.tight_layout()
+
+
+
+```
+
+Geometry of $\ell_1$ and $\ell_2$ regularization. The left panel shows the loss landscape with $\ell_2$ regularization, while the right panel shows the loss landscape with $\ell_1$ regularization. The red contours indicate the MSE loss, while the dashed contours indicate the regularization penalty. The black point indicates the minimizer of the combined loss. The grey lines indicate where one of the coefficients is exactly zero. We observe that in the case of $\ell_1$ regularization, the minimizer occurs at a point where one of the coefficients is exactly zero, while in the case of $\ell_2$ regularization, this does not occur.
 
 :::
 
