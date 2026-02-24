@@ -106,17 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>
-div.callout-sol.callout {
-  border-left-color: pink;
-}
-div.callout-sol.callout-style-default > .callout-header {
-  background-color: rgb(from pink r g b / 13%);
-}
-div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
-  content: '📝';
-  background-image: none;
-}
 div.callout-question.callout {
   border-left-color: lightblue;
 }
@@ -126,6 +115,17 @@ div.callout-question.callout-style-default > .callout-header {
 div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
   content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
   background-image: none;
 }
 </style>
@@ -291,7 +291,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/31-gradient-methods.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">More on Gradient Methods</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></span></a>
   </div>
 </li>
       </ul>
@@ -351,7 +351,7 @@ window.Quarto = {
 \end{aligned}
 \]</span></p>
 <p>which corresponds to the squared error loss for a simple linear regression model with parameters <span class="math inline">\(\mathbf{w}= (w_0, w_1)\)</span>, input <span class="math inline">\(x\)</span>, and target <span class="math inline">\(y\)</span>.</p>
-<div id="7ad75724" class="cell" data-execution_count="4">
+<div id="89d8135a" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mse(w, x, y): </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (y <span class="op">-</span> w[<span class="dv">1</span>]<span class="op">*</span>x <span class="op">-</span> w[<span class="dv">0</span>])<span class="op">**</span><span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -362,7 +362,7 @@ window.Quarto = {
     \frac{\partial f}{\partial w_1} = -2x(y - w_1x - w_0)\;.
 \end{aligned}
 \tag{10.1}\]</span></span></p>
-<div id="ff9e61ac" class="cell" data-execution_count="5">
+<div id="aa0080a7" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grad_mse(w, x, y): </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.tensor([<span class="op">-</span><span class="dv">2</span><span class="op">*</span>(y <span class="op">-</span> w[<span class="dv">1</span>]<span class="op">*</span>x <span class="op">-</span> w[<span class="dv">0</span>]), <span class="op">-</span><span class="dv">2</span><span class="op">*</span>x<span class="op">*</span>(y <span class="op">-</span> w[<span class="dv">1</span>]<span class="op">*</span>x <span class="op">-</span> w[<span class="dv">0</span>])])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -374,19 +374,19 @@ window.Quarto = {
 \end{aligned}
 \]</span></p>
 <p>Let’s check:</p>
-<div id="e4bf4130" class="cell" data-execution_count="6">
+<div id="8bedd57c" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>])</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fl">3.0</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="fl">4.0</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>grad_mse(w, x, y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="28">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>tensor([ 6., 18.])</code></pre>
 </div>
 </div>
 <p>Looks good!</p>
 <p>The work in this approach was primarily for the <em>human</em> – we had to compute the derivative by hand and then implement the result. Wouldn’t it be nice if we could instead get the derivatives we need without manual implementation? This is where automatic differentiation comes in:</p>
-<div id="a8f2ff5c" class="cell" data-execution_count="7">
+<div id="653df7bd" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>w.requires_grad_()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> mse(w, x, y)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
@@ -448,7 +448,7 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 <li>It implements a <code>backward()</code> method which traverses the computational graph backwards from the <code>Variable</code>s location.</li>
 <li>It implements simple arithmetic operations and the derivative rules corresponding to those operations.</li>
 </ol>
-<div id="0d70f005" class="cell" data-execution_count="8">
+<div id="87b04d64" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Variable:</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, data, _children <span class="op">=</span> ()): </span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.data <span class="op">=</span> data <span class="co"># numerical value stored</span></span>
@@ -456,7 +456,7 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._backward <span class="op">=</span> <span class="kw">lambda</span>: <span class="va">None</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._prev <span class="op">=</span> <span class="bu">set</span>(_children)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="177289d0" class="cell" data-execution_count="9">
+<div id="811df0e4" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-7"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-7-1"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> backward(<span class="va">self</span>, visited <span class="op">=</span> <span class="va">None</span>): </span>
 <span id="annotated-cell-7-2"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a></span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-3" class="code-annotation-target"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> visited <span class="kw">is</span> <span class="va">None</span>:</span>
@@ -488,7 +488,7 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 </div>
 </div>
 <p>The remainder of the implementation of the <code>Variable</code> class is just a matter of implementing the arithmetic operations and their corresponding derivative rules. For example, here is the implementation of addition:</p>
-<div id="fedb6a26" class="cell" data-execution_count="10">
+<div id="0af9c5c8" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-8"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-8-1"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other): </span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-8-2" class="code-annotation-target"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a>    other <span class="op">=</span> other <span class="cf">if</span> <span class="bu">isinstance</span>(other, Variable) <span class="cf">else</span> Variable(other)</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-8-3" class="code-annotation-target"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> Variable(<span class="va">self</span>.data <span class="op">+</span> other.data, (<span class="va">self</span>, other))</span>
@@ -525,7 +525,7 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 \end{aligned}
 \]</span></p>
 <p>to compute the local gradients for the multiplication operation:</p>
-<div id="6ba7bd58" class="cell" data-execution_count="11">
+<div id="b10dbd10" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, other): </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    other <span class="op">=</span> other <span class="cf">if</span> <span class="bu">isinstance</span>(other, Variable) <span class="cf">else</span> Variable(other)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> Variable(<span class="va">self</span>.data <span class="op">*</span> other.data, (<span class="va">self</span>, other))</span>
@@ -538,12 +538,12 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Before we are ready to use either of these methods, we need to add them to the <code>Variable</code> class:</p>
-<div id="c32a8541" class="cell" data-execution_count="12">
+<div id="f3f7e0b0" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Variable.<span class="fu">__add__</span> <span class="op">=</span> <span class="fu">__add__</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>Variable.<span class="fu">__mul__</span> <span class="op">=</span> <span class="fu">__mul__</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>It’s also very helpful to implement a few other operations, such as negation, subtraction, and exponentiation.</p>
-<div id="e39d51b6" class="cell" data-execution_count="13">
+<div id="27760ec4" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__neg__</span>(<span class="va">self</span>): </span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span><span class="op">*</span>(<span class="op">-</span><span class="dv">1</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -554,7 +554,7 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>Variable.<span class="fu">__sub__</span> <span class="op">=</span> <span class="fu">__sub__</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The last key method we need is one to zero out the gradients of a variable, which is necessary before we can call <code>backward()</code> again after an optimization step.</p>
-<div id="006db3f2" class="cell" data-execution_count="14">
+<div id="98ba5c03" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> zero_grad(<span class="va">self</span>):</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.grad <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Variable.zero_grad <span class="op">=</span> zero_grad</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -562,7 +562,7 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 <section id="a-quick-check" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="a-quick-check">A Quick Check</h3>
 <p>Let’s just check that our implementation of autograd is working as expected with a quick example:</p>
-<div id="a8a9502d" class="cell" data-execution_count="15">
+<div id="a79d2eb7" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> Variable(<span class="fl">2.0</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> Variable(<span class="fl">3.0</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> a<span class="op">*</span>b <span class="op">+</span> a <span class="op">+</span> b</span>
@@ -580,7 +580,7 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 </div>
 <p>Looks good!</p>
 <p>Perhaps surprisingly, we are already able to implement linear regression using nothing but base Python and our <code>Variable</code> class. We need to use some slightly unusual syntax because, for example, we have implemented <code>Variable*int</code> but not <code>int*Variable</code>. We’re also relying on list copmrehensions, since we don’t have access to vectorized operations like those provided by NumPy or Torch.</p>
-<div id="592ba1a5" class="cell" data-execution_count="16">
+<div id="3777e41f" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>w0_true <span class="op">=</span> <span class="op">-</span><span class="fl">3.0</span></span>
@@ -598,7 +598,7 @@ Figure&nbsp;10.1: Computational graph for the one-point mean-squared error. The 
 <div id="fig-data-scatter" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-data-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="a62c8e71" class="cell" data-execution_count="17">
+<div id="5244f2e4" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -614,7 +614,7 @@ Figure&nbsp;10.2: A simple set of synthetic data for linear regression using man
 </figure>
 </div>
 <p>We’re going to construct yet another implementation of linear regression, again with a <code>forward</code> method. This time we’ll use our <code>Variable</code> class to compute the loss and its gradients, and then we’ll update the parameters using gradient descent.</p>
-<div id="04db9da1" class="cell" data-execution_count="18">
+<div id="75027650" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LinearRegression: </span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>): </span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w0 <span class="op">=</span> Variable(<span class="fl">0.0</span>)</span>
@@ -625,7 +625,7 @@ Figure&nbsp;10.2: A simple set of synthetic data for linear regression using man
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [<span class="va">self</span>.w1<span class="op">*</span>x[i] <span class="op">+</span> <span class="va">self</span>.w0 <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(x))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can also implement the mean-squared error. This again is a bit more complicated because we don’t have vectorized operations in our autograd engine.</p>
-<div id="d87abab6" class="cell" data-execution_count="19">
+<div id="9621c4e5" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mse(y_pred, y): </span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    sum_resid <span class="op">=</span> Variable(<span class="dv">0</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(y)):</span>
@@ -634,7 +634,7 @@ Figure&nbsp;10.2: A simple set of synthetic data for linear regression using man
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum_resid <span class="op">*</span> (<span class="dv">1</span><span class="op">/</span><span class="bu">len</span>(y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we can also implement a gradient descent optimizer. For the first time in these notes, our gradient descent optimizer <em>does not need to implement <code>grad_func</code></em>: our hand-implemented automatic differentiation engine will handle that for us.</p>
-<div id="ab1f4502" class="cell" data-execution_count="20">
+<div id="2e44965b" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GradientDescentOptimizer: </span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, parameters, lr <span class="op">=</span> <span class="fl">0.01</span>): </span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.parameters <span class="op">=</span> parameters</span>
@@ -649,7 +649,7 @@ Figure&nbsp;10.2: A simple set of synthetic data for linear regression using man
 <span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>            p.zero_grad()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we can train our linear regression model using our autograd implementation and our gradient descent optimizer:</p>
-<div id="63800f71" class="cell" data-execution_count="21">
+<div id="80bf0b83" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression()</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> GradientDescentOptimizer([model.w0, model.w1], lr <span class="op">=</span> <span class="fl">0.1</span>)</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>): </span>
@@ -664,25 +664,28 @@ Figure&nbsp;10.2: A simple set of synthetic data for linear regression using man
 <span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    optimizer.step()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s inspect the values we’ve learned:</p>
-<div id="8ddd202e" class="cell" data-execution_count="22">
+<div id="fc77b669" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model.w0.data) <span class="co"># should be close to -3</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model.w1.data) <span class="co"># should be close to 5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>-3.1754794000462008
-5.189331362914442</code></pre>
+<pre><code>-3.0244260697489804
+5.014102681515602</code></pre>
 </div>
 </div>
 <p>We’ve recovered parameters close to the expected ones, with no manual computation of derivatives! We can also visualize the fit of our model:</p>
-<div id="fig-data-and-model" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="quarto-float quarto-float-fig figure page-columns page-full">
-<div aria-describedby="fig-data-and-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="31c53123" class="cell" data-execution_count="23">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>ax.scatter([xi.data <span class="cf">for</span> xi <span class="kw">in</span> x], [yi.data <span class="cf">for</span> yi <span class="kw">in</span> y], label<span class="op">=</span><span class="st">'data'</span>)</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>ax.plot([xi.data <span class="cf">for</span> xi <span class="kw">in</span> x], [model.w1.data<span class="op">*</span>xi.data <span class="op">+</span> model.w0.data <span class="cf">for</span> xi <span class="kw">in</span> x], color<span class="op">=</span><span class="st">'black'</span>, label<span class="op">=</span><span class="st">'model'</span>)</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="vs">r'</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">'</span>)</span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="vs">y</span><span class="dv">$</span><span class="vs">'</span>)</span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-data-and-model" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-data-and-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="e582e0c9" class="cell" data-execution_count="23">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -702,7 +705,7 @@ Figure&nbsp;10.3: Visualization of data and the fitted linear regression model u
 <section id="autograd-with-torch" class="level2">
 <h2 class="anchored" data-anchor-id="autograd-with-torch">Autograd with Torch</h2>
 <p>We’re now ready to work with autograd in Torch. We can think of <code>torch.Tensor</code>s as a much more fully-worked version of the <code>Variable</code> class above, including differentiation rules that work with vectorized operations. This means that the fully idiomatic version of 1D linear regression in Torch would look something like this. The key ingredient here is the <code>requires_grad</code> flag, which tells Torch to store the computational graph for this variable and to compute gradients with respect to it when we call <code>backward()</code>.</p>
-<div id="8cca0a46" class="cell" data-execution_count="24">
+<div id="a629ac2d" class="cell" data-execution_count="24">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># linear regression class: very similar</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LinearRegression: </span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>): </span>
@@ -738,8 +741,8 @@ Figure&nbsp;10.3: Visualization of data and the fitted linear regression model u
 <span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model.w0.data) <span class="co"># should be close to -3</span></span>
 <span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model.w1.data) <span class="co"># should be close to 5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>tensor(-3.1755)
-tensor(5.1893)</code></pre>
+<pre><code>tensor(-3.0244)
+tensor(5.0141)</code></pre>
 </div>
 </div>
 <p>Of course, <code>torch</code> implements a very large number of mathematical operations and their corresponding differentiation rules, which allows us to use its autograd functionality for much more complex models. <code>torch</code> also implements various optimizations that make use of specialized hardware, especially including GPUs.</p>
@@ -1156,8 +1159,8 @@ tensor(5.1893)</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../chapters/31-gradient-methods.html" class="pagination-link" aria-label="More on Gradient Methods">
-        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">More on Gradient Methods</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../chapters/31-gradient-methods.html" class="pagination-link" aria-label="Optimization Techniques: Algorithms and Batching">
+        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

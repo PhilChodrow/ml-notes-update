@@ -404,6 +404,7 @@ We've recovered parameters close to the expected ones, with no manual computatio
 ::: {#fig-data-and-model}
 
 ```{python}
+#| code-fold: true
 fig, ax = plt.subplots()
 ax.scatter([xi.data for xi in x], [yi.data for yi in y], label='data')
 ax.plot([xi.data for xi in x], [model.w1.data*xi.data + model.w0.data for xi in x], color='black', label='model')

@@ -1,5 +1,6 @@
 ---
-title: More on Gradient Methods
+title: |
+    Optimization Techniques: Algorithms and Batching
 subtitle: Beyond Gradient Descent
 execute: 
     eval: true
@@ -19,4 +20,674 @@ import style
 ```
 :::
 
-## Under Construction!
+## Introduction
+
+So far in these notes, we've primarily considered the problem of solving an optimization problem of the form 
+
+$$
+\begin{aligned}
+    \hat{\vw} = \argmin_{\vw } R(\vw)\;,
+\end{aligned}
+$$
+
+where $R(\vw)$ is some measure of loss such as mean-squared error or binary cross entropy. Our primary algorithmic tool for solving this problem computationally has been gradient descent: 
+
+
+::: {#def-gradient-descent}
+
+## Gradient Descent (Constant Learning Rate)
+
+In *gradient descent with constant learning rate $\alpha$*, we start with some initial guess $\vw^{(0)}$ and then iteratively update our parameters according to the rule
+
+$$
+\begin{aligned}
+    \vw^{(t+1)} \gets \vw^{(t)} - \alpha \nabla R(\vw^{(t)})\;,
+\end{aligned}
+$${#eq-gradient-descent}
+
+until some measure of convergence or iteration limit is reached. Each iteration of @eq-gradient-descent is called an *epoch* of training.
+
+:::
+
+In code, an implementation of gradient descent typically looks like this:
+
+```python
+w -= alpha * grad
+```
+
+where `grad` is the gradient of the loss with respect to the parameters `w`. [Recently](30-autograd.qmd), we saw how the calculation of the gradient $\nabla R(\vw)$ can be automated using PyTorch's autograd system.
+
+In this chapter, we'll consider two limitations of classical gradient descent as described by @eq-gradient-descent: 
+
+1. **Gradient descent does not use *prior* gradient information.** 
+2. **Gradient descent requires us to compute the *complete* gradient** $\nabla R(\vw)$ in order to make a single update to the parameters $\vw$, which can be very expensive on large data sets. 
+
+## Sidebar: Torch Devices
+
+Torch's automatic differentiation system can be used on any modern computer, but the system truly shines when supported by *hardware acceleration* via a GPU or similar processor. The following code snippet is a common boilerplate for setting up a Torch device which will use GPU acceleration if it is available, and will fall back to CPU computation if not.
+
+```{python}
+import torch
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+```
+
+We'll then place tensors on the device like this: 
+
+```{python}
+x = torch.tensor([0, 1.0], requires_grad=True, device=device)
+```
+
+Use of the `device` argument can be expected to make many torch operations much faster when a GPU is available. 
+
+
+
+## Momentum and Adaptive Methods
+
+Let's first tackle limitation (1): gradient descent via @eq-gradient-descent doesn't use any previously-calculated gradients. To perform the update in epoch $t+1$, I need to calculate $\nabla R(\vw^{(t)})$, but I don't use any of the gradient information $\nabla R(\vw^{(1)}), \ldots, \nabla R(\vw^{(t-1)})$ that I calculated in the previous epochs. Can we find ways to *use* that information in a more effective way? 
+
+[*Experiment based on*: `https://stmorse.github.io/journal/Momentum-vs-Acceleration.html`]{.aside}
+
+
+In this section, we'll compare optimization algorithms on a simple two-dimensional function called the *Rosenbrock function,* which is given by 
+
+$$
+\begin{aligned}
+    R(w_1, w_2) = (1 - w_1)^2 + 10 (w_2 - w_1^2)^2\;.
+\end{aligned}
+$$
+
+
+```{python}
+import torch
+from matplotlib import pyplot as plt
+
+def rosenbrock(w):
+    return (1 - w[0])**2 + 10 * (w[1] - w[0]**2)**2
+
+def rosenbrock_contours(ax):
+
+    x1 = torch.linspace(-0.75, 1.5, 100)
+    x2 = torch.linspace(-0.75, 1.5, 100)
+    X1, X2 = torch.meshgrid(x1, x2)
+
+    Z = torch.zeros_like(X1)
+    for i in range(X1.shape[0]):
+        for j in range(X1.shape[1]):
+            Z[i, j] = rosenbrock(torch.tensor([X1[i, j], X2[i, j]]))
+
+    ax.contour(X1, X2, (Z+1).log(), levels=20, colors='black', linewidths=0.5)
+```
+
+Here's a contour plot of the Rosenbrock function, with its  minimum at the point $\hat{\vw} =(1, 1)$ labeled. The Rosenbrock function is a common test function for optimization algorithms because it has a narrow, curved valley leading to the minimum, which can be challenging for optimization algorithms to navigate.
+
+::: {#fig-rosenbrock}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+rosenbrock_contours(ax)
+ax.set_title("Rosenbrock function")
+ax.grid(False)
+ax.scatter(1, 1, color='black', marker='X', s=100, label='Minimum')
+ax.set_xlabel("$w_1$")
+t = ax.set_ylabel("$w_2$")
+```
+
+Contour plot of the Rosenbrock function.
+
+:::
+
+Let's implement a function which will take a given pre-built optimizer from Torch and run it on the Rosenbrock function, starting from the initial point $\vw^{(0)} = (0, 1)$, and return the history of parameter values and loss values during the optimization process.
+
+```{python}
+#---
+def run_optimizer_on_rosenbrock(optimizer, n_epochs=1000, **optimizer_kwargs):
+    x = torch.tensor([0, 1.0], requires_grad=True, device=device)
+    opt = optimizer([x], **optimizer_kwargs)
+    x_history = [x.detach().clone().tolist()]
+    loss_history = [rosenbrock(x).item()]
+    for epoch in range(n_epochs):
+        loss = rosenbrock(x)
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
+        x_history.append(x.detach().clone().tolist())
+        loss_history.append(loss.item())
+    return x_history, loss_history
+#---
+```
+
+Now we can try running vanilla gradient descent and visualizing the results. The `torch.optim.SGD` optimizer implements gradient descent with momentum (which we'll discuss below). To run vanilla gradient descent, we set the `momentum` parameter to 0.
+
+```{python}
+#---
+x_history, loss_history = run_optimizer_on_rosenbrock(
+        torch.optim.SGD, 
+        n_epochs=100, 
+        lr=0.01, 
+        momentum = 0.0
+    )
+#---
+```
+
+Let's take a look: 
+
+::: {#fig-gradient-descent}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 2, figsize = (8, 4))
+rosenbrock_contours(ax[0])
+
+x1, x2 = zip(*x_history)
+ax[0].plot(x1, x2, marker='o', markersize=4, label='Gradient Descent', color='blue')
+ax[1].plot(loss_history, label='Gradient Descent', color='blue')
+ax[0].set_title("Gradient Descent")
+ax[0].scatter(1, 1, color='black', marker='X', s=100, label='Minimum', zorder = 5)
+ax[0].grid(False)
+ax[0].set_xlabel("$w_1$")
+ax[0].set_ylabel("$w_2$")
+ax[1].set_xlabel("Epoch")
+ax[1].set_ylabel("Loss")
+ax[1].set_yscale("log")
+ax[1].set_xscale("log")
+
+plt.tight_layout()
+```
+
+Progress of gradient descent on the Rosenbrock test function over 100 epochs. 
+
+:::
+
+
+We can see that gradient descent makes rapid progress in the early epochs, but then begins to slow down as it approaches the valley containing the minimum. The reason here is essentially that the gradient in this valley is very small, so the updates to the parameters become small as well. 
+
+### Momentum 
+
+Gradient descent *with momentum* is a simple modification of the gradient descent update rule which incorporates information from previous gradients. In gradient descent with momentum, we maintain a "velocity" vector $\vv^{(t)}$ as well as the parameter vector $\vw^{(t)}$. 
+
+::: {#def-momentum}
+
+## Gradient Descent With Momentum
+
+In a single epoch of gradient descent with momentum, we update the velocity and parameters according to the following rules:
+
+$$
+\begin{aligned}
+    \vv^{(t+1)} &\gets \beta \vv^{(t)} + (1 - \beta) \nabla R(\vw^{(t)})\;\\
+    \vw^{(t+1)} &\gets \vw^{(t+1)} - \alpha \vv^{(t+1)}\;,
+\end{aligned}
+$${#eq-momentum}
+
+The parameter $\beta$ is often called the *momentum parameter* and typically takes values in the range $[0, 1)$.
+
+:::
+
+
+In interpreting @eq-momentum, we can think of the velocity vector $\vv^{(t+1)}$ as an estimate of the "overall" direction we should be trying to move in; this estimate is a weighted average of the previous velocity $\vv^{(t)}$ and the current gradient $\nabla R(\vw^{(t)})$. So, when we measure the current gradient $\nabla R(\vw^{(t)})$, we don't just use that gradient to update our parameters; instead, we use it to update our velocity $\vv^{(t+1)}$. Then, we use the velocity $\vv^{(t+1)}$ to update our parameters $\vw^{(t+1)}$. The new parameter $\beta$, often called the momentum parameter, controls how much weight we give to the previous velocity $\vv^{(t)}$ versus the current gradient $\nabla R(\vw^{(t)})$ when calculating the new velocity $\vv^{(t+1)}$.
+
+The parameter $\beta$ controls how much weight we give to the previous velocity versus the current gradient.  When $\beta = 0$, we have $\vv^{(t+1)} = \nabla R(\vw^{(t)})$, so we are just doing vanilla gradient descent. When $\beta$ is close to 1, we give more weight to the previous velocity, which can help us maintain momentum in a particular direction and potentially escape from local minima or navigate narrow valleys more effectively. A value of $\beta$ around 0.9 is a common default choice. 
+
+
+Let's give it a try: 
+```{python}
+x_history, loss_history = run_optimizer_on_rosenbrock(
+        torch.optim.SGD, 
+        n_epochs=100, 
+        lr=0.01, 
+        momentum = 0.9
+    )
+```
+
+
+
+::: {#fig-momentum}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 2, figsize = (8, 4))
+rosenbrock_contours(ax[0])
+
+x1, x2 = zip(*x_history)
+ax[0].plot(x1, x2, marker='o', markersize=4, label='Gradient Descent with Momentum', color='green')
+ax[1].plot(loss_history, label='Gradient Descent with Momentum', color='green')
+ax[0].set_title("Gradient Descent with Momentum")
+ax[0].scatter(1, 1, color='black', marker='X', s=100, label='Minimum', zorder = 5)
+ax[0].grid(False)
+ax[0].set_xlabel("$w_1$")
+ax[0].set_ylabel("$w_2$")
+ax[1].set_xlabel("Epoch")
+ax[1].set_ylabel("Loss")
+ax[1].set_yscale("log")
+ax[1].set_xscale("log")
+
+plt.tight_layout()
+```
+
+Progress of gradient descent with momentum on the Rosenbrock test function over 100 epochs. 
+
+:::
+
+We observe that momentum enables gradient descent to make very rapid progress especially in the early epochs, and is also able to make much more rapid progress through the narrow valley leading to the minimum. However, the momentum method also *overshoots* several times, leading to oscillations in the parameter and loss values.
+
+### Adam 
+
+Adam is an optimization method which combines the idea of momentum with the idea of *adaptive learning rates.* Adam uses information about previous gradients to adjust the learning rate for each parameter individually, which can lead to substantially better performance on complex, high-dimensional problems. Adam is a common default choice for training deep neural networks, and the paper introducing the Adam algorithm is one of the most highly-cited papers in machine learning [@kingma2015adam]. 
+
+```{python}
+x_history, loss_history = run_optimizer_on_rosenbrock(
+        torch.optim.Adam, 
+        n_epochs=100, 
+        lr=0.01
+    )
+```
+
+
+::: {#fig-adam}
+
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 2, figsize = (8, 4))
+rosenbrock_contours(ax[0])
+
+x1, x2 = zip(*x_history)
+ax[0].plot(x1, x2, marker='o', markersize=4, label='Adam', color='orange')
+ax[1].plot(loss_history, label='Adam', color='orange')
+ax[0].set_title("Adam")
+ax[0].scatter(1, 1, color='black', marker='X', s=100, label='Minimum', zorder = 5)
+ax[0].grid(False)
+ax[0].set_xlabel("$w_1$")
+ax[0].set_ylabel("$w_2$")
+ax[1].set_xlabel("Epoch")
+ax[1].set_ylabel("Loss")
+ax[1].set_yscale("log")
+ax[1].set_xscale("log")
+
+plt.tight_layout()
+```
+
+Progress of the Adam optimizer on the Rosenbrock test function over 100 epochs. 
+
+:::
+
+In this particular case, the added complexity of the Adam optimizer doesn't provide much of an advantage over momentum or even vanilla gradient descent in the first 100 epochs. The benefits of Adam in this example become apparent when we try increasing the learning rate: 
+
+::: {#fig-optimizer-comparison-high-lr}
+
+```{python}
+#| code-fold: true
+def optimizer_comparison_viz(lr = 0.001, n_epochs = 1000):
+
+    x = torch.tensor([0, 1.0], requires_grad=True, device=device)
+    
+    optimizer_dict = {
+        "Gradient Descent": (torch.optim.SGD, {"lr": lr, "momentum": 0.0}),
+        "Momentum": (torch.optim.SGD, {"lr": lr, "momentum": 0.9}),
+        "Adam": (torch.optim.Adam, {"lr": lr}),
+    }
+
+    fig, axarr = plt.subplots(2, 2, figsize=(8, 8))
+
+    colors = ["blue", "orange", "green"]
+    i = 0
+    for name, optimizer_info in optimizer_dict.items():
+        optimizer = optimizer_info[0]
+        optimizer_kwargs = optimizer_info[1]
+
+
+        ax = axarr.ravel()[i]
+        color = colors[i]
+
+        rosenbrock_contours(ax)
+        with torch.no_grad():
+            x[:] = torch.tensor([0, 1.0], requires_grad=True, device=device)
+        x_history, loss_history = run_optimizer_on_rosenbrock(optimizer, n_epochs=n_epochs, **optimizer_kwargs)
+        
+        x1, x2 = zip(*x_history)
+        ax.plot(x1, x2, marker='o', markersize=4, label=name, color=color)
+        axarr[1, 1].plot(loss_history, label=name, color=color)
+        ax.set_title(name)
+        ax.scatter(1, 1, color='black', marker='X', s=100, label='Minimum', zorder = 5)
+        ax.grid(False)
+        i += 1
+
+    axarr[1, 1].legend()
+    axarr[1, 1].set_xlabel("Epoch")
+    axarr[1, 1].set_ylabel("Loss")
+    axarr[1, 1].set_yscale("log")
+    axarr[1, 1].set_xscale("log")
+    axarr[1, 1].set_ylim(1e-8, 1e3)
+
+    plt.tight_layout()
+
+optimizer_comparison_viz(lr = 0.04, n_epochs = 1000)
+```
+
+Comparison of three gradient methods for optimization. 
+
+::: 
+
+In this experiment, vanilla gradient descent has failed to converge, while momentum has actually *diverged*: the learning rate was so high that momentum overshot the minimum and made the loss *grow* rather than shrink. Adam, on the other hand, is able to make use of the larger learning rate and converges steadily to the function minimum, driving down the loss as it goes. 
+
+### No Free Lunch
+
+It is provable that there is no optimization algorithm which is universally "best" across all possible tasks [@wolpert2002no]. In practice, one must generally determine experimentally which optimization algorithm is best suited for a given class of problems. It has been found that Adam is often a good default for complex neural networks, but there are many cases where other methods such as momentum or even vanilla gradient descent can outperform Adam.
+
+
+## Stochastic Optimization
+
+Almost all of the loss functions used in modern machine learning have the structure 
+
+$$
+\begin{aligned}
+    R(\vw) = \frac{1}{n} \sum_{i=1}^n \ell(\vw; \vx_i, y_i)\;,
+\end{aligned}
+$${#eq-empirical-risk}
+
+where $\{(\vx_i, y_i)\}_{i=1}^n$ is a data set of $n$ examples and $\ell(\vw; \vx_i, y_i)$ is the loss associated with the $i$-th example. For example, here are three choices and the loss functions they generate: 
+
+$$
+\begin{aligned}
+    \ell(\vw; \vx_i, y_i) &= (\vw^\top \vx_i - y_i)^2 &\quad \text{(MSE)} \\ 
+    \ell(\vw; \vx_i, y_i) &= |\vw^\top \vx_i - y_i| &\quad \text{(MAE)} \\ 
+    \ell(\vw; \vx_i, y_i) &= -y_i \log(\sigma(\vw^\top \vx_i)) - (1 - y_i) \log(1 - \sigma(\vw^\top \vx_i)) &\quad \text{(Binary cross entropy)}\;,
+\end{aligned}
+$$
+
+So far, we've seen methods that compute $R(\vw)$ and $\nabla R(\vw)$ exactly at each epoch. This is called a *batch* method. When the number of examples $n$ is large, computing $R(\vw)$ and $\nabla R(\vw) = \frac{1}{n} \sum_{i=1}^n \nabla \ell(\vw; \vx_i, y_i)$ can be very expensive operations -- and all that just to perform a single update! For these reasons, batch methods can be very slow to train on large data sets.
+
+::: {#def-stochastic-minibatch-optimization}
+
+## Stochastic Minibatch Optimization
+
+In *stochastic minibatch optimization*, we replace $R(\vw)$ and $\nabla R(\vw)$ with estimates based on a random subset of the data. Specifically, we randomly sample a subset $B \subseteq \{1, \ldots, n\}$ of the data indices, and then compute the *minibatch loss*
+
+$$
+\begin{aligned}
+    R_B(\vw) = \frac{1}{|B|} \sum_{i \in B} \ell(\vw; \vx_i, y_i)\;,
+\end{aligned}
+$$
+
+Here, the number of examples in the batch $|B|$ is called the *batch size*. We can then use $R_B(\vw)$ and $\nabla R_B(\vw)$ in place of $R(\vw)$ and $\nabla R(\vw)$ in our optimization algorithms. 
+
+:::
+
+The idea of stochastic minibatches can be combined with any of the algorithms we've seen so far. For example, here's how we do vanilla gradient descent with stochastic minibatches:
+
+1. First, pick a random subset $B \subseteq \{1,\ldots,n\}$ of the data. 
+2. Then, $\vw' \gets \vw - \alpha \nabla R_B(\vw)$.
+
+### Epochs in Stochastic Optimization
+
+A standard way to handle the selection of the subset $B$ is to choose the first subset, *remove those indices from the pool*, and then repeat until we are all out of indices. Schematically, 
+
+```{python}
+#---
+import random
+n = 10
+batch_size = 3
+
+ix = list(range(n))
+
+random.shuffle(ix)
+while len(ix) > 0: 
+    batch = ix[:batch_size]
+    print(batch)
+    ix = ix[batch_size:]
+#---
+
+print("----")
+print("Completed pass through data")
+```
+
+Typically, we count an *epoch* in stochastic optimization as "one complete pass through the data."
+
+
+### Data Loaders in Torch
+
+It can be pretty tedious for us to implement logic for sampling batches of data and keeping track of which indices we've used and which we haven't. Fortunately, PyTorch provides a convenient utility for this called the `DataLoader`, which can be used to create an iterable over batches of data. Here's a small example: 
+
+```{python}
+
+from torch.utils.data import DataLoader, TensorDataset
+
+# random data with 100 examples and 10 features, and binary labels
+X = torch.randn(100, 10)
+y = torch.randint(0, 2, (100,))
+
+#---
+batch_size = 16
+
+data_set = TensorDataset(X, y)
+data_loader = DataLoader(data_set, batch_size=16, shuffle=True)
+
+for X_batch, y_batch in data_loader:
+    print(X_batch.shape, y_batch.shape)
+#---
+```
+
+Each of the batches returned by the `DataLoader` contains `batch_size` examples (except possibly the last one), and the `shuffle=True` argument ensures that we get a different random ordering of the data each time we iterate through it. The `for`-loop above represents one complete pass through the data, i.e. one epoch of training.
+
+## Data Case Study: Sign Language MNIST
+
+Now let's do a small computational example in which we illustrate some of the choices that go into choosing optimization methods for training a model on a data set. We'll work with the Sign Language MNIST data set, which consists of images of hand signs corresponding to the letters of the alphabet. The task is to train a model to classify these images into the correct letter category.
+
+```{python}
+import pandas as pd
+import torch 
+from matplotlib import pyplot as plt
+train_url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_train.csv"
+
+df_train = pd.read_csv(train_url)
+X_train = torch.tensor(df_train.drop("label", axis=1).values, dtype=torch.float32, device=device)
+y_train = torch.tensor(df_train["label"].values, dtype=torch.long, device=device)
+```
+
+The shape of the data here is 
+
+```{python}
+print(X_train.shape, y_train.shape)
+```
+
+There are 27455 examples, each of which is a 784-dimensional vector corresponding to the pixel values of a 28x28 image. The labels are integers from 0 to 25, corresponding to the letters A-Z (except for J and Z, which are not included in the data set).
+
+If we reshape the data back into images, we can visualize some of the examples:
+
+```{python}
+ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+images = X_train.view(-1, 28, 28)
+labels = y_train
+fig, axarr = plt.subplots(3, 3, figsize=(6, 6))
+for i in range(3):
+    for j in range(3):
+        idx = i * 3 + j
+        axarr[i, j].imshow(images[idx], cmap='gray')
+        axarr[i, j].set_title(f"{ALPHABET[labels[idx]]}")
+        axarr[i, j].axis('off')
+plt.tight_layout()
+```
+
+This is a relatively rich problem for which we'll eventually learn to use deep neural networks. For today, however, we'll use logistic regression and vary our optimizer choices. 
+
+```{python}
+class LogisticRegression:
+    def __init__(self, n_features, n_classes):
+        self.w = torch.zeros(n_features, n_classes, requires_grad=True, device=device)
+        
+    def forward(self, x):
+        return x @ self.w
+
+def cross_entropy_loss(y_pred, y_true):
+    y_pred = torch.softmax(y_pred, dim=1)
+    return -torch.log(y_pred[range(len(y_true)), y_true]).mean()
+```
+
+Now we can test out a few of the optimizers we've discussed on this problem. We'll compare vanilla gradient descent, gradient descent with momentum, and Adam, and we'll also compare the effect of using a small learning rate versus a large learning rate for each method. First, let's try vanilla gradient descent, momentum, and Adam at different learning rates: 
+
+::: {#fig-optimizer-comparison-mnist}
+
+```{python}
+#| code-fold: true
+def sl_mnist_experiment(n_epochs=100):
+    n_features = X_train.shape[1]
+    n_classes = len(ALPHABET)
+    model = LogisticRegression(n_features, n_classes)
+
+    small_alpha = 1e-6 
+    large_alpha = 2e-5
+
+    optimizers = {
+        "Gradient descent": torch.optim.SGD([model.w], lr=small_alpha, momentum=0.0),
+        "Gradient descent (high learning rate)": torch.optim.SGD([model.w], lr=large_alpha, momentum=0.0),
+        "Momentum": torch.optim.SGD([model.w], lr=small_alpha, momentum=0.9),
+        "Momentum (high learning rate)": torch.optim.SGD([model.w], lr=large_alpha, momentum=0.9),
+        "Adam": torch.optim.Adam([model.w], lr=small_alpha),
+        "Adam (high learning rate)": torch.optim.Adam([model.w], lr=large_alpha),
+    }
+
+    losses_dict = {}
+
+    for name, optimizer in optimizers.items():
+        with torch.no_grad():
+            model.w[:] = torch.zeros_like(model.w)
+
+        
+        losses_dict[name] = []
+        for epoch in range(n_epochs):
+            y_pred = model.forward(X_train)
+            loss = cross_entropy_loss(y_pred, y_train)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            losses_dict[name].append(loss.item())
+
+    fig, axarr = plt.subplots(1, 3, figsize = (8, 3), sharey=True)
+    for name, losses in losses_dict.items():
+        if "Gradient descent" in name: 
+            i = 0
+        elif "Momentum" in name:
+            i = 1
+        else:
+            i = 2
+
+        if "high learning rate" in name:
+            label = name.split(" ")[0] + " (high lr)"
+            alpha = large_alpha
+        else:
+            label = name.split(" ")[0]
+            alpha = small_alpha
+
+        axarr[i].plot(losses, label=r"$\alpha = $" + f"{alpha:.0e}", linestyle = '-' if "high learning rate" in name else '--')
+        axarr[i].set_title(name.split(" ")[0])
+        if i == 2: 
+            axarr[i].legend()
+        
+        if i == 0: 
+            axarr[i].set_ylabel("Loss")
+    # plt.yscale("log")
+    for ax in axarr:
+        ax.set_xlabel("Epoch")
+        
+        ax.grid(True)
+        # ax.set_yscale("log")
+        
+    plt.suptitle("Training Loss for Different Optimizers")
+
+    plt.tight_layout()
+
+
+sl_mnist_experiment(n_epochs=200)
+```
+
+:::
+
+As before, we can see that Adam is able to make use of a much larger learning rate than the other methods, which allows it to converge much faster.
+
+Now let's test the effect of different batch sizes on the training process. We'll try a range of batch sizes and we'll use the Adam optimizer with a learning rate of $1e-5$ for all of them.
+
+```{python}
+batch_sizes = [8, 16, 64, 1024, 4096]
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 3), sharey=True)
+
+n_features = X_train.shape[1]
+n_classes = len(ALPHABET)
+
+data_set = TensorDataset(X_train, y_train)
+
+model = LogisticRegression(n_features, n_classes)
+optimizer = torch.optim.Adam([model.w], lr=1e-5)
+n_epochs = 20
+for batch_size in batch_sizes:
+    with torch.no_grad():
+        model.w[:] = torch.zeros_like(model.w)
+
+    data_loader = DataLoader(data_set, batch_size=batch_size, shuffle=True)
+
+    losses = []
+    for epoch in range(n_epochs): 
+        loss_total = 0.0
+        for X_batch, y_batch in data_loader:
+            
+            y_pred = model.forward(X_batch)
+            loss = cross_entropy_loss(y_pred, y_batch)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            loss_total += loss.item()*len(X_batch) # total loss across all batches  
+        losses.append(loss_total / len(X_train)) # average loss across all examples
+
+    ax.plot(losses, label=f"Batch size = {batch_size}")
+
+ax.legend()
+ax.set_xlabel("Epoch")
+ax.set_ylabel("Loss")
+ax.set_title("Effect of Batch Size on Training Loss")
+t = ax.set_ylim(0.0, None)
+```
+
+We observe that the smaller batch sizes can reduce the training loss more quickly, especially early in the training run, but that the increased randomness associated with small batches can produce more erratic fluctuations as the loss shrinks. Larger batch sizes tend to produce a smoother, slower training curve. 
+
+As an exercise, let's train our model one more time and evaluate on the test set. We'll use the best batch size from the previous experiment: 
+
+```{python}
+model = LogisticRegression(n_features, n_classes)
+data_loader = DataLoader(data_set, batch_size=16, shuffle=True)
+optimizer = torch.optim.Adam([model.w], lr=1e-5)
+n_epochs = 20
+for epoch in range(n_epochs): 
+    for X_batch, y_batch in data_loader:
+        y_pred = model.forward(X_batch)
+        loss = cross_entropy_loss(y_pred, y_batch)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+```
+
+Now we'll acquire the test data and transform it into tensors. 
+
+```{python}
+test_url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_test.csv"
+df_test = pd.read_csv(test_url)
+X_test = torch.tensor(df_test.drop("label", axis=1).values, dtype=torch.float32, device=device)
+y_test = torch.tensor(df_test["label"].values, dtype=torch.long, device=device)
+```
+
+Evaluation time! We'll just check the accuracy. This a 24-way classification problem, so the base rate would be around 4%.
+
+```{python}
+y_pred_test = model.forward(X_test)
+y_pred_labels = torch.argmax(y_pred_test, dim=1)
+accuracy = (y_pred_labels == y_test).float().mean().item()
+print(f"Test accuracy: {accuracy:.4f}")
+```
+
+After training for 20 epochs, this model achieves an accuracy on the test set of about 66%, which is much better than random in the context of a 24-way classification problem! There's still plenty of room for improvement, and we'll see how to do substantially better very soon.  
+
+
+
+
+
+
+
+## References

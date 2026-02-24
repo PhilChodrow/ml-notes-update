@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>11&nbsp; More on Gradient Methods – Machine Learning</title>
+<title>11&nbsp; Optimization Techniques: Algorithms and Batching – Machine Learning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,7 +20,62 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -94,11 +149,40 @@ div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.cal
 }
 </style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../assets/styles.css">
 </head>
 
-<body class="nav-sidebar floating quarto-light">
+<body class="nav-sidebar floating slimcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -107,7 +191,7 @@ div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.cal
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/30-autograd.html">Modern Optimization</a></li><li class="breadcrumb-item"><a href="../chapters/31-gradient-methods.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">More on Gradient Methods</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/30-autograd.html">Modern Optimization</a></li><li class="breadcrumb-item"><a href="../chapters/31-gradient-methods.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -226,7 +310,7 @@ div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.cal
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/31-gradient-methods.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">More on Gradient Methods</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></span></a>
   </div>
 </li>
       </ul>
@@ -241,16 +325,30 @@ div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.cal
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#under-construction" id="toc-under-construction" class="nav-link active" data-scroll-target="#under-construction">Under Construction!</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#sidebar-torch-devices" id="toc-sidebar-torch-devices" class="nav-link" data-scroll-target="#sidebar-torch-devices">Sidebar: Torch Devices</a></li>
+  <li><a href="#momentum-and-adaptive-methods" id="toc-momentum-and-adaptive-methods" class="nav-link" data-scroll-target="#momentum-and-adaptive-methods">Momentum and Adaptive Methods</a>
+  <ul class="collapse">
+  <li><a href="#momentum" id="toc-momentum" class="nav-link" data-scroll-target="#momentum">Momentum</a></li>
+  <li><a href="#adam" id="toc-adam" class="nav-link" data-scroll-target="#adam">Adam</a></li>
+  <li><a href="#no-free-lunch" id="toc-no-free-lunch" class="nav-link" data-scroll-target="#no-free-lunch">No Free Lunch</a></li>
+  </ul></li>
+  <li><a href="#stochastic-optimization" id="toc-stochastic-optimization" class="nav-link" data-scroll-target="#stochastic-optimization">Stochastic Optimization</a>
+  <ul class="collapse">
+  <li><a href="#epochs-in-stochastic-optimization" id="toc-epochs-in-stochastic-optimization" class="nav-link" data-scroll-target="#epochs-in-stochastic-optimization">Epochs in Stochastic Optimization</a></li>
+  <li><a href="#data-loaders-in-torch" id="toc-data-loaders-in-torch" class="nav-link" data-scroll-target="#data-loaders-in-torch">Data Loaders in Torch</a></li>
+  </ul></li>
+  <li><a href="#data-case-study-sign-language-mnist" id="toc-data-case-study-sign-language-mnist" class="nav-link" data-scroll-target="#data-case-study-sign-language-mnist">Data Case Study: Sign Language MNIST</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/30-autograd.html">Modern Optimization</a></li><li class="breadcrumb-item"><a href="../chapters/31-gradient-methods.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">More on Gradient Methods</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/30-autograd.html">Modern Optimization</a></li><li class="breadcrumb-item"><a href="../chapters/31-gradient-methods.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">More on Gradient Methods</span></h1>
+<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></h1>
 <p class="subtitle lead">Beyond Gradient Descent</p>
 </div>
 
@@ -268,11 +366,690 @@ div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.cal
 </header>
 
 
-<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/06-regularization.ipynb">Open the live notebook</a> in Google Colab.</em></p>
-<section id="under-construction" class="level2">
-<h2 class="anchored" data-anchor-id="under-construction">Under Construction!</h2>
+<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/31-gradient-methods.ipynb">Open the live notebook</a> in Google Colab.</em></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>So far in these notes, we’ve primarily considered the problem of solving an optimization problem of the form</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \hat{\mathbf{w}} = \mathop{\mathrm{arg\,min}}_{\mathbf{w}} R(\mathbf{w})\;,
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(R(\mathbf{w})\)</span> is some measure of loss such as mean-squared error or binary cross entropy. Our primary algorithmic tool for solving this problem computationally has been gradient descent:</p>
+<div id="def-gradient-descent" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.1 (Gradient Descent (Constant Learning Rate))</strong></span> In <em>gradient descent with constant learning rate <span class="math inline">\(\alpha\)</span></em>, we start with some initial guess <span class="math inline">\(\mathbf{w}^{(0)}\)</span> and then iteratively update our parameters according to the rule</p>
+<p><span id="eq-gradient-descent"><span class="math display">\[
+\begin{aligned}
+    \mathbf{w}^{(t+1)} \gets \mathbf{w}^{(t)} - \alpha \nabla R(\mathbf{w}^{(t)})\;,
+\end{aligned}
+\tag{11.1}\]</span></span></p>
+<p>until some measure of convergence or iteration limit is reached. Each iteration of <a href="#eq-gradient-descent" class="quarto-xref">Equation&nbsp;<span>11.1</span></a> is called an <em>epoch</em> of training.</p>
+</div>
+<p>In code, an implementation of gradient descent typically looks like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>w <span class="op">-=</span> alpha <span class="op">*</span> grad</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>where <code>grad</code> is the gradient of the loss with respect to the parameters <code>w</code>. <a href="../chapters/30-autograd.html">Recently</a>, we saw how the calculation of the gradient <span class="math inline">\(\nabla R(\mathbf{w})\)</span> can be automated using PyTorch’s autograd system.</p>
+<p>In this chapter, we’ll consider two limitations of classical gradient descent as described by <a href="#eq-gradient-descent" class="quarto-xref">Equation&nbsp;<span>11.1</span></a>:</p>
+<ol type="1">
+<li><strong>Gradient descent does not use <em>prior</em> gradient information.</strong></li>
+<li><strong>Gradient descent requires us to compute the <em>complete</em> gradient</strong> <span class="math inline">\(\nabla R(\mathbf{w})\)</span> in order to make a single update to the parameters <span class="math inline">\(\mathbf{w}\)</span>, which can be very expensive on large data sets.</li>
+</ol>
+</section>
+<section id="sidebar-torch-devices" class="level2">
+<h2 class="anchored" data-anchor-id="sidebar-torch-devices">Sidebar: Torch Devices</h2>
+<p>Torch’s automatic differentiation system can be used on any modern computer, but the system truly shines when supported by <em>hardware acceleration</em> via a GPU or similar processor. The following code snippet is a common boilerplate for setting up a Torch device which will use GPU acceleration if it is available, and will fall back to CPU computation if not.</p>
+<div id="abc1c5e1" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We’ll then place tensors on the device like this:</p>
+<div id="3b66ec2e" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="fl">1.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>, device<span class="op">=</span>device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Use of the <code>device</code> argument can be expected to make many torch operations much faster when a GPU is available.</p>
+</section>
+<section id="momentum-and-adaptive-methods" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="momentum-and-adaptive-methods">Momentum and Adaptive Methods</h2>
+<p>Let’s first tackle limitation (1): gradient descent via <a href="#eq-gradient-descent" class="quarto-xref">Equation&nbsp;<span>11.1</span></a> doesn’t use any previously-calculated gradients. To perform the update in epoch <span class="math inline">\(t+1\)</span>, I need to calculate <span class="math inline">\(\nabla R(\mathbf{w}^{(t)})\)</span>, but I don’t use any of the gradient information <span class="math inline">\(\nabla R(\mathbf{w}^{(1)}), \ldots, \nabla R(\mathbf{w}^{(t-1)})\)</span> that I calculated in the previous epochs. Can we find ways to <em>use</em> that information in a more effective way?</p>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside"><em>Experiment based on</em>: <code>https://stmorse.github.io/journal/Momentum-vs-Acceleration.html</code></span></div></div>
+<p>In this section, we’ll compare optimization algorithms on a simple two-dimensional function called the <em>Rosenbrock function,</em> which is given by</p>
+<p><span class="math display">\[
+\begin{aligned}
+    R(w_1, w_2) = (1 - w_1)^2 + 10 (w_2 - w_1^2)^2\;.
+\end{aligned}
+\]</span></p>
+<div id="43c8ef99" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rosenbrock(w):</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">-</span> w[<span class="dv">0</span>])<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">10</span> <span class="op">*</span> (w[<span class="dv">1</span>] <span class="op">-</span> w[<span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span>)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rosenbrock_contours(ax):</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="fl">0.75</span>, <span class="fl">1.5</span>, <span class="dv">100</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    x2 <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="fl">0.75</span>, <span class="fl">1.5</span>, <span class="dv">100</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    X1, X2 <span class="op">=</span> torch.meshgrid(x1, x2)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> torch.zeros_like(X1)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(X1.shape[<span class="dv">0</span>]):</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(X1.shape[<span class="dv">1</span>]):</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>            Z[i, j] <span class="op">=</span> rosenbrock(torch.tensor([X1[i, j], X2[i, j]]))</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    ax.contour(X1, X2, (Z<span class="op">+</span><span class="dv">1</span>).log(), levels<span class="op">=</span><span class="dv">20</span>, colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Here’s a contour plot of the Rosenbrock function, with its minimum at the point <span class="math inline">\(\hat{\mathbf{w}} =(1, 1)\)</span> labeled. The Rosenbrock function is a common test function for optimization algorithms because it has a narrow, curved valley leading to the minimum, which can be challenging for optimization algorithms to navigate.</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">4</span>, <span class="dv">4</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>rosenbrock_contours(ax)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Rosenbrock function"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">False</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>ax.scatter(<span class="dv">1</span>, <span class="dv">1</span>, color<span class="op">=</span><span class="st">'black'</span>, marker<span class="op">=</span><span class="st">'X'</span>, s<span class="op">=</span><span class="dv">100</span>, label<span class="op">=</span><span class="st">'Minimum'</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"$w_1$"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax.set_ylabel(<span class="st">"$w_2$"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-rosenbrock" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-rosenbrock-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="1146f21c" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/native/TensorShape.cpp:4383.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="31-gradient-methods_files/figure-html/cell-7-output-2.png" class="figure-img" width="382" height="368"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-rosenbrock-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.1: Contour plot of the Rosenbrock function.
+</figcaption>
+</figure>
+</div>
+<p>Let’s implement a function which will take a given pre-built optimizer from Torch and run it on the Rosenbrock function, starting from the initial point <span class="math inline">\(\mathbf{w}^{(0)} = (0, 1)\)</span>, and return the history of parameter values and loss values during the optimization process.</p>
+<div id="91cc5c39" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_optimizer_on_rosenbrock(optimizer, n_epochs<span class="op">=</span><span class="dv">1000</span>, <span class="op">**</span>optimizer_kwargs):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="fl">1.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>, device<span class="op">=</span>device)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> optimizer([x], <span class="op">**</span>optimizer_kwargs)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    x_history <span class="op">=</span> [x.detach().clone().tolist()]</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    loss_history <span class="op">=</span> [rosenbrock(x).item()]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> rosenbrock(x)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        x_history.append(x.detach().clone().tolist())</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        loss_history.append(loss.item())</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x_history, loss_history</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we can try running vanilla gradient descent and visualizing the results. The <code>torch.optim.SGD</code> optimizer implements gradient descent with momentum (which we’ll discuss below). To run vanilla gradient descent, we set the <code>momentum</code> parameter to 0.</p>
+<div id="ffbd319a" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_history, loss_history <span class="op">=</span> run_optimizer_on_rosenbrock(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        torch.optim.SGD, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        n_epochs<span class="op">=</span><span class="dv">100</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        lr<span class="op">=</span><span class="fl">0.01</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        momentum <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s take a look:</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>rosenbrock_contours(ax[<span class="dv">0</span>])</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>x1, x2 <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>x_history)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(x1, x2, marker<span class="op">=</span><span class="st">'o'</span>, markersize<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span><span class="st">'Gradient Descent'</span>, color<span class="op">=</span><span class="st">'blue'</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(loss_history, label<span class="op">=</span><span class="st">'Gradient Descent'</span>, color<span class="op">=</span><span class="st">'blue'</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Gradient Descent"</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter(<span class="dv">1</span>, <span class="dv">1</span>, color<span class="op">=</span><span class="st">'black'</span>, marker<span class="op">=</span><span class="st">'X'</span>, s<span class="op">=</span><span class="dv">100</span>, label<span class="op">=</span><span class="st">'Minimum'</span>, zorder <span class="op">=</span> <span class="dv">5</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].grid(<span class="va">False</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"$w_1$"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"$w_2$"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-gradient-descent" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-gradient-descent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="46e9e815" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="31-gradient-methods_files/figure-html/cell-10-output-1.png" class="figure-img" width="757" height="372"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-gradient-descent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.2: Progress of gradient descent on the Rosenbrock test function over 100 epochs.
+</figcaption>
+</figure>
+</div>
+<p>We can see that gradient descent makes rapid progress in the early epochs, but then begins to slow down as it approaches the valley containing the minimum. The reason here is essentially that the gradient in this valley is very small, so the updates to the parameters become small as well.</p>
+<section id="momentum" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="momentum">Momentum</h3>
+<p>Gradient descent <em>with momentum</em> is a simple modification of the gradient descent update rule which incorporates information from previous gradients. In gradient descent with momentum, we maintain a “velocity” vector <span class="math inline">\(\mathbf{v}^{(t)}\)</span> as well as the parameter vector <span class="math inline">\(\mathbf{w}^{(t)}\)</span>.</p>
+<div id="def-momentum" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.2 (Gradient Descent With Momentum)</strong></span> In a single epoch of gradient descent with momentum, we update the velocity and parameters according to the following rules:</p>
+<p><span id="eq-momentum"><span class="math display">\[
+\begin{aligned}
+    \mathbf{v}^{(t+1)} &amp;\gets \beta \mathbf{v}^{(t)} + (1 - \beta) \nabla R(\mathbf{w}^{(t)})\;\\
+    \mathbf{w}^{(t+1)} &amp;\gets \mathbf{w}^{(t+1)} - \alpha \mathbf{v}^{(t+1)}\;,
+\end{aligned}
+\tag{11.2}\]</span></span></p>
+<p>The parameter <span class="math inline">\(\beta\)</span> is often called the <em>momentum parameter</em> and typically takes values in the range <span class="math inline">\([0, 1)\)</span>.</p>
+</div>
+<p>In interpreting <a href="#eq-momentum" class="quarto-xref">Equation&nbsp;<span>11.2</span></a>, we can think of the velocity vector <span class="math inline">\(\mathbf{v}^{(t+1)}\)</span> as an estimate of the “overall” direction we should be trying to move in; this estimate is a weighted average of the previous velocity <span class="math inline">\(\mathbf{v}^{(t)}\)</span> and the current gradient <span class="math inline">\(\nabla R(\mathbf{w}^{(t)})\)</span>. So, when we measure the current gradient <span class="math inline">\(\nabla R(\mathbf{w}^{(t)})\)</span>, we don’t just use that gradient to update our parameters; instead, we use it to update our velocity <span class="math inline">\(\mathbf{v}^{(t+1)}\)</span>. Then, we use the velocity <span class="math inline">\(\mathbf{v}^{(t+1)}\)</span> to update our parameters <span class="math inline">\(\mathbf{w}^{(t+1)}\)</span>. The new parameter <span class="math inline">\(\beta\)</span>, often called the momentum parameter, controls how much weight we give to the previous velocity <span class="math inline">\(\mathbf{v}^{(t)}\)</span> versus the current gradient <span class="math inline">\(\nabla R(\mathbf{w}^{(t)})\)</span> when calculating the new velocity <span class="math inline">\(\mathbf{v}^{(t+1)}\)</span>.</p>
+<p>The parameter <span class="math inline">\(\beta\)</span> controls how much weight we give to the previous velocity versus the current gradient. When <span class="math inline">\(\beta = 0\)</span>, we have <span class="math inline">\(\mathbf{v}^{(t+1)} = \nabla R(\mathbf{w}^{(t)})\)</span>, so we are just doing vanilla gradient descent. When <span class="math inline">\(\beta\)</span> is close to 1, we give more weight to the previous velocity, which can help us maintain momentum in a particular direction and potentially escape from local minima or navigate narrow valleys more effectively. A value of <span class="math inline">\(\beta\)</span> around 0.9 is a common default choice.</p>
+<p>Let’s give it a try:</p>
+<div id="0f9f99fb" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x_history, loss_history <span class="op">=</span> run_optimizer_on_rosenbrock(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        torch.optim.SGD, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        n_epochs<span class="op">=</span><span class="dv">100</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        lr<span class="op">=</span><span class="fl">0.01</span>, </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        momentum <span class="op">=</span> <span class="fl">0.9</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>rosenbrock_contours(ax[<span class="dv">0</span>])</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>x1, x2 <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>x_history)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(x1, x2, marker<span class="op">=</span><span class="st">'o'</span>, markersize<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span><span class="st">'Gradient Descent with Momentum'</span>, color<span class="op">=</span><span class="st">'green'</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(loss_history, label<span class="op">=</span><span class="st">'Gradient Descent with Momentum'</span>, color<span class="op">=</span><span class="st">'green'</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Gradient Descent with Momentum"</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter(<span class="dv">1</span>, <span class="dv">1</span>, color<span class="op">=</span><span class="st">'black'</span>, marker<span class="op">=</span><span class="st">'X'</span>, s<span class="op">=</span><span class="dv">100</span>, label<span class="op">=</span><span class="st">'Minimum'</span>, zorder <span class="op">=</span> <span class="dv">5</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].grid(<span class="va">False</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"$w_1$"</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"$w_2$"</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-momentum" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-momentum-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="abb1373b" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="31-gradient-methods_files/figure-html/cell-12-output-1.png" class="figure-img" width="757" height="372"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-momentum-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.3: Progress of gradient descent with momentum on the Rosenbrock test function over 100 epochs.
+</figcaption>
+</figure>
+</div>
+<p>We observe that momentum enables gradient descent to make very rapid progress especially in the early epochs, and is also able to make much more rapid progress through the narrow valley leading to the minimum. However, the momentum method also <em>overshoots</em> several times, leading to oscillations in the parameter and loss values.</p>
+</section>
+<section id="adam" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="adam">Adam</h3>
+<p>Adam is an optimization method which combines the idea of momentum with the idea of <em>adaptive learning rates.</em> Adam uses information about previous gradients to adjust the learning rate for each parameter individually, which can lead to substantially better performance on complex, high-dimensional problems. Adam is a common default choice for training deep neural networks, and the paper introducing the Adam algorithm is one of the most highly-cited papers in machine learning <span class="citation" data-cites="kingma2015adam">(<a href="#ref-kingma2015adam" role="doc-biblioref">Kingma and Ba 2015</a>)</span>.</p>
+<div id="c8b00b12" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>x_history, loss_history <span class="op">=</span> run_optimizer_on_rosenbrock(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>        torch.optim.Adam, </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        n_epochs<span class="op">=</span><span class="dv">100</span>, </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        lr<span class="op">=</span><span class="fl">0.01</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>rosenbrock_contours(ax[<span class="dv">0</span>])</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>x1, x2 <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>x_history)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(x1, x2, marker<span class="op">=</span><span class="st">'o'</span>, markersize<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span><span class="st">'Adam'</span>, color<span class="op">=</span><span class="st">'orange'</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(loss_history, label<span class="op">=</span><span class="st">'Adam'</span>, color<span class="op">=</span><span class="st">'orange'</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Adam"</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter(<span class="dv">1</span>, <span class="dv">1</span>, color<span class="op">=</span><span class="st">'black'</span>, marker<span class="op">=</span><span class="st">'X'</span>, s<span class="op">=</span><span class="dv">100</span>, label<span class="op">=</span><span class="st">'Minimum'</span>, zorder <span class="op">=</span> <span class="dv">5</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].grid(<span class="va">False</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"$w_1$"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"$w_2$"</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-adam" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-adam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="de8157eb" class="cell" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="31-gradient-methods_files/figure-html/cell-14-output-1.png" class="figure-img" width="757" height="372"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-adam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.4: Progress of the Adam optimizer on the Rosenbrock test function over 100 epochs.
+</figcaption>
+</figure>
+</div>
+<p>In this particular case, the added complexity of the Adam optimizer doesn’t provide much of an advantage over momentum or even vanilla gradient descent in the first 100 epochs. The benefits of Adam in this example become apparent when we try increasing the learning rate:</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimizer_comparison_viz(lr <span class="op">=</span> <span class="fl">0.001</span>, n_epochs <span class="op">=</span> <span class="dv">1000</span>):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="fl">1.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>, device<span class="op">=</span>device)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    optimizer_dict <span class="op">=</span> {</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Gradient Descent"</span>: (torch.optim.SGD, {<span class="st">"lr"</span>: lr, <span class="st">"momentum"</span>: <span class="fl">0.0</span>}),</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Momentum"</span>: (torch.optim.SGD, {<span class="st">"lr"</span>: lr, <span class="st">"momentum"</span>: <span class="fl">0.9</span>}),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Adam"</span>: (torch.optim.Adam, {<span class="st">"lr"</span>: lr}),</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">8</span>))</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    colors <span class="op">=</span> [<span class="st">"blue"</span>, <span class="st">"orange"</span>, <span class="st">"green"</span>]</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, optimizer_info <span class="kw">in</span> optimizer_dict.items():</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>        optimizer <span class="op">=</span> optimizer_info[<span class="dv">0</span>]</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>        optimizer_kwargs <span class="op">=</span> optimizer_info[<span class="dv">1</span>]</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> axarr.ravel()[i]</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> colors[i]</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        rosenbrock_contours(ax)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>            x[:] <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="fl">1.0</span>], requires_grad<span class="op">=</span><span class="va">True</span>, device<span class="op">=</span>device)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>        x_history, loss_history <span class="op">=</span> run_optimizer_on_rosenbrock(optimizer, n_epochs<span class="op">=</span>n_epochs, <span class="op">**</span>optimizer_kwargs)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>        x1, x2 <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>x_history)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>        ax.plot(x1, x2, marker<span class="op">=</span><span class="st">'o'</span>, markersize<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span>name, color<span class="op">=</span>color)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>        axarr[<span class="dv">1</span>, <span class="dv">1</span>].plot(loss_history, label<span class="op">=</span>name, color<span class="op">=</span>color)</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>        ax.set_title(name)</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>        ax.scatter(<span class="dv">1</span>, <span class="dv">1</span>, color<span class="op">=</span><span class="st">'black'</span>, marker<span class="op">=</span><span class="st">'X'</span>, s<span class="op">=</span><span class="dv">100</span>, label<span class="op">=</span><span class="st">'Minimum'</span>, zorder <span class="op">=</span> <span class="dv">5</span>)</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>        ax.grid(<span class="va">False</span>)</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>        i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>    axarr[<span class="dv">1</span>, <span class="dv">1</span>].legend()</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>    axarr[<span class="dv">1</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    axarr[<span class="dv">1</span>, <span class="dv">1</span>].set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    axarr[<span class="dv">1</span>, <span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>    axarr[<span class="dv">1</span>, <span class="dv">1</span>].set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>    axarr[<span class="dv">1</span>, <span class="dv">1</span>].set_ylim(<span class="fl">1e-8</span>, <span class="fl">1e3</span>)</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>optimizer_comparison_viz(lr <span class="op">=</span> <span class="fl">0.04</span>, n_epochs <span class="op">=</span> <span class="dv">1000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-optimizer-comparison-high-lr" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-optimizer-comparison-high-lr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="a366ee9d" class="cell" data-execution_count="14">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="31-gradient-methods_files/figure-html/cell-15-output-1.png" class="figure-img" width="764" height="756"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-optimizer-comparison-high-lr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.5: Comparison of three gradient methods for optimization.
+</figcaption>
+</figure>
+</div>
+<p>In this experiment, vanilla gradient descent has failed to converge, while momentum has actually <em>diverged</em>: the learning rate was so high that momentum overshot the minimum and made the loss <em>grow</em> rather than shrink. Adam, on the other hand, is able to make use of the larger learning rate and converges steadily to the function minimum, driving down the loss as it goes.</p>
+</section>
+<section id="no-free-lunch" class="level3">
+<h3 class="anchored" data-anchor-id="no-free-lunch">No Free Lunch</h3>
+<p>It is provable that there is no optimization algorithm which is universally “best” across all possible tasks <span class="citation" data-cites="wolpert2002no">(<a href="#ref-wolpert2002no" role="doc-biblioref">Wolpert and Macready 2002</a>)</span>. In practice, one must generally determine experimentally which optimization algorithm is best suited for a given class of problems. It has been found that Adam is often a good default for complex neural networks, but there are many cases where other methods such as momentum or even vanilla gradient descent can outperform Adam.</p>
+</section>
+</section>
+<section id="stochastic-optimization" class="level2">
+<h2 class="anchored" data-anchor-id="stochastic-optimization">Stochastic Optimization</h2>
+<p>Almost all of the loss functions used in modern machine learning have the structure</p>
+<p><span id="eq-empirical-risk"><span class="math display">\[
+\begin{aligned}
+    R(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^n \ell(\mathbf{w}; \mathbf{x}_i, y_i)\;,
+\end{aligned}
+\tag{11.3}\]</span></span></p>
+<p>where <span class="math inline">\(\{(\mathbf{x}_i, y_i)\}_{i=1}^n\)</span> is a data set of <span class="math inline">\(n\)</span> examples and <span class="math inline">\(\ell(\mathbf{w}; \mathbf{x}_i, y_i)\)</span> is the loss associated with the <span class="math inline">\(i\)</span>-th example. For example, here are three choices and the loss functions they generate:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \ell(\mathbf{w}; \mathbf{x}_i, y_i) &amp;= (\mathbf{w}^\top \mathbf{x}_i - y_i)^2 &amp;\quad \text{(MSE)} \\
+    \ell(\mathbf{w}; \mathbf{x}_i, y_i) &amp;= |\mathbf{w}^\top \mathbf{x}_i - y_i| &amp;\quad \text{(MAE)} \\
+    \ell(\mathbf{w}; \mathbf{x}_i, y_i) &amp;= -y_i \log(\sigma(\mathbf{w}^\top \mathbf{x}_i)) - (1 - y_i) \log(1 - \sigma(\mathbf{w}^\top \mathbf{x}_i)) &amp;\quad \text{(Binary cross entropy)}\;,
+\end{aligned}
+\]</span></p>
+<p>So far, we’ve seen methods that compute <span class="math inline">\(R(\mathbf{w})\)</span> and <span class="math inline">\(\nabla R(\mathbf{w})\)</span> exactly at each epoch. This is called a <em>batch</em> method. When the number of examples <span class="math inline">\(n\)</span> is large, computing <span class="math inline">\(R(\mathbf{w})\)</span> and <span class="math inline">\(\nabla R(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^n \nabla \ell(\mathbf{w}; \mathbf{x}_i, y_i)\)</span> can be very expensive operations – and all that just to perform a single update! For these reasons, batch methods can be very slow to train on large data sets.</p>
+<div id="def-stochastic-minibatch-optimization" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.3 (Stochastic Minibatch Optimization)</strong></span> In <em>stochastic minibatch optimization</em>, we replace <span class="math inline">\(R(\mathbf{w})\)</span> and <span class="math inline">\(\nabla R(\mathbf{w})\)</span> with estimates based on a random subset of the data. Specifically, we randomly sample a subset <span class="math inline">\(B \subseteq \{1, \ldots, n\}\)</span> of the data indices, and then compute the <em>minibatch loss</em></p>
+<p><span class="math display">\[
+\begin{aligned}
+    R_B(\mathbf{w}) = \frac{1}{|B|} \sum_{i \in B} \ell(\mathbf{w}; \mathbf{x}_i, y_i)\;,
+\end{aligned}
+\]</span></p>
+<p>Here, the number of examples in the batch <span class="math inline">\(|B|\)</span> is called the <em>batch size</em>. We can then use <span class="math inline">\(R_B(\mathbf{w})\)</span> and <span class="math inline">\(\nabla R_B(\mathbf{w})\)</span> in place of <span class="math inline">\(R(\mathbf{w})\)</span> and <span class="math inline">\(\nabla R(\mathbf{w})\)</span> in our optimization algorithms.</p>
+</div>
+<p>The idea of stochastic minibatches can be combined with any of the algorithms we’ve seen so far. For example, here’s how we do vanilla gradient descent with stochastic minibatches:</p>
+<ol type="1">
+<li>First, pick a random subset <span class="math inline">\(B \subseteq \{1,\ldots,n\}\)</span> of the data.</li>
+<li>Then, <span class="math inline">\(\mathbf{w}' \gets \mathbf{w}- \alpha \nabla R_B(\mathbf{w})\)</span>.</li>
+</ol>
+<section id="epochs-in-stochastic-optimization" class="level3">
+<h3 class="anchored" data-anchor-id="epochs-in-stochastic-optimization">Epochs in Stochastic Optimization</h3>
+<p>A standard way to handle the selection of the subset <span class="math inline">\(B\)</span> is to choose the first subset, <em>remove those indices from the pool</em>, and then repeat until we are all out of indices. Schematically,</p>
+<div id="0acea62d" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ix <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(n))</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>random.shuffle(ix)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="bu">len</span>(ix) <span class="op">&gt;</span> <span class="dv">0</span>: </span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    batch <span class="op">=</span> ix[:batch_size]</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(batch)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    ix <span class="op">=</span> ix[batch_size:]</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Completed pass through data"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[3, 6, 7]
+[0, 9, 2]
+[8, 1, 4]
+[5]
+Completed pass through data</code></pre>
+</div>
+</div>
+<p>Typically, we count an <em>epoch</em> in stochastic optimization as “one complete pass through the data.”</p>
+</section>
+<section id="data-loaders-in-torch" class="level3">
+<h3 class="anchored" data-anchor-id="data-loaders-in-torch">Data Loaders in Torch</h3>
+<p>It can be pretty tedious for us to implement logic for sampling batches of data and keeping track of which indices we’ve used and which we haven’t. Fortunately, PyTorch provides a convenient utility for this called the <code>DataLoader</code>, which can be used to create an iterable over batches of data. Here’s a small example:</p>
+<div id="a33191b7" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader, TensorDataset</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># random data with 100 examples and 10 features, and binary labels</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.randn(<span class="dv">100</span>, <span class="dv">10</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> torch.randint(<span class="dv">0</span>, <span class="dv">2</span>, (<span class="dv">100</span>,))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>data_set <span class="op">=</span> TensorDataset(X, y)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>data_loader <span class="op">=</span> DataLoader(data_set, batch_size<span class="op">=</span><span class="dv">16</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> data_loader:</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(X_batch.shape, y_batch.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([16, 10]) torch.Size([16])
+torch.Size([16, 10]) torch.Size([16])
+torch.Size([16, 10]) torch.Size([16])
+torch.Size([16, 10]) torch.Size([16])
+torch.Size([16, 10]) torch.Size([16])
+torch.Size([16, 10]) torch.Size([16])
+torch.Size([4, 10]) torch.Size([4])</code></pre>
+</div>
+</div>
+<p>Each of the batches returned by the <code>DataLoader</code> contains <code>batch_size</code> examples (except possibly the last one), and the <code>shuffle=True</code> argument ensures that we get a different random ordering of the data each time we iterate through it. The <code>for</code>-loop above represents one complete pass through the data, i.e.&nbsp;one epoch of training.</p>
+</section>
+</section>
+<section id="data-case-study-sign-language-mnist" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="data-case-study-sign-language-mnist">Data Case Study: Sign Language MNIST</h2>
+<p>Now let’s do a small computational example in which we illustrate some of the choices that go into choosing optimization methods for training a model on a data set. We’ll work with the Sign Language MNIST data set, which consists of images of hand signs corresponding to the letters of the alphabet. The task is to train a model to classify these images into the correct letter category.</p>
+<div id="4be5f710" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>train_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_train.csv"</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>df_train <span class="op">=</span> pd.read_csv(train_url)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>X_train <span class="op">=</span> torch.tensor(df_train.drop(<span class="st">"label"</span>, axis<span class="op">=</span><span class="dv">1</span>).values, dtype<span class="op">=</span>torch.float32, device<span class="op">=</span>device)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> torch.tensor(df_train[<span class="st">"label"</span>].values, dtype<span class="op">=</span>torch.<span class="bu">long</span>, device<span class="op">=</span>device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The shape of the data here is</p>
+<div id="cdaf8ae5" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(X_train.shape, y_train.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([27455, 784]) torch.Size([27455])</code></pre>
+</div>
+</div>
+<p>There are 27455 examples, each of which is a 784-dimensional vector corresponding to the pixel values of a 28x28 image. The labels are integers from 0 to 25, corresponding to the letters A-Z (except for J and Z, which are not included in the data set).</p>
+<p>If we reshape the data back into images, we can visualize some of the examples:</p>
+<div id="975685d4" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>ALPHABET <span class="op">=</span> <span class="st">"ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>images <span class="op">=</span> X_train.view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> y_train</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> i <span class="op">*</span> <span class="dv">3</span> <span class="op">+</span> j</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        axarr[i, j].imshow(images[idx], cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        axarr[i, j].set_title(<span class="ss">f"</span><span class="sc">{</span>ALPHABET[labels[idx]]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        axarr[i, j].axis(<span class="st">'off'</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="31-gradient-methods_files/figure-html/cell-20-output-1.png" class="figure-img" width="546" height="566"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This is a relatively rich problem for which we’ll eventually learn to use deep neural networks. For today, however, we’ll use logistic regression and vary our optimizer choices.</p>
+<div id="11fa66a8" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LogisticRegression:</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_features, n_classes):</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> torch.zeros(n_features, n_classes, requires_grad<span class="op">=</span><span class="va">True</span>, device<span class="op">=</span>device)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x <span class="op">@</span> <span class="va">self</span>.w</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_entropy_loss(y_pred, y_true):</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    y_pred <span class="op">=</span> torch.softmax(y_pred, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>torch.log(y_pred[<span class="bu">range</span>(<span class="bu">len</span>(y_true)), y_true]).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we can test out a few of the optimizers we’ve discussed on this problem. We’ll compare vanilla gradient descent, gradient descent with momentum, and Adam, and we’ll also compare the effect of using a small learning rate versus a large learning rate for each method. First, let’s try vanilla gradient descent, momentum, and Adam at different learning rates:</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sl_mnist_experiment(n_epochs<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    n_features <span class="op">=</span> X_train.shape[<span class="dv">1</span>]</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    n_classes <span class="op">=</span> <span class="bu">len</span>(ALPHABET)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> LogisticRegression(n_features, n_classes)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    small_alpha <span class="op">=</span> <span class="fl">1e-6</span> </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    large_alpha <span class="op">=</span> <span class="fl">2e-5</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    optimizers <span class="op">=</span> {</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Gradient descent"</span>: torch.optim.SGD([model.w], lr<span class="op">=</span>small_alpha, momentum<span class="op">=</span><span class="fl">0.0</span>),</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Gradient descent (high learning rate)"</span>: torch.optim.SGD([model.w], lr<span class="op">=</span>large_alpha, momentum<span class="op">=</span><span class="fl">0.0</span>),</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Momentum"</span>: torch.optim.SGD([model.w], lr<span class="op">=</span>small_alpha, momentum<span class="op">=</span><span class="fl">0.9</span>),</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Momentum (high learning rate)"</span>: torch.optim.SGD([model.w], lr<span class="op">=</span>large_alpha, momentum<span class="op">=</span><span class="fl">0.9</span>),</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Adam"</span>: torch.optim.Adam([model.w], lr<span class="op">=</span>small_alpha),</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Adam (high learning rate)"</span>: torch.optim.Adam([model.w], lr<span class="op">=</span>large_alpha),</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    losses_dict <span class="op">=</span> {}</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, optimizer <span class="kw">in</span> optimizers.items():</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>            model.w[:] <span class="op">=</span> torch.zeros_like(model.w)</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>        losses_dict[name] <span class="op">=</span> []</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs):</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>            y_pred <span class="op">=</span> model.forward(X_train)</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> cross_entropy_loss(y_pred, y_train)</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>            optimizer.zero_grad()</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>            optimizer.step()</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>            losses_dict[name].append(loss.item())</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>    fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, losses <span class="kw">in</span> losses_dict.items():</span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="st">"Gradient descent"</span> <span class="kw">in</span> name: </span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>            i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> <span class="st">"Momentum"</span> <span class="kw">in</span> name:</span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>            i <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>            i <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="st">"high learning rate"</span> <span class="kw">in</span> name:</span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>            label <span class="op">=</span> name.split(<span class="st">" "</span>)[<span class="dv">0</span>] <span class="op">+</span> <span class="st">" (high lr)"</span></span>
+<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>            alpha <span class="op">=</span> large_alpha</span>
+<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a>            label <span class="op">=</span> name.split(<span class="st">" "</span>)[<span class="dv">0</span>]</span>
+<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a>            alpha <span class="op">=</span> small_alpha</span>
+<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a>        axarr[i].plot(losses, label<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="ch">\a</span><span class="vs">lpha = </span><span class="dv">$</span><span class="vs">"</span> <span class="op">+</span> <span class="ss">f"</span><span class="sc">{</span>alpha<span class="sc">:.0e}</span><span class="ss">"</span>, linestyle <span class="op">=</span> <span class="st">'-'</span> <span class="cf">if</span> <span class="st">"high learning rate"</span> <span class="kw">in</span> name <span class="cf">else</span> <span class="st">'--'</span>)</span>
+<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a>        axarr[i].set_title(name.split(<span class="st">" "</span>)[<span class="dv">0</span>])</span>
+<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> i <span class="op">==</span> <span class="dv">2</span>: </span>
+<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a>            axarr[i].legend()</span>
+<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>: </span>
+<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a>            axarr[i].set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a>    <span class="co"># plt.yscale("log")</span></span>
+<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax <span class="kw">in</span> axarr:</span>
+<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a>        ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a>        ax.grid(<span class="va">True</span>)</span>
+<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ax.set_yscale("log")</span></span>
+<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a>    plt.suptitle(<span class="st">"Training Loss for Different Optimizers"</span>)</span>
+<span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
+<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a>sl_mnist_experiment(n_epochs<span class="op">=</span><span class="dv">200</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-optimizer-comparison-mnist" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-optimizer-comparison-mnist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="c68fbbf6" class="cell" data-execution_count="21">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="31-gradient-methods_files/figure-html/cell-22-output-1.png" class="figure-img" width="746" height="287"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig quarto-uncaptioned margin-caption" id="fig-optimizer-comparison-mnist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.6
+</figcaption>
+</figure>
+</div>
+<p>As before, we can see that Adam is able to make use of a much larger learning rate than the other methods, which allows it to converge much faster.</p>
+<p>Now let’s test the effect of different batch sizes on the training process. We’ll try a range of batch sizes and we’ll use the Adam optimizer with a learning rate of <span class="math inline">\(1e-5\)</span> for all of them.</p>
+<div id="2099dee4" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>batch_sizes <span class="op">=</span> [<span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">64</span>, <span class="dv">1024</span>, <span class="dv">4096</span>]</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">4</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>n_features <span class="op">=</span> X_train.shape[<span class="dv">1</span>]</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>n_classes <span class="op">=</span> <span class="bu">len</span>(ALPHABET)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>data_set <span class="op">=</span> TensorDataset(X_train, y_train)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(n_features, n_classes)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.Adam([model.w], lr<span class="op">=</span><span class="fl">1e-5</span>)</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>n_epochs <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch_size <span class="kw">in</span> batch_sizes:</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        model.w[:] <span class="op">=</span> torch.zeros_like(model.w)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    data_loader <span class="op">=</span> DataLoader(data_set, batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    losses <span class="op">=</span> []</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs): </span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>        loss_total <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> data_loader:</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>            y_pred <span class="op">=</span> model.forward(X_batch)</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> cross_entropy_loss(y_pred, y_batch)</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>            optimizer.zero_grad()</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>            optimizer.step()</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>            loss_total <span class="op">+=</span> loss.item()<span class="op">*</span><span class="bu">len</span>(X_batch) <span class="co"># total loss across all batches  </span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>        losses.append(loss_total <span class="op">/</span> <span class="bu">len</span>(X_train)) <span class="co"># average loss across all examples</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>    ax.plot(losses, label<span class="op">=</span><span class="ss">f"Batch size = </span><span class="sc">{</span>batch_size<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Effect of Batch Size on Training Loss"</span>)</span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax.set_ylim(<span class="fl">0.0</span>, <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="31-gradient-methods_files/figure-html/cell-23-output-1.png" class="figure-img" width="357" height="294"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We observe that the smaller batch sizes can reduce the training loss more quickly, especially early in the training run, but that the increased randomness associated with small batches can produce more erratic fluctuations as the loss shrinks. Larger batch sizes tend to produce a smoother, slower training curve.</p>
+<p>As an exercise, let’s train our model one more time and evaluate on the test set. We’ll use the best batch size from the previous experiment:</p>
+<div id="a0a1b6ab" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(n_features, n_classes)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>data_loader <span class="op">=</span> DataLoader(data_set, batch_size<span class="op">=</span><span class="dv">16</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.Adam([model.w], lr<span class="op">=</span><span class="fl">1e-5</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>n_epochs <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs): </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> data_loader:</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> model.forward(X_batch)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> cross_entropy_loss(y_pred, y_batch)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>        optimizer.zero_grad()</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>        optimizer.step()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we’ll acquire the test data and transform it into tensors.</p>
+<div id="5d4fa2c5" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>test_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_test.csv"</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>df_test <span class="op">=</span> pd.read_csv(test_url)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>X_test <span class="op">=</span> torch.tensor(df_test.drop(<span class="st">"label"</span>, axis<span class="op">=</span><span class="dv">1</span>).values, dtype<span class="op">=</span>torch.float32, device<span class="op">=</span>device)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> torch.tensor(df_test[<span class="st">"label"</span>].values, dtype<span class="op">=</span>torch.<span class="bu">long</span>, device<span class="op">=</span>device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Evaluation time! We’ll just check the accuracy. This a 24-way classification problem, so the base rate would be around 4%.</p>
+<div id="e08f38a7" class="cell" data-execution_count="25">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>y_pred_test <span class="op">=</span> model.forward(X_test)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>y_pred_labels <span class="op">=</span> torch.argmax(y_pred_test, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>accuracy <span class="op">=</span> (y_pred_labels <span class="op">==</span> y_test).<span class="bu">float</span>().mean().item()</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test accuracy: </span><span class="sc">{</span>accuracy<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Test accuracy: 0.6527</code></pre>
+</div>
+</div>
+<p>After training for 20 epochs, this model achieves an accuracy on the test set of about 66%, which is much better than random in the context of a 24-way classification problem! There’s still plenty of room for improvement, and we’ll see how to do substantially better very soon.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-kingma2015adam" class="csl-entry" role="listitem">
+Kingma, Diederik P, and Jimmy Lei Ba. 2015. <span>“Adam: <span>A</span> Method for Stochastic Gradient Descent.”</span> In <em><span>ICLR</span>: International Conference on Learning Representations</em>, 1–15. ICLR US.
+</div>
+<div id="ref-wolpert2002no" class="csl-entry" role="listitem">
+Wolpert, David H, and William G Macready. 2002. <span>“No Free Lunch Theorems for Optimization.”</span> <em>IEEE Transactions On Evolutionary Computation</em> 1 (1): 67–82.
+</div>
+</div>
 </section>
 
 <p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
