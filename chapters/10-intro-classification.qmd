@@ -486,7 +486,7 @@ model = BinaryLogisticRegression(n_features=n_features)
 opt = GradientDescentOptimizer(model, lr=0.00001)
 
 losses = []
-for epoch in range(2000): 
+for epoch in range(20000): 
 
     q = model.forward(X_train_aug)
     loss = binary_cross_entropy(q, y_train_tensor)
@@ -576,7 +576,7 @@ Our learned classifier does slightly better than baseline in predicting whether 
 As with regression, it's possible to use nonlinear feature maps to model nonlinear decision boundaries. For example, here's an implementation using polynomial features: 
 
 ```{python}
-
+#| code-fold: true
 def polynomial_features(X, degree): 
     n_samples, n_features = X.shape
     features = [torch.ones(n_samples, 1)]  # start with the intercept term
