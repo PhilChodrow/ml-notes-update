@@ -576,7 +576,7 @@ ax.set_title(r"Loss Landscape with $\ell_2$ Regularization")
 
 levels = [loss_min + (i)*0.5*(best_loss - loss_min) for i in range(5)]
 
-ax.contour(W1.numpy(), W0.numpy(), loss_values.numpy(), levels=levels, origin='lower', cmap = "Reds_r")
+ax.contour(W1.numpy(), W0.numpy(), loss_values.numpy(), levels=levels, origin='lower', cmap = "Reds")
 ax.contour(W1.numpy(), W0.numpy(), ell_2_values.numpy(), levels=[i/3*best_reg for i in range(4)], linestyles='dashed', origin='lower')
 ax.scatter(min_w1, min_w0, color='black', label='Minimizer', zorder=5)
 # ax.legend()
@@ -604,7 +604,7 @@ ax.grid(False)
 
 levels = [loss_min + (i)*0.5*(best_loss - loss_min) for i in range(5)]
 
-c_loss = ax.contour(W1.numpy(), W0.numpy(), loss_values.numpy(), levels=levels,  origin='lower', cmap = "Reds_r")
+c_loss = ax.contour(W1.numpy(), W0.numpy(), loss_values.numpy(), levels=levels,  origin='lower', cmap = "Reds")
 
 c_reg = ax.contour(W1.numpy(), W0.numpy(), ell_1_values.numpy(), levels=[i/3*best_reg for i in range(4)], linestyles='dashed', origin='lower')
 

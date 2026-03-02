@@ -486,7 +486,7 @@ model = BinaryLogisticRegression(n_features=n_features)
 opt = GradientDescentOptimizer(model, lr=0.00001)
 
 losses = []
-for epoch in range(20000): 
+for epoch in range(2000): 
 
     q = model.forward(X_train_aug)
     loss = binary_cross_entropy(q, y_train_tensor)
@@ -570,3 +570,67 @@ print(f'Baseline accuracy (always predict no rain): {baseline_accuracy:.3f}')
 ```
 
 Our learned classifier does slightly better than baseline in predicting whether or not will rain tomorrow, as measured by accuracy on the test set. 
+
+## Nonlinear Features
+
+As with regression, it's possible to use nonlinear feature maps to model nonlinear decision boundaries. For example, here's an implementation using polynomial features: 
+
+```{python}
+
+def polynomial_features(X, degree): 
+    n_samples, n_features = X.shape
+    features = [torch.ones(n_samples, 1)]  # start with the intercept term
+    for d in range(1, degree + 1): 
+        for i in range(n_features): 
+            features.append(X[:, i:i+1] ** d)
+    poly = torch.cat(features, dim=1)
+    aug = torch.cat([torch.ones((poly.shape[0], 1)), poly], dim=1)
+    # scale the features to prevent numerical instability
+    aug = aug / torch.max(torch.abs(aug), dim=0).values
+
+    return aug
+
+X_train_poly = polynomial_features(torch.tensor(X_train, dtype=torch.float32), degree=5)
+
+n_features = X_train_poly.shape[1]
+
+y_train_tensor = torch.tensor(y_train, dtype=torch.float32)
+model = BinaryLogisticRegression(n_features=n_features)
+opt = GradientDescentOptimizer(model, lr=2)
+
+losses = []
+for epoch in range(10000): 
+
+    q = model.forward(X_train_poly)
+    loss = binary_cross_entropy(q, y_train_tensor)
+    
+    losses.append(loss.item())
+    opt.step(X_train_poly, y_train_tensor)
+
+
+x1_grid = torch.linspace(X[:,0].min(), X[:,0].max(), 100)
+x2_grid = torch.linspace(X[:,1].min(), X[:,1].max(), 100)
+xx1, xx2 = torch.meshgrid(x1_grid, x2_grid, indexing='ij')
+
+grid = torch.cat([xx1.reshape(-1, 1), xx2.reshape(-1, 1)], dim=1)
+grid = polynomial_features(grid, degree=5)
+
+with torch.no_grad():
+    q_grid = model.forward(grid).reshape(xx1.shape)
+
+fig, ax = plt.subplots(figsize=(6, 6))
+
+ax.contour(xx1, xx2, q_grid, levels=[0.5], colors='k', linewidths=1, extent = (x1_grid.min(), x1_grid.max(), x2_grid.min(), x2_grid.max()), linestyles='--')
+ax.contourf(xx1, xx2, q_grid, levels=torch.linspace(0, 1, steps=10), alpha=0.3, cmap='BrBG', extent = (x1_grid.min(), x1_grid.max(), x2_grid.min(), x2_grid.max()))
+
+
+ax.set(title='Learned decision boundary', xlabel='Humidity3pm', ylabel='Pressure3pm')
+
+for i, label in enumerate(["No rain tomorrow", "Rain tomorrow"]): 
+    idx = (y_test[:1000, 0] == i)
+    ax.scatter(X_test[:1000, 0][idx], X_test[:1000, 1][idx], c = y_test[:1000, 0][idx], label=f'{label}', edgecolor='k', marker=markers[i],   cmap = 'BrBG', vmin = -0.5, vmax = 1.5, alpha = 0.7)
+
+plt.legend()
+```
+
+The resulting decision boundary is more flexible than the linear decision boundary we obtained with the original logistic regression model, although as usual we must content with questions of overfitting and generalization when using more complex models.

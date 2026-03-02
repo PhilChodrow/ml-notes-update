@@ -296,6 +296,23 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Deep Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/40-intro-deep.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Introducing Deep Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -537,8 +554,8 @@ Figure&nbsp;5.2: Visualization of the ensemble of fitted linear regression model
 \begin{aligned}
     \mathcal{E}&amp;= \mathbb{E}[(\hat{Y} - Y)^2] \\
     &amp;= \mathbb{E}[\hat{Y}^2 - 2\hat{Y}Y + Y^2] \\
-    &amp;= \mathbb{E}[\hat{Y}^2] - 2\mathbb{E}[\hat{Y}]\mathbb{E}[Y] + \mathbb{E}[Y^2] \\
-    &amp;= \mathbb{E}[\hat{Y}^2] - 2\hat{\mu}\mu + \mathbb{E}[Y^2] &amp;\quad \text{(independence of $Y$ and $\hat{Y}$)} \\
+    &amp;= \mathbb{E}[\hat{Y}^2] - 2\mathbb{E}[\hat{Y}]\mathbb{E}[Y] + \mathbb{E}[Y^2] &amp;\quad \text{(independence of $Y$ and $\hat{Y}$)}\\
+    &amp;= \mathbb{E}[\hat{Y}^2] - 2\hat{\mu}\mu + \mathbb{E}[Y^2]  \\
     &amp;= \mathbb{E}[\hat{Y}^2] - \hat{\mu}^2 + \hat{\mu}^2 - 2\hat{\mu}\mu + \mu^2 + \mathbb{E}[Y^2] - \mu^2 \\
     &amp;= (\mathbb{E}[\hat{Y}^2] - \hat{\mu}^2) + (\hat{\mu} - \mu)^2 + (\mathbb{E}[Y^2] - \mu^2) \\
     &amp;= \underbrace{\mathrm{Var}(\hat{Y})}_\text{model variance} + \underbrace{(\hat{\mu} - \mu)^2}_\text{bias} + \underbrace{\mathrm{Var}(Y)}_\text{noise}

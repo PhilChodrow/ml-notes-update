@@ -25,6 +25,9 @@ book:
       chapters: 
       - chapters/30-autograd.qmd
       - chapters/31-gradient-methods.qmd
+    - part: "Deep Learning"
+      chapters:
+      - chapters/40-intro-deep.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 

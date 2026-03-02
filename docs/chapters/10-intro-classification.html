@@ -296,6 +296,23 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Deep Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/40-intro-deep.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Introducing Deep Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -318,6 +335,7 @@ window.Quarto = {
   <li><a href="#implementation-of-binary-logistic-regression" id="toc-implementation-of-binary-logistic-regression" class="nav-link" data-scroll-target="#implementation-of-binary-logistic-regression">Implementation of Binary Logistic Regression</a></li>
   <li><a href="#data-case-study" id="toc-data-case-study" class="nav-link" data-scroll-target="#data-case-study">Data Case Study</a></li>
   </ul></li>
+  <li><a href="#nonlinear-features" id="toc-nonlinear-features" class="nav-link" data-scroll-target="#nonlinear-features">Nonlinear Features</a></li>
   </ul>
 </nav>
     </div>
@@ -389,7 +407,7 @@ y_i = f(\mathbf{x}_i) + \epsilon_i\;,
 <div id="fig-classification-data" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-classification-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="365b81c5" class="cell" data-execution_count="4">
+<div id="ea5e9e8d" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -462,7 +480,7 @@ Figure&nbsp;6.1: Example data for a binary classification problem with two featu
 <div id="fig-classification-signal-noise" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-classification-signal-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="9b48d0c8" class="cell" data-execution_count="5">
+<div id="3054abea" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -530,7 +548,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 \tag{6.4}\]</span></span></p>
 </div>
 <p>While <code>torch</code> implements some bespoke cross-entropy loss functions optimized for various cases, it’s also a quick formula to implement by hand:</p>
-<div id="2953e46a" class="cell" data-execution_count="6">
+<div id="41368266" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> binary_cross_entropy(q, y): </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>(y <span class="op">*</span> torch.log(q) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y) <span class="op">*</span> torch.log(<span class="dv">1</span> <span class="op">-</span> q)).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -553,7 +571,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 </div>
 
 <div class="no-row-height column-margin column-container"><div class="">
-<div id="51786e04" class="cell" data-execution_count="7">
+<div id="41b724a9" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -564,7 +582,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 </div>
 <p>Plot of the logistic sigmoid <span class="math inline">\(\sigma\)</span>.</p>
 </div></div><p>Here’s a quick implementation:</p>
-<div id="2b14145f" class="cell" data-execution_count="8">
+<div id="c1db9fad" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sigmoid(z): </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> torch.exp(<span class="op">-</span>z))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -592,7 +610,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <section id="implementation-of-binary-logistic-regression" class="level3">
 <h3 class="anchored" data-anchor-id="implementation-of-binary-logistic-regression">Implementation of Binary Logistic Regression</h3>
 <p>To implement binary logistic regression, we can use largely the same machinery that we used for linear regression. The <code>forward</code> method will compute the value of the signal function <span class="math inline">\(q(\mathbf{x}_i) = \sigma(\mathbf{x}_i^\top \mathbf{w})\)</span> for each data point.</p>
-<div id="876b23a1" class="cell" data-execution_count="9">
+<div id="5178b8b1" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BinaryLogisticRegression: </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_features): </span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> torch.zeros(n_features, <span class="dv">1</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
@@ -613,7 +631,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 \end{aligned}
 \]</span></p>
 <p>Let’s build in these calculations to a class for performing gradient descent optimization.</p>
-<div id="3bacd552" class="cell" data-execution_count="10">
+<div id="9750d44c" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GradientDescentOptimizer: </span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, lr<span class="op">=</span><span class="fl">0.1</span>): </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> model</span>
@@ -629,7 +647,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad(): </span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.model.w <span class="op">-=</span> <span class="va">self</span>.lr <span class="op">*</span> grad</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="fbfb3d6b" class="cell" data-execution_count="11">
+<div id="14f8dc2a" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> BinaryLogisticRegression(n_features<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model, lr<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -641,7 +659,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    opt.step(X, y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s visualize the learned signal function:</p>
-<div id="4898a5ea" class="cell" data-execution_count="12">
+<div id="60e8d8d3" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_1_grid <span class="op">=</span> torch.linspace(X.<span class="bu">min</span>(), X.<span class="bu">max</span>(), <span class="dv">100</span>)</span>
@@ -677,7 +695,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 </div>
 </div>
 <p>We can obtain predictions from the model by thresholding the signal function, for example at <span class="math inline">\(q^* = 0.5\)</span> as shown in the contour plot.</p>
-<div id="3a6c5c4a" class="cell" data-execution_count="13">
+<div id="635dc87a" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> model.forward(X)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> (q <span class="op">&gt;=</span> <span class="fl">0.5</span>).<span class="bu">float</span>()</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -685,7 +703,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>accuracy <span class="op">=</span> (y_pred <span class="op">==</span> y).<span class="bu">float</span>().mean()</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Training accuracy: </span><span class="sc">{</span>accuracy<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Training accuracy: 0.760</code></pre>
+<pre><code>Training accuracy: 0.770</code></pre>
 </div>
 </div>
 <p>As usual, to fully assess the classifier we would evaluate the accuracy on a held-out test set.</p>
@@ -693,7 +711,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <section id="data-case-study" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="data-case-study">Data Case Study</h3>
 <p>As an empirical test of our logistic regression classifier, let’s train a model to predict rainfall based on the previous day’s weather.</p>
-<div id="5221c30c" class="cell" data-execution_count="14">
+<div id="6fe6a565" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/middcs/data-science-notes/refs/heads/main/data/australia-weather/weatherAUS.csv"</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -705,7 +723,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>df.dropna(subset<span class="op">=</span>[<span class="st">'RainTomorrow'</span>, <span class="st">'Humidity3pm'</span>, <span class="st">'Pressure3pm'</span>], inplace<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For the purposes of this example, we’ll use just two features: the humidity at 3pm and the pressure at 3pm, and use these to predict whether or not rain occurs the next day.</p>
-<div id="ed8a6b20" class="cell" data-execution_count="15">
+<div id="93a5997a" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>subset <span class="op">=</span> df.head(<span class="dv">1000</span>)</span>
@@ -731,12 +749,12 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 </div>
 </div>
 <p>We’ll start our modeling pipeline by producing a feature matrix and label vector from the data.</p>
-<div id="e8576037" class="cell" data-execution_count="16">
+<div id="d1d24311" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df[[<span class="st">'Humidity3pm'</span>, <span class="st">'Pressure3pm'</span>]].to_numpy()</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> (df[<span class="st">'RainTomorrow'</span>] <span class="op">==</span> <span class="st">'Yes'</span>).to_numpy().astype(<span class="bu">float</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we’ll perform a train-test split to evaluate the model’s performance on held-out data.</p>
-<div id="966518d5" class="cell" data-execution_count="17">
+<div id="5db687e7" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>train_frac <span class="op">=</span> <span class="fl">0.8</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> X.shape[<span class="dv">0</span>]</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>n_train <span class="op">=</span> <span class="bu">int</span>(train_frac <span class="op">*</span> n)</span>
@@ -748,7 +766,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> y[n_train:, :]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we’re ready to train the logistic regression model.</p>
-<div id="0c81e184" class="cell" data-execution_count="18">
+<div id="c2f5338e" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>n_features <span class="op">=</span> X_train.shape[<span class="dv">1</span>] <span class="op">+</span> <span class="dv">1</span>  <span class="co"># +1 for intercept</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>X_train_aug <span class="op">=</span> torch.ones((X_train.shape[<span class="dv">0</span>], n_features))</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>X_train_aug[:, <span class="dv">1</span>:] <span class="op">=</span> torch.tensor(X_train, dtype<span class="op">=</span>torch.float32)</span>
@@ -758,7 +776,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model, lr<span class="op">=</span><span class="fl">0.00001</span>)</span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20000</span>): </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2000</span>): </span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> model.forward(X_train_aug)</span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> binary_cross_entropy(q, y_train_tensor)</span>
@@ -778,7 +796,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <div id="fig-training-loss" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-training-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="06449fbc" class="cell" data-execution_count="19">
+<div id="5606e4c0" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -820,7 +838,7 @@ Figure&nbsp;6.3: Visualization of the binary cross-entropy loss over training ep
 <div id="fig-decision-boundary" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-decision-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="be201799" class="cell" data-execution_count="20">
+<div id="aab4750a" class="cell" data-execution_count="20">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -836,7 +854,7 @@ Figure&nbsp;6.4: Learned decision boundary (dashed line) in feature space, along
 </figure>
 </div>
 <p>To evaluate this model on the test set, we need to evaluate the model on the test features and threshold the results to obtain class predictions.</p>
-<div id="99f4ef3b" class="cell" data-execution_count="21">
+<div id="acf5becf" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain the probabilities q_test</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>X_test_aug <span class="op">=</span> torch.ones((X_test.shape[<span class="dv">0</span>], n_features))</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>X_test_aug[:, <span class="dv">1</span>:] <span class="op">=</span> torch.tensor(X_test, dtype<span class="op">=</span>torch.float32)</span>
@@ -848,11 +866,11 @@ Figure&nbsp;6.4: Learned decision boundary (dashed line) in feature space, along
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>accuracy_test <span class="op">=</span> (y_test_pred <span class="op">==</span> y_test_tensor).<span class="bu">float</span>().mean()</span>
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy: </span><span class="sc">{</span>accuracy_test<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Test accuracy: 0.840</code></pre>
+<pre><code>Test accuracy: 0.825</code></pre>
 </div>
 </div>
 <p>This accuracy is slightly better than the result we would obtain by always guessing that it won’t rain:</p>
-<div id="095f6d8a" class="cell" data-execution_count="22">
+<div id="ccad5b8d" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>baseline_accuracy <span class="op">=</span> (y_test_tensor <span class="op">==</span> <span class="dv">0</span>).<span class="bu">float</span>().mean()</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Baseline accuracy (always predict no rain): </span><span class="sc">{</span>baseline_accuracy<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -860,9 +878,77 @@ Figure&nbsp;6.4: Learned decision boundary (dashed line) in feature space, along
 </div>
 </div>
 <p>Our learned classifier does slightly better than baseline in predicting whether or not will rain tomorrow, as measured by accuracy on the test set.</p>
-
-
 </section>
+</section>
+<section id="nonlinear-features" class="level2">
+<h2 class="anchored" data-anchor-id="nonlinear-features">Nonlinear Features</h2>
+<p>As with regression, it’s possible to use nonlinear feature maps to model nonlinear decision boundaries. For example, here’s an implementation using polynomial features:</p>
+<div id="5277769e" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polynomial_features(X, degree): </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    n_samples, n_features <span class="op">=</span> X.shape</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> [torch.ones(n_samples, <span class="dv">1</span>)]  <span class="co"># start with the intercept term</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, degree <span class="op">+</span> <span class="dv">1</span>): </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_features): </span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>            features.append(X[:, i:i<span class="op">+</span><span class="dv">1</span>] <span class="op">**</span> d)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    poly <span class="op">=</span> torch.cat(features, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    aug <span class="op">=</span> torch.cat([torch.ones((poly.shape[<span class="dv">0</span>], <span class="dv">1</span>)), poly], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># scale the features to prevent numerical instability</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    aug <span class="op">=</span> aug <span class="op">/</span> torch.<span class="bu">max</span>(torch.<span class="bu">abs</span>(aug), dim<span class="op">=</span><span class="dv">0</span>).values</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> aug</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>X_train_poly <span class="op">=</span> polynomial_features(torch.tensor(X_train, dtype<span class="op">=</span>torch.float32), degree<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>n_features <span class="op">=</span> X_train_poly.shape[<span class="dv">1</span>]</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>y_train_tensor <span class="op">=</span> torch.tensor(y_train, dtype<span class="op">=</span>torch.float32)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> BinaryLogisticRegression(n_features<span class="op">=</span>n_features)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model, lr<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10000</span>): </span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> model.forward(X_train_poly)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> binary_cross_entropy(q, y_train_tensor)</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    losses.append(loss.item())</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    opt.step(X_train_poly, y_train_tensor)</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>x1_grid <span class="op">=</span> torch.linspace(X[:,<span class="dv">0</span>].<span class="bu">min</span>(), X[:,<span class="dv">0</span>].<span class="bu">max</span>(), <span class="dv">100</span>)</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>x2_grid <span class="op">=</span> torch.linspace(X[:,<span class="dv">1</span>].<span class="bu">min</span>(), X[:,<span class="dv">1</span>].<span class="bu">max</span>(), <span class="dv">100</span>)</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>xx1, xx2 <span class="op">=</span> torch.meshgrid(x1_grid, x2_grid, indexing<span class="op">=</span><span class="st">'ij'</span>)</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> torch.cat([xx1.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), xx2.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> polynomial_features(grid, degree<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>    q_grid <span class="op">=</span> model.forward(grid).reshape(xx1.shape)</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>ax.contour(xx1, xx2, q_grid, levels<span class="op">=</span>[<span class="fl">0.5</span>], colors<span class="op">=</span><span class="st">'k'</span>, linewidths<span class="op">=</span><span class="dv">1</span>, extent <span class="op">=</span> (x1_grid.<span class="bu">min</span>(), x1_grid.<span class="bu">max</span>(), x2_grid.<span class="bu">min</span>(), x2_grid.<span class="bu">max</span>()), linestyles<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>ax.contourf(xx1, xx2, q_grid, levels<span class="op">=</span>torch.linspace(<span class="dv">0</span>, <span class="dv">1</span>, steps<span class="op">=</span><span class="dv">10</span>), alpha<span class="op">=</span><span class="fl">0.3</span>, cmap<span class="op">=</span><span class="st">'BrBG'</span>, extent <span class="op">=</span> (x1_grid.<span class="bu">min</span>(), x1_grid.<span class="bu">max</span>(), x2_grid.<span class="bu">min</span>(), x2_grid.<span class="bu">max</span>()))</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">'Learned decision boundary'</span>, xlabel<span class="op">=</span><span class="st">'Humidity3pm'</span>, ylabel<span class="op">=</span><span class="st">'Pressure3pm'</span>)</span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, label <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"No rain tomorrow"</span>, <span class="st">"Rain tomorrow"</span>]): </span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> (y_test[:<span class="dv">1000</span>, <span class="dv">0</span>] <span class="op">==</span> i)</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>    ax.scatter(X_test[:<span class="dv">1000</span>, <span class="dv">0</span>][idx], X_test[:<span class="dv">1000</span>, <span class="dv">1</span>][idx], c <span class="op">=</span> y_test[:<span class="dv">1000</span>, <span class="dv">0</span>][idx], label<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span>label<span class="sc">}</span><span class="ss">'</span>, edgecolor<span class="op">=</span><span class="st">'k'</span>, marker<span class="op">=</span>markers[i],   cmap <span class="op">=</span> <span class="st">'BrBG'</span>, vmin <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span>, vmax <span class="op">=</span> <span class="fl">1.5</span>, alpha <span class="op">=</span> <span class="fl">0.7</span>)</span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>plt.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10-intro-classification_files/figure-html/cell-23-output-1.png" class="figure-img" width="528" height="516"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The resulting decision boundary is more flexible than the linear decision boundary we obtained with the original logistic regression model, although as usual we must content with questions of overfitting and generalization when using more complex models.</p>
+
+
 </section>
 
 <p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
