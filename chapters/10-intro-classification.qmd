@@ -206,7 +206,7 @@ $${#eq-cross-entropy}
 
 :::
 
-While `torch` implements some bespoke cross-entropy loss functions optimized for various cases, it's also a quick formula to implement by hand: 
+While `torch` implements some bespoke cross-entropy loss functions optimized for various cases, it's also a quick formula to implement by hand: [In the code below we're using the *mean* binary cross-entropy per data point, which corresponds to dividing @eq-cross-entropy by $n$.]{.aside}
 
 ```{python}
 #---
@@ -451,16 +451,13 @@ t = plt.title("Tomorrow's rain as a function of today's humidity and pressure")
 We'll start our modeling pipeline by producing a feature matrix and label vector from the data.
 
 ```{python}
-#---
 X = df[['Humidity3pm', 'Pressure3pm']].to_numpy()
 y = (df['RainTomorrow'] == 'Yes').to_numpy().astype(float).reshape(-1, 1)
-#---
 ```
 
 Now we'll perform a train-test split to evaluate the model's performance on held-out data.
 
 ```{python}
-#---
 train_frac = 0.8
 n = X.shape[0]
 n_train = int(train_frac * n)
@@ -470,13 +467,11 @@ y_train = y[:n_train, :]
 
 X_test = X[n_train:, :]
 y_test = y[n_train:, :]
-#---
 ```
 
 Now we're ready to train the logistic regression model.
 
 ```{python}
-#---
 n_features = X_train.shape[1] + 1  # +1 for intercept
 X_train_aug = torch.ones((X_train.shape[0], n_features))
 X_train_aug[:, 1:] = torch.tensor(X_train, dtype=torch.float32)
@@ -493,7 +488,6 @@ for epoch in range(20000):
     
     losses.append(loss.item())
     opt.step(X_train_aug, y_train_tensor)
-#---
 ```
 
 ::: {#fig-training-loss}

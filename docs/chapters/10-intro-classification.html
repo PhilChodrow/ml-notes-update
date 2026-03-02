@@ -106,17 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>
-div.callout-sol.callout {
-  border-left-color: pink;
-}
-div.callout-sol.callout-style-default > .callout-header {
-  background-color: rgb(from pink r g b / 13%);
-}
-div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
-  content: '📝';
-  background-image: none;
-}
 div.callout-question.callout {
   border-left-color: lightblue;
 }
@@ -126,6 +115,17 @@ div.callout-question.callout-style-default > .callout-header {
 div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
   content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
   background-image: none;
 }
 </style>
@@ -407,7 +407,7 @@ y_i = f(\mathbf{x}_i) + \epsilon_i\;,
 <div id="fig-classification-data" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-classification-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="909a698d" class="cell" data-execution_count="3">
+<div id="e2f6f4da" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -480,7 +480,7 @@ Figure&nbsp;6.1: Example data for a binary classification problem with two featu
 <div id="fig-classification-signal-noise" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-classification-signal-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ca803250" class="cell" data-execution_count="4">
+<div id="06b191db" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -547,8 +547,8 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 \mathrm{CE}(\mathbf{y}, \mathbf{q}) = -\sum_{i = 1}^n \left[y_i \log q_i + (1 - y_i) \log (1 - q_i)\right]\;.
 \tag{6.4}\]</span></span></p>
 </div>
-<p>While <code>torch</code> implements some bespoke cross-entropy loss functions optimized for various cases, it’s also a quick formula to implement by hand:</p>
-<div id="997cc703" class="cell" data-execution_count="5">
+<div class="page-columns page-full"><p>While <code>torch</code> implements some bespoke cross-entropy loss functions optimized for various cases, it’s also a quick formula to implement by hand: </p><div class="no-row-height column-margin column-container"><span class="margin-aside">In the code below we’re using the <em>mean</em> binary cross-entropy per data point, which corresponds to dividing <a href="#eq-cross-entropy" class="quarto-xref">Equation&nbsp;<span>6.4</span></a> by <span class="math inline">\(n\)</span>.</span></div></div>
+<div id="00b5bad4" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> binary_cross_entropy(q, y): </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>(y <span class="op">*</span> torch.log(q) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y) <span class="op">*</span> torch.log(<span class="dv">1</span> <span class="op">-</span> q)).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -571,7 +571,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 </div>
 
 <div class="no-row-height column-margin column-container"><div class="">
-<div id="d535a171" class="cell" data-execution_count="6">
+<div id="19e36f14" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -582,7 +582,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 </div>
 <p>Plot of the logistic sigmoid <span class="math inline">\(\sigma\)</span>.</p>
 </div></div><p>Here’s a quick implementation:</p>
-<div id="b91c4f9f" class="cell" data-execution_count="7">
+<div id="6c226dd5" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sigmoid(z): </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> torch.exp(<span class="op">-</span>z))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -610,7 +610,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <section id="implementation-of-binary-logistic-regression" class="level3">
 <h3 class="anchored" data-anchor-id="implementation-of-binary-logistic-regression">Implementation of Binary Logistic Regression</h3>
 <p>To implement binary logistic regression, we can use largely the same machinery that we used for linear regression. The <code>forward</code> method will compute the value of the signal function <span class="math inline">\(q(\mathbf{x}_i) = \sigma(\mathbf{x}_i^\top \mathbf{w})\)</span> for each data point.</p>
-<div id="9a3b8906" class="cell" data-execution_count="8">
+<div id="0d03dc34" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BinaryLogisticRegression: </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_features): </span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> torch.zeros(n_features, <span class="dv">1</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
@@ -631,7 +631,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 \end{aligned}
 \]</span></p>
 <p>Let’s build in these calculations to a class for performing gradient descent optimization.</p>
-<div id="38005046" class="cell" data-execution_count="9">
+<div id="eddf725e" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GradientDescentOptimizer: </span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, lr<span class="op">=</span><span class="fl">0.1</span>): </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> model</span>
@@ -647,7 +647,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad(): </span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.model.w <span class="op">-=</span> <span class="va">self</span>.lr <span class="op">*</span> grad</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="d8ec1608" class="cell" data-execution_count="10">
+<div id="61ccb87b" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> BinaryLogisticRegression(n_features<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model, lr<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -659,7 +659,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    opt.step(X, y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s visualize the learned signal function:</p>
-<div id="6e6c0745" class="cell" data-execution_count="11">
+<div id="f9c568c8" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_1_grid <span class="op">=</span> torch.linspace(X.<span class="bu">min</span>(), X.<span class="bu">max</span>(), <span class="dv">100</span>)</span>
@@ -695,7 +695,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 </div>
 </div>
 <p>We can obtain predictions from the model by thresholding the signal function, for example at <span class="math inline">\(q^* = 0.5\)</span> as shown in the contour plot.</p>
-<div id="63d77e86" class="cell" data-execution_count="12">
+<div id="8feecff0" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> model.forward(X)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> (q <span class="op">&gt;=</span> <span class="fl">0.5</span>).<span class="bu">float</span>()</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -703,7 +703,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>accuracy <span class="op">=</span> (y_pred <span class="op">==</span> y).<span class="bu">float</span>().mean()</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Training accuracy: </span><span class="sc">{</span>accuracy<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Training accuracy: 0.760</code></pre>
+<pre><code>Training accuracy: 0.780</code></pre>
 </div>
 </div>
 <p>As usual, to fully assess the classifier we would evaluate the accuracy on a held-out test set.</p>
@@ -711,7 +711,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <section id="data-case-study" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="data-case-study">Data Case Study</h3>
 <p>As an empirical test of our logistic regression classifier, let’s train a model to predict rainfall based on the previous day’s weather.</p>
-<div id="726244ce" class="cell" data-execution_count="13">
+<div id="41555594" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/middcs/data-science-notes/refs/heads/main/data/australia-weather/weatherAUS.csv"</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -723,7 +723,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>df.dropna(subset<span class="op">=</span>[<span class="st">'RainTomorrow'</span>, <span class="st">'Humidity3pm'</span>, <span class="st">'Pressure3pm'</span>], inplace<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For the purposes of this example, we’ll use just two features: the humidity at 3pm and the pressure at 3pm, and use these to predict whether or not rain occurs the next day.</p>
-<div id="f4b5785e" class="cell" data-execution_count="14">
+<div id="b1b61e0a" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>subset <span class="op">=</span> df.head(<span class="dv">1000</span>)</span>
@@ -749,12 +749,12 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 </div>
 </div>
 <p>We’ll start our modeling pipeline by producing a feature matrix and label vector from the data.</p>
-<div id="0759dbe2" class="cell" data-execution_count="15">
+<div id="fda4cdec" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df[[<span class="st">'Humidity3pm'</span>, <span class="st">'Pressure3pm'</span>]].to_numpy()</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> (df[<span class="st">'RainTomorrow'</span>] <span class="op">==</span> <span class="st">'Yes'</span>).to_numpy().astype(<span class="bu">float</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we’ll perform a train-test split to evaluate the model’s performance on held-out data.</p>
-<div id="088323ac" class="cell" data-execution_count="16">
+<div id="588d1567" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>train_frac <span class="op">=</span> <span class="fl">0.8</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> X.shape[<span class="dv">0</span>]</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>n_train <span class="op">=</span> <span class="bu">int</span>(train_frac <span class="op">*</span> n)</span>
@@ -766,7 +766,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> y[n_train:, :]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we’re ready to train the logistic regression model.</p>
-<div id="939af39b" class="cell" data-execution_count="17">
+<div id="1e7c6161" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>n_features <span class="op">=</span> X_train.shape[<span class="dv">1</span>] <span class="op">+</span> <span class="dv">1</span>  <span class="co"># +1 for intercept</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>X_train_aug <span class="op">=</span> torch.ones((X_train.shape[<span class="dv">0</span>], n_features))</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>X_train_aug[:, <span class="dv">1</span>:] <span class="op">=</span> torch.tensor(X_train, dtype<span class="op">=</span>torch.float32)</span>
@@ -796,7 +796,7 @@ p_Y(y; q) = \mathbb{P}(Y = y;q) = q^y (1-q)^{1-y}\;.
 <div id="fig-training-loss" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-training-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="85a2fae3" class="cell" data-execution_count="18">
+<div id="8028d358" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -838,7 +838,7 @@ Figure&nbsp;6.3: Visualization of the binary cross-entropy loss over training ep
 <div id="fig-decision-boundary" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-decision-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="fb27d6a5" class="cell" data-execution_count="19">
+<div id="886f9e95" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -854,7 +854,7 @@ Figure&nbsp;6.4: Learned decision boundary (dashed line) in feature space, along
 </figure>
 </div>
 <p>To evaluate this model on the test set, we need to evaluate the model on the test features and threshold the results to obtain class predictions.</p>
-<div id="2979577b" class="cell" data-execution_count="20">
+<div id="2ca5eeb1" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain the probabilities q_test</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>X_test_aug <span class="op">=</span> torch.ones((X_test.shape[<span class="dv">0</span>], n_features))</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>X_test_aug[:, <span class="dv">1</span>:] <span class="op">=</span> torch.tensor(X_test, dtype<span class="op">=</span>torch.float32)</span>
@@ -870,7 +870,7 @@ Figure&nbsp;6.4: Learned decision boundary (dashed line) in feature space, along
 </div>
 </div>
 <p>This accuracy is slightly better than the result we would obtain by always guessing that it won’t rain:</p>
-<div id="c8ea7386" class="cell" data-execution_count="21">
+<div id="90479f43" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>baseline_accuracy <span class="op">=</span> (y_test_tensor <span class="op">==</span> <span class="dv">0</span>).<span class="bu">float</span>().mean()</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Baseline accuracy (always predict no rain): </span><span class="sc">{</span>baseline_accuracy<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -883,7 +883,7 @@ Figure&nbsp;6.4: Learned decision boundary (dashed line) in feature space, along
 <section id="nonlinear-features" class="level2">
 <h2 class="anchored" data-anchor-id="nonlinear-features">Nonlinear Features</h2>
 <p>As with regression, it’s possible to use nonlinear feature maps to model nonlinear decision boundaries. For example, here’s an implementation using polynomial features:</p>
-<div id="57457b4f" class="cell" data-execution_count="22">
+<div id="8ccafbe0" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polynomial_features(X, degree): </span>
