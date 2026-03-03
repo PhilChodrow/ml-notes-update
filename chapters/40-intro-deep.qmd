@@ -115,7 +115,7 @@ from sklearn.datasets import make_circles
 import torch
 import matplotlib.pyplot as plt 
 
-X, y = make_circles(n_samples=100, factor=0.5, noise=0.1, random_state=42)
+X, y = make_circles(n_samples=100, factor=0.5, noise=0.3, random_state=42)
 X = torch.tensor(X, dtype=torch.float32)
 X = torch.cat([torch.ones(X.shape[0], 1), X], dim=1) # add bias term
 y = torch.tensor(y, dtype=torch.float32)
@@ -156,6 +156,7 @@ class LogisticRegression:
 To transition into more extensible code, we're going to leverage torch's `nn.Module` class, which provides a convenient way to define models with learnable parameters. Here's how we can implement the same logistic regression model using `nn.Module`:
 
 ```{python}
+#---
 from torch import nn
 class LogisticRegression(nn.Module): 
     def __init__(self, n_features):
@@ -165,13 +166,14 @@ class LogisticRegression(nn.Module):
     def forward(self, X):
         x1 = self.layer1(X) #<2>
         return torch.softmax(x1, dim=1)
+#---
 ```
 1. Abstract `Linear` layer which handles learnable matrix multiplication, including the bias term. 
 2. Forward pass through the linear layer. 
 
 If we try this model on our sample data, we should expect to see the linear decision boundary that we get from logistic regression.
 
-Let's give this a shot. 
+Let's give this a shot using a standard training loop. 
 
 ```{python}
 def train_model(model, X, y, n_epochs=2000): 
@@ -186,19 +188,14 @@ def train_model(model, X, y, n_epochs=2000):
         loss.backward()
         opt.step()
     return losses
-```
 
-
-```{python}
 model = LogisticRegression(n_features=X.shape[1])
-
 losses= train_model(model, X, y)
-
 ```
 
 ```{python}
-
-def plot_decision_contours(model, ax): 
+#| code-fold: true
+def plot_decision_contours(model, ax, cmap = "BrBG"): 
     x_min, x_max = X[:, 1].min() - 0.5, X[:, 1].max() + 0.5
     y_min, y_max = X[:, 2].min() - 0.5, X[:, 2].max() + 0.5
     x = torch.linspace(x_min, x_max, 101)
@@ -209,42 +206,89 @@ def plot_decision_contours(model, ax):
     with torch.no_grad():
         pred = model(grid_points.reshape(-1, 3))
         pred = pred[:, 1].reshape(xx.shape) # probability of class 1
-    ax.contourf(xx.numpy(), yy.numpy(), pred.numpy(), alpha=0.3, cmap = 'BrBG', vmin = -0.5, vmax = 1.5)
-    ax.contour(xx.numpy(), yy.numpy(), pred.numpy(), levels=[0.5], colors='k', linewidths=1)
+    ax.contourf(xx.numpy(), yy.numpy(), pred.numpy(), alpha=0.3, cmap = cmap, vmin = -0.5, vmax = 1.5, zorder = -100)
+    ax.contour(xx.numpy(), yy.numpy(), pred.numpy(), levels=[0.5], colors='k', linewidths=1, zorder = -100, linestyles='--')
 
+def plot_contours_and_scatter(model, X, y, ax):
+    plot_decision_contours(model, ax)
+    scatter_data(X, y, ax)
+    ax.set_aspect('equal')
+    ax.set_xlabel(r"$x_1$")
+    ax.set_ylabel(r"$x_2$")
+    ax.legend()
 ```
 
 ::: {#fig-decision-boundary-logistic}
 
 ```{python}
+#| code-fold: true
 fig, ax = plt.subplots()
-scatter_data(X, y, ax)
-plot_decision_contours(model, ax)
-ax.set_aspect('equal')
-ax.set_title('Logistic Regression Decision Boundary')
-ax.set_xlabel('Feature 1')
-ax.set_ylabel('Feature 2')
-ax.legend()
-plt.show()
+plot_contours_and_scatter(model, X, y, ax)
+t = ax.set_title('Logistic Regression Decision Boundary')
 ```
 
+Decision boundary learned by logistic regression. 
 
 :::
 
 Since we have not baked any nonlinear features into this model, the model simply uses a linear decision boundary with predictably poor results. 
 
-Now let's instead try a model with a learnable feature map of the form in @eq-mlp-feature-map. Following historical precedent, we'll refer to this model as the *multilayer perceptron* (MLP). To make this model work, the 
+Now let's try a model with multiple linear layers: 
 
 ```{python}
+#---
+class DeepModelAttempt(nn.Module): 
+    def __init__(self, n_features, hidden_dim=10, output_dim = 2):
+        super().__init__()
+        self.layer1 = nn.Linear(n_features, hidden_dim)
+        self.layer2 = nn.Linear(hidden_dim, output_dim)
+    
+    def forward(self, X):
+        x1 = self.layer1(X) 
+        return torch.softmax(self.layer2(x1), dim=1) 
+#---
+```
+
+
+
+
+Let's fit this model to data, making sure to use plenty of hidden dimensions: 
+
+::: {#fig-decision-boundary-deep-attempt}
+
+```{python}
+#| code-fold: true
+model = DeepModelAttempt(n_features=X.shape[1], hidden_dim=500, output_dim = 2)
+losses = train_model(model, X, y, n_epochs = 2000)
+fig, ax = plt.subplots()
+
+plot_contours_and_scatter(model, X, y, ax)
+
+t = ax.set_title('"Deep" model decision boundary')
+```
+
+Decision boundary learned by a "deep" model with two linear layers but no nonlinear activation function.
+
+:::
+
+Oh dear -- our classifier has still learned a linear decision boundary. The reason is that we've forgotten something important: the nonlinear activation function between the first and second `Linear` layers. Between our two linear layers we've essentially performed the computation $\vs = \vx \mV\mW  = \vx(\mW\mV)$, which we could have achieved with a single matrix multiplication. So, the model above is equivalent to logistic regression again. 
+
+
+
+To correctly implement our first deep learning model, we'll add a nonlinear activation function between the two layers. Following historical precedent, we'll refer to this model as the *multilayer perceptron* (MLP). 
+
+```{python}
+#---
 class MLP(nn.Module): 
-    def __init__(self, n_features, hidden_dim=10):
+    def __init__(self, n_features, hidden_dim=10, output_dim = 2):
         super().__init__()
         self.feature_layer = nn.Linear(n_features, hidden_dim) #<1>
-        self.output_layer = nn.Linear(hidden_dim, 2) #<2>
+        self.output_layer = nn.Linear(hidden_dim, output_dim) #<2>
     
     def forward(self, X):
         x1 = torch.relu(self.feature_layer(X)) #<3>
         return torch.softmax(self.output_layer(x1), dim=1) #<4>
+#---
 ```
 1. First linear layer to learn the feature map.
 2. Second linear layer to generate the final output.
@@ -253,18 +297,156 @@ class MLP(nn.Module):
 
 Let's train this model and inspect it's performance.  We'll use a total of 5 hidden features, which means that $\mV \in \R^{n \times 5}$ and $\mW \in \R^{5\times 2}$. 
 
+
+
 ```{python}
-model = MLP(n_features=X.shape[1], hidden_dim=40)
-losses = train_model(model, X, y)
-fig, ax = plt.subplots()
-scatter_data(X, y, ax)
-plot_decision_contours(model, ax)
-ax.set_aspect('equal')
-ax.set_title('MLP Decision Boundary')
+#---
+model = MLP(n_features=X.shape[1], hidden_dim=2, output_dim = 2)
+losses = train_model(model, X, y, n_epochs = 2000)
+#---
 ```
 
+::: {#fig-decision-boundary-mlp}
+```{python}
+#| code-fold: false
+fig, ax = plt.subplots()
+plot_contours_and_scatter(model, X, y, ax)
+t = ax.set_title('MLP Decision Boundary')
+```
+
+Decision boundary learned by a multilayer perceptron with one hidden layer and two hidden features.
+
+:::
 
 
+With a hidden dimension of size 2, our model is already able to learn a nonlinear decision boundary. Let's explore the impact of increasing the hidden dimension.
+
+::: {#fig-decision-boundary-mlp-hidden-dim}
+
+```{python}
+#| code-fold: true
+torch.manual_seed(12)
+
+fig, ax = plt.subplots(2, 2, figsize=(8, 7))
+
+for i, hidden_dim in enumerate([2, 3, 5, 10]):
+    model = MLP(n_features=X.shape[1], hidden_dim=hidden_dim, output_dim = 2)
+    losses = train_model(model, X, y, n_epochs = 2000)
+    plot_contours_and_scatter(model, X, y, ax[i//2, i%2])
+    ax[i//2, i%2].set_title(f'Hidden Dim: {hidden_dim}')
+
+plt.tight_layout()
+```
+
+Decision boundaries learned by a multilayer perceptron with one hidden layer and varying hidden dimension sizes.
+
+:::
 
 
+As we increase the hidden dimension, the model develops a greater capacity to learn more complex decision boundaries, giving a relatively smoother decision boundary. 
 
+### Tuning Model Complexity
+
+Increasing the hidden dimension size is one way to increase model complexity. Another way is to add more layers, again separated by nonlinear activation functions. 
+
+```{python}
+class DeeperMLP(nn.Module): 
+    def __init__(self, n_features, hidden_dim=10, output_dim = 2):
+        super().__init__()
+        self.feature_layer1 = nn.Linear(n_features, hidden_dim) 
+        self.feature_layer2 = nn.Linear(hidden_dim, hidden_dim) 
+        self.output_layer = nn.Linear(hidden_dim, output_dim) 
+    
+    def forward(self, X):
+        x1 = torch.relu(self.feature_layer1(X)) 
+        x2 = torch.relu(self.feature_layer2(x1)) 
+        return torch.softmax(self.output_layer(x2), dim=1) 
+```
+
+As usual, models which are excessively complex may begin to show visual signs of overfitting, although techniques like cross-validation should be used to provide a formal assessment. 
+
+::: {#fig-deeper-mlp}
+
+```{python}
+#| code-fold: true
+torch.manual_seed(12345)
+model = DeeperMLP(n_features=X.shape[1], hidden_dim=50, output_dim = 2)
+losses = train_model(model, X, y, n_epochs = 5000)
+fig, ax = plt.subplots()
+plot_contours_and_scatter(model, X, y, ax)
+plot_decision_contours(model, ax)
+ax.set_title('Deeper MLP Decision Boundary')
+plt.show()
+```
+
+Decision boundary learned by a multilayer perceptron with two layers and 50 hidden features in each layer. 
+
+:::
+
+
+### Inspecting Learned Features
+
+Recall that our motivation for deep learning was to *learn the features* rather than specifying them ahead of time. What features have we learned? 
+
+Because of the composable, layered structure of our model, it's relatively simple to see the outputs of each layer on the data: we just need to call the relevant layer. For example: 
+
+```{python}
+with torch.no_grad():
+    learned_features1 = model.feature_layer1(X) 
+    learned_features2 = model.feature_layer2(torch.relu(learned_features1)) #<1>
+
+learned_features1.shape, learned_features2.shape
+```
+1. Simulating the second layer. 
+
+
+In the code block below, we call each of the two layers of our model on grid so that we can visualize the feature representations. 
+
+::: {#fig-learned-features}
+
+```{python}
+#| code-fold: true
+fig, axarr = plt.subplots(1, 3, figsize=(7, 2.7), sharex=True, sharey=True)
+
+ax = axarr[0]
+
+plot_contours_and_scatter(model, X, y, ax)
+
+ax.set_title('MLP Decision Boundary')
+
+
+x_min, x_max = X[:, 1].min() - 0.5, X[:, 1].max() + 0.5
+y_min, y_max = X[:, 2].min() - 0.5, X[:, 2].max() + 0.5
+x_grid = torch.linspace(x_min, x_max, 101)
+y_grid = torch.linspace(y_min, y_max, 101)
+
+xx, yy = torch.meshgrid(x_grid, y_grid)
+grid_points = torch.cat([torch.ones(xx.shape[0], xx.shape[1], 1), xx.unsqueeze(-1), yy.unsqueeze(-1)], dim=-1)
+
+with torch.no_grad():
+    learned_features1 = model.feature_layer1(grid_points) 
+    learned_features2 = model.feature_layer2(torch.relu(learned_features1))
+
+ax = axarr[1]
+ax.contourf(xx.numpy(), yy.numpy(), learned_features1[:, :, 0].reshape(xx.shape).numpy(), alpha=0.3, cmap = 'Greys')
+ax.grid(False)
+ax.set_title('Learned Feature (Layer 1)')
+ax.set_aspect('equal')
+ax.set_xlabel(r"$x_1$")
+
+ax = axarr[2]
+axarr[2].contourf(xx.numpy(), yy.numpy(), learned_features2[:, :, 0].reshape(xx.shape).numpy(), alpha=0.3, cmap = 'Greys')
+axarr[2].grid(False)
+ax.set_title('Learned Feature (Layer 2)')
+ax.set_aspect('equal')
+ax.set_xlabel(r"$x_1$")
+
+    
+plt.tight_layout()
+```
+
+Visualization of the decision boundary learned by the multilayer perceptron with two hidden layers, alongside one learned feature from each of the two layers. 
+
+:::
+
+The first layer is able to learn only linear features, which individually are of little use. However, by combining many linear features, the second layer is able to learn a nonlinear feature that roughly describes the radial structure of the data set. 
