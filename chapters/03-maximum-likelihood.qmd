@@ -258,16 +258,16 @@ for i in range(W0.shape[0]):
 fig, ax = plt.subplots()
 
 # show the log-likelihood as a contour plot
-im = ax.contourf(LL.numpy(), levels=100, cmap='inferno_r', extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
-ax.contour(LL.numpy(), levels=100, colors='black', linewidths=0.5, extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+im = ax.contourf(LL.detach().numpy(), levels=100, cmap='inferno_r', extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
+ax.contour(LL.detach().numpy(), levels=100, colors='black', linewidths=0.5, extent = [w1_grid[0], w1_grid[-1], w0_grid[0], w0_grid[-1]])
 
 ax.set_ylabel(r'$w_1$')
 ax.set_xlabel(r'$w_0$')
 
 # compute and plot the gradients at various points
 for w0, w1 in [( -0.5, 1.5), (0.0, 1.0), (0.5, 1.5), (.25, 0.5), (0.75, 1.0)]:
-    w0_tensor = torch.tensor(w0)
-    w1_tensor = torch.tensor(w1)
+    w0_tensor = torch.tensor(w0, requires_grad=True)
+    w1_tensor = torch.tensor(w1, requires_grad=True)
     
     ll = MSE(x, y, w0_tensor, w1_tensor)
     ll.backward()

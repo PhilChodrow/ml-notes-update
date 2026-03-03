@@ -105,17 +105,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>
-div.callout-question.callout {
-  border-left-color: lightblue;
-}
-div.callout-question.callout-style-default > .callout-header {
-  background-color: rgb(from lightblue r g b / 13%);
-}
-div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
-  content: '❓';
-  background-image: none;
-}
 div.callout-sol.callout {
   border-left-color: pink;
 }
@@ -125,6 +114,17 @@ div.callout-sol.callout-style-default > .callout-header {
 div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
   content: '📝';
+  background-image: none;
+}
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
   background-image: none;
 }
 </style>
@@ -470,7 +470,7 @@ Figure&nbsp;12.2: Example flow of data through a computational graph for a model
 <div id="fig-synthetic-data" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-synthetic-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="6ebcb188" class="cell" data-execution_count="4">
+<div id="31d3de94" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -486,7 +486,7 @@ Figure&nbsp;12.3: Example data for our first steps in deep learning.
 </figure>
 </div>
 <p>We previously implemented logistic regression like this:</p>
-<div id="11b755b8" class="cell" data-execution_count="5">
+<div id="4f734be6" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LogisticRegression: </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_features):</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W <span class="op">=</span> torch.randn(n_features, <span class="dv">2</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
@@ -495,7 +495,7 @@ Figure&nbsp;12.3: Example data for our first steps in deep learning.
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> torch.softmax(X <span class="op">@</span> <span class="va">self</span>.W, dim<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>To transition into more extensible code, we’re going to leverage torch’s <code>nn.Module</code> class, which provides a convenient way to define models with learnable parameters. Here’s how we can implement the same logistic regression model using <code>nn.Module</code>:</p>
-<div id="d5487341" class="cell" data-execution_count="6">
+<div id="a0c86ecf" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-2"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
 <span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LogisticRegression(nn.Module): </span>
 <span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_features):</span>
@@ -520,7 +520,7 @@ Figure&nbsp;12.3: Example data for our first steps in deep learning.
 </div>
 <p>If we try this model on our sample data, we should expect to see the linear decision boundary that we get from logistic regression.</p>
 <p>Let’s give this a shot.</p>
-<div id="66f89e6e" class="cell" data-execution_count="7">
+<div id="ba6977d7" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_model(model, X, y, n_epochs<span class="op">=</span><span class="dv">2000</span>): </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> torch.optim.SGD(model.parameters(), lr<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    loss_fn <span class="op">=</span> nn.CrossEntropyLoss()</span>
@@ -534,12 +534,12 @@ Figure&nbsp;12.3: Example data for our first steps in deep learning.
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> losses</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="4288f497" class="cell" data-execution_count="8">
+<div id="973be6dd" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(n_features<span class="op">=</span>X.shape[<span class="dv">1</span>])</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>losses<span class="op">=</span> train_model(model, X, y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="cf034689" class="cell" data-execution_count="9">
+<div id="a6a9c28f" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_decision_contours(model, ax): </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    x_min, x_max <span class="op">=</span> X[:, <span class="dv">1</span>].<span class="bu">min</span>() <span class="op">-</span> <span class="fl">0.5</span>, X[:, <span class="dv">1</span>].<span class="bu">max</span>() <span class="op">+</span> <span class="fl">0.5</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    y_min, y_max <span class="op">=</span> X[:, <span class="dv">2</span>].<span class="bu">min</span>() <span class="op">-</span> <span class="fl">0.5</span>, X[:, <span class="dv">2</span>].<span class="bu">max</span>() <span class="op">+</span> <span class="fl">0.5</span></span>
@@ -557,7 +557,7 @@ Figure&nbsp;12.3: Example data for our first steps in deep learning.
 <div id="fig-decision-boundary-logistic" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-decision-boundary-logistic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ae01fa2b" class="cell" data-execution_count="10">
+<div id="43173249" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>scatter_data(X, y, ax)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>plot_decision_contours(model, ax)</span>
@@ -567,10 +567,14 @@ Figure&nbsp;12.3: Example data for our first steps in deep learning.
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Feature 2'</span>)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/native/TensorShape.cpp:4383.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]</code></pre>
+</div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="40-intro-deep_files/figure-html/cell-10-output-1.png" class="figure-img" width="445" height="442"></p>
+<p><img src="40-intro-deep_files/figure-html/cell-10-output-2.png" class="figure-img" width="445" height="442"></p>
 </figure>
 </div>
 </div>
@@ -583,7 +587,7 @@ Figure&nbsp;12.4
 </div>
 <p>Since we have not baked any nonlinear features into this model, the model simply uses a linear decision boundary with predictably poor results.</p>
 <p>Now let’s instead try a model with a learnable feature map of the form in <a href="#eq-mlp-feature-map" class="quarto-xref">Equation&nbsp;<span>12.3</span></a>. Following historical precedent, we’ll refer to this model as the <em>multilayer perceptron</em> (MLP). To make this model work, the</p>
-<div id="8f869fe5" class="cell" data-execution_count="11">
+<div id="162645a9" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-6"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-6-1"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MLP(nn.Module): </span>
 <span id="annotated-cell-6-2"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_features, hidden_dim<span class="op">=</span><span class="dv">10</span>):</span>
 <span id="annotated-cell-6-3"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
@@ -615,15 +619,15 @@ Figure&nbsp;12.4
 </div>
 </div>
 <p>Let’s train this model and inspect it’s performance. We’ll use a total of 5 hidden features, which means that <span class="math inline">\(\mathbf{V}\in \mathbb{R}^{n \times 5}\)</span> and <span class="math inline">\(\mathbf{W}\in \mathbb{R}^{5\times 2}\)</span>.</p>
-<div id="e1e4b092" class="cell" data-execution_count="12">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> MLP(n_features<span class="op">=</span>X.shape[<span class="dv">1</span>], hidden_dim<span class="op">=</span><span class="dv">5</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> train_model(model, X, y)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>scatter_data(X, y, ax)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>plot_decision_contours(model, ax)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>ax.set_aspect(<span class="st">'equal'</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'MLP Decision Boundary'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="233">
+<div id="c4e5a21c" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> MLP(n_features<span class="op">=</span>X.shape[<span class="dv">1</span>], hidden_dim<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> train_model(model, X, y)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>scatter_data(X, y, ax)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>plot_decision_contours(model, ax)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ax.set_aspect(<span class="st">'equal'</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'MLP Decision Boundary'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
 <pre><code>Text(0.5, 1.0, 'MLP Decision Boundary')</code></pre>
 </div>
 <div class="cell-output cell-output-display">

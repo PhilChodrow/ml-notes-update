@@ -401,7 +401,7 @@ window.Quarto = {
 <p>Our data set for these notes is Palmer Penguins. This data set contains physiological measurements and species labels for several populations of Adelie, Chinstrap, and Gentoo penguins.</p>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">The Palmer Penguins data was originally collected by <span class="citation" data-cites="gormanEcologicalSexualDimorphism2014">Gorman, Williams, and Fraser (<a href="#ref-gormanEcologicalSexualDimorphism2014" role="doc-biblioref">2014</a>)</span> and was nicely packaged and released for use in the data science community by <span class="citation" data-cites="horstAllisonhorstPalmerpenguinsV02020">Horst, Hill, and Gorman (<a href="#ref-horstAllisonhorstPalmerpenguinsV02020" role="doc-biblioref">2020</a>)</span>. You can find <a href="https://jakevdp.github.io/PythonDataScienceHandbook/05.02-introducing-scikit-learn.html#Supervised-learning-example:-Iris-classification">a very concise summary</a> of the main workflow using a similar data set in <span class="citation" data-cites="vanderplasPythonDataScience2016">Vanderplas (<a href="#ref-vanderplasPythonDataScience2016" role="doc-biblioref">2016</a>)</span>.</span></div></div>
 <p>Let’s go ahead and acquire the data.</p>
-<div id="75b5f525" class="cell" data-execution_count="3">
+<div id="75b5f525" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
@@ -412,7 +412,7 @@ window.Quarto = {
 </div>
 <div class="page-columns page-full"><p> The <code>df</code> variable holds a <code>pandas.DataFrame</code> object. You can think of a data frame as a table of data with a variety of useful behaviors for data manipulation and visualization.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">You can learn much more about the capabilities of <code>pandas.DataFrame</code> objects in <a href="https://jakevdp.github.io/PythonDataScienceHandbook/03.00-introduction-to-pandas.html">Chapter 3</a> of <span class="citation" data-cites="vanderplasPythonDataScience2016">Vanderplas (<a href="#ref-vanderplasPythonDataScience2016" role="doc-biblioref">2016</a>)</span></span></div></div>
 <p>Let’s take a look:</p>
-<div id="e9b7197a" class="cell" data-execution_count="4">
+<div id="e9b7197a" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df.head() <span class="co"># first 5 rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
@@ -553,7 +553,7 @@ window.Quarto = {
 <div class="no-row-height column-margin column-container"><div class="">
 <p><img src="https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png" class="img-fluid"></p>
 <p>Image credit: <a href="https://allisonhorst.github.io/palmerpenguins/">@allisonhorst</a></p>
-</div></div><div id="f111bd9e" class="cell" data-execution_count="5">
+</div></div><div id="f111bd9e" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.dropna(subset<span class="op">=</span>[<span class="st">'Culmen Length (mm)'</span>, <span class="st">'Culmen Depth (mm)'</span>, <span class="st">'Species'</span>])</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[[<span class="st">'Culmen Length (mm)'</span>, <span class="st">'Culmen Depth (mm)'</span>, <span class="st">'Species'</span>]]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Species"</span>] <span class="op">=</span> df[<span class="st">"Species"</span>].<span class="bu">str</span>.split().<span class="bu">str</span>[<span class="dv">0</span>]  <span class="co"># shorten species names to first letter</span></span>
@@ -563,7 +563,7 @@ window.Quarto = {
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> df[<span class="st">'Species'</span>].astype(<span class="st">'category'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>A look at the species labels in feature space suggests that we should be able to do a pretty good job of classifying the species based on these two features. We’ll define a convenience function for visualizing the data points in feature space, colored by species.</p>
-<div id="516b632c" class="cell" data-execution_count="6">
+<div id="516b632c" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> scatter_points(X, labels, cmap, ax): </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(labels, torch.Tensor):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> labels</span>
@@ -599,7 +599,7 @@ window.Quarto = {
 <div id="fig-penguin-scatter" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-penguin-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="adc96d5b" class="cell" data-execution_count="7">
+<div id="adc96d5b" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -632,7 +632,7 @@ y_i = \begin{cases}
 </div>
 <p>For example, in our case with class labels “Adelie”, “Chinstrap”, and “Gentoo”, a one-hot encoding of a penguin of species “Adelie” would be the vector <span class="math inline">\(\mathbf{y}= (1, 0, 0)\)</span>, a penguin of species “Chinstrap” would be <span class="math inline">\(\mathbf{y}= (0, 1, 0)\)</span>, and a penguin of species “Gentoo” would be <span class="math inline">\(\mathbf{y}= (0, 0, 1)\)</span>.</p>
 <p>The <code>pandas</code> library provides a convenient way to perform one-hot encoding for data frames via the <code>pd.get_dummies</code> function.</p>
-<div id="2ce13358" class="cell" data-execution_count="8">
+<div id="2ce13358" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.get_dummies(df, columns<span class="op">=</span>[<span class="st">'Species'</span>])</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
@@ -698,7 +698,7 @@ y_i = \begin{cases}
 </div>
 </div>
 <p>Now we’re ready to split our data into features and targets and to training and test sets.</p>
-<div id="6163b333" class="cell" data-execution_count="9">
+<div id="6163b333" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>train_ix <span class="op">=</span> df.sample(frac<span class="op">=</span><span class="fl">0.8</span>, random_state<span class="op">=</span><span class="dv">42</span>).index</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_ix <span class="op">=</span> df.drop(train_ix).index</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -758,7 +758,7 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 <li><code>Y</code> is a binary <span class="math inline">\(n\times \ell\)</span> matrix in which <span class="math inline">\(y_{ik} = 1\)</span> iff individual <span class="math inline">\(i\)</span> is in class <span class="math inline">\(k\)</span>.</li>
 <li><code>Q</code> is the matrix of signal probabilities, so that <span class="math inline">\(q_{ik} = q_k(\mathbf{x}_i)\)</span> is the modeled probability that individual <span class="math inline">\(i\)</span> is in class <span class="math inline">\(k\)</span>.</li>
 </ul>
-<div id="ae2ba179" class="cell" data-execution_count="10">
+<div id="ae2ba179" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_entropy_loss(Q, Y):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>torch.mean(Y <span class="op">*</span> torch.log(Q)) <span class="op">/</span> Y.shape[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -799,7 +799,7 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 \]</span></p>
 </div>
 <p>Here’s an example of the softmax function in action:</p>
-<div id="ad2308e4" class="cell" data-execution_count="11">
+<div id="ad2308e4" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(s):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    exp_s <span class="op">=</span> torch.exp(s)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> exp_s <span class="op">/</span> torch.<span class="bu">sum</span>(exp_s)</span>
@@ -867,7 +867,7 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 \end{aligned}
 \]</span></p>
 <p>Here’s a simple implementation:</p>
-<div id="30d6ffec" class="cell" data-execution_count="12">
+<div id="30d6ffec" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax_rows(S):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># equivalent to torch.softmax(S, dim=1)</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    exp_S <span class="op">=</span> torch.exp(S)</span>
@@ -877,7 +877,7 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 <section id="torch-implementation" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="torch-implementation">Torch Implementation</h3>
 <p>We now have everything we need to illustrate the data generation process and perform inference. Our implementation of logistic regression requires only initializing the weight matrix <span class="math inline">\(\mathbf{W}\)</span> and defining a <code>forward</code> method that takes in features <span class="math inline">\(\mathbf{X}\)</span> and outputs the signal function <span class="math inline">\(\mathbf{q}(\mathbf{X})\)</span>:</p>
-<div id="27b9501e" class="cell" data-execution_count="13">
+<div id="27b9501e" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LogisticRegression: </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d_features, k_classes):</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W <span class="op">=</span> torch.zeros(d_features, k_classes)</span>
@@ -968,7 +968,7 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 <div id="fig-multinomial-classification" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-multinomial-classification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ae961094" class="cell" data-execution_count="14">
+<div id="ae961094" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -999,7 +999,7 @@ Figure&nbsp;9.2: Illustration of the data generating process for multinomial log
 \end{aligned}
 \]</span></p>
 <p>This gives our gradient descent update rule for the weight matrix <span class="math inline">\(\mathbf{W}\)</span>:</p>
-<div id="fe126f52" class="cell" data-execution_count="15">
+<div id="fe126f52" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GradientDescentOptimizer: </span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, learning_rate<span class="op">=</span><span class="fl">0.01</span>):</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> model</span>
@@ -1013,7 +1013,7 @@ Figure&nbsp;9.2: Illustration of the data generating process for multinomial log
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> X.T <span class="op">@</span> (q <span class="op">-</span> y) <span class="op">/</span> X.shape[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now it’s time to train a model. {eq-log-likelihood-multinomial}:</p>
-<div id="c51f56b4" class="cell" data-execution_count="16">
+<div id="c51f56b4" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(d_features<span class="op">=</span><span class="dv">2</span>, k_classes<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model, learning_rate<span class="op">=</span><span class="fl">0.001</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
@@ -1066,7 +1066,7 @@ Figure&nbsp;9.2: Illustration of the data generating process for multinomial log
 <div id="fig-multinomial-classification-training" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-multinomial-classification-training-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="b87e5020" class="cell" data-execution_count="17">
+<div id="b87e5020" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/native/TensorShape.cpp:4383.)
   return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]</code></pre>
@@ -1086,7 +1086,7 @@ Figure&nbsp;9.3: Training our multinomial logistic regression model for classifi
 </figure>
 </div>
 <p>Let’s finally evaluate the performance of our model on the test set.</p>
-<div id="0967c338" class="cell" data-execution_count="18">
+<div id="0967c338" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-13"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-13-1" class="code-annotation-target"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a>s_pred <span class="op">=</span> model.forward(X_test)</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-13-2" class="code-annotation-target"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a>y_test_preds <span class="op">=</span> s_pred.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-13-3" class="code-annotation-target"><a href="#annotated-cell-13-3" aria-hidden="true" tabindex="-1"></a>y_test_labels <span class="op">=</span> y_test.argmax(dim<span class="op">=</span><span class="dv">1</span>).<span class="bu">int</span>()</span>
@@ -1134,7 +1134,7 @@ Figure&nbsp;9.3: Training our multinomial logistic regression model for classifi
 <div id="fig-multinomial-classification-test" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-multinomial-classification-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="fc6cc2d3" class="cell" data-execution_count="19">
+<div id="fc6cc2d3" class="cell" data-execution_count="20">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
