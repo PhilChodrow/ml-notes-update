@@ -401,7 +401,7 @@ window.Quarto = {
 <p>Our data set for these notes is Palmer Penguins. This data set contains physiological measurements and species labels for several populations of Adelie, Chinstrap, and Gentoo penguins.</p>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">The Palmer Penguins data was originally collected by <span class="citation" data-cites="gormanEcologicalSexualDimorphism2014">Gorman, Williams, and Fraser (<a href="#ref-gormanEcologicalSexualDimorphism2014" role="doc-biblioref">2014</a>)</span> and was nicely packaged and released for use in the data science community by <span class="citation" data-cites="horstAllisonhorstPalmerpenguinsV02020">Horst, Hill, and Gorman (<a href="#ref-horstAllisonhorstPalmerpenguinsV02020" role="doc-biblioref">2020</a>)</span>. You can find <a href="https://jakevdp.github.io/PythonDataScienceHandbook/05.02-introducing-scikit-learn.html#Supervised-learning-example:-Iris-classification">a very concise summary</a> of the main workflow using a similar data set in <span class="citation" data-cites="vanderplasPythonDataScience2016">Vanderplas (<a href="#ref-vanderplasPythonDataScience2016" role="doc-biblioref">2016</a>)</span>.</span></div></div>
 <p>Let’s go ahead and acquire the data.</p>
-<div id="fb65afe5" class="cell" data-execution_count="4">
+<div id="75b5f525" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
@@ -412,9 +412,9 @@ window.Quarto = {
 </div>
 <div class="page-columns page-full"><p> The <code>df</code> variable holds a <code>pandas.DataFrame</code> object. You can think of a data frame as a table of data with a variety of useful behaviors for data manipulation and visualization.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">You can learn much more about the capabilities of <code>pandas.DataFrame</code> objects in <a href="https://jakevdp.github.io/PythonDataScienceHandbook/03.00-introduction-to-pandas.html">Chapter 3</a> of <span class="citation" data-cites="vanderplasPythonDataScience2016">Vanderplas (<a href="#ref-vanderplasPythonDataScience2016" role="doc-biblioref">2016</a>)</span></span></div></div>
 <p>Let’s take a look:</p>
-<div id="ae5bf16c" class="cell" data-execution_count="5">
+<div id="e9b7197a" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df.head() <span class="co"># first 5 rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="53">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -553,7 +553,7 @@ window.Quarto = {
 <div class="no-row-height column-margin column-container"><div class="">
 <p><img src="https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png" class="img-fluid"></p>
 <p>Image credit: <a href="https://allisonhorst.github.io/palmerpenguins/">@allisonhorst</a></p>
-</div></div><div id="e7d6da43" class="cell" data-execution_count="6">
+</div></div><div id="f111bd9e" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.dropna(subset<span class="op">=</span>[<span class="st">'Culmen Length (mm)'</span>, <span class="st">'Culmen Depth (mm)'</span>, <span class="st">'Species'</span>])</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[[<span class="st">'Culmen Length (mm)'</span>, <span class="st">'Culmen Depth (mm)'</span>, <span class="st">'Species'</span>]]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Species"</span>] <span class="op">=</span> df[<span class="st">"Species"</span>].<span class="bu">str</span>.split().<span class="bu">str</span>[<span class="dv">0</span>]  <span class="co"># shorten species names to first letter</span></span>
@@ -563,7 +563,7 @@ window.Quarto = {
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> df[<span class="st">'Species'</span>].astype(<span class="st">'category'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>A look at the species labels in feature space suggests that we should be able to do a pretty good job of classifying the species based on these two features. We’ll define a convenience function for visualizing the data points in feature space, colored by species.</p>
-<div id="f9df7cfe" class="cell" data-execution_count="7">
+<div id="516b632c" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> scatter_points(X, labels, cmap, ax): </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(labels, torch.Tensor):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> labels</span>
@@ -592,14 +592,14 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>cmap <span class="op">=</span> plt.get_cmap(<span class="st">'tab20b'</span>, <span class="dv">3</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>scatter_points(X, labels, cmap, ax)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Scatterplot of penguin species in feature space"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Penguin species in 2D feature space"</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Culmen Length (mm)"</span>)</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax.set_ylabel(<span class="st">"Culmen Depth (mm)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-penguin-scatter" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-penguin-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="6cccec23" class="cell" data-execution_count="8">
+<div id="adc96d5b" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -632,10 +632,10 @@ y_i = \begin{cases}
 </div>
 <p>For example, in our case with class labels “Adelie”, “Chinstrap”, and “Gentoo”, a one-hot encoding of a penguin of species “Adelie” would be the vector <span class="math inline">\(\mathbf{y}= (1, 0, 0)\)</span>, a penguin of species “Chinstrap” would be <span class="math inline">\(\mathbf{y}= (0, 1, 0)\)</span>, and a penguin of species “Gentoo” would be <span class="math inline">\(\mathbf{y}= (0, 0, 1)\)</span>.</p>
 <p>The <code>pandas</code> library provides a convenient way to perform one-hot encoding for data frames via the <code>pd.get_dummies</code> function.</p>
-<div id="7bcc61e2" class="cell" data-execution_count="9">
+<div id="2ce13358" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.get_dummies(df, columns<span class="op">=</span>[<span class="st">'Species'</span>])</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="57">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
@@ -698,7 +698,7 @@ y_i = \begin{cases}
 </div>
 </div>
 <p>Now we’re ready to split our data into features and targets and to training and test sets.</p>
-<div id="f29df9e6" class="cell" data-execution_count="10">
+<div id="6163b333" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>train_ix <span class="op">=</span> df.sample(frac<span class="op">=</span><span class="fl">0.8</span>, random_state<span class="op">=</span><span class="dv">42</span>).index</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_ix <span class="op">=</span> df.drop(train_ix).index</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -747,12 +747,43 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
     \mathcal{L}(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \sum_{i = 1}^n \sum_{k = 1}^K y_{ik} \log q_k(\mathbf{x}_i)\;.
 \end{aligned}
 \tag{9.1}\]</span></span></p>
-<p><a href="#eq-log-likelihood-multinomial" class="quarto-xref">Equation&nbsp;<span>9.1</span></a> is the generalization of the binary cross-entropy to the case of multiple classes.</p>
+<p>As usual, we are going to minimize the negative of <a href="#eq-log-likelihood-multinomial" class="quarto-xref">Equation&nbsp;<span>9.1</span></a>, which gives us the multinomial cross-entropy:</p>
+<p><span id="eq-cross-entropy"><span class="math display">\[
+\begin{aligned}
+    \mathrm{CE}(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = -\sum_{i = 1}^n \sum_{k = 1}^K y_{ik} \log q_k(\mathbf{x}_i)\;.
+\end{aligned}
+\tag{9.2}\]</span></span></p>
+<p>Here’s a quick implementation, assuming:</p>
+<ul>
+<li><code>Y</code> is a binary <span class="math inline">\(n\times \ell\)</span> matrix in which <span class="math inline">\(y_{ik} = 1\)</span> iff individual <span class="math inline">\(i\)</span> is in class <span class="math inline">\(k\)</span>.</li>
+<li><code>Q</code> is the matrix of signal probabilities, so that <span class="math inline">\(q_{ik} = q_k(\mathbf{x}_i)\)</span> is the modeled probability that individual <span class="math inline">\(i\)</span> is in class <span class="math inline">\(k\)</span>.</li>
+</ul>
+<div id="ae2ba179" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_entropy_loss(Q, Y):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>torch.mean(Y <span class="op">*</span> torch.log(Q)) <span class="op">/</span> Y.shape[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
-<section id="signal-function-for-logistic-regression" class="level3">
+<section id="signal-function-for-logistic-regression" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="signal-function-for-logistic-regression">Signal Function for Logistic Regression</h3>
 <p>To complete our specification for logistic regression, we need to specify the functional form of the signal function <span class="math inline">\(\mathbf{q}\)</span>. We’ll use the <em>softmax</em> function, which takes in a vector of real-valued scores and outputs a vector of probabilities.</p>
-<div id="def-softmax" class="theorem definition">
+
+<div class="no-row-height column-margin column-container"><div class="">
+<p>In the case of two inputs <span class="math inline">\(\mathbf{s}= (s_0, s_1)^T\)</span>,</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \boldsymbol{\sigma}(\mathbf{s}) &amp;= \frac{e^{s_0}}{e^{s_0} + e^{s_1}}\begin{pmatrix}e^{s_0} \\ e^{s_1}\end{pmatrix} = \begin{pmatrix}\frac{e^{s_0}}{e^{s_0} + e^{s_1}} \\ \frac{e^{s_1}}{e^{s_0} + e^{s_1}}\end{pmatrix} \\
+                  &amp;= \begin{pmatrix}
+                    \frac{1}{1 + e^{s_1 - s_0}} \\
+                    1 - \frac{1}{1 + e^{s_1 - s_0}}
+                  \end{pmatrix} \\
+                  &amp;= \begin{pmatrix}
+                    \sigma(s_1 - s_0) \\
+                    1 - \sigma(s_1 - s_0)
+                  \end{pmatrix}\;,
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(\sigma(s) = \frac{1}{1 + e^{-s}}\)</span> is the logistic sigmoid that we’ve previously studied. This is the way in which the <span class="math inline">\(\boldsymbol{\sigma}\)</span> function generalizes the logistic sigmoid.</p>
+</div></div><div id="def-softmax" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 9.2 (Softmax Function)</strong></span> The softmax function <span class="math inline">\(\boldsymbol{\sigma}: \mathbb{R}^K \rightarrow (0, 1)^K\)</span> is defined as</p>
 <p><span class="math display">\[
 \boldsymbol{\sigma}(\mathbf{s}) = \frac{1}{\sum_{j = 1}^K e^{s_j}} \begin{pmatrix}
@@ -768,12 +799,12 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 \]</span></p>
 </div>
 <p>Here’s an example of the softmax function in action:</p>
-<div id="fa0eedfd" class="cell" data-execution_count="11">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(s):</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    exp_s <span class="op">=</span> torch.exp(s)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> exp_s <span class="op">/</span> torch.<span class="bu">sum</span>(exp_s)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>])</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(softmax(s))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="ad2308e4" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(s):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    exp_s <span class="op">=</span> torch.exp(s)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> exp_s <span class="op">/</span> torch.<span class="bu">sum</span>(exp_s)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>])</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(softmax(s))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>tensor([0.0900, 0.2447, 0.6652])</code></pre>
 </div>
@@ -813,111 +844,135 @@ p(\mathbf{Y}, \mathbf{X}; \mathbf{q}) = \prod_{i=1}^n \prod_{k=1}^K q_k(\mathbf{
 \end{aligned}
 \]</span></p>
 <p>To then compute the signals <span class="math inline">\(\mathbf{q}(\mathbf{s}_i)\)</span>, we need to apply the softmax function to each <em>row</em> of the score matrix <span class="math inline">\(\mathbf{S}\)</span>:</p>
-<div id="2ba4c9cc" class="cell" data-execution_count="12">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax_rows(S):</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># equivalent to torch.softmax(S, dim=1)</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    exp_S <span class="op">=</span> torch.exp(S)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> exp_S <span class="op">/</span> torch.<span class="bu">sum</span>(exp_S, dim<span class="op">=</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{q}(\mathbf{X}) = \boldsymbol{\sigma}.(\mathbf{X}\mathbf{W})\;,
+\end{aligned}
+\]</span></p>
+<p>where we’ve used the “.” notation to express that the softmax function is applied to each row of the matrix <span class="math inline">\(\mathbf{X}\mathbf{W}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \boldsymbol{\sigma}.(\mathbf{X}\mathbf{W}) = \boldsymbol{\sigma}. \begin{pmatrix}
+    \mathbf{s}_1^\top \\
+    \mathbf{s}_2^\top \\
+    \vdots \\
+    \mathbf{s}_n^\top
+    \end{pmatrix} =
+    \begin{pmatrix}
+    \boldsymbol{\sigma}(\mathbf{s}_1)^\top \\
+    \boldsymbol{\sigma}(\mathbf{s}_2)^\top \\
+    \vdots \\
+    \boldsymbol{\sigma}(\mathbf{s}_n)^\top
+    \end{pmatrix}\;.
+\end{aligned}
+\]</span></p>
+<p>Here’s a simple implementation:</p>
+<div id="30d6ffec" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax_rows(S):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># equivalent to torch.softmax(S, dim=1)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    exp_S <span class="op">=</span> torch.exp(S)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> exp_S <span class="op">/</span> torch.<span class="bu">sum</span>(exp_S, dim<span class="op">=</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="torch-implementation" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="torch-implementation">Torch Implementation</h3>
 <p>We now have everything we need to illustrate the data generation process and perform inference. Our implementation of logistic regression requires only initializing the weight matrix <span class="math inline">\(\mathbf{W}\)</span> and defining a <code>forward</code> method that takes in features <span class="math inline">\(\mathbf{X}\)</span> and outputs the signal function <span class="math inline">\(\mathbf{q}(\mathbf{X})\)</span>:</p>
-<div id="128a4d58" class="cell" data-execution_count="13">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LogisticRegression: </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d_features, k_classes):</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W <span class="op">=</span> torch.randn(d_features, k_classes, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X):</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        S <span class="op">=</span> X <span class="op">@</span> <span class="va">self</span>.W</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> softmax_rows(S)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="27b9501e" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LogisticRegression: </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d_features, k_classes):</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W <span class="op">=</span> torch.zeros(d_features, k_classes)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X):</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        S <span class="op">=</span> X <span class="op">@</span> <span class="va">self</span>.W</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> softmax_rows(S)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>First, let’s visualize the data generating process using a random weight matrix <span class="math inline">\(\mathbf{W}\)</span>. We’ll compute the signal <span class="math inline">\(\mathbf{q}(\mathbf{x})\)</span> for a grid of points in feature space, and we’ll visualize the predicted class probabilities for each class.</p>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">The large code block below visualizes the three entries of the function <span class="math inline">\(\mathbf{q}\)</span> for a logistic regression model with a random weight matrix, and illustrates how randomly sampled data gets classes assigned from these entries.</span></div></div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set the random number generator for reproducibility</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>torch.random.manual_seed(<span class="dv">1234</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize colors</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>cmap <span class="op">=</span> plt.get_cmap(<span class="st">'tab20b'</span>, <span class="dv">3</span>)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># create a grid of points in feature space and flatten it into a list of points</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># for prediction</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>x_grid <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">100</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>y_grid <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">100</span>)</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>X_grid, Y_grid <span class="op">=</span> torch.meshgrid(x_grid, y_grid, indexing<span class="op">=</span><span class="st">'xy'</span>)</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> torch.stack([X_grid.flatten(), Y_grid.flatten()], dim<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize model with random weights</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(d_features<span class="op">=</span><span class="dv">2</span>, k_classes<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>model.W <span class="op">=</span> model.W <span class="op">*</span> <span class="fl">4.0</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># compute predicted class probabilities for each point in the grid</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> model.forward(grid)</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> Q.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co"># compute opacity as the difference between the max probability and uniform probability, for visualization purposes</span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>opacities <span class="op">=</span> Q.<span class="bu">max</span>(dim<span class="op">=</span><span class="dv">1</span>).values <span class="op">-</span> <span class="dv">1</span><span class="op">/</span><span class="dv">3</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co"># colors for each data point determined by the predicted class, with opacity determined by confidence</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> cmap(preds) </span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>colors[:, <span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> opacities.detach().numpy()</span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co"># compute predicted class for a random set of points in feature space</span></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>X_points <span class="op">=</span> <span class="dv">2</span><span class="op">*</span>torch.rand(<span class="dv">50</span>, <span class="dv">2</span>) <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>Q_points <span class="op">=</span> model.forward(X_points)</span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>point_class <span class="op">=</span> torch.multinomial(Q_points, num_samples<span class="op">=</span><span class="dv">1</span>).squeeze()</span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># construct the visualization</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">7</span>))</span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># color for the chosen class</span></span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> cmap(k)</span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># colormap for individual panel</span></span>
-<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    class_cmap_grad <span class="op">=</span> plt.cm.colors.LinearSegmentedColormap.from_list(<span class="st">'white_to_color'</span>, [<span class="st">'white'</span>, color])</span>
-<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># plot the predicted class probabilities for class k</span></span>
-<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>    axarr.ravel()[k].imshow(Q[:, k].reshape(<span class="dv">100</span>, <span class="dv">100</span>).detach(), extent<span class="op">=</span>(x_grid.<span class="bu">min</span>(), x_grid.<span class="bu">max</span>(), y_grid.<span class="bu">min</span>(), y_grid.<span class="bu">max</span>()), origin<span class="op">=</span><span class="st">'lower'</span>, cmap<span class="op">=</span>class_cmap_grad, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>, zorder <span class="op">=</span> <span class="dv">100</span>)</span>
-<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>    axarr.ravel()[k].set_title(<span class="vs">fr"</span><span class="dv">$</span><span class="vs">q_</span><span class="sc">{</span>k<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="kw">(</span><span class="dv">\m</span><span class="vs">athbf</span><span class="ch">{{</span><span class="vs">x</span><span class="ch">}}</span><span class="kw">)</span><span class="dv">$</span><span class="vs"> - probability of class </span><span class="sc">{</span>k<span class="sc">}</span><span class="vs">"</span>)</span>
-<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># labels</span></span>
-<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> k <span class="op">==</span> <span class="dv">2</span>: </span>
-<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>        axarr.ravel()[k].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">x_1</span><span class="dv">$</span><span class="vs">"</span>, ylabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">x_2</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> k <span class="op">==</span> <span class="dv">0</span>: </span>
-<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>        axarr.ravel()[k].<span class="bu">set</span>(ylabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">x_2</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a><span class="co"># plot all the predicted class probabilities together, with opacity determined by confidence</span></span>
-<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>axarr.ravel()[<span class="dv">3</span>].imshow(colors.reshape(<span class="dv">100</span>, <span class="dv">100</span>, <span class="dv">4</span>), extent<span class="op">=</span>(x_grid.<span class="bu">min</span>(), x_grid.<span class="bu">max</span>(), y_grid.<span class="bu">min</span>(), y_grid.<span class="bu">max</span>()), origin<span class="op">=</span><span class="st">'lower'</span>, zorder <span class="op">=</span> <span class="dv">100</span>)</span>
-<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a><span class="co"># for k in range(3):</span></span>
-<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a><span class="co">#     color = cmap(k)</span></span>
-<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a><span class="co">#     marker = ['o', 's', 'D'][k]</span></span>
-<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a><span class="co">#     axarr.ravel()[3].scatter(X_points[point_class == k, 1], X_points[point_class == k, 0], color=color, edgecolor='k', marker=marker, zorder = 200, label=f"Class {k+1}")</span></span>
-<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>scatter_points(X_points, point_class, cmap, axarr.ravel()[<span class="dv">3</span>])</span>
-<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a><span class="co"># scatter_points(X_points, point_class, cmap, axarr.ravel()[3])</span></span>
-<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>axarr.ravel()[<span class="dv">3</span>].set_title(<span class="st">"Predicted class (color) </span><span class="ch">\n</span><span class="st">and confidence (opacity)"</span>)</span>
-<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>axarr.ravel()[<span class="dv">3</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">x_1</span><span class="dv">$</span><span class="vs">"</span>)</span>
-<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set the random number generator for reproducibility</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>torch.random.manual_seed(<span class="dv">1234</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize colors</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>cmap <span class="op">=</span> plt.get_cmap(<span class="st">'tab20b'</span>, <span class="dv">3</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># create a grid of points in feature space and flatten it into a list of points</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># for prediction</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>x_grid <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">500</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>y_grid <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">500</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>X_grid, Y_grid <span class="op">=</span> torch.meshgrid(x_grid, y_grid, indexing<span class="op">=</span><span class="st">'xy'</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> torch.stack([X_grid.flatten(), Y_grid.flatten()], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize model with random weights</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(d_features<span class="op">=</span><span class="dv">2</span>, k_classes<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>model.W <span class="op">=</span> torch.randn(<span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>model.W <span class="op">=</span> model.W <span class="op">*</span> <span class="fl">4.0</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co"># compute predicted class probabilities for each point in the grid</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> model.forward(grid)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> Q.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co"># compute opacity as the difference between the max probability and uniform probability, for visualization purposes</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>opacities <span class="op">=</span> Q.<span class="bu">max</span>(dim<span class="op">=</span><span class="dv">1</span>).values <span class="op">-</span> <span class="dv">1</span><span class="op">/</span><span class="dv">3</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co"># colors for each data point determined by the predicted class, with opacity determined by confidence</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> cmap(preds) </span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>colors[:, <span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> opacities.detach().numpy()</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="co"># compute predicted class for a random set of points in feature space</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>X_points <span class="op">=</span> <span class="dv">2</span><span class="op">*</span>torch.rand(<span class="dv">50</span>, <span class="dv">2</span>) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>Q_points <span class="op">=</span> model.forward(X_points)</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>point_class <span class="op">=</span> torch.multinomial(Q_points, num_samples<span class="op">=</span><span class="dv">1</span>).squeeze()</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co"># construct the visualization</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">7</span>))</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># color for the chosen class</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> cmap(k)</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># colormap for individual panel</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>    class_cmap_grad <span class="op">=</span> plt.cm.colors.LinearSegmentedColormap.from_list(<span class="st">'white_to_color'</span>, [<span class="st">'white'</span>, color])</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># plot the predicted class probabilities for class k</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>    axarr.ravel()[k].imshow(Q[:, k].reshape(<span class="dv">500</span>, <span class="dv">500</span>).detach(), extent<span class="op">=</span>(x_grid.<span class="bu">min</span>(), x_grid.<span class="bu">max</span>(), y_grid.<span class="bu">min</span>(), y_grid.<span class="bu">max</span>()), origin<span class="op">=</span><span class="st">'lower'</span>, cmap<span class="op">=</span>class_cmap_grad, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>, zorder <span class="op">=</span> <span class="dv">100</span>)</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>    axarr.ravel()[k].set_title(<span class="vs">fr"</span><span class="dv">$</span><span class="vs">q_</span><span class="sc">{</span>k<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="kw">(</span><span class="dv">\m</span><span class="vs">athbf</span><span class="ch">{{</span><span class="vs">x</span><span class="ch">}}</span><span class="kw">)</span><span class="dv">$</span><span class="vs"> - probability of class </span><span class="sc">{</span>k<span class="sc">}</span><span class="vs">"</span>)</span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># labels</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> k <span class="op">==</span> <span class="dv">2</span>: </span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>        axarr.ravel()[k].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">x_1</span><span class="dv">$</span><span class="vs">"</span>, ylabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">x_2</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> k <span class="op">==</span> <span class="dv">0</span>: </span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>        axarr.ravel()[k].<span class="bu">set</span>(ylabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">x_2</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="co"># plot all the predicted class probabilities together, with opacity determined by confidence</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>axarr.ravel()[<span class="dv">3</span>].imshow(colors.reshape(<span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">4</span>), extent<span class="op">=</span>(x_grid.<span class="bu">min</span>(), x_grid.<span class="bu">max</span>(), y_grid.<span class="bu">min</span>(), y_grid.<span class="bu">max</span>()), origin<span class="op">=</span><span class="st">'lower'</span>, zorder <span class="op">=</span> <span class="dv">100</span>)</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a><span class="co"># for k in range(3):</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="co">#     color = cmap(k)</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a><span class="co">#     marker = ['o', 's', 'D'][k]</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a><span class="co">#     axarr.ravel()[3].scatter(X_points[point_class == k, 1], X_points[point_class == k, 0], color=color, edgecolor='k', marker=marker, zorder = 200, label=f"Class {k+1}")</span></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a>scatter_points(X_points, point_class, cmap, axarr.ravel()[<span class="dv">3</span>])</span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a><span class="co"># scatter_points(X_points, point_class, cmap, axarr.ravel()[3])</span></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>axarr.ravel()[<span class="dv">3</span>].set_title(<span class="st">"Predicted class (color) </span><span class="ch">\n</span><span class="st">and confidence (opacity)"</span>)</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>axarr.ravel()[<span class="dv">3</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">x_1</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-multinomial-classification" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-multinomial-classification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="d93f45fd" class="cell" data-execution_count="14">
+<div id="ae961094" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="15-multinomial-classification_files/figure-html/cell-14-output-1.png" class="figure-img" width="663" height="651"></p>
+<p><img src="15-multinomial-classification_files/figure-html/cell-15-output-1.png" class="figure-img" width="663" height="651"></p>
 </figure>
 </div>
 </div>
@@ -931,72 +986,95 @@ Figure&nbsp;9.2: Illustration of the data generating process for multinomial log
 </section>
 <section id="model-training" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="model-training">Model Training</h3>
-<p>Now it’s time to train a model. Our approach is again gradient descent. The addition of multiple classes, reflected in the weight <em>matrix</em> <span class="math inline">\(\mathbf{W}\in \mathbb{R}^{d \times k}\)</span> (rather than a weight <em>vector</em> <span class="math inline">\(\mathbf{w}\in \mathbb{R}^d\)</span> as in binary classification), doesn’t really change the training procedure but it does make it awkward to compute gradients by hand. We’ll rely on PyTorch’s automatic differentiation to compute the gradients for us. In order to compute the gradients, we first need to implement the cross-entropy loss function from equation {eq-log-likelihood-multinomial}:</p>
-<div id="97741740" class="cell" data-execution_count="15">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_entropy_loss(q, Y):</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>torch.<span class="bu">sum</span>(Y <span class="op">*</span> torch.log(q)) <span class="op">/</span> Y.shape[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To train the model, we’ll need the gradient-descent updates for the entries of <span class="math inline">\(\mathbf{W}\)</span>. The gradient of the log-likelihood with respect to <span class="math inline">\(w_{jk}\)</span> is given by</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \frac{\partial \mathcal{L}}{\partial w_{jk}} = \sum_{i=1}^n x_{ij} (q_k(\mathbf{x}_i) - y_{ik})\;.
+\end{aligned}
+\]</span></p>
+<p>which can be written in vectorized form as</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \nabla \mathcal{L}= \mathbf{X}^\top (\mathbf{q}(\mathbf{X}) - \mathbf{Y})\;.
+\end{aligned}
+\]</span></p>
+<p>This gives our gradient descent update rule for the weight matrix <span class="math inline">\(\mathbf{W}\)</span>:</p>
+<div id="fe126f52" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GradientDescentOptimizer: </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, learning_rate<span class="op">=</span><span class="fl">0.01</span>):</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> model</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.learning_rate <span class="op">=</span> learning_rate</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(<span class="va">self</span>, X, y):</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model.W <span class="op">-=</span> <span class="va">self</span>.learning_rate <span class="op">*</span> <span class="va">self</span>.grad_func(X, y)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> grad_func(<span class="va">self</span>, X, y):</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> <span class="va">self</span>.model.forward(X)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> X.T <span class="op">@</span> (q <span class="op">-</span> y) <span class="op">/</span> X.shape[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="9634b733" class="cell" data-execution_count="16">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(d_features<span class="op">=</span><span class="dv">2</span>, k_classes<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10000</span>):</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute predicted class probabilities</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> model.forward(X_train)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute loss</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> cross_entropy_loss(q, y_train)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    losses.append(loss.item())</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute gradients</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># update weights using gradient descent</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        model.W <span class="op">-=</span> <span class="fl">0.001</span> <span class="op">*</span> model.W.grad</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        model.W.grad.zero_()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Now it’s time to train a model. {eq-log-likelihood-multinomial}:</p>
+<div id="c51f56b4" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(d_features<span class="op">=</span><span class="dv">2</span>, k_classes<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> GradientDescentOptimizer(model, learning_rate<span class="op">=</span><span class="fl">0.001</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">50000</span>):</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute predicted class probabilities</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> model.forward(X_train)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute loss</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> cross_entropy_loss(q, y_train)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    losses.append(loss.item())</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># update weights using gradient descent</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    opt.step(X_train, y_train)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>x_grid <span class="op">=</span> torch.linspace(df[<span class="st">'Culmen Length (mm)'</span>].<span class="bu">min</span>()<span class="op">-</span><span class="dv">2</span>, df[<span class="st">'Culmen Length (mm)'</span>].<span class="bu">max</span>()<span class="op">+</span><span class="dv">2</span>, <span class="dv">100</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>y_grid <span class="op">=</span> torch.linspace(df[<span class="st">'Culmen Depth (mm)'</span>].<span class="bu">min</span>()<span class="op">-</span><span class="dv">2</span>, df[<span class="st">'Culmen Depth (mm)'</span>].<span class="bu">max</span>()<span class="op">+</span><span class="dv">2</span>, <span class="dv">100</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>X_grid, Y_grid <span class="op">=</span> torch.meshgrid(x_grid, y_grid)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> torch.stack([X_grid.flatten(), Y_grid.flatten()], dim<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> model.forward(grid)</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> Q.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> cmap(preds)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>colors[:, <span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> Q.<span class="bu">max</span>(dim<span class="op">=</span><span class="dv">1</span>).values.detach().numpy()</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].plot(losses)</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].set_title(<span class="st">"Loss during training"</span>)</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].set_xlabel(<span class="st">"Epoch"</span>)</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].set_ylabel(<span class="st">"Multinomial Cross-Entropy Loss"</span>)</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].loglog()</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].imshow(colors.reshape(<span class="dv">100</span>, <span class="dv">100</span>, <span class="dv">4</span>).transpose(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>), extent<span class="op">=</span>(x_grid.<span class="bu">min</span>(), x_grid.<span class="bu">max</span>(), y_grid.<span class="bu">min</span>(), y_grid.<span class="bu">max</span>()), origin<span class="op">=</span><span class="st">'lower'</span>, zorder <span class="op">=</span> <span class="dv">100</span>, aspect<span class="op">=</span><span class="st">'auto'</span>)</span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="co"># sns.scatterplot(data=df, x='Culmen Length (mm)', y='Culmen Depth (mm)', hue='Species', style='Species', edgecolor='k', alpha=0.7, zorder = 200)</span></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].set_title(<span class="st">"Predicted class (color) </span><span class="ch">\n</span><span class="st">and confidence (opacity)"</span>)</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>y_train_labels <span class="op">=</span> y_train.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>penguin_names <span class="op">=</span> [<span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span>]</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>y_train_labels_named <span class="op">=</span> [penguin_names[i] <span class="cf">for</span> i <span class="kw">in</span> y_train_labels.numpy()]</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>y_train_labels_named <span class="op">=</span> pd.Series(y_train_labels_named, dtype<span class="op">=</span><span class="st">'category'</span>)</span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>scatter_points(X_train, y_train_labels_named, cmap, axarr[<span class="dv">1</span>])</span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].set_xlabel(<span class="st">"Culmen Length (mm)"</span>)</span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> axarr[<span class="dv">1</span>].set_ylabel(<span class="st">"Culmen Depth (mm)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>x_grid <span class="op">=</span> torch.linspace(df[<span class="st">'Culmen Length (mm)'</span>].<span class="bu">min</span>()<span class="op">-</span><span class="dv">2</span>, df[<span class="st">'Culmen Length (mm)'</span>].<span class="bu">max</span>()<span class="op">+</span><span class="dv">2</span>, <span class="dv">500</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>y_grid <span class="op">=</span> torch.linspace(df[<span class="st">'Culmen Depth (mm)'</span>].<span class="bu">min</span>()<span class="op">-</span><span class="dv">2</span>, df[<span class="st">'Culmen Depth (mm)'</span>].<span class="bu">max</span>()<span class="op">+</span><span class="dv">2</span>, <span class="dv">500</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>X_grid, Y_grid <span class="op">=</span> torch.meshgrid(x_grid, y_grid)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> torch.stack([X_grid.flatten(), Y_grid.flatten()], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> model.forward(grid)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> Q.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> cmap(preds)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>colors[:, <span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> Q.<span class="bu">max</span>(dim<span class="op">=</span><span class="dv">1</span>).values.detach().numpy()</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].plot(losses)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].set_title(<span class="st">"Loss during training"</span>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].set_ylabel(<span class="st">"Multinomial Cross-Entropy Loss"</span>)</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">0</span>].loglog()</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].imshow(colors.reshape(<span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">4</span>).transpose(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>), extent<span class="op">=</span>(x_grid.<span class="bu">min</span>(), x_grid.<span class="bu">max</span>(), y_grid.<span class="bu">min</span>(), y_grid.<span class="bu">max</span>()), origin<span class="op">=</span><span class="st">'lower'</span>, zorder <span class="op">=</span> <span class="dv">100</span>, aspect<span class="op">=</span><span class="st">'auto'</span>)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="co"># sns.scatterplot(data=df, x='Culmen Length (mm)', y='Culmen Depth (mm)', hue='Species', style='Species', edgecolor='k', alpha=0.7, zorder = 200)</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].set_title(<span class="st">"Predicted class (color) </span><span class="ch">\n</span><span class="st">and confidence (opacity)"</span>)</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>y_train_labels <span class="op">=</span> y_train.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>penguin_names <span class="op">=</span> [<span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span>]</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>y_train_labels_named <span class="op">=</span> [penguin_names[i] <span class="cf">for</span> i <span class="kw">in</span> y_train_labels.numpy()]</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>y_train_labels_named <span class="op">=</span> pd.Series(y_train_labels_named, dtype<span class="op">=</span><span class="st">'category'</span>)</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>scatter_points(X_train, y_train_labels_named, cmap, axarr[<span class="dv">1</span>])</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>axarr[<span class="dv">1</span>].set_xlabel(<span class="st">"Culmen Length (mm)"</span>)</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> axarr[<span class="dv">1</span>].set_ylabel(<span class="st">"Culmen Depth (mm)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-multinomial-classification-training" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-multinomial-classification-training-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="6c13f292" class="cell" data-execution_count="17">
+<div id="b87e5020" class="cell" data-execution_count="17">
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/native/TensorShape.cpp:4383.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]</code></pre>
+</div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="15-multinomial-classification_files/figure-html/cell-17-output-1.png" class="figure-img" width="657" height="392"></p>
+<p><img src="15-multinomial-classification_files/figure-html/cell-18-output-2.png" class="figure-img" width="683" height="392"></p>
 </figure>
 </div>
 </div>
@@ -1008,59 +1086,59 @@ Figure&nbsp;9.3: Training our multinomial logistic regression model for classifi
 </figure>
 </div>
 <p>Let’s finally evaluate the performance of our model on the test set.</p>
-<div id="cec4c676" class="cell" data-execution_count="18">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-12"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-12-1" class="code-annotation-target"><a href="#annotated-cell-12-1" aria-hidden="true" tabindex="-1"></a>s_pred <span class="op">=</span> model.forward(X_test)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-12-2" class="code-annotation-target"><a href="#annotated-cell-12-2" aria-hidden="true" tabindex="-1"></a>y_test_preds <span class="op">=</span> s_pred.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-12-3" class="code-annotation-target"><a href="#annotated-cell-12-3" aria-hidden="true" tabindex="-1"></a>y_test_labels <span class="op">=</span> y_test.argmax(dim<span class="op">=</span><span class="dv">1</span>).<span class="bu">int</span>()</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-12-4" class="code-annotation-target"><a href="#annotated-cell-12-4" aria-hidden="true" tabindex="-1"></a>acc <span class="op">=</span> (<span class="fl">1.0</span><span class="op">*</span>(y_test_preds <span class="op">==</span> y_test_labels)).mean().item()</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="0967c338" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-13"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-13-1" class="code-annotation-target"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a>s_pred <span class="op">=</span> model.forward(X_test)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-13-2" class="code-annotation-target"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a>y_test_preds <span class="op">=</span> s_pred.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-13-3" class="code-annotation-target"><a href="#annotated-cell-13-3" aria-hidden="true" tabindex="-1"></a>y_test_labels <span class="op">=</span> y_test.argmax(dim<span class="op">=</span><span class="dv">1</span>).<span class="bu">int</span>()</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-13-4" class="code-annotation-target"><a href="#annotated-cell-13-4" aria-hidden="true" tabindex="-1"></a>acc <span class="op">=</span> (<span class="fl">1.0</span><span class="op">*</span>(y_test_preds <span class="op">==</span> y_test_labels)).mean().item()</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-12" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-12" data-code-lines="1" data-code-annotation="1">Compute the score matrix <span class="math inline">\(\mathbf{S}\)</span> on the test set.</span>
+<span data-code-cell="annotated-cell-13" data-code-lines="1" data-code-annotation="1">Compute the score matrix <span class="math inline">\(\mathbf{S}\)</span> on the test set.</span>
 </dd>
-<dt data-target-cell="annotated-cell-12" data-target-annotation="2">2</dt>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-12" data-code-lines="2" data-code-annotation="2">Compute the predicted class labels as the largest score in each row of <span class="math inline">\(\mathbf{S}\)</span>.</span>
+<span data-code-cell="annotated-cell-13" data-code-lines="2" data-code-annotation="2">Compute the predicted class labels as the largest score in each row of <span class="math inline">\(\mathbf{S}\)</span>.</span>
 </dd>
-<dt data-target-cell="annotated-cell-12" data-target-annotation="3">3</dt>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-12" data-code-lines="3" data-code-annotation="3">Compute the true class labels by taking the argmax of the one-hot encoded labels.</span>
+<span data-code-cell="annotated-cell-13" data-code-lines="3" data-code-annotation="3">Compute the true class labels by taking the argmax of the one-hot encoded labels.</span>
 </dd>
-<dt data-target-cell="annotated-cell-12" data-target-annotation="4">4</dt>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-12" data-code-lines="4" data-code-annotation="4">Compute the accuracy as the fraction of correctly classified data points.</span>
+<span data-code-cell="annotated-cell-13" data-code-lines="4" data-code-annotation="4">Compute the accuracy as the fraction of correctly classified data points.</span>
 </dd>
 </dl>
 </div>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>ax.imshow(colors.reshape(<span class="dv">100</span>, <span class="dv">100</span>, <span class="dv">4</span>).transpose(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>), extent<span class="op">=</span>(x_grid.<span class="bu">min</span>(), x_grid.<span class="bu">max</span>(), y_grid.<span class="bu">min</span>(), y_grid.<span class="bu">max</span>()), origin<span class="op">=</span><span class="st">'lower'</span>, zorder <span class="op">=</span> <span class="dv">100</span>, aspect<span class="op">=</span><span class="st">'auto'</span>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>y_test_labels <span class="op">=</span> y_test.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>penguin_names <span class="op">=</span> [<span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span>]</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>y_test_labels_named <span class="op">=</span> [penguin_names[i] <span class="cf">for</span> i <span class="kw">in</span> y_test_labels.numpy()]</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>y_test_labels_named <span class="op">=</span> pd.Series(y_test_labels_named, dtype<span class="op">=</span><span class="st">'category'</span>)</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>scatter_points(X_test, y_test_labels_named, cmap, ax)</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="ss">f"Predicted class (color) </span><span class="ch">\n</span><span class="ss">and confidence (opacity)</span><span class="ch">\n</span><span class="ss">Test set accuracy: </span><span class="sc">{</span>acc<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Culmen Length (mm)"</span>)</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax.set_ylabel(<span class="st">"Culmen Depth (mm)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>ax.imshow(colors.reshape(<span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">4</span>).transpose(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>), extent<span class="op">=</span>(x_grid.<span class="bu">min</span>(), x_grid.<span class="bu">max</span>(), y_grid.<span class="bu">min</span>(), y_grid.<span class="bu">max</span>()), origin<span class="op">=</span><span class="st">'lower'</span>, zorder <span class="op">=</span> <span class="dv">100</span>, aspect<span class="op">=</span><span class="st">'auto'</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>y_test_labels <span class="op">=</span> y_test.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>penguin_names <span class="op">=</span> [<span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span>]</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>y_test_labels_named <span class="op">=</span> [penguin_names[i] <span class="cf">for</span> i <span class="kw">in</span> y_test_labels.numpy()]</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>y_test_labels_named <span class="op">=</span> pd.Series(y_test_labels_named, dtype<span class="op">=</span><span class="st">'category'</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>scatter_points(X_test, y_test_labels_named, cmap, ax)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="ss">f"Predicted class (color) </span><span class="ch">\n</span><span class="ss">and confidence (opacity)</span><span class="ch">\n</span><span class="ss">Test set accuracy: </span><span class="sc">{</span>acc<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Culmen Length (mm)"</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> ax.set_ylabel(<span class="st">"Culmen Depth (mm)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-multinomial-classification-test" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-multinomial-classification-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="a4af5982" class="cell" data-execution_count="19">
+<div id="fc6cc2d3" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="15-multinomial-classification_files/figure-html/cell-19-output-1.png" class="figure-img" width="502" height="550"></p>
+<p><img src="15-multinomial-classification_files/figure-html/cell-20-output-1.png" class="figure-img" width="502" height="550"></p>
 </figure>
 </div>
 </div>

@@ -266,8 +266,8 @@ ax.set_xlabel(r'$w_0$')
 
 # compute and plot the gradients at various points
 for w0, w1 in [( -0.5, 1.5), (0.0, 1.0), (0.5, 1.5), (.25, 0.5), (0.75, 1.0)]:
-    w0_tensor = torch.tensor(w0, requires_grad=True)
-    w1_tensor = torch.tensor(w1, requires_grad=True)
+    w0_tensor = torch.tensor(w0)
+    w1_tensor = torch.tensor(w1)
     
     ll = MSE(x, y, w0_tensor, w1_tensor)
     ll.backward()

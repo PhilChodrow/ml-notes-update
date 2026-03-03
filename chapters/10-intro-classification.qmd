@@ -307,7 +307,7 @@ To implement binary logistic regression, we can use largely the same machinery t
 #---
 class BinaryLogisticRegression: 
     def __init__(self, n_features): 
-        self.w = torch.zeros(n_features, 1, requires_grad=True)
+        self.w = torch.zeros(n_features, 1)
 
     def forward(self, X): 
         return sigmoid(X @ self.w)        

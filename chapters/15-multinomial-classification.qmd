@@ -116,7 +116,7 @@ Now let's visualize our penguins:
 fig, ax = plt.subplots(figsize=(6, 6))
 cmap = plt.get_cmap('tab20b', 3)
 scatter_points(X, labels, cmap, ax)
-ax.set_title("Scatterplot of penguin species in feature space")
+ax.set_title("Penguin species in 2D feature space")
 ax.set_xlabel("Culmen Length (mm)")
 t = ax.set_ylabel("Culmen Depth (mm)")
 ```
@@ -160,7 +160,6 @@ df.head()
 Now we're ready to split our data into features and targets and to training and test sets. 
 
 ```{python}
-
 train_ix = df.sample(frac=0.8, random_state=42).index
 test_ix = df.drop(train_ix).index
 
@@ -219,11 +218,51 @@ $$
 \end{aligned}
 $${#eq-log-likelihood-multinomial}
 
-@eq-log-likelihood-multinomial is the generalization of the binary cross-entropy to the case of multiple classes.
+As usual, we are going to minimize the negative of @eq-log-likelihood-multinomial, which gives us the multinomial cross-entropy: 
+
+$$
+\begin{aligned}
+    \mathrm{CE}(\mY, \mX; \vq) = -\sum_{i = 1}^n \sum_{k = 1}^K y_{ik} \log q_k(\vx_i)\;. 
+\end{aligned}
+$${#eq-cross-entropy}
+
+Here's a quick implementation, assuming: 
+
+- `Y` is a binary $n\times \ell$ matrix in which $y_{ik} = 1$ iff individual $i$ is in class $k$. 
+- `Q` is the matrix of signal probabilities, so that $q_{ik} = q_k(\vx_i)$ is the modeled probability that individual $i$ is in class $k$. 
+
+```{python}
+#---
+def cross_entropy_loss(Q, Y):
+    return -torch.mean(Y * torch.log(Q)) / Y.shape[0]
+#---
+```
 
 ### Signal Function for Logistic Regression
 
 To complete our specification for logistic regression, we need to specify the functional form of the signal function $\vq$. We'll use the *softmax* function, which takes in a vector of real-valued scores and outputs a vector of probabilities. 
+
+::: {.column-margin}
+
+In the case of two inputs $\vs = (s_0, s_1)^T$, 
+
+$$
+\begin{aligned}
+    \softmax(\vs) &= \frac{e^{s_0}}{e^{s_0} + e^{s_1}}\begin{pmatrix}e^{s_0} \\ e^{s_1}\end{pmatrix} = \begin{pmatrix}\frac{e^{s_0}}{e^{s_0} + e^{s_1}} \\ \frac{e^{s_1}}{e^{s_0} + e^{s_1}}\end{pmatrix} \\
+                  &= \begin{pmatrix}
+                    \frac{1}{1 + e^{s_1 - s_0}} \\ 
+                    1 - \frac{1}{1 + e^{s_1 - s_0}}
+                  \end{pmatrix} \\ 
+                  &= \begin{pmatrix}
+                    \sigma(s_1 - s_0) \\ 
+                    1 - \sigma(s_1 - s_0)
+                  \end{pmatrix}\;,
+\end{aligned}
+$$
+
+where $\sigma(s) = \frac{1}{1 + e^{-s}}$ is the logistic sigmoid that we've previously studied. This is the way in which the $\softmax$ function generalizes the logistic sigmoid.  
+
+:::
 
 ::: {#def-softmax}
 
@@ -301,6 +340,34 @@ $$
 
 To then compute the signals $\vq(\vs_i)$, we need to apply the softmax function to each *row* of the score matrix $\mS$:
 
+$$
+\begin{aligned}
+    \vq(\mX) = \softmax.(\mX\mW)\;,
+\end{aligned}
+$$
+
+where we've used the "." notation to express that the softmax function is applied to each row of the matrix $\mX\mW$: 
+
+$$
+\begin{aligned}
+    \softmax.(\mX\mW) = \softmax. \begin{pmatrix}
+    \vs_1^\top \\
+    \vs_2^\top \\
+    \vdots \\
+    \vs_n^\top
+    \end{pmatrix} = 
+    \begin{pmatrix}
+    \softmax(\vs_1)^\top \\
+    \softmax(\vs_2)^\top \\
+    \vdots \\
+    \softmax(\vs_n)^\top
+    \end{pmatrix}\;.
+\end{aligned}
+$$
+
+Here's a simple implementation: 
+
+
 ```{python}
 #---
 def softmax_rows(S):
@@ -318,7 +385,7 @@ We now have everything we need to illustrate the data generation process and per
 #---
 class LogisticRegression: 
     def __init__(self, d_features, k_classes):
-        self.W = torch.randn(d_features, k_classes, requires_grad=True)
+        self.W = torch.zeros(d_features, k_classes)
 
     def forward(self, X):
         S = X @ self.W
@@ -343,13 +410,14 @@ cmap = plt.get_cmap('tab20b', 3)
 
 # create a grid of points in feature space and flatten it into a list of points
 # for prediction
-x_grid = torch.linspace(-1, 1, 100)
-y_grid = torch.linspace(-1, 1, 100)
+x_grid = torch.linspace(-1, 1, 500)
+y_grid = torch.linspace(-1, 1, 500)
 X_grid, Y_grid = torch.meshgrid(x_grid, y_grid, indexing='xy')
 grid = torch.stack([X_grid.flatten(), Y_grid.flatten()], dim=1)
 
 # initialize model with random weights
 model = LogisticRegression(d_features=2, k_classes=3)
+model.W = torch.randn(2, 3)
 model.W = model.W * 4.0
 
 # compute predicted class probabilities for each point in the grid
@@ -380,7 +448,7 @@ for k in range(3):
     class_cmap_grad = plt.cm.colors.LinearSegmentedColormap.from_list('white_to_color', ['white', color])
 
     # plot the predicted class probabilities for class k
-    axarr.ravel()[k].imshow(Q[:, k].reshape(100, 100).detach(), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', cmap=class_cmap_grad, vmin=0, vmax=1, zorder = 100)
+    axarr.ravel()[k].imshow(Q[:, k].reshape(500, 500).detach(), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', cmap=class_cmap_grad, vmin=0, vmax=1, zorder = 100)
 
     axarr.ravel()[k].set_title(fr"$q_{k+1}(\mathbf{{x}})$ - probability of class {k}")
 
@@ -392,7 +460,7 @@ for k in range(3):
     
 
 # plot all the predicted class probabilities together, with opacity determined by confidence
-axarr.ravel()[3].imshow(colors.reshape(100, 100, 4), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100)
+axarr.ravel()[3].imshow(colors.reshape(500, 500, 4), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100)
 
 # for k in range(3):
 #     color = cmap(k)
@@ -417,32 +485,57 @@ Illustration of the data generating process for multinomial logistic regression.
 
 ### Model Training
 
-Now it's time to train a model. Our approach is again gradient descent. The addition of multiple classes, reflected in the weight *matrix* $\mW \in \R^{d \times k}$ (rather than a weight *vector* $\vw \in \R^d$ as in binary classification), doesn't really change the training procedure but it does make it awkward to compute gradients by hand. We'll rely on PyTorch's automatic differentiation to compute the gradients for us. In order to compute the gradients, we first need to implement the cross-entropy loss function from equation {eq-log-likelihood-multinomial}:
+To train the model, we'll need the gradient-descent updates for the entries of $\mW$. The gradient of the log-likelihood with respect to $w_{jk}$ is given by
+
+$$
+\begin{aligned}
+    \frac{\partial \cL}{\partial w_{jk}} = \sum_{i=1}^n x_{ij} (q_k(\vx_i) - y_{ik})\;.
+\end{aligned}
+$$
+
+which can be written in vectorized form as 
+
+$$
+\begin{aligned}
+    \nabla \cL = \mX^\top (\vq(\mX) - \mY )\;.
+\end{aligned}
+$$
+
+This gives our gradient descent update rule for the weight matrix $\mW$:
 
 ```{python}
-#---
-def cross_entropy_loss(q, Y):
-    return -torch.sum(Y * torch.log(q)) / Y.shape[0]
-#---
+class GradientDescentOptimizer: 
+    def __init__(self, model, learning_rate=0.01):
+        self.model = model
+        self.learning_rate = learning_rate
+
+    def step(self, X, y):
+        self.model.W -= self.learning_rate * self.grad_func(X, y)
+    
+    def grad_func(self, X, y):
+        q = self.model.forward(X)
+        return X.T @ (q - y) / X.shape[0]
 ```
+
+
+Now it's time to train a model. {eq-log-likelihood-multinomial}:
+
+
 
 ```{python}
 #---
 model = LogisticRegression(d_features=2, k_classes=3)
-
+opt = GradientDescentOptimizer(model, learning_rate=0.001)
 losses = []
-for epoch in range(10000):
+for epoch in range(50000):
     # compute predicted class probabilities
     q = model.forward(X_train)
     # compute loss
     loss = cross_entropy_loss(q, y_train)
     losses.append(loss.item())
-    # compute gradients
-    loss.backward()
+
     # update weights using gradient descent
-    with torch.no_grad():
-        model.W -= 0.001 * model.W.grad
-        model.W.grad.zero_()
+    opt.step(X_train, y_train)
 #---
 ```
 
@@ -452,8 +545,8 @@ for epoch in range(10000):
 #| code-fold: true
 fig, axarr = plt.subplots(1, 2, figsize=(8, 4))
 
-x_grid = torch.linspace(df['Culmen Length (mm)'].min()-2, df['Culmen Length (mm)'].max()+2, 100)
-y_grid = torch.linspace(df['Culmen Depth (mm)'].min()-2, df['Culmen Depth (mm)'].max()+2, 100)
+x_grid = torch.linspace(df['Culmen Length (mm)'].min()-2, df['Culmen Length (mm)'].max()+2, 500)
+y_grid = torch.linspace(df['Culmen Depth (mm)'].min()-2, df['Culmen Depth (mm)'].max()+2, 500)
 X_grid, Y_grid = torch.meshgrid(x_grid, y_grid)
 grid = torch.stack([X_grid.flatten(), Y_grid.flatten()], dim=1)
 
@@ -470,7 +563,7 @@ axarr[0].set_ylabel("Multinomial Cross-Entropy Loss")
 axarr[0].loglog()
 
 
-axarr[1].imshow(colors.reshape(100, 100, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
+axarr[1].imshow(colors.reshape(500, 500, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
 # sns.scatterplot(data=df, x='Culmen Length (mm)', y='Culmen Depth (mm)', hue='Species', style='Species', edgecolor='k', alpha=0.7, zorder = 200)
 axarr[1].set_title("Predicted class (color) \nand confidence (opacity)")
 
@@ -511,7 +604,7 @@ acc = (1.0*(y_test_preds == y_test_labels)).mean().item() #<4>
 #| code-fold: true
 fig, ax = plt.subplots(figsize=(6, 6))
 
-ax.imshow(colors.reshape(100, 100, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
+ax.imshow(colors.reshape(500, 500, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
 
 y_test_labels = y_test.argmax(dim=1)
 penguin_names = ['Adelie', 'Chinstrap', 'Gentoo']

@@ -58,7 +58,7 @@ Let's illustrate the setup. For the experiments in this chapter, we need to run 
 import torch
 class LinearRegression:
     def __init__(self, n_params):
-        self.w = torch.zeros(n_params, 1, requires_grad=True)
+        self.w = torch.zeros(n_params, 1)
  
     def forward(self, X):
         return X @ self.w
