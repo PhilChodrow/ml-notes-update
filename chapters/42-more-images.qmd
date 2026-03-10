@@ -1,0 +1,36 @@
+---
+title: |
+    Some Practical Considerations in Deep Learning and Image Data
+subtitle: |
+    Transfer learning, data augmentation, and more
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+Consider doing this with something other than images, for example mel spectrogram data. Maybe from [here](https://scottmduda.medium.com/urban-environmental-audio-classification-using-mel-spectrograms-706ee6f8dcc1)? 
+
+
+```{python}
+import sounddata
+```
+
+
+### Transfer Learning 
+
+### Equivariance and Data Augmentation
+
+### Data Loaders from Directories
+
+### Feature importance for images? 

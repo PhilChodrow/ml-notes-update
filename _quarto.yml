@@ -28,6 +28,7 @@ book:
     - part: "Deep Learning"
       chapters:
       - chapters/40-intro-deep.qmd
+      - chapters/41-images.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 

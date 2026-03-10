@@ -462,14 +462,8 @@ for k in range(3):
 # plot all the predicted class probabilities together, with opacity determined by confidence
 axarr.ravel()[3].imshow(colors.reshape(500, 500, 4), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100)
 
-# for k in range(3):
-#     color = cmap(k)
-#     marker = ['o', 's', 'D'][k]
-#     axarr.ravel()[3].scatter(X_points[point_class == k, 1], X_points[point_class == k, 0], color=color, edgecolor='k', marker=marker, zorder = 200, label=f"Class {k+1}")
 
 scatter_points(X_points, point_class, cmap, axarr.ravel()[3])
-
-# scatter_points(X_points, point_class, cmap, axarr.ravel()[3])
 
 
 axarr.ravel()[3].set_title("Predicted class (color) \nand confidence (opacity)")
@@ -489,17 +483,17 @@ To train the model, we'll need the gradient-descent updates for the entries of $
 
 $$
 \begin{aligned}
-    \frac{\partial \cL}{\partial w_{jk}} = \sum_{i=1}^n x_{ij} (q_k(\vx_i) - y_{ik})\;.
+    \frac{\partial \mathrm{CE}}{\partial w_{jk}} = \sum_{i=1}^n x_{ij} (q_k(\vx_i) - y_{ik})\;.
 \end{aligned}
-$$
+$${#eq-gradient-multinomial}
 
 which can be written in vectorized form as 
 
 $$
 \begin{aligned}
-    \nabla \cL = \mX^\top (\vq(\mX) - \mY )\;.
+    \nabla \mathrm{CE} = \mX^\top (\vq(\mX) - \mY )\;.
 \end{aligned}
-$$
+$${#eq-gradient-multinomial-vectorized}
 
 This gives our gradient descent update rule for the weight matrix $\mW$:
 
@@ -543,18 +537,42 @@ for epoch in range(50000):
 
 ```{python}
 #| code-fold: true
+
+def plot_decision_regions(model, X, y, ax):
+    cmap = plt.get_cmap('tab20b', 3)
+    x_grid = torch.linspace(X[:, 0].min()-2, X[:, 0].max()+2, 500)
+    y_grid = torch.linspace(X[:, 1].min()-2, X[:, 1].max()+2, 500)
+    X_grid, Y_grid = torch.meshgrid(x_grid, y_grid, indexing='ij')
+    grid = torch.stack([X_grid.flatten(), Y_grid.flatten()], dim=1)
+
+    Q = model.forward(grid)
+    preds = Q.argmax(dim=1)
+
+    colors = cmap(preds)
+    colors[:, -1] = Q.max(dim=1).values.detach().numpy()
+
+    ax.imshow(colors.reshape(500, 500, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
+
+
+# def 
+
+
+
+
 fig, axarr = plt.subplots(1, 2, figsize=(8, 4))
 
-x_grid = torch.linspace(df['Culmen Length (mm)'].min()-2, df['Culmen Length (mm)'].max()+2, 500)
-y_grid = torch.linspace(df['Culmen Depth (mm)'].min()-2, df['Culmen Depth (mm)'].max()+2, 500)
-X_grid, Y_grid = torch.meshgrid(x_grid, y_grid)
-grid = torch.stack([X_grid.flatten(), Y_grid.flatten()], dim=1)
 
-Q = model.forward(grid)
-preds = Q.argmax(dim=1)
 
-colors = cmap(preds)
-colors[:, -1] = Q.max(dim=1).values.detach().numpy()
+# x_grid = torch.linspace(df['Culmen Length (mm)'].min()-2, df['Culmen Length (mm)'].max()+2, 500)
+# y_grid = torch.linspace(df['Culmen Depth (mm)'].min()-2, df['Culmen Depth (mm)'].max()+2, 500)
+# X_grid, Y_grid = torch.meshgrid(x_grid, y_grid)
+# grid = torch.stack([X_grid.flatten(), Y_grid.flatten()], dim=1)
+
+# Q = model.forward(grid)
+# preds = Q.argmax(dim=1)
+
+# colors = cmap(preds)
+# colors[:, -1] = Q.max(dim=1).values.detach().numpy()
 
 axarr[0].plot(losses)
 axarr[0].set_title("Loss during training")
@@ -563,8 +581,9 @@ axarr[0].set_ylabel("Multinomial Cross-Entropy Loss")
 axarr[0].loglog()
 
 
-axarr[1].imshow(colors.reshape(500, 500, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
-# sns.scatterplot(data=df, x='Culmen Length (mm)', y='Culmen Depth (mm)', hue='Species', style='Species', edgecolor='k', alpha=0.7, zorder = 200)
+plot_decision_regions(model, X_train, y_train,  axarr[1])
+
+
 axarr[1].set_title("Predicted class (color) \nand confidence (opacity)")
 
 y_train_labels = y_train.argmax(dim=1)
@@ -604,7 +623,8 @@ acc = (1.0*(y_test_preds == y_test_labels)).mean().item() #<4>
 #| code-fold: true
 fig, ax = plt.subplots(figsize=(6, 6))
 
-ax.imshow(colors.reshape(500, 500, 4).transpose(1, 0, 2), extent=(x_grid.min(), x_grid.max(), y_grid.min(), y_grid.max()), origin='lower', zorder = 100, aspect='auto')
+
+plot_decision_regions(model, X_test, y_test, ax)
 
 y_test_labels = y_test.argmax(dim=1)
 penguin_names = ['Adelie', 'Chinstrap', 'Gentoo']

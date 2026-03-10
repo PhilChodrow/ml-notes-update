@@ -1,0 +1,420 @@
+---
+title: |
+    Convolutional Neural Networks and Image Classification
+subtitle: |
+    Our first adventure with nontabular data. 
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+:::
+
+```{python}
+import torch
+import pandas as pd
+from matplotlib import pyplot as plt
+import matplotlib.ticker as mtick
+import torch.nn as nn
+from torch.nn import Conv2d, MaxPool2d, Parameter
+from torch.nn.functional import relu
+from torchvision import models
+import torch.optim as optim
+from torchsummary import summary
+import torch.nn as nn
+from torch.nn import ReLU
+
+plt.style.use('seaborn-v0_8-whitegrid')
+```
+
+
+Our data for today is the [Sign Language MNIST](https://www.kaggle.com/datasets/datamunge/sign-language-mnist) data set, which I retrieved from Kaggle. This data set poses a challenge: can we train a model to recognize a letter of American Sign Language from a hand gesture? 
+
+
+```{python}
+train_url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_train.csv"
+test_url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_test.csv"
+
+df_train = pd.read_csv(train_url)
+df_val   = pd.read_csv(test_url)
+```
+
+Natively, this data set comes to us as a data frame in which each column represents a pixel. Each image has 28x28 pixels, so there are 784 pixel columns, plus one column for the label (the letter being signed). Let's take a look at the data frame: 
+
+```{python}
+df_train.head()
+```
+
+In principle, we're already able to perform machine learning tasks on data in this format -- treat each column as a feature and we're ready to go. However, this format makes it very difficult to see *relationships* between these features. Importantly, a key feature of image data is that *nearby* pixels are often related to each other in important ways. There's no hope to capture that idea from this data frame, because we can't even tell *which* pixels are nearby each other. Let's therefore reshape the data into something more like its native pixel format. 
+
+```{python}
+def prep_data(df):
+    n, p = df.shape[0], df.shape[1] - 1
+    y = torch.tensor(df["label"].values)
+    X = df.drop(["label"], axis = 1)
+    X = torch.tensor(X.values)
+    X = torch.reshape(X, (n, 1, 28, 28))
+    X = X / 255
+
+    return X, y
+
+X_train, y_train = prep_data(df_train)
+X_val, y_val     = prep_data(df_val)
+```
+
+```{python}
+print("Training data shapes:")
+print(X_train.shape, y_train.shape)
+print("Validation data shapes:")
+print(X_val.shape, y_val.shape)
+```
+
+We've shaped the data into a 4-dimensional tensor, with dimensions [The *channel* refers to the number of color channels in the image. Colors represented in **R**ed, **G**reen, and **B**lue color format (RGB) have 3 channels, one for each of R, G, and B. Greyscale images like the ones we're working with today have only one channel.]{.aside}
+
+$$
+\begin{aligned}
+    (\text{image index}, \text{channel}, \text{width}, \text{height})\;.
+\end{aligned}
+$$
+
+
+So, to interpret `X_train.shape`, we have 27,455 images in the training data, each with 1 channel (grayscale), and each image is 28 pixels wide and 28 pixels high.
+
+::: {.callout-note}
+
+## Beyond data frames
+
+So far in this class, we've almost exclusively considered data arranged in 2-dimensional structures like matrices or  data frames with dimensions $n\times d$, where $n$ is the number of data observations and $d$ is the number of features. As we move into deep learning, we're going to see more examples of data sets like this one in which the 2-dimensional representation of data is inappropriate. We'll therefore need to expand our thinking to more general tensors with more than two dimensions, like the one we have here.
+
+:::
+
+
+
+::: {#fig-example-images}
+
+```{python}
+#| code-fold: true
+ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+def show_images(X, y, rows, cols, channel = 0):
+
+    fig, axarr = plt.subplots(rows, cols, figsize = (2*cols, 2*rows))
+    for i, ax in enumerate(axarr.ravel()):
+        ax.imshow(X[i, channel].detach().cpu(), cmap = "Greys_r")
+        ax.set(title = f"{ALPHABET[y[i]]}")
+        ax.axis("off")
+    plt.tight_layout()
+
+show_images(X_train, y_train, 5, 5)
+```
+
+
+Example images from the sign-language MNIST data set, with their corresponding class labels. 
+
+:::
+
+Let's take a look at the distribution of characters in the training data: 
+
+::: {#fig-letter-dist}
+```{python}
+#| code-fold: true
+fig, ax = plt.subplots(1, 1, figsize = (6, 2))
+letters, counts = torch.unique(y_train, return_counts = True)
+proportions = counts / counts.sum()
+proportions
+
+ax.scatter(letters, proportions, edgecolor = "steelblue")
+ax.set_xticks(range(26))
+ax.set_xticklabels(list(ALPHABET))
+ax.set(xlabel = "Letter", ylabel = "Frequency")
+ax.yaxis.set_major_formatter(mtick.PercentFormatter(decimals = 1))
+ax.set_ylim(0, 0.06)
+```
+
+Distribution of class labels in the training data. There are no “J”s or “Z”s in this data because these characters require motion rather than a static gesture.
+
+:::
+
+The most frequent letter (“R”) in this data comprises no more than 5% of the entire data set. So, as a minimal aim, we would like a model that gets the right character at least 5% of the time.
+
+## Data Prep 
+
+### Sidebar: GPU Acceleration in Torch
+
+As we've seen from the last several lectures, deep learning models involve a **lot** of linear algebra in order to compute predictions and gradients. This means that deep models, even more than many other machine learning models, strongly benefit from hardware that is good at doing linear algebra *fast*. As it happens, graphics processing units (GPUs) are very, very good at fast linear algebra. [The reason that GPUs are so good at this is that they were originally optimized for rendering complex graphics in e.g. animation and video games, and this involves lots of linear algebra.]{.aside} So, it's very helpful when running our models to have access to GPUs; using a GPU can often result in up to 10x speedups. While some folks can use GPUs on their personal laptops, another common option for learning purposes is to use a cloud-hosted GPU. My personal recommendation is Google Colab, and I'll supply links that allow you to open lecture notes in Colab and use their GPU runtimes.
+
+The following torch code checks whether there is a GPU available to PyTorch, and if so, sets a variable called `device` to log this fact. We'll make sure that both our data and our models fully live on the same device when doing model training.
+
+```{python}
+#---
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Running on {device}.")
+#---
+```
+
+Now that we've configured the device, we are going to need to place both our data and our models on the device. 
+
+```{python}
+#---
+X_train, y_train = X_train.to(device), y_train.to(device)
+X_val, y_val     = X_val.to(device), y_val.to(device)
+#---
+```
+
+### Data Loaders 
+
+As we saw when studying [modern approaches to optimization loops](31-gradient-methods.qmd), it's convenient to loop through our data in batches and perform an optimization step after each batch. The following code defines a function that creates a data loader for our training and validation data sets. 
+
+```{python}
+def make_data_loader(X, y, batch_size = 32): 
+    return torch.utils.data.DataLoader(
+                torch.utils.data.TensorDataset(X, y),
+                batch_size = 32,
+                shuffle = True
+    )
+
+train_loader = make_data_loader(X_train, y_train)
+val_loader   = make_data_loader(X_val, y_val)
+```
+
+::: {.column-margin}
+
+As a reminder, it's possible to loop through elements of the data loader using syntax like: 
+
+```{python}
+#| eval: false
+for X_batch, y_batch in train_loader:
+    # do something with X_batch 
+    # and y_batch
+```
+
+:::
+
+### Logistic Regression Baseline
+
+Let's go ahead and train a logistic regression model on this data. This model will make *no use* of the spatial structure of the pixels. Relative to our previous logistic regression implementations, the main difference here is that we need to structure the model to accept input data whose single instance has dimensions (1, 28, 28) rather than (784,). We can achieve this by including a `Flatten` layer in our model, which will take the 1x28x28 pixel input and flatten it into a 784-dimensional vector before applying the linear transformation. 
+
+We can make our code a bit more concise by enclosing each of our layers inside an `nn.Sequential` container, which allows us to treat the entire sequence of layers as a single layer which we then call in the `forward` method. [Relative to previous implementations of logistic regression, you might notice that this implementation does not contain a call to the logistic sigmoid. The reason for this is that we are going to use `torch`'s built-in `nn.CrossEntropyLoss()` as our loss function for training. For reasons of numerical stability, this function is structured to apply the cross-entropy loss, so we don't need to do it in the model itself.]{.aside}
+
+```{python}
+#---
+class LinearModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.pipeline = nn.Sequential(
+            nn.Flatten(),        #<1>
+            nn.Linear(28*28, 26) #<2>
+        )
+
+    def forward(self, x):
+        return self.pipeline(x)  #<3>
+
+model = LinearModel().to(device) #<4>
+#---
+```
+1. The flatten layer transforms the `(1,28,28)` image into a `(784,)` pixel sequence. 
+2. Apply a linear map (matrix multiplication)
+3. Call the entire `pipeline` with a single call. 
+4. Instantiate the model and move it to the `device`. 
+
+### Model Inspection
+
+When constructing nontrivial deep learning models, it can be helpful to inspect them in order to get a sense for their structure and complexity level (especially the number of parameters). [For example, could you read off from the above model definition how many parameters are included in the model?]{.aside} There are multiple ways to approach this, including several utilities which visualize the computational graph. Here, we'll use the `torchsummary` package, which provides a nice summary of the model's layers and parameters and includes a parameter count. To call the `summary` function, we need to specify the expected dimension of a single piece of data (including the channel): 
+
+
+```{python}
+#---
+summary(model, input_size=(1, 28, 28))
+#---
+```
+
+Even though we are looking at a simple logistic regression model, our parameter count is already in the tens of thousands! 
+
+The code block below allows us to evaluate a model's performance by computing its accuracy and a confusion matrix on a specified data loader. There's also a helper function for plotting the confusion matrix. 
+
+```{python}
+def evaluate(model, data_loader, multichannel = False, print_message = True): 
+    ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    
+    # confusion matrix
+    conf_mat = torch.zeros((26, 26), dtype = torch.int32) #<1>
+
+    loss_fn = nn.CrossEntropyLoss()
+
+    with torch.no_grad(): 
+        for X_batch, y_batch in data_loader: #<2>
+            scores = model(X_batch) #<3>
+
+            loss = loss_fn(scores, y_batch)
+
+            y_pred = torch.argmax(scores, dim = 1) #<4>
+
+            for i in range(len(y_batch)):
+                conf_mat[y_batch[i], y_pred[i]] += 1 #<5>
+
+    acc = torch.diag(conf_mat).sum() / conf_mat.sum() #<6>
+    if print_message:
+        print(f"Accuracy: {acc:.2%}")
+
+    return acc, loss, conf_mat
+```
+1. Initialize a confusion matrix of zeros with dimensions 26x26 (one row and one column for each letter of the alphabet).
+2. For each batch in the data loader: 
+3. Compute the model's output scores for the batch.
+4. Determine the predicted class by taking the index of the maximum score for each instance in the batch.
+5. Update the confusion matrix by incrementing the count for the true label and predicted label for each instance in the batch.
+6. Compute the overall accuracy by summing the diagonal of the confusion matrix (correct predictions) and dividing by the total number of predictions.
+
+
+
+```{python}
+#| code-fold: true
+def plot_confusion_mat(conf_mat, ax, title = "Confusion Matrix"):
+    im = ax.imshow(conf_mat.cpu(), cmap = "Blues", origin = "upper")
+    # Show all ticks and label them with the respective list entries
+    ax.set_xticks(torch.arange(len(ALPHABET)))
+    ax.set_yticks(torch.arange(len(ALPHABET)))
+    ax.set_xticklabels(list(ALPHABET))
+    ax.set_yticklabels(list(ALPHABET))
+    ax.set_xlabel("Predicted Label")
+    ax.set_ylabel("True Label")
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(conf_mat.shape[0]):
+        for j in range(conf_mat.shape[1]):
+            text = ax.text(j, i, conf_mat[i, j].item(),
+                           ha="center", va="center", color="black", size = 6)
+
+    ax.set_title(title)
+    ax.grid(False)
+```
+
+::: {#fig-confusion-matrix-untrained}
+
+```{python}
+fig, ax = plt.subplots(figsize = (7, 7))
+acc, loss, conf_mat = evaluate(model, val_loader, print_message = False)
+plot_confusion_mat(conf_mat, ax, title = f"Confusion Matrix (acc = {acc:.2%})")
+```
+
+
+Confusion matrix for the untrained logistic regression model. 
+
+:::
+
+Obviously this model does not classify the data very impressively at all, since it hasn't been trained yet. Let's implement a training loop. This loop will perform model updates and track the model's accuracy over time. [It would also be reasonable to track the average loss per batch over time. This would require an extra call to `model.forward` on the validation set, which we're not going to do here because it increases the training time substantially.]{.aside}
+
+
+```{python}
+def train(model, k_epochs = 1, print_every = 2000, **opt_kwargs):
+
+    # loss function is cross-entropy (multiclass logistic)
+    loss_fn = nn.CrossEntropyLoss()
+
+    # optimizer is SGD with momentum
+    optimizer = optim.SGD(model.parameters(), **opt_kwargs)
+
+    # initialize list of accuracies to 
+    train_accuracy = []
+    val_accuracy   = []
+    train_loss     = []
+    val_loss       = []
+
+    for epoch in range(k_epochs):
+
+        for i, data in enumerate(train_loader):
+            X, y = data
+
+            # clear any accumulated gradients
+            optimizer.zero_grad()
+
+            # compute the loss
+            y_pred = model(X)
+            loss   = loss_fn(y_pred, y)
+
+            # compute gradients and carry out an optimization step
+            loss.backward()
+            optimizer.step()
+            
+        train_acc, train_l, train_cm = evaluate(model, data_loader = train_loader)
+        val_acc, val_l, val_cm     = evaluate(model, data_loader = val_loader)
+        
+        train_accuracy += [train_acc]
+        val_accuracy   += [val_acc]
+        train_loss     += [train_l]
+        val_loss       += [val_l]
+
+    return train_accuracy, train_loss, val_accuracy, val_loss
+```
+
+Now let's train the model and visualize its performance over time: 
+
+
+```{python}
+#---
+train_accuracy, train_loss, val_accuracy, val_loss = train(model, k_epochs = 30, lr = 0.001)
+#---
+```
+
+::: {#fig-logistic-training-curves}
+
+```{python}
+#| code-fold: true
+fig, axarr = plt.subplots(1, 2, figsize = (8, 3.5))
+
+ax = axarr[0]
+ax.plot(train_loss, color = "black", label = "Training")
+ax.plot(val_loss, color = "firebrick", label = "Validation")
+ax.set_title("Cross-Entropy Loss")
+ax.set_xlabel("Epoch")
+ax.set_ylabel("Loss")
+
+ax = axarr[1]
+ax.plot(train_accuracy, color = "black", label = "Training")
+ax.plot(val_accuracy, color = "firebrick", label = "Validation")
+ax.set_xlabel("Epoch")
+ax.set_ylabel("Accuracy")
+ax.set_title("Classification Accuracy")
+ax.set(ylim = (0, 1))
+plt.tight_layout()
+l = ax.legend()
+```
+
+Training curves for the logistic regression model. The left panel shows the training and validation loss over time, and the right panel shows the training and validation accuracy over time.
+
+:::
+
+This model is not yet done training, and additional epochs might improve the performance. For the purposes of these notes we won't push it further than that. 
+
+Already, the confusion matrix for the trained model looks much better: 
+
+::: {#fig-logistic-cm}
+
+```{python}
+#| code-fold: true
+acc, loss, conf_mat = evaluate(model, val_loader, print_message = False)
+fig, ax = plt.subplots(figsize = (7, 7))
+plot_confusion_mat(conf_mat, ax, title = f"Confusion Matrix (acc = {acc:.2%})")
+```
+
+Confusion matrix for the logistic regression model.  
+
+:::
+
+Although we can see that the model  is *often* successful, 54% accuracy leaves a lot of room for improvement. Can we  do better?
+
+

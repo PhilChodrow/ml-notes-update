@@ -73,8 +73,7 @@ y_test = torch.tensor(y[n_train:, :], dtype=torch.float32)
 ```
 
 ```{python}
-#| code-fold: true
-# model training
+#| code-fold: false
 
 # used for the loss function
 def binary_cross_entropy(q, y): 
@@ -378,6 +377,10 @@ Area under the ROC curve (AUC) for logistic regression on test data.
 ## Some Important Questions in Evaluating Classifiers
 
 
+
+
+
+
 ### What task are we evaluating? 
 
 [This is a brief discussion of a published academic article. The authors of the article were very careful in describing their findings and put up a very helpful [FAQ website](https://life2vec.dk/) clarifying some important points. The brief discussion below is not a dunk on the authors, but a brief lesson in the importance of very carefully parsing hype in media.]{.aside}
@@ -444,3 +447,4 @@ The authors develop and test an alternative model $\mathcal{M}_{\mathrm{environm
 
 If your classifier is giving you a result that would shock you if you read it in a newspaper or seems like something out of a dystopian scifi novel, then you should ask yourself some careful questions about the design of your study and especially about the structure of your training data. Here's a [case study](https://www.callingbull.org/case_studies/case_study_criminal_machine_learning.html) by Carl Bergstrom and Jevin West about @wu2016automated, a paper which purports to show that people's facial features can be used to predict whether or not those people will commit a crime. 
 
+## References

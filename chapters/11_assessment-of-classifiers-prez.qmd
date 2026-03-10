@@ -1,0 +1,21 @@
+---
+title: My First Closeread
+format: closeread-html
+---
+
+Hello World! Please read my Closeread story below.
+
+:::{.cr-section}
+
+Closeread enables scrollytelling.
+
+Draw your readers attention with: @cr-features
+
+:::{#cr-features}
+1. Highlighting
+2. Zooming
+3. Panning
+:::
+
+:::
+
