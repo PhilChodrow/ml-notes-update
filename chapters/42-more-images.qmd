@@ -1,8 +1,9 @@
 ---
 title: |
-    Some Practical Considerations in Deep Learning and Image Data
+  Some Practical Considerations in Deep Learning and Image Data
 subtitle: |
-    Transfer learning, data augmentation, and more
+  Transfer learning, data augmentation, and more
+jupyter: python3
 ---
 
 {{< include ../assets/includes/_colab-link.qmd >}}
@@ -17,14 +18,333 @@ $$
 ```{python}
 import style
 ```
+
 :::
+
+
 
 Consider doing this with something other than images, for example mel spectrogram data. Maybe from [here](https://scottmduda.medium.com/urban-environmental-audio-classification-using-mel-spectrograms-706ee6f8dcc1)? 
 
+```{python}
+import librosa
+import pandas as pd
+import requests
+from matplotlib import pyplot as plt
+import os 
+import torch
+from torch.utils.data import Dataset, DataLoader
+from torchsummary import summary
+```
 
 ```{python}
-import sounddata
-2+2
+metadata_url = "https://raw.githubusercontent.com/karolpiczak/ESC-50/refs/heads/master/meta/esc50.csv"
+metadata = pd.read_csv(metadata_url)
+```
+
+```{python}
+metadata.head()
+```
+
+```{python}
+CATEGORIES = {
+    "dog": 0,
+    "cow": 1,
+    "chirping_birds": 2, 
+    "vacuum_cleaner": 3
+}
+
+metadata_subset = metadata[metadata["category"].isin(CATEGORIES.keys())]
+train_df = metadata_subset[metadata_subset["fold"] != 1]
+val_df = metadata_subset[metadata_subset["fold"] == 1]
+```
+
+
+
+```{python}
+os.makedirs("wav_data/train", exist_ok=True)
+os.makedirs("wav_data/val", exist_ok=True)
+
+base_url = "https://github.com/karolpiczak/ESC-50/raw/refs/heads/master/audio"
+def download_wav_data(wav_id, data_dir): 
+    url = f"{base_url}/{wav_id}"
+    response = requests.get(url)
+    with open(f"wav_data/{data_dir}/{wav_id}", "wb") as file:
+        file.write(response.content)
+
+train_df["filename"].apply(lambda x: download_wav_data(x, "train"))
+res = val_df["filename"].apply(lambda x: download_wav_data(x, "val"))
+```
+
+Do an example here of grabbing some data. 
+
+```{python}
+```
+
+
+
+
+
+### Data From Filesystems
+
+
+
+
+```{python}
+# Single example
+indices = [10, 20, 40, 33]
+fig, axarr = plt.subplots(2, 4, figsize=(8, 3))
+for i, ix in enumerate(indices):
+    wav_id = train_df.iloc[ix]["filename"]
+    label = train_df.iloc[ix]["category"]
+    audio, sr = librosa.load(f"wav_data/train/{wav_id}")
+    axarr[0, i].plot(audio)
+    axarr[0, i].set_title(f"{label}")
+    mel_spectrogram = librosa.feature.melspectrogram(y=audio, sr=sr, n_mels=128, fmax=8000)
+    axarr[1, i].imshow(mel_spectrogram, aspect="auto", origin="lower", zorder = 10, cmap = "inferno", vmin = 0, vmax = 50)
+    axarr[1, i].set_xlabel("Time (samples)")
+    
+axarr[0, 0].set_ylabel("Amplitude")
+axarr[1, 0].set_ylabel("Mel Frequency Bin")
+plt.tight_layout()
+```
+
+
+```{python}
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Running on {device}.")
+```
+
+```{python}
+class WavDataset(Dataset):
+    def __init__(self, metadata, path, transform=None):
+        self.metadata = metadata
+        self.transform = transform
+        self.path = path
+
+    def __len__(self):
+        return len(self.metadata)
+
+    def __getitem__(self, idx):
+        wav_id = self.metadata.iloc[idx]["filename"]
+        wav_path = f"wav_data/{self.path}/{wav_id}"
+        audio, sr = librosa.load(wav_path, sr=16000)
+        if self.transform:
+            audio = self.transform(audio)
+        label = self.metadata.iloc[idx]["category"]
+        return audio.to(device), CATEGORIES[label].to(device), label
+```
+
+```{python}
+train_dataset = WavDataset(train_df, "train")
+val_dataset   = WavDataset(val_df, "val")
+
+train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+val_loader   = DataLoader(val_dataset, batch_size=8, shuffle=False)
+```
+
+A useful feature of the `DataLoader` we've implemented is that we can pass an arbitrary transformation of the data as part of the data set itself. For example, we're actually going to operate on the Mel spectrogram, for which we need only to define a simple transformation function. 
+
+### Recurrent Neural Networks for Time Series
+
+
+
+```{python}
+class RNN(torch.nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes):
+        super().__init__()
+        
+        self.rnn = torch.nn.LSTM(input_size, hidden_size, batch_first=True)
+        self.fc1 = torch.nn.Linear(hidden_size, hidden_size)
+        self.fc2 = torch.nn.Linear(hidden_size, num_classes)
+
+    def forward(self, x):
+        out, _ = self.rnn(x)
+        out = self.fc1(out)
+        out = self.fc2(out)
+
+        return out
+```
+
+```{python}
+model = RNN(input_size=80000, hidden_size=64, num_classes=len(CATEGORIES)).to(device)
+X, y, _ = next(iter(train_loader))
+model(X)
+```
+
+
+```{python}
+
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+for epoch in range(10):
+    for X_batch, y_batch, _ in train_loader:
+        optimizer.zero_grad()
+        outputs = model(X_batch)
+        loss = criterion(outputs, y_batch)
+        loss.backward()
+        optimizer.step()
+        print(loss.item())
+``` 
+
+
+```{python}
+def evaluate(model, data_loader): 
+    confusion_matrix = torch.zeros(len(CATEGORIES), len(CATEGORIES), dtype=torch.int32)
+    loss_fn = torch.nn.CrossEntropyLoss()
+
+    loss = 0
+    for X, y, labels in data_loader:
+        pred = model(X)
+        loss += loss_fn(pred, y)
+        y_pred = torch.argmax(pred, dim=1)
+        for true_label, pred_label in zip(y, y_pred):
+            confusion_matrix[true_label, pred_label] += 1
+        acc = torch.diag(confusion_matrix).sum() / confusion_matrix.sum()
+    return acc.item(), loss.item(), confusion_matrix
+
+def plot_confusion_matrix(cm, categories, ax):
+    
+    im = ax.imshow(cm, cmap = "inferno", zorder = 10, origin = "lower")
+    ax.set_xlabel("Predicted Label")
+    ax.set_ylabel("True Label")
+    ax.set_xticks(ticks=range(len(categories)), labels=categories.keys(), rotation=45)
+    ax.set_yticks(ticks=range(len(categories)), labels=categories.keys())
+    plt.colorbar(im, label="Count")
+
+```
+
+Training performance
+```{python}
+acc, loss, cm = evaluate(model, train_loader)
+
+fig, ax = plt.subplots(figsize=(6, 5))
+plot_confusion_matrix(cm, CATEGORIES, ax)
+
+# plt.imshow(cm, cmap = "inferno", zorder = 10, origin = "lower")
+```
+
+Validation performance
+```{python}
+acc, loss, cm = evaluate(model, val_loader)
+fig, ax = plt.subplots(figsize=(6, 5))
+plot_confusion_matrix(cm, CATEGORIES, ax)
+```
+
+
+### Convolutional Neural Networks for Spectrograms
+
+```{python}
+transform = lambda x: librosa.feature.melspectrogram(y=x, sr=16000, n_mels=128, fmax=8000)
+
+spectrogram_train_dataset = WavDataset(train_df, "train", transform=transform)
+spectrogram_val_dataset   = WavDataset(val_df, "val", transform=transform)
+
+spectrogram_train_loader  = DataLoader(spectrogram_train_dataset, batch_size=8, shuffle=True)
+spectrogram_val_loader    = DataLoader(spectrogram_val_dataset, batch_size=8, shuffle=False)
+```
+
+```{python}
+X, y, labels = next(iter(spectrogram_train_loader))
+print(X.shape)
+```
+
+```{python}
+fig, axarr = plt.subplots(2, 4, figsize=(8, 3), sharex=True, sharey=True)
+
+for i in range(8): 
+    axarr.ravel()[i].imshow(X[i].squeeze(), aspect="auto", origin="lower", zorder = 10, cmap = "inferno", vmin = 0, vmax = 50)
+    axarr.ravel()[i].set_title(f"{labels[i]} ({y[i].item()})")
+    axarr.ravel()[i].set_xlabel("Time (samples)")
+axarr[0, 0].set_ylabel("Mel Frequency Bin")
+axarr[1, 0].set_ylabel("Mel Frequency Bin")
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+class ConvNet(torch.nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+        self.pipeline = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 16, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2),
+            torch.nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2),
+            torch.nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2),
+            torch.nn.Flatten(),
+            torch.nn.Linear(19456, num_classes)
+        )
+
+    def forward(self, x):
+        out = x.unsqueeze(1)
+        return self.pipeline(out)
+```
+
+```{python}
+model = ConvNet(num_classes=len(CATEGORIES)).to(device)
+```
+
+```{python}
+criterion = torch.nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+train_losses = []
+train_accs = []
+val_losses = []
+val_accs = []
+
+for epoch in range(10):
+    model.train()
+    for X_batch, y_batch, _ in spectrogram_train_loader:
+        optimizer.zero_grad()
+        outputs = model(X_batch)
+        loss = criterion(outputs, y_batch)
+        loss.backward()
+        optimizer.step()
+    print(f"Completed epoch {epoch}")
+    
+    train_acc, train_loss, cm = evaluate(model, spectrogram_train_loader)
+    val_acc, val_loss, cm     = evaluate(model, spectrogram_val_loader)
+
+    train_losses += [train_loss]
+    train_accs += [train_acc]
+    val_losses += [val_loss]
+    val_accs += [val_accs]
+```
+
+
+Training performance
+```{python}
+acc, loss, cm = evaluate(model, spectrogram_train_loader)
+```
+
+```{python}
+fig, ax = plt.subplots(1, 3, figsize=(9, 3))
+
+ax[0].plot(train_losses)
+ax[1].plot(train_accs)
+
+plot_confusion_matrix(cm, CATEGORIES, ax[2])
+plt.tight_layout()
+```
+
+Validation performance
+```{python}
+acc, loss, cm = evaluate(model, spectrogram_val_loader)
+```
+
+
+```{python}
+fig, ax = plt.subplots(1, 3, figsize=(9, 3))
+ax[0].plot(val_losses)
+ax[1].plot(val_accs)
+
+plot_confusion_matrix(cm, CATEGORIES, ax[2])
+plt.tight_layout()
 ```
 
 
@@ -35,3 +355,4 @@ import sounddata
 ### Data Loaders from Directories
 
 ### Feature importance for images? 
+

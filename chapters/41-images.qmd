@@ -243,7 +243,7 @@ Even though we are looking at a simple logistic regression model, our parameter 
 The code block below allows us to evaluate a model's performance by computing its accuracy and a confusion matrix on a specified data loader. There's also a helper function for plotting the confusion matrix. 
 
 ```{python}
-def evaluate(model, data_loader, multichannel = False, print_message = True): 
+def evaluate(model, data_loader, multichannel = False): 
     ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     
     # confusion matrix
@@ -251,11 +251,13 @@ def evaluate(model, data_loader, multichannel = False, print_message = True):
 
     loss_fn = nn.CrossEntropyLoss()
 
+    loss = 0
+
     with torch.no_grad(): 
         for X_batch, y_batch in data_loader: #<2>
             scores = model(X_batch) #<3>
 
-            loss = loss_fn(scores, y_batch)
+            loss += loss_fn(scores, y_batch).item()
 
             y_pred = torch.argmax(scores, dim = 1) #<4>
 
@@ -263,8 +265,6 @@ def evaluate(model, data_loader, multichannel = False, print_message = True):
                 conf_mat[y_batch[i], y_pred[i]] += 1 #<5>
 
     acc = torch.diag(conf_mat).sum() / conf_mat.sum() #<6>
-    if print_message:
-        print(f"Accuracy: {acc:.2%}")
 
     return acc, loss, conf_mat
 ```
