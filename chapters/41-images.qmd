@@ -629,3 +629,143 @@ Illustration of max-pooling. *Image credit: Computer Science Wiki*
 
 :::
 
+A useful effect of pooling is that it reduces the number of features in our data. In the image above, we reduce the number of features by a factor of $2\times 2 = 4$. 
+
+Let's now construct a complex model that layers convolutional layers, nonlinearities, and pooling layers. [There's nothing special about the engineering of this model: I just stacked a few convolution and pooling layers together and then added a few more linear outputs.]{.aside}
+
+```{python}
+class ConvNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.pipeline = torch.nn.Sequential(
+            nn.Conv2d(1, 100, 5),
+            nn.MaxPool2d(2, 2),
+            ReLU(),
+            nn.Conv2d(100, 50, 3),
+            nn.MaxPool2d(2, 2),
+            ReLU(),
+            nn.Conv2d(50, 50, 3),
+            nn.MaxPool2d(2, 2),
+            ReLU(),
+            nn.Flatten(),
+            nn.Linear(50, len(ALPHABET))
+        )
+
+    def forward(self, x):
+        return self.pipeline(x)
+```
+
+This model has considerable additional complexity, indicated by its parameter count. 
+
+```{python}
+model = ConvNet().to(device)
+summary(model, input_size=(1, 28, 28))
+```
+
+Let's try training the model and seeing how we do. 
+
+
+### BEFORE HERE
+
+```{python}
+train_accuracy, train_loss, val_accuracy, val_loss = train(model, k_epochs = k_epochs,  lr = 0.01,  momentum = 0.9)
+```
+
+::: {#fig-convnet-training-curves}
+
+```{python}
+fig, axarr = plt.subplots(1, 2, figsize = (8, 3.5))
+
+ax = axarr[0]
+ax.plot(train_loss, color = "black", label = "Training")
+ax.plot(val_loss, color = "firebrick", label = "Validation")
+ax.set_title("Cross-Entropy Loss")
+ax.set_xlabel("Epoch")
+ax.set_ylabel("Loss")
+
+ax = axarr[1]
+ax.plot(train_accuracy, color = "black", label = "Training")
+ax.plot(val_accuracy, color = "firebrick", label = "Validation")
+ax.set_xlabel("Epoch")
+ax.set_ylabel("Accuracy")
+ax.set_title("Classification Accuracy")
+ax.set(ylim = (0, None))
+plt.tight_layout()
+l = ax.legend()
+```
+
+Training curves for the convolutional neural network.
+
+:::
+
+### SPLIT
+
+::: {#fig-convnet-cm}
+
+```{python}
+acc, loss, conf_mat = evaluate(model, val_loader, print_message = False)
+fig, ax = plt.subplots(figsize = (7, 7))
+plot_confusion_mat(conf_mat, ax, title = f"Confusion Matrix (acc = {acc:.2%})")
+```
+
+Confusion matrix for the convolutional neural network.  
+
+:::
+
+The additional complexity of this model enables it to achieve much higher accuracy than the previous models we've discussed, although more thorough training runs would be necessary for a full assessment.
+
+
+## Inspecting Learned Features
+
+Like we saw [last time](40-intro-deep.qmd), it's possible to inspect the features learned by a neural network at different levels of abstraction. Let's see some of the features learned by the model for a single image: 
+
+::: {#fig-original-for-features}
+
+```{python}
+X_orig, y_orig = next(iter(train_loader))
+fig, ax = plt.subplots(1, 1)
+ax.imshow(X_orig[0,0].detach().cpu(), cmap = "Greys")
+ax.axis("off")
+```
+
+Example image used as base for the experiment in @fig-learned-features.
+
+:::
+
+In the code block below, we show the outputs of different layers of the model when applied to this original image. Each layer's output can be thought of as a different "representation" of the original image, with different features extracted at each layer.
+
+::: {#fig-learned-features}
+
+```{python}
+def feature_at_layer(model, X_sample, layer_num):
+
+    for i, layer in enumerate(model.pipeline): 
+        X_sample = layer(X_sample)
+        if i == layer_num: 
+            break
+    
+    return X_sample
+
+fig, axarr = plt.subplots(3, 4, figsize = (10, 8))
+
+for i in range(3): 
+
+    for ix, j in enumerate([0, 1, 3, 4]): 
+        X_sample = X_orig.clone()
+        X_sample = feature_at_layer(model, X_sample, j)
+        axarr[i, ix].imshow(X_sample[0][i].detach().cpu())
+        axarr[i, ix].axis("off")
+        layer_name = model.pipeline[j].__class__.__name__
+        axarr[0, ix].set_title(f"Layer {j}: {layer_name}")
+```
+
+Sample learned features at varying levels of abstraction from the convolutional model, using @fig-original-for-features as a base. Note that the features in each row are not necessarily directly related to each other. 
+
+:::
+
+Interpreting these learned features can be tricky and is not generally recommended without context and many additional experiments. 
+
+### Onward 
+
+In the next lecture, we'll consider some additional practical considerations that arise when working with spatially-structured data and convolutional neural networks. 
