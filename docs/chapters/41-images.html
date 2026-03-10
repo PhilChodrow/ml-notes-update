@@ -1308,12 +1308,22 @@ Figure&nbsp;13.9: Confusion matrix for the minimal convolutional neural network.
 <h5 class="anchored" data-anchor-id="issue-is-after-here">ISSUE IS AFTER HERE</h5>
 </section>
 </section>
-<section id="more-complex-convolutional-models" class="level3">
+<section id="more-complex-convolutional-models" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="more-complex-convolutional-models">More Complex Convolutional Models</h3>
 <p>A common approach to building more complex convolutional models is to stack multiple convolutional layers on top of each other, with nonlinearities in between. This allows the model to learn more complex features at different levels of abstraction. For example, the first convolutional layer might learn to detect edges, while the second convolutional layer might learn to detect combinations of edges that form shapes, and the third convolutional layer might learn to detect combinations of shapes that form objects.</p>
-<section id="pooling" class="level4">
+<section id="pooling" class="level4 page-columns page-full">
 <h4 class="anchored" data-anchor-id="pooling">Pooling</h4>
 <p>An issue with the stacking approach, however, is that the data remains very large throughout the pipeline, with each convolution reducing the data just by a few pixels in each dimension. This also prevents convolutional kernels at later layers from combining data from far away regions in the image. To address this, let’s <em>reduce</em> the data in a nonlinear way. We’ll do this with max pooling. You can think of it as a kind of “summarization” step in which we intentionally make the current output somewhat “blockier.” Technically, it involves sliding a window over the current batch of data and picking only the largest element within that window. Here’s an example of how this looks:</p>
+<div id="fig-max-pooling" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-max-pooling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://computersciencewiki.org/images/8/8a/MaxpoolSample2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-max-pooling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13.10: Illustration of max-pooling. <em>Image credit: Computer Science Wiki</em>
+</figcaption>
+</figure>
+</div>
 
 
 </section>
