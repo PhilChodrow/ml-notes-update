@@ -372,7 +372,7 @@ window.Quarto = {
 
 
 <p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/41-images.ipynb">Open the live notebook</a> in Google Colab.</em></p>
-<div id="d2ea3cf6" class="cell" data-execution_count="3">
+<div id="783df11e" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
@@ -389,7 +389,7 @@ window.Quarto = {
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">'seaborn-v0_8-whitegrid'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Our data for today is the <a href="https://www.kaggle.com/datasets/datamunge/sign-language-mnist">Sign Language MNIST</a> data set, which I retrieved from Kaggle. This data set poses a challenge: can we train a model to recognize a letter of American Sign Language from a hand gesture?</p>
-<div id="39525664" class="cell" data-execution_count="4">
+<div id="b7863993" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>train_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_train.csv"</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>test_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_test.csv"</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -397,7 +397,7 @@ window.Quarto = {
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>df_val   <span class="op">=</span> pd.read_csv(test_url)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Natively, this data set comes to us as a data frame in which each column represents a pixel. Each image has 28x28 pixels, so there are 784 pixel columns, plus one column for the label (the letter being signed). Let’s take a look at the data frame:</p>
-<div id="eea932b4" class="cell" data-execution_count="5">
+<div id="4351dcb3" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_train.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
@@ -559,7 +559,7 @@ window.Quarto = {
 </div>
 </div>
 <p>In principle, we’re already able to perform machine learning tasks on data in this format – treat each column as a feature and we’re ready to go. However, this format makes it very difficult to see <em>relationships</em> between these features. Importantly, a key feature of image data is that <em>nearby</em> pixels are often related to each other in important ways. There’s no hope to capture that idea from this data frame, because we can’t even tell <em>which</em> pixels are nearby each other. Let’s therefore reshape the data into something more like its native pixel format.</p>
-<div id="b64ad758" class="cell" data-execution_count="6">
+<div id="1a5d45f8" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> prep_data(df):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    n, p <span class="op">=</span> df.shape[<span class="dv">0</span>], df.shape[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> torch.tensor(df[<span class="st">"label"</span>].values)</span>
@@ -573,7 +573,7 @@ window.Quarto = {
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>X_train, y_train <span class="op">=</span> prep_data(df_train)</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>X_val, y_val     <span class="op">=</span> prep_data(df_val)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="bbaf92d5" class="cell" data-execution_count="7">
+<div id="d5a2af18" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Training data shapes:"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(X_train.shape, y_train.shape)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Validation data shapes:"</span>)</span>
@@ -623,7 +623,7 @@ torch.Size([7172, 1, 28, 28]) torch.Size([7172])</code></pre>
 <div id="fig-example-images" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-example-images-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="4e2b2720" class="cell" data-execution_count="8">
+<div id="9500dd4f" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -656,7 +656,7 @@ Figure&nbsp;13.1: Example images from the sign-language MNIST data set, with the
 <div id="fig-letter-dist" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-letter-dist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="587e9662" class="cell" data-execution_count="9">
+<div id="c764c525" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -678,7 +678,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 <h3 class="anchored" data-anchor-id="sidebar-gpu-acceleration-in-torch">Sidebar: GPU Acceleration in Torch</h3>
 <div class="page-columns page-full"><p>As we’ve seen from the last several lectures, deep learning models involve a <strong>lot</strong> of linear algebra in order to compute predictions and gradients. This means that deep models, even more than many other machine learning models, strongly benefit from hardware that is good at doing linear algebra <em>fast</em>. As it happens, graphics processing units (GPUs) are very, very good at fast linear algebra.  So, it’s very helpful when running our models to have access to GPUs; using a GPU can often result in up to 10x speedups. While some folks can use GPUs on their personal laptops, another common option for learning purposes is to use a cloud-hosted GPU. My personal recommendation is Google Colab, and I’ll supply links that allow you to open lecture notes in Colab and use their GPU runtimes.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">The reason that GPUs are so good at this is that they were originally optimized for rendering complex graphics in e.g.&nbsp;animation and video games, and this involves lots of linear algebra.</span></div></div>
 <p>The following torch code checks whether there is a GPU available to PyTorch, and if so, sets a variable called <code>device</code> to log this fact. We’ll make sure that both our data and our models fully live on the same device when doing model training.</p>
-<div id="afa799f3" class="cell" data-execution_count="10">
+<div id="1ed0bd39" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> <span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Running on </span><span class="sc">{</span>device<span class="sc">}</span><span class="ss">."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -686,7 +686,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 </div>
 </div>
 <p>Now that we’ve configured the device, we are going to need to place both our data and our models on the device.</p>
-<div id="78bd3019" class="cell" data-execution_count="11">
+<div id="d155060d" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>X_train, y_train <span class="op">=</span> X_train.to(device), y_train.to(device)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>X_val, y_val     <span class="op">=</span> X_val.to(device), y_val.to(device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -694,7 +694,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 <section id="data-loaders" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="data-loaders">Data Loaders</h3>
 <p>As we saw when studying <a href="../chapters/31-gradient-methods.html">modern approaches to optimization loops</a>, it’s convenient to loop through our data in batches and perform an optimization step after each batch. The following code defines a function that creates a data loader for our training and validation data sets.</p>
-<div id="e5be47fa" class="cell" data-execution_count="12">
+<div id="48958d20" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_data_loader(X, y, batch_size <span class="op">=</span> <span class="dv">32</span>): </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.utils.data.DataLoader(</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                torch.utils.data.TensorDataset(X, y),</span>
@@ -708,7 +708,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 
 <div class="no-row-height column-margin column-container"><div class="">
 <p>As a reminder, it’s possible to loop through elements of the data loader using syntax like:</p>
-<div id="2b9b139b" class="cell" data-execution_count="13">
+<div id="6a6a343c" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> train_loader:</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># do something with X_batch </span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># and y_batch</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -718,7 +718,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 <h3 class="anchored" data-anchor-id="logistic-regression-baseline">Logistic Regression Baseline</h3>
 <p>Let’s go ahead and train a logistic regression model on this data. This model will make <em>no use</em> of the spatial structure of the pixels. Relative to our previous logistic regression implementations, the main difference here is that we need to structure the model to accept input data whose single instance has dimensions (1, 28, 28) rather than (784,). We can achieve this by including a <code>Flatten</code> layer in our model, which will take the 1x28x28 pixel input and flatten it into a 784-dimensional vector before applying the linear transformation.</p>
 <div class="page-columns page-full"><p>We can make our code a bit more concise by enclosing each of our layers inside an <code>nn.Sequential</code> container, which allows us to treat the entire sequence of layers as a single layer which we then call in the <code>forward</code> method. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">Relative to previous implementations of logistic regression, you might notice that this implementation does not contain a call to the logistic sigmoid. The reason for this is that we are going to use <code>torch</code>’s built-in <code>nn.CrossEntropyLoss()</code> as our loss function for training. For reasons of numerical stability, this function is structured to apply the cross-entropy loss, so we don’t need to do it in the model itself.</span></div></div>
-<div id="c9c60ba8" class="cell" data-execution_count="14">
+<div id="b131d429" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-9"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LinearModel(nn.Module):</span>
 <span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
 <span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
@@ -757,7 +757,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 <section id="model-inspection" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="model-inspection">Model Inspection</h3>
 <div class="page-columns page-full"><p>When constructing nontrivial deep learning models, it can be helpful to inspect them in order to get a sense for their structure and complexity level (especially the number of parameters).  There are multiple ways to approach this, including several utilities which visualize the computational graph. Here, we’ll use the <code>torchsummary</code> package, which provides a nice summary of the model’s layers and parameters and includes a parameter count. To call the <code>summary</code> function, we need to specify the expected dimension of a single piece of data (including the channel):</p><div class="no-row-height column-margin column-container"><span class="margin-aside">For example, could you read off from the above model definition how many parameters are included in the model?</span></div></div>
-<div id="0d0097f4" class="cell" data-execution_count="15">
+<div id="f4fc76ed" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        Layer (type)               Output Shape         Param #
@@ -776,7 +776,7 @@ Estimated Total Size (MB): 0.09</code></pre>
 </div>
 <p>Even though we are looking at a simple logistic regression model, our parameter count is already in the tens of thousands!</p>
 <p>The code block below allows us to evaluate a model’s performance by computing its accuracy and a confusion matrix on a specified data loader. There’s also a helper function for plotting the confusion matrix.</p>
-<div id="7c0c532a" class="cell" data-execution_count="16">
+<div id="beb2013a" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-11"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> evaluate(model, data_loader, multichannel <span class="op">=</span> <span class="va">False</span>, print_message <span class="op">=</span> <span class="va">True</span>): </span>
 <span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a>    ALPHABET <span class="op">=</span> <span class="st">"ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span></span>
 <span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a>    </span>
@@ -830,7 +830,7 @@ Estimated Total Size (MB): 0.09</code></pre>
 </dl>
 </div>
 </div>
-<div id="65a1b78e" class="cell" data-execution_count="17">
+<div id="17457928" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="st">"Confusion Matrix"</span>):</span>
@@ -860,7 +860,7 @@ Estimated Total Size (MB): 0.09</code></pre>
 <div id="fig-confusion-matrix-untrained" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-confusion-matrix-untrained-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="0a27d476" class="cell" data-execution_count="18">
+<div id="98a4d8ef" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader, print_message <span class="op">=</span> <span class="va">False</span>)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -879,7 +879,7 @@ Figure&nbsp;13.3: Confusion matrix for the untrained logistic regression model.
 </figure>
 </div>
 <div class="page-columns page-full"><p>Obviously this model does not classify the data very impressively at all, since it hasn’t been trained yet. Let’s implement a training loop. This loop will perform model updates and track the model’s accuracy over time. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">It would also be reasonable to track the average loss per batch over time. This would require an extra call to <code>model.forward</code> on the validation set, which we’re not going to do here because it increases the training time substantially.</span></div></div>
-<div id="105f54c2" class="cell" data-execution_count="19">
+<div id="fd813ae4" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(model, k_epochs <span class="op">=</span> <span class="dv">1</span>, print_every <span class="op">=</span> <span class="dv">2000</span>, <span class="op">**</span>opt_kwargs):</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># loss function is cross-entropy (multiclass logistic)</span></span>
@@ -921,69 +921,69 @@ Figure&nbsp;13.3: Confusion matrix for the untrained logistic regression model.
 <span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> train_accuracy, train_loss, val_accuracy, val_loss</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now let’s train the model and visualize its performance over time:</p>
-<div id="097a7132" class="cell" data-execution_count="20">
+<div id="573ee602" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>train_accuracy, train_loss, val_accuracy, val_loss <span class="op">=</span> train(model, k_epochs <span class="op">=</span> <span class="dv">30</span>, lr <span class="op">=</span> <span class="fl">0.001</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 17.04%
-Accuracy: 11.99%
-Accuracy: 30.50%
-Accuracy: 22.34%
-Accuracy: 32.06%
-Accuracy: 24.51%
-Accuracy: 40.32%
-Accuracy: 33.90%
-Accuracy: 37.65%
-Accuracy: 31.55%
-Accuracy: 41.17%
-Accuracy: 35.36%
-Accuracy: 44.35%
-Accuracy: 38.11%
-Accuracy: 47.14%
-Accuracy: 39.63%
-Accuracy: 49.91%
-Accuracy: 44.44%
-Accuracy: 50.24%
+<pre><code>Accuracy: 16.35%
+Accuracy: 12.86%
+Accuracy: 24.80%
+Accuracy: 22.57%
+Accuracy: 31.95%
+Accuracy: 27.37%
+Accuracy: 40.72%
+Accuracy: 36.87%
 Accuracy: 42.68%
-Accuracy: 50.64%
-Accuracy: 43.95%
-Accuracy: 52.81%
-Accuracy: 45.84%
-Accuracy: 54.16%
-Accuracy: 45.80%
-Accuracy: 52.70%
-Accuracy: 44.41%
-Accuracy: 55.67%
-Accuracy: 47.43%
-Accuracy: 57.02%
-Accuracy: 48.81%
-Accuracy: 57.93%
-Accuracy: 48.72%
-Accuracy: 58.03%
-Accuracy: 48.51%
-Accuracy: 56.20%
-Accuracy: 47.06%
-Accuracy: 58.44%
-Accuracy: 49.40%
-Accuracy: 59.53%
-Accuracy: 50.33%
-Accuracy: 60.35%
-Accuracy: 50.21%
-Accuracy: 60.28%
-Accuracy: 51.32%
-Accuracy: 61.60%
-Accuracy: 51.53%
-Accuracy: 61.63%
-Accuracy: 51.32%
-Accuracy: 61.90%
-Accuracy: 51.56%
-Accuracy: 61.75%
-Accuracy: 51.65%
-Accuracy: 62.78%
-Accuracy: 52.96%
-Accuracy: 63.79%
-Accuracy: 53.47%
-Accuracy: 63.51%
-Accuracy: 53.26%</code></pre>
+Accuracy: 35.85%
+Accuracy: 43.27%
+Accuracy: 38.41%
+Accuracy: 46.40%
+Accuracy: 40.21%
+Accuracy: 49.39%
+Accuracy: 43.10%
+Accuracy: 48.13%
+Accuracy: 42.53%
+Accuracy: 51.70%
+Accuracy: 45.08%
+Accuracy: 52.55%
+Accuracy: 44.56%
+Accuracy: 53.41%
+Accuracy: 45.13%
+Accuracy: 52.97%
+Accuracy: 47.17%
+Accuracy: 55.44%
+Accuracy: 48.05%
+Accuracy: 53.76%
+Accuracy: 46.92%
+Accuracy: 56.19%
+Accuracy: 48.42%
+Accuracy: 55.56%
+Accuracy: 47.85%
+Accuracy: 57.66%
+Accuracy: 48.95%
+Accuracy: 59.34%
+Accuracy: 50.47%
+Accuracy: 59.31%
+Accuracy: 50.60%
+Accuracy: 59.73%
+Accuracy: 51.02%
+Accuracy: 60.16%
+Accuracy: 51.94%
+Accuracy: 60.83%
+Accuracy: 51.28%
+Accuracy: 61.50%
+Accuracy: 52.23%
+Accuracy: 61.15%
+Accuracy: 51.27%
+Accuracy: 63.30%
+Accuracy: 52.04%
+Accuracy: 62.70%
+Accuracy: 52.75%
+Accuracy: 62.64%
+Accuracy: 53.32%
+Accuracy: 63.53%
+Accuracy: 53.67%
+Accuracy: 63.41%
+Accuracy: 52.93%</code></pre>
 </div>
 </div>
 <details class="code-fold">
@@ -1010,7 +1010,7 @@ Accuracy: 53.26%</code></pre>
 <div id="fig-logistic-training-curves" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-logistic-training-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="7f76d73f" class="cell" data-execution_count="21">
+<div id="b445b264" class="cell" data-execution_count="22">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1036,7 +1036,7 @@ Figure&nbsp;13.4: Training curves for the logistic regression model. The left pa
 <div id="fig-logistic-cm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-logistic-cm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="6fa5e2e1" class="cell" data-execution_count="22">
+<div id="37f47086" class="cell" data-execution_count="23">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1075,7 +1075,7 @@ Figure&nbsp;13.6: Image from <a href="https://d2l.ai/chapter_convolutional-neura
 <section id="manual-kernel-convolutions-for-feature-extraction" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="manual-kernel-convolutions-for-feature-extraction">Manual Kernel Convolutions for Feature Extraction</h3>
 <p>For a long time, a common approach to image classification and related computer vision tasks was to hand-engineer a set of convolutional kernels designed to extract certain specific features of interest from the image. For example, here are some kernels designed to extract vertical, horizontal, and diagonal features from an image:</p>
-<div id="4a2bb6bf" class="cell" data-execution_count="23">
+<div id="fc7c060a" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>vertical <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">0</span>]).repeat(<span class="dv">5</span>, <span class="dv">1</span>) <span class="op">-</span> <span class="fl">1.0</span></span>
@@ -1149,7 +1149,7 @@ Figure&nbsp;13.6: Image from <a href="https://d2l.ai/chapter_convolutional-neura
 <div id="fig-example-convolutions" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-example-convolutions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="632a285a" class="cell" data-execution_count="24">
+<div id="4446cc94" class="cell" data-execution_count="25">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1176,7 +1176,7 @@ Figure&nbsp;13.7: Example of four kernel convolutions applied to five sample inp
 <section id="a-minimal-convolutional-model" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="a-minimal-convolutional-model">A Minimal Convolutional Model</h3>
 <p>Just inserting a convolutional layer on its own won’t lead to substantial gains because, as we saw, composing linear layers doesn’t actually add that much. Instead, we can compose the convolutional layer with a nonlinearity (e.g.&nbsp;ReLU) and a final linear layer to get a minimal convolutional model. Since our output layer is a <code>Linear</code> layer, we still need to <code>Flatten</code> the output of the convolutional layer before feeding it into the linear layer.</p>
-<div id="28167799" class="cell" data-execution_count="25">
+<div id="820ab85b" class="cell" data-execution_count="26">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-16"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SmallConvNet(nn.Module):</span>
 <span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
 <span id="annotated-cell-16-3"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
@@ -1212,7 +1212,7 @@ Figure&nbsp;13.7: Example of four kernel convolutions applied to five sample inp
 </div>
 </div>
 <p>Let’s instantiate a model and take a look.</p>
-<div id="550001ec" class="cell" data-execution_count="26">
+<div id="d306c099" class="cell" data-execution_count="27">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> SmallConvNet().to(device)</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1233,21 +1233,13 @@ Estimated Total Size (MB): 0.28</code></pre>
 </div>
 </div>
 <p>How does this model perform?</p>
-<div id="a742e9e1" class="cell" data-execution_count="27">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>k_epochs <span class="op">=</span> <span class="dv">5</span></span>
+<div id="90fcffec" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>k_epochs <span class="op">=</span> <span class="dv">1</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>train_accuracy, train_loss, val_accuracy, val_loss <span class="op">=</span> train(model, k_epochs <span class="op">=</span> k_epochs,  lr <span class="op">=</span> <span class="fl">0.01</span>,  momentum <span class="op">=</span> <span class="fl">0.9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 95.76%
-Accuracy: 70.09%
-Accuracy: 99.96%
-Accuracy: 72.38%
-Accuracy: 99.95%
-Accuracy: 73.90%
-Accuracy: 100.00%
-Accuracy: 74.50%
-Accuracy: 100.00%
-Accuracy: 74.02%</code></pre>
+<pre><code>Accuracy: 91.52%
+Accuracy: 68.20%</code></pre>
 </div>
 </div>
 <details class="code-fold">
@@ -1274,7 +1266,7 @@ Accuracy: 74.02%</code></pre>
 <div id="fig-small-convnet-training-curves" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-small-convnet-training-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="5409878a" class="cell" data-execution_count="28">
+<div id="c1584d9c" class="cell" data-execution_count="29">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1292,7 +1284,7 @@ Figure&nbsp;13.8: Training curves for the minimal convolutional neural network.
 <div id="fig-small-convnet-cm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-small-convnet-cm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="35d8b055" class="cell" data-execution_count="29">
+<div id="3e6fa18d" class="cell" data-execution_count="30">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader, print_message <span class="op">=</span> <span class="va">False</span>)</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

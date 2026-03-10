@@ -562,7 +562,7 @@ summary(model, input_size=(1, 28, 28))
 How does this model perform?
 
 ```{python}
-k_epochs = 5
+k_epochs = 1
 
 train_accuracy, train_loss, val_accuracy, val_loss = train(model, k_epochs = k_epochs,  lr = 0.01,  momentum = 0.9)
 ```

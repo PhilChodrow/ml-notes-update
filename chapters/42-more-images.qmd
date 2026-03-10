@@ -24,6 +24,7 @@ Consider doing this with something other than images, for example mel spectrogra
 
 ```{python}
 import sounddata
+2+2
 ```
 
 
