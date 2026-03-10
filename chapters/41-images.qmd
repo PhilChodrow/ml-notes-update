@@ -418,3 +418,195 @@ Confusion matrix for the logistic regression model.
 Although we can see that the model  is *often* successful, 54% accuracy leaves a lot of room for improvement. Can we  do better?
 
 
+## Convolutional Neural Networks
+
+
+A common approach to feature extraction in images is to apply a *convolutional kernel*. [Convolutional kernels are not related in any way to positive-definite kernels used in kernel classifiers, another important ML topic.]{.aside} A convolutional kernel is a component of a vectorization pipeline which is specifically suited to the structure of images. In particular, *images are fundamentally spatial*. We might want to construct data features which reflect not just the value of an individual pixel, but also the values of pixels nearby that one. 
+
+The idea of an image convolution is pretty simple. We define a square *kernel matrix* containing some numbers, and we "slide it over" the input data. At each location, we multiply the data values by the kernel matrix values, and add them together. Here's an illustrative diagram:
+
+### Kernel Convolutions
+
+::: {#fig-kernel-convolution}
+
+![](https://d2l.ai/_images/correlation.svg)
+
+Image from [*Dive Into Deep Learning*](https://d2l.ai/chapter_convolutional-neural-networks/conv-layer.html).
+
+:::
+
+In this example, the value of 19 is computed as $0\times 0 + 1\times 1 + 3\times 2 + 4\times 3 = 19$. 
+
+
+### Manual Kernel Convolutions for Feature Extraction
+
+For a long time, a common approach to image classification and related computer vision tasks was to hand-engineer a set of convolutional kernels designed to extract certain specific features of interest from the image. For example, here are some kernels designed to extract vertical, horizontal, and diagonal features from an image:
+
+```{python}
+#| code-fold: true
+vertical = torch.tensor([0, 0, 5, 0, 0]).repeat(5, 1) - 1.0
+diag1    = torch.eye(5)*5 - 1
+horizontal = torch.transpose(vertical, 1, 0)
+diag2    = diag1.flip(1)
+
+fig, ax = plt.subplots(1, 4)
+for i, kernel in enumerate([vertical, horizontal, diag1, diag2]):
+    ax[i].imshow(kernel, vmin = -1.5, vmax = 2)
+    ax[i].axis("off")
+    ax[i].set(title = f'{["Vertical", "Horizontal", "Diagonal Down", "Diagonal Up"][i]}')
+```
+
+When we apply these convolutional kernels to an image, we obtain a new image in which the value of each pixel corresponds to the "alignment" of the image with the kernel at that point. Here are some examples: 
+
+::: {#fig-example-convolutions}
+
+```{python}
+#| code-fold: true
+def apply_convolutions(X): 
+
+    # this is actually a neural network layer -- we'll learn how to use these
+    # in that context soon 
+    conv1 = Conv2d(1, 4, 5) # 1 input channel, 4 output channels, 5x5 kernels
+
+    # need to disable gradients for this layer
+    for p in conv1.parameters():
+        p.requires_grad = False
+
+    # replace kernels in layer with our custom ones
+    conv1.weight[0, 0] = Parameter(vertical)
+    conv1.weight[1, 0] = Parameter(horizontal)
+    conv1.weight[2, 0] = Parameter(diag1)
+    conv1.weight[3, 0] = Parameter(diag2)
+
+    # apply to input data and disable gradients
+    return conv1(X).detach()
+
+def kernel_viz(pipeline):
+
+    fig, ax = plt.subplots(5, 5, figsize = (8, 8))
+
+    X_convd = pipeline(X_train)
+
+    for i in range(5): 
+        for j in range(5):
+            if i == 0: 
+                ax[i,j].imshow(X_train[j, 0])
+            
+            else: 
+                ax[i, j].imshow(X_convd[j,i-1])
+            
+            ax[i,j].tick_params(
+                        axis='both',      
+                        which='both',     
+                        bottom=False,     
+                        left=False,
+                        right=False,         
+                        labelbottom=False, 
+                        labelleft=False)
+            ax[i,j].grid(False)
+            ax[i, 0].set(ylabel = ["Original", "Vertical", "Horizontal", "Diag Down", "Diag Up"][i])
+
+kernel_viz(apply_convolutions)
+```
+
+Example of four kernel convolutions applied to five sample input images.  
+
+:::
+
+In principle, these convolutions could be used to define "scores" for each image: for example, summing up the "horizontal" values could give an image a score reflecting the prevalence of horizontal lines in the image. 
+
+A limitation of this approach is that we have to engineer all our kernels in advance. Wouldn't it be simpler if we could simply initialize the kernels randomly and let the data tell us what the useful kernels might be? 
+
+### Learnable Kernels
+
+Fortunately, neural networks give us a framework for doing exactly that. The key insight is that the kernel convolution operation is, fundamentally, just a sequence of pairwise multiplications followed by an addition. This means that the convolution is a *linear operation*. This means: 
+
+**Kernel Convolution is a Matrix Multiplication**
+
+Actually writing down the matrix multiplication formula for kernel convolution is complex and involves "doubly-index matrices," so we won't do that here. The key point is that, since the convolution operation is a matrix multiplication, we can treat it with the same framework as we have been using for other linear models -- we just need to throw it in as a layer in a neural network. 
+
+### A Minimal Convolutional Model 
+
+Just inserting a convolutional layer on its own won't lead to substantial gains because, as we saw, composing linear layers doesn't actually add that much. Instead, we can compose the convolutional layer with a nonlinearity (e.g. ReLU) and a final linear layer to get a minimal convolutional model. Since our output layer is a `Linear` layer, we still need to `Flatten` the output of the convolutional layer before feeding it into the linear layer.
+
+
+```{python}
+#---
+class SmallConvNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.pipeline = torch.nn.Sequential(
+            nn.Conv2d(1, 4, 5), #<1> 
+            ReLU(),             #<2> 
+            nn.Flatten(),       #<3>
+            nn.Linear(4*24*24, 26) #<4>
+        )
+
+    def forward(self, x):
+        return self.pipeline(x)
+#---
+```
+1. Specify that our images have only one input channel (greyscale), 4 output channels (we'll try learning 4 kernels), and the kernels have shape 5x5 pixels. 
+2. Apply nonlinearity. 
+3. Flatten the output of the convolutional layer to feed into the linear layer.
+4. Apply the linear layer. The input dimension reflects the presence of 4 channels whose outputs have shape 24x24 pixels, and 26 output classes. 
+
+Let's instantiate a model and take a look. 
+
+```{python}
+model = SmallConvNet().to(device)
+summary(model, input_size=(1, 28, 28))
+```
+
+How does this model perform?
+
+```{python}
+k_epochs = 5
+
+train_accuracy, train_loss, val_accuracy, val_loss = train(model, k_epochs = k_epochs,  lr = 0.01,  momentum = 0.9)
+```
+
+::: {#fig-small-convnet-training-curves}
+
+```{python}
+#| code-fold: true
+fig, axarr = plt.subplots(1, 2, figsize = (8, 3.5))
+
+ax = axarr[0]
+ax.plot(train_loss, color = "black", label = "Training")
+ax.plot(val_loss, color = "firebrick", label = "Validation")
+ax.set_title("Cross-Entropy Loss")
+ax.set_xlabel("Epoch")
+ax.set_ylabel("Loss")
+
+ax = axarr[1]
+ax.plot(train_accuracy, color = "black", label = "Training")
+ax.plot(val_accuracy, color = "firebrick", label = "Validation")
+ax.set_xlabel("Epoch")
+ax.set_ylabel("Accuracy")
+ax.set_title("Classification Accuracy")
+ax.set(ylim = (0, None))
+plt.tight_layout()
+l = ax.legend()
+```
+
+Training curves for the minimal convolutional neural network. 
+
+:::
+
+
+::: {#fig-small-convnet-cm}
+
+```{python}
+acc, loss, conf_mat = evaluate(model, val_loader, print_message = False)
+fig, ax = plt.subplots(figsize = (7, 7))
+plot_confusion_mat(conf_mat, ax, title = f"Confusion Matrix (acc = {acc:.2%})")
+```
+
+Confusion matrix for the minimal convolutional neural network. .  
+
+:::
+
+The minimal model is already able to somewhat exceed the performance of the logistic regression model, even after fewer epochs of training. 
+
