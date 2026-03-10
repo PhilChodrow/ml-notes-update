@@ -108,17 +108,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <style>
-div.callout-sol.callout {
-  border-left-color: pink;
-}
-div.callout-sol.callout-style-default > .callout-header {
-  background-color: rgb(from pink r g b / 13%);
-}
-div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
-  content: '📝';
-  background-image: none;
-}
 div.callout-question.callout {
   border-left-color: lightblue;
 }
@@ -128,6 +117,17 @@ div.callout-question.callout-style-default > .callout-header {
 div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
   content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
   background-image: none;
 }
 </style>
@@ -344,6 +344,7 @@ window.Quarto = {
   <li><a href="#manual-kernel-convolutions-for-feature-extraction" id="toc-manual-kernel-convolutions-for-feature-extraction" class="nav-link" data-scroll-target="#manual-kernel-convolutions-for-feature-extraction">Manual Kernel Convolutions for Feature Extraction</a></li>
   <li><a href="#learnable-kernels" id="toc-learnable-kernels" class="nav-link" data-scroll-target="#learnable-kernels">Learnable Kernels</a></li>
   <li><a href="#a-minimal-convolutional-model" id="toc-a-minimal-convolutional-model" class="nav-link" data-scroll-target="#a-minimal-convolutional-model">A Minimal Convolutional Model</a></li>
+  <li><a href="#more-complex-convolutional-models" id="toc-more-complex-convolutional-models" class="nav-link" data-scroll-target="#more-complex-convolutional-models">More Complex Convolutional Models</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -1303,8 +1304,19 @@ Figure&nbsp;13.9: Confusion matrix for the minimal convolutional neural network.
 </figure>
 </div>
 <p>The minimal model is already able to somewhat exceed the performance of the logistic regression model, even after fewer epochs of training.</p>
+<section id="issue-is-after-here" class="level5">
+<h5 class="anchored" data-anchor-id="issue-is-after-here">ISSUE IS AFTER HERE</h5>
+</section>
+</section>
+<section id="more-complex-convolutional-models" class="level3">
+<h3 class="anchored" data-anchor-id="more-complex-convolutional-models">More Complex Convolutional Models</h3>
+<p>A common approach to building more complex convolutional models is to stack multiple convolutional layers on top of each other, with nonlinearities in between. This allows the model to learn more complex features at different levels of abstraction. For example, the first convolutional layer might learn to detect edges, while the second convolutional layer might learn to detect combinations of edges that form shapes, and the third convolutional layer might learn to detect combinations of shapes that form objects.</p>
+<section id="pooling" class="level4">
+<h4 class="anchored" data-anchor-id="pooling">Pooling</h4>
+<p>An issue with the stacking approach, however, is that the data remains very large throughout the pipeline, with each convolution reducing the data just by a few pixels in each dimension. This also prevents convolutional kernels at later layers from combining data from far away regions in the image. To address this, let’s <em>reduce</em> the data in a nonlinear way. We’ll do this with max pooling. You can think of it as a kind of “summarization” step in which we intentionally make the current output somewhat “blockier.” Technically, it involves sliding a window over the current batch of data and picking only the largest element within that window. Here’s an example of how this looks:</p>
 
 
+</section>
 </section>
 </section>
 
