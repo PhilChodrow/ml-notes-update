@@ -1,0 +1,127 @@
+---
+title: Demo
+format: ipynb
+filters: 
+    - path: div-reuse
+      at: post-quarto
+---
+
+I expect this .qmd when rendered to ipynb to contain two Markdown and two code cells.
+
+::: {#fig-test}
+
+```{python}
+from matplotlib import pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+plt.plot(x, y)
+plt.title("Sine Wave")
+```
+
+Some caption!
+
+:::
+
+## Bird stuff
+
+```{python}
+import librosa
+from matplotlib import pyplot as plt
+
+call, sr = librosa.load("../data/birdcall/downy-woodpecker/Downy Woodpecker (4).mp3")
+
+plt.plot(call)
+
+```
+
+```{python}
+melspectrogram = librosa.feature.melspectrogram(y=call, sr=sr, n_mels=128, fmax=8000)
+plt.imshow(melspectrogram, aspect="auto", origin="lower", zorder = 10, cmap = "inferno", vmin = 0, vmax = 50)
+```
+
+```{python}
+import pandas as pd
+import os 
+
+from osxmetadata import OSXMetaData
+from osxmetadata import kMDItemAuthors
+
+
+base = "../data/birdcall/downy-woodpecker/"
+fnames = os.listdir(base)
+
+for fname in fnames:
+  # get the author metadata of the file
+
+  path = os.path.join(base, fname)
+  meta = OSXMetaData(path)
+  # print(meta.asdict())
+  try: 
+    print(meta.authors)
+  except: 
+    pass
+    
+```
+
+## back to Xenocanto
+
+```{python}
+import requests
+
+def query(species, max_length,key):
+    query_url = f'https://xeno-canto.org/api/3/recordings?query=sp:"{species}"+len:"<{max_length}"&key={key}'
+    response = requests.get(query_url)
+    data = response.json()
+    return data
+
+species_list = ["dryobates pubescens", "melanerpes carolinus"]
+
+for species in species_list:
+    os.mkdir(f"../data/birdcall/{species}")
+    q = query(species, 10, key)
+    for recording in q["recordings"]:
+        print(recording["file"])
+        # download the file if the filename includes mp3
+        if recording["file-name"].endswith(".mp3"):
+            response = requests.get(recording["file"])
+            with open(f"../data/birdcall/{species}/{recording['id']}.mp3", "wb") as file:
+                file.write(response.content)
+```
+
+```{python}
+os.mkdir("downy-woodpecker")
+for recording in downy_query["recordings"]:
+    print(recording["file"])
+    # download the file if the filename includes mp3
+    if recording["file-name"].endswith(".mp3"):
+        response = requests.get(recording["file"])
+        with open(f"downy-woodpecker/{recording['id']}.mp3", "wb") as file:
+            file.write(response.content)
+```
+
+
+```{python}
+# # query for downy woodpecker calls shorter than 10 seconds
+downy_query = 'https://xeno-canto.org/api/3/recordings?query=sp:"dryobates pubescens"+len:"<10"&key=98a0381641845bbb25fecfd70adf7dff582e40e5'
+
+response = requests.get(downy_query)
+data = response.json()
+print(data)
+
+# # query for Melanerpes carolinus (red-bellied woodpecker) calls shorter than 10 seconds
+
+# red_bellied_query = 'https://xeno-canto.org/api/3/recordings?query=sp:"melanerpes carolinus"+len:"<10"&key=98a0381641845bbb25fecfd70adf7dff582e40e5'
+
+# response = requests.get(red_bellied_query)
+# data = response.json()
+# print(data)
+
+
+
+
+
+```
+

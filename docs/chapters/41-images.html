@@ -65,6 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../chapters/42-more-images.html" rel="next">
 <link href="../chapters/40-intro-deep.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -108,17 +109,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <style>
-div.callout-sol.callout {
-  border-left-color: pink;
-}
-div.callout-sol.callout-style-default > .callout-header {
-  background-color: rgb(from pink r g b / 13%);
-}
-div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
-  content: '📝';
-  background-image: none;
-}
 div.callout-question.callout {
   border-left-color: lightblue;
 }
@@ -128,6 +118,17 @@ div.callout-question.callout-style-default > .callout-header {
 div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
   content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
   background-image: none;
 }
 </style>
@@ -319,6 +320,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Convolutional Neural Networks and Image Classification</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/42-more-images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Some Practical Considerations</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -379,7 +386,7 @@ window.Quarto = {
 
 
 <p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/41-images.ipynb">Open the live notebook</a> in Google Colab.</em></p>
-<div id="78cb4b94" class="cell" data-execution_count="3">
+<div id="f2a8ee32" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
@@ -396,7 +403,7 @@ window.Quarto = {
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">'seaborn-v0_8-whitegrid'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Our data for today is the <a href="https://www.kaggle.com/datasets/datamunge/sign-language-mnist">Sign Language MNIST</a> data set, which I retrieved from Kaggle. This data set poses a challenge: can we train a model to recognize a letter of American Sign Language from a hand gesture?</p>
-<div id="10503c19" class="cell" data-execution_count="4">
+<div id="f917957e" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>train_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_train.csv"</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>test_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/sign-language-mnist/sign_mnist_test.csv"</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -404,7 +411,7 @@ window.Quarto = {
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>df_val   <span class="op">=</span> pd.read_csv(test_url)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Natively, this data set comes to us as a data frame in which each column represents a pixel. Each image has 28x28 pixels, so there are 784 pixel columns, plus one column for the label (the letter being signed). Let’s take a look at the data frame:</p>
-<div id="c7dd2f4b" class="cell" data-execution_count="5">
+<div id="6bfdfa2d" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_train.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
@@ -566,7 +573,7 @@ window.Quarto = {
 </div>
 </div>
 <p>In principle, we’re already able to perform machine learning tasks on data in this format – treat each column as a feature and we’re ready to go. However, this format makes it very difficult to see <em>relationships</em> between these features. Importantly, a key feature of image data is that <em>nearby</em> pixels are often related to each other in important ways. There’s no hope to capture that idea from this data frame, because we can’t even tell <em>which</em> pixels are nearby each other. Let’s therefore reshape the data into something more like its native pixel format.</p>
-<div id="820721a6" class="cell" data-execution_count="6">
+<div id="736bd484" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> prep_data(df):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    n, p <span class="op">=</span> df.shape[<span class="dv">0</span>], df.shape[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> torch.tensor(df[<span class="st">"label"</span>].values)</span>
@@ -580,7 +587,7 @@ window.Quarto = {
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>X_train, y_train <span class="op">=</span> prep_data(df_train)</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>X_val, y_val     <span class="op">=</span> prep_data(df_val)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="0afd8334" class="cell" data-execution_count="7">
+<div id="af18a05e" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Training data shapes:"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(X_train.shape, y_train.shape)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Validation data shapes:"</span>)</span>
@@ -630,7 +637,7 @@ torch.Size([7172, 1, 28, 28]) torch.Size([7172])</code></pre>
 <div id="fig-example-images" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-example-images-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="1ff97008" class="cell" data-execution_count="8">
+<div id="3860d294" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -663,7 +670,7 @@ Figure&nbsp;13.1: Example images from the sign-language MNIST data set, with the
 <div id="fig-letter-dist" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-letter-dist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="3e97ddea" class="cell" data-execution_count="9">
+<div id="d7a878e1" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -685,7 +692,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 <h3 class="anchored" data-anchor-id="sidebar-gpu-acceleration-in-torch">Sidebar: GPU Acceleration in Torch</h3>
 <div class="page-columns page-full"><p>As we’ve seen from the last several lectures, deep learning models involve a <strong>lot</strong> of linear algebra in order to compute predictions and gradients. This means that deep models, even more than many other machine learning models, strongly benefit from hardware that is good at doing linear algebra <em>fast</em>. As it happens, graphics processing units (GPUs) are very, very good at fast linear algebra.  So, it’s very helpful when running our models to have access to GPUs; using a GPU can often result in up to 10x speedups. While some folks can use GPUs on their personal laptops, another common option for learning purposes is to use a cloud-hosted GPU. My personal recommendation is Google Colab, and I’ll supply links that allow you to open lecture notes in Colab and use their GPU runtimes.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">The reason that GPUs are so good at this is that they were originally optimized for rendering complex graphics in e.g.&nbsp;animation and video games, and this involves lots of linear algebra.</span></div></div>
 <p>The following torch code checks whether there is a GPU available to PyTorch, and if so, sets a variable called <code>device</code> to log this fact. We’ll make sure that both our data and our models fully live on the same device when doing model training.</p>
-<div id="06b5298d" class="cell" data-execution_count="10">
+<div id="6626fe81" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> <span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Running on </span><span class="sc">{</span>device<span class="sc">}</span><span class="ss">."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -693,7 +700,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 </div>
 </div>
 <p>Now that we’ve configured the device, we are going to need to place both our data and our models on the device.</p>
-<div id="98f8d0bf" class="cell" data-execution_count="11">
+<div id="1ce52f01" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>X_train, y_train <span class="op">=</span> X_train.to(device), y_train.to(device)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>X_val, y_val     <span class="op">=</span> X_val.to(device), y_val.to(device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -701,7 +708,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 <section id="data-loaders" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="data-loaders">Data Loaders</h3>
 <p>As we saw when studying <a href="../chapters/31-gradient-methods.html">modern approaches to optimization loops</a>, it’s convenient to loop through our data in batches and perform an optimization step after each batch. The following code defines a function that creates a data loader for our training and validation data sets.</p>
-<div id="442a0366" class="cell" data-execution_count="12">
+<div id="e0252b35" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_data_loader(X, y, batch_size <span class="op">=</span> <span class="dv">32</span>): </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.utils.data.DataLoader(</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                torch.utils.data.TensorDataset(X, y),</span>
@@ -715,7 +722,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 
 <div class="no-row-height column-margin column-container"><div class="">
 <p>As a reminder, it’s possible to loop through elements of the data loader using syntax like:</p>
-<div id="99dcb21e" class="cell" data-execution_count="13">
+<div id="90d51f94" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> train_loader:</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># do something with X_batch </span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># and y_batch</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -725,7 +732,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 <h3 class="anchored" data-anchor-id="logistic-regression-baseline">Logistic Regression Baseline</h3>
 <p>Let’s go ahead and train a logistic regression model on this data. This model will make <em>no use</em> of the spatial structure of the pixels. Relative to our previous logistic regression implementations, the main difference here is that we need to structure the model to accept input data whose single instance has dimensions (1, 28, 28) rather than (784,). We can achieve this by including a <code>Flatten</code> layer in our model, which will take the 1x28x28 pixel input and flatten it into a 784-dimensional vector before applying the linear transformation.</p>
 <div class="page-columns page-full"><p>We can make our code a bit more concise by enclosing each of our layers inside an <code>nn.Sequential</code> container, which allows us to treat the entire sequence of layers as a single layer which we then call in the <code>forward</code> method. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">Relative to previous implementations of logistic regression, you might notice that this implementation does not contain a call to the logistic sigmoid. The reason for this is that we are going to use <code>torch</code>’s built-in <code>nn.CrossEntropyLoss()</code> as our loss function for training. For reasons of numerical stability, this function is structured to apply the cross-entropy loss, so we don’t need to do it in the model itself.</span></div></div>
-<div id="1d7963c3" class="cell" data-execution_count="14">
+<div id="905f0599" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-9"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LinearModel(nn.Module):</span>
 <span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
 <span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
@@ -764,7 +771,7 @@ Figure&nbsp;13.2: Distribution of class labels in the training data. There are n
 <section id="model-inspection" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="model-inspection">Model Inspection</h3>
 <div class="page-columns page-full"><p>When constructing nontrivial deep learning models, it can be helpful to inspect them in order to get a sense for their structure and complexity level (especially the number of parameters).  There are multiple ways to approach this, including several utilities which visualize the computational graph. Here, we’ll use the <code>torchsummary</code> package, which provides a nice summary of the model’s layers and parameters and includes a parameter count. To call the <code>summary</code> function, we need to specify the expected dimension of a single piece of data (including the channel):</p><div class="no-row-height column-margin column-container"><span class="margin-aside">For example, could you read off from the above model definition how many parameters are included in the model?</span></div></div>
-<div id="6cee26d0" class="cell" data-execution_count="15">
+<div id="07133b27" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        Layer (type)               Output Shape         Param #
@@ -783,8 +790,8 @@ Estimated Total Size (MB): 0.09</code></pre>
 </div>
 <p>Even though we are looking at a simple logistic regression model, our parameter count is already in the tens of thousands!</p>
 <p>The code block below allows us to evaluate a model’s performance by computing its accuracy and a confusion matrix on a specified data loader. There’s also a helper function for plotting the confusion matrix.</p>
-<div id="58a0fd87" class="cell" data-execution_count="16">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-11"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> evaluate(model, data_loader, multichannel <span class="op">=</span> <span class="va">False</span>, print_message <span class="op">=</span> <span class="va">True</span>): </span>
+<div id="c2bcaaa4" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-11"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> evaluate(model, data_loader, multichannel <span class="op">=</span> <span class="va">False</span>): </span>
 <span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a>    ALPHABET <span class="op">=</span> <span class="st">"ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span></span>
 <span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># confusion matrix</span></span>
@@ -792,20 +799,20 @@ Estimated Total Size (MB): 0.09</code></pre>
 <span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="annotated-cell-11-7"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a>    loss_fn <span class="op">=</span> nn.CrossEntropyLoss()</span>
 <span id="annotated-cell-11-8"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-11-9"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad(): </span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-11-10" class="code-annotation-target"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> data_loader:</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-11-11" class="code-annotation-target"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a>            scores <span class="op">=</span> model(X_batch)</span>
-<span id="annotated-cell-11-12"><a href="#annotated-cell-11-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-11-13"><a href="#annotated-cell-11-13" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> loss_fn(scores, y_batch)</span>
+<span id="annotated-cell-11-9"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="annotated-cell-11-10"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-11"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad(): </span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-11-12" class="code-annotation-target"><a href="#annotated-cell-11-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> data_loader:</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-11-13" class="code-annotation-target"><a href="#annotated-cell-11-13" aria-hidden="true" tabindex="-1"></a>            scores <span class="op">=</span> model(X_batch)</span>
 <span id="annotated-cell-11-14"><a href="#annotated-cell-11-14" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-11-15" class="code-annotation-target"><a href="#annotated-cell-11-15" aria-hidden="true" tabindex="-1"></a>            y_pred <span class="op">=</span> torch.argmax(scores, dim <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="annotated-cell-11-15"><a href="#annotated-cell-11-15" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">+=</span> loss_fn(scores, y_batch).item()</span>
 <span id="annotated-cell-11-16"><a href="#annotated-cell-11-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-11-17"><a href="#annotated-cell-11-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(y_batch)):</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-11-18" class="code-annotation-target"><a href="#annotated-cell-11-18" aria-hidden="true" tabindex="-1"></a>                conf_mat[y_batch[i], y_pred[i]] <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="annotated-cell-11-19"><a href="#annotated-cell-11-19" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-11-20" class="code-annotation-target"><a href="#annotated-cell-11-20" aria-hidden="true" tabindex="-1"></a>    acc <span class="op">=</span> torch.diag(conf_mat).<span class="bu">sum</span>() <span class="op">/</span> conf_mat.<span class="bu">sum</span>()</span>
-<span id="annotated-cell-11-21"><a href="#annotated-cell-11-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> print_message:</span>
-<span id="annotated-cell-11-22"><a href="#annotated-cell-11-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Accuracy: </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-11-17" class="code-annotation-target"><a href="#annotated-cell-11-17" aria-hidden="true" tabindex="-1"></a>            y_pred <span class="op">=</span> torch.argmax(scores, dim <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="annotated-cell-11-18"><a href="#annotated-cell-11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-19"><a href="#annotated-cell-11-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(y_batch)):</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-11-20" class="code-annotation-target"><a href="#annotated-cell-11-20" aria-hidden="true" tabindex="-1"></a>                conf_mat[y_batch[i], y_pred[i]] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="annotated-cell-11-21"><a href="#annotated-cell-11-21" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-11-22" class="code-annotation-target"><a href="#annotated-cell-11-22" aria-hidden="true" tabindex="-1"></a>    acc <span class="op">=</span> torch.diag(conf_mat).<span class="bu">sum</span>() <span class="op">/</span> conf_mat.<span class="bu">sum</span>()</span>
 <span id="annotated-cell-11-23"><a href="#annotated-cell-11-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="annotated-cell-11-24"><a href="#annotated-cell-11-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> acc, loss, conf_mat</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
@@ -816,28 +823,28 @@ Estimated Total Size (MB): 0.09</code></pre>
 </dd>
 <dt data-target-cell="annotated-cell-11" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="10" data-code-annotation="2">For each batch in the data loader:</span>
+<span data-code-cell="annotated-cell-11" data-code-lines="12" data-code-annotation="2">For each batch in the data loader:</span>
 </dd>
 <dt data-target-cell="annotated-cell-11" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="11" data-code-annotation="3">Compute the model’s output scores for the batch.</span>
+<span data-code-cell="annotated-cell-11" data-code-lines="13" data-code-annotation="3">Compute the model’s output scores for the batch.</span>
 </dd>
 <dt data-target-cell="annotated-cell-11" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="15" data-code-annotation="4">Determine the predicted class by taking the index of the maximum score for each instance in the batch.</span>
+<span data-code-cell="annotated-cell-11" data-code-lines="17" data-code-annotation="4">Determine the predicted class by taking the index of the maximum score for each instance in the batch.</span>
 </dd>
 <dt data-target-cell="annotated-cell-11" data-target-annotation="5">5</dt>
 <dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="18" data-code-annotation="5">Update the confusion matrix by incrementing the count for the true label and predicted label for each instance in the batch.</span>
+<span data-code-cell="annotated-cell-11" data-code-lines="20" data-code-annotation="5">Update the confusion matrix by incrementing the count for the true label and predicted label for each instance in the batch.</span>
 </dd>
 <dt data-target-cell="annotated-cell-11" data-target-annotation="6">6</dt>
 <dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="20" data-code-annotation="6">Compute the overall accuracy by summing the diagonal of the confusion matrix (correct predictions) and dividing by the total number of predictions.</span>
+<span data-code-cell="annotated-cell-11" data-code-lines="22" data-code-annotation="6">Compute the overall accuracy by summing the diagonal of the confusion matrix (correct predictions) and dividing by the total number of predictions.</span>
 </dd>
 </dl>
 </div>
 </div>
-<div id="b4b16eb7" class="cell" data-execution_count="17">
+<div id="d3241d55" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="st">"Confusion Matrix"</span>):</span>
@@ -867,9 +874,9 @@ Estimated Total Size (MB): 0.09</code></pre>
 <div id="fig-confusion-matrix-untrained" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-confusion-matrix-untrained-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="9490c1aa" class="cell" data-execution_count="18">
+<div id="01adb699" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader, print_message <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -886,7 +893,7 @@ Figure&nbsp;13.3: Confusion matrix for the untrained logistic regression model.
 </figure>
 </div>
 <div class="page-columns page-full"><p>Obviously this model does not classify the data very impressively at all, since it hasn’t been trained yet. Let’s implement a training loop. This loop will perform model updates and track the model’s accuracy over time. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">It would also be reasonable to track the average loss per batch over time. This would require an extra call to <code>model.forward</code> on the validation set, which we’re not going to do here because it increases the training time substantially.</span></div></div>
-<div id="e9fad6f8" class="cell" data-execution_count="19">
+<div id="3dd9e822" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(model, k_epochs <span class="op">=</span> <span class="dv">1</span>, print_every <span class="op">=</span> <span class="dv">2000</span>, <span class="op">**</span>opt_kwargs):</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># loss function is cross-entropy (multiclass logistic)</span></span>
@@ -928,96 +935,34 @@ Figure&nbsp;13.3: Confusion matrix for the untrained logistic regression model.
 <span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> train_accuracy, train_loss, val_accuracy, val_loss</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now let’s train the model and visualize its performance over time:</p>
-<div id="bfd0dbb1" class="cell" data-execution_count="20">
+<div id="d0b48ec1" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>train_accuracy, train_loss, val_accuracy, val_loss <span class="op">=</span> train(model, k_epochs <span class="op">=</span> <span class="dv">30</span>, lr <span class="op">=</span> <span class="fl">0.001</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 17.18%
-Accuracy: 13.04%
-Accuracy: 30.83%
-Accuracy: 32.24%
-Accuracy: 33.71%
-Accuracy: 34.24%
-Accuracy: 39.20%
-Accuracy: 38.09%
-Accuracy: 43.04%
-Accuracy: 40.52%
-Accuracy: 46.92%
-Accuracy: 42.65%
-Accuracy: 46.15%
-Accuracy: 41.93%
-Accuracy: 50.29%
-Accuracy: 45.93%
-Accuracy: 52.26%
-Accuracy: 47.35%
-Accuracy: 52.13%
-Accuracy: 46.21%
-Accuracy: 53.95%
-Accuracy: 48.27%
-Accuracy: 52.61%
-Accuracy: 46.01%
-Accuracy: 55.18%
-Accuracy: 47.96%
-Accuracy: 56.60%
-Accuracy: 48.93%
-Accuracy: 56.51%
-Accuracy: 49.82%
-Accuracy: 56.25%
-Accuracy: 48.79%
-Accuracy: 58.03%
-Accuracy: 49.50%
-Accuracy: 57.57%
-Accuracy: 49.29%
-Accuracy: 60.07%
-Accuracy: 50.57%
-Accuracy: 60.44%
-Accuracy: 51.80%
-Accuracy: 59.87%
-Accuracy: 50.43%
-Accuracy: 60.08%
-Accuracy: 50.50%
-Accuracy: 61.21%
-Accuracy: 51.69%
-Accuracy: 61.61%
-Accuracy: 52.20%
-Accuracy: 60.59%
-Accuracy: 51.09%
-Accuracy: 62.75%
-Accuracy: 53.65%
-Accuracy: 61.81%
-Accuracy: 52.13%
-Accuracy: 61.91%
-Accuracy: 52.16%
-Accuracy: 63.89%
-Accuracy: 54.10%
-Accuracy: 63.39%
-Accuracy: 53.69%</code></pre>
-</div>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>ax.plot(train_loss, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>ax.plot(val_loss, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cross-Entropy Loss"</span>)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Loss"</span>)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">1</span>]</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>ax.plot(train_accuracy, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>ax.plot(val_accuracy, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Accuracy"</span>)</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Classification Accuracy"</span>)</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(ylim <span class="op">=</span> (<span class="dv">0</span>, <span class="dv">1</span>))</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>ax.plot(train_loss, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>ax.plot(val_loss, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cross-Entropy Loss"</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">1</span>]</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>ax.plot(train_accuracy, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>ax.plot(val_accuracy, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Accuracy"</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Classification Accuracy"</span>)</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(ylim <span class="op">=</span> (<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-logistic-training-curves" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-logistic-training-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="830c7c20" class="cell" data-execution_count="21">
+<div id="fc162c72" class="cell" data-execution_count="22">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1036,14 +981,14 @@ Figure&nbsp;13.4: Training curves for the logistic regression model. The left pa
 <p>Already, the confusion matrix for the trained model looks much better:</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader, print_message <span class="op">=</span> <span class="va">False</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-logistic-cm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-logistic-cm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="4e0e0b06" class="cell" data-execution_count="22">
+<div id="a67d193c" class="cell" data-execution_count="23">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1082,19 +1027,19 @@ Figure&nbsp;13.6: Image from <a href="https://d2l.ai/chapter_convolutional-neura
 <section id="manual-kernel-convolutions-for-feature-extraction" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="manual-kernel-convolutions-for-feature-extraction">Manual Kernel Convolutions for Feature Extraction</h3>
 <p>For a long time, a common approach to image classification and related computer vision tasks was to hand-engineer a set of convolutional kernels designed to extract certain specific features of interest from the image. For example, here are some kernels designed to extract vertical, horizontal, and diagonal features from an image:</p>
-<div id="800c4d1f" class="cell" data-execution_count="23">
+<div id="fad363e8" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>vertical <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">0</span>]).repeat(<span class="dv">5</span>, <span class="dv">1</span>) <span class="op">-</span> <span class="fl">1.0</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>diag1    <span class="op">=</span> torch.eye(<span class="dv">5</span>)<span class="op">*</span><span class="dv">5</span> <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>horizontal <span class="op">=</span> torch.transpose(vertical, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>diag2    <span class="op">=</span> diag1.flip(<span class="dv">1</span>)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>)</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, kernel <span class="kw">in</span> <span class="bu">enumerate</span>([vertical, horizontal, diag1, diag2]):</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    ax[i].imshow(kernel, vmin <span class="op">=</span> <span class="op">-</span><span class="fl">1.5</span>, vmax <span class="op">=</span> <span class="dv">2</span>)</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    ax[i].axis(<span class="st">"off"</span>)</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    ax[i].<span class="bu">set</span>(title <span class="op">=</span> <span class="ss">f'</span><span class="sc">{</span>[<span class="st">"Vertical"</span>, <span class="st">"Horizontal"</span>, <span class="st">"Diagonal Down"</span>, <span class="st">"Diagonal Up"</span>][i]<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>vertical <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">0</span>]).repeat(<span class="dv">5</span>, <span class="dv">1</span>) <span class="op">-</span> <span class="fl">1.0</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>diag1    <span class="op">=</span> torch.eye(<span class="dv">5</span>)<span class="op">*</span><span class="dv">5</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>horizontal <span class="op">=</span> torch.transpose(vertical, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>diag2    <span class="op">=</span> diag1.flip(<span class="dv">1</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, kernel <span class="kw">in</span> <span class="bu">enumerate</span>([vertical, horizontal, diag1, diag2]):</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    ax[i].imshow(kernel, vmin <span class="op">=</span> <span class="op">-</span><span class="fl">1.5</span>, vmax <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    ax[i].axis(<span class="st">"off"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    ax[i].<span class="bu">set</span>(title <span class="op">=</span> <span class="ss">f'</span><span class="sc">{</span>[<span class="st">"Vertical"</span>, <span class="st">"Horizontal"</span>, <span class="st">"Diagonal Down"</span>, <span class="st">"Diagonal Up"</span>][i]<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -1107,56 +1052,56 @@ Figure&nbsp;13.6: Image from <a href="https://d2l.ai/chapter_convolutional-neura
 <p>When we apply these convolutional kernels to an image, we obtain a new image in which the value of each pixel corresponds to the “alignment” of the image with the kernel at that point. Here are some examples:</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apply_convolutions(X): </span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># this is actually a neural network layer -- we'll learn how to use these</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># in that context soon </span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    conv1 <span class="op">=</span> Conv2d(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">5</span>) <span class="co"># 1 input channel, 4 output channels, 5x5 kernels</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># need to disable gradients for this layer</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> conv1.parameters():</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>        p.requires_grad <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># replace kernels in layer with our custom ones</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    conv1.weight[<span class="dv">0</span>, <span class="dv">0</span>] <span class="op">=</span> Parameter(vertical)</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    conv1.weight[<span class="dv">1</span>, <span class="dv">0</span>] <span class="op">=</span> Parameter(horizontal)</span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    conv1.weight[<span class="dv">2</span>, <span class="dv">0</span>] <span class="op">=</span> Parameter(diag1)</span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    conv1.weight[<span class="dv">3</span>, <span class="dv">0</span>] <span class="op">=</span> Parameter(diag2)</span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># apply to input data and disable gradients</span></span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> conv1(X).detach()</span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> kernel_viz(pipeline):</span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">5</span>, <span class="dv">5</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">8</span>))</span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    X_convd <span class="op">=</span> pipeline(X_train)</span>
-<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): </span>
-<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
-<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>: </span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>                ax[i,j].imshow(X_train[j, <span class="dv">0</span>])</span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>: </span>
-<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>                ax[i, j].imshow(X_convd[j,i<span class="op">-</span><span class="dv">1</span>])</span>
-<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>            ax[i,j].tick_params(</span>
-<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>                        axis<span class="op">=</span><span class="st">'both'</span>,      </span>
-<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>                        which<span class="op">=</span><span class="st">'both'</span>,     </span>
-<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>                        bottom<span class="op">=</span><span class="va">False</span>,     </span>
-<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>                        left<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>                        right<span class="op">=</span><span class="va">False</span>,         </span>
-<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>                        labelbottom<span class="op">=</span><span class="va">False</span>, </span>
-<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>                        labelleft<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>            ax[i,j].grid(<span class="va">False</span>)</span>
-<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>            ax[i, <span class="dv">0</span>].<span class="bu">set</span>(ylabel <span class="op">=</span> [<span class="st">"Original"</span>, <span class="st">"Vertical"</span>, <span class="st">"Horizontal"</span>, <span class="st">"Diag Down"</span>, <span class="st">"Diag Up"</span>][i])</span>
-<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>kernel_viz(apply_convolutions)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apply_convolutions(X): </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># this is actually a neural network layer -- we'll learn how to use these</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># in that context soon </span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    conv1 <span class="op">=</span> Conv2d(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">5</span>) <span class="co"># 1 input channel, 4 output channels, 5x5 kernels</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># need to disable gradients for this layer</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> conv1.parameters():</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        p.requires_grad <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># replace kernels in layer with our custom ones</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    conv1.weight[<span class="dv">0</span>, <span class="dv">0</span>] <span class="op">=</span> Parameter(vertical)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    conv1.weight[<span class="dv">1</span>, <span class="dv">0</span>] <span class="op">=</span> Parameter(horizontal)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    conv1.weight[<span class="dv">2</span>, <span class="dv">0</span>] <span class="op">=</span> Parameter(diag1)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    conv1.weight[<span class="dv">3</span>, <span class="dv">0</span>] <span class="op">=</span> Parameter(diag2)</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># apply to input data and disable gradients</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> conv1(X).detach()</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> kernel_viz(pipeline):</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">5</span>, <span class="dv">5</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">8</span>))</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>    X_convd <span class="op">=</span> pipeline(X_train)</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): </span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>: </span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>                ax[i,j].imshow(X_train[j, <span class="dv">0</span>])</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>: </span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>                ax[i, j].imshow(X_convd[j,i<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>            ax[i,j].tick_params(</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>                        axis<span class="op">=</span><span class="st">'both'</span>,      </span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>                        which<span class="op">=</span><span class="st">'both'</span>,     </span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>                        bottom<span class="op">=</span><span class="va">False</span>,     </span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>                        left<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>                        right<span class="op">=</span><span class="va">False</span>,         </span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>                        labelbottom<span class="op">=</span><span class="va">False</span>, </span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>                        labelleft<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>            ax[i,j].grid(<span class="va">False</span>)</span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>            ax[i, <span class="dv">0</span>].<span class="bu">set</span>(ylabel <span class="op">=</span> [<span class="st">"Original"</span>, <span class="st">"Vertical"</span>, <span class="st">"Horizontal"</span>, <span class="st">"Diag Down"</span>, <span class="st">"Diag Up"</span>][i])</span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>kernel_viz(apply_convolutions)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-example-convolutions" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-example-convolutions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="1629122c" class="cell" data-execution_count="24">
+<div id="9b7907c1" class="cell" data-execution_count="25">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1183,7 +1128,7 @@ Figure&nbsp;13.7: Example of four kernel convolutions applied to five sample inp
 <section id="a-minimal-convolutional-model" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="a-minimal-convolutional-model">A Minimal Convolutional Model</h3>
 <p>Just inserting a convolutional layer on its own won’t lead to substantial gains because, as we saw, composing linear layers doesn’t actually add that much. Instead, we can compose the convolutional layer with a nonlinearity (e.g.&nbsp;ReLU) and a final linear layer to get a minimal convolutional model. Since our output layer is a <code>Linear</code> layer, we still need to <code>Flatten</code> the output of the convolutional layer before feeding it into the linear layer.</p>
-<div id="616ac160" class="cell" data-execution_count="25">
+<div id="20aa7d8d" class="cell" data-execution_count="26">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-16"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SmallConvNet(nn.Module):</span>
 <span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
 <span id="annotated-cell-16-3"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
@@ -1219,9 +1164,9 @@ Figure&nbsp;13.7: Example of four kernel convolutions applied to five sample inp
 </div>
 </div>
 <p>Let’s instantiate a model and take a look.</p>
-<div id="930200e8" class="cell" data-execution_count="26">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> SmallConvNet().to(device)</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="df779a8c" class="cell" data-execution_count="27">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> SmallConvNet().to(device)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        Layer (type)               Output Shape         Param #
 ================================================================
@@ -1240,40 +1185,36 @@ Estimated Total Size (MB): 0.28</code></pre>
 </div>
 </div>
 <p>How does this model perform?</p>
-<div id="48edf5e9" class="cell" data-execution_count="27">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>k_epochs <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>train_accuracy, train_loss, val_accuracy, val_loss <span class="op">=</span> train(model, k_epochs <span class="op">=</span> k_epochs,  lr <span class="op">=</span> <span class="fl">0.01</span>,  momentum <span class="op">=</span> <span class="fl">0.9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 96.65%
-Accuracy: 72.14%</code></pre>
-</div>
+<div id="ff33d7d8" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>k_epochs <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>train_accuracy, train_loss, val_accuracy, val_loss <span class="op">=</span> train(model, k_epochs <span class="op">=</span> k_epochs,  lr <span class="op">=</span> <span class="fl">0.01</span>,  momentum <span class="op">=</span> <span class="fl">0.9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>ax.plot(train_loss, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>ax.plot(val_loss, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cross-Entropy Loss"</span>)</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Loss"</span>)</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">1</span>]</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>ax.plot(train_accuracy, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>ax.plot(val_accuracy, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Accuracy"</span>)</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Classification Accuracy"</span>)</span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(ylim <span class="op">=</span> (<span class="dv">0</span>, <span class="va">None</span>))</span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>ax.plot(train_loss, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>ax.plot(val_loss, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cross-Entropy Loss"</span>)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">1</span>]</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>ax.plot(train_accuracy, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>ax.plot(val_accuracy, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Accuracy"</span>)</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Classification Accuracy"</span>)</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(ylim <span class="op">=</span> (<span class="dv">0</span>, <span class="va">None</span>))</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-small-convnet-training-curves" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-small-convnet-training-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="fe7e3c59" class="cell" data-execution_count="28">
+<div id="a2f445d5" class="cell" data-execution_count="29">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1291,10 +1232,10 @@ Figure&nbsp;13.8: Training curves for the minimal convolutional neural network.
 <div id="fig-small-convnet-cm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-small-convnet-cm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="532b1a23" class="cell" data-execution_count="29">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader, print_message <span class="op">=</span> <span class="va">False</span>)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="e852e145" class="cell" data-execution_count="30">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1332,32 +1273,32 @@ Figure&nbsp;13.10: Illustration of max-pooling. <em>Image credit: Computer Scien
 </div>
 <p>A useful effect of pooling is that it reduces the number of features in our data. In the image above, we reduce the number of features by a factor of <span class="math inline">\(2\times 2 = 4\)</span>.</p>
 <div class="page-columns page-full"><p>Let’s now construct a complex model that layers convolutional layers, nonlinearities, and pooling layers. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">There’s nothing special about the engineering of this model: I just stacked a few convolution and pooling layers together and then added a few more linear outputs.</span></div></div>
-<div id="c6ac2c60" class="cell" data-execution_count="30">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ConvNet(nn.Module):</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pipeline <span class="op">=</span> torch.nn.Sequential(</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>            nn.Conv2d(<span class="dv">1</span>, <span class="dv">100</span>, <span class="dv">5</span>),</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>            nn.MaxPool2d(<span class="dv">2</span>, <span class="dv">2</span>),</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>            ReLU(),</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>            nn.Conv2d(<span class="dv">100</span>, <span class="dv">50</span>, <span class="dv">3</span>),</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>            nn.MaxPool2d(<span class="dv">2</span>, <span class="dv">2</span>),</span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>            ReLU(),</span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>            nn.Conv2d(<span class="dv">50</span>, <span class="dv">50</span>, <span class="dv">3</span>),</span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>            nn.MaxPool2d(<span class="dv">2</span>, <span class="dv">2</span>),</span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>            ReLU(),</span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>            nn.Flatten(),</span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">50</span>, <span class="bu">len</span>(ALPHABET))</span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.pipeline(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="74854574" class="cell" data-execution_count="31">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ConvNet(nn.Module):</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pipeline <span class="op">=</span> torch.nn.Sequential(</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>            nn.Conv2d(<span class="dv">1</span>, <span class="dv">100</span>, <span class="dv">5</span>),</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>            nn.MaxPool2d(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>            ReLU(),</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>            nn.Conv2d(<span class="dv">100</span>, <span class="dv">50</span>, <span class="dv">3</span>),</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>            nn.MaxPool2d(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>            ReLU(),</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>            nn.Conv2d(<span class="dv">50</span>, <span class="dv">50</span>, <span class="dv">3</span>),</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>            nn.MaxPool2d(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>            ReLU(),</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>            nn.Flatten(),</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">50</span>, <span class="bu">len</span>(ALPHABET))</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.pipeline(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>This model has considerable additional complexity, indicated by its parameter count.</p>
-<div id="b291681b" class="cell" data-execution_count="31">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ConvNet().to(device)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="a624d950" class="cell" data-execution_count="32">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ConvNet().to(device)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        Layer (type)               Output Shape         Param #
 ================================================================
@@ -1387,35 +1328,31 @@ Estimated Total Size (MB): 1.00</code></pre>
 </section>
 <section id="before-here" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="before-here">BEFORE HERE</h3>
-<div id="d96a8f72" class="cell" data-execution_count="32">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>train_accuracy, train_loss, val_accuracy, val_loss <span class="op">=</span> train(model, k_epochs <span class="op">=</span> k_epochs,  lr <span class="op">=</span> <span class="fl">0.01</span>,  momentum <span class="op">=</span> <span class="fl">0.9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 81.99%
-Accuracy: 75.46%</code></pre>
-</div>
+<div id="03f3738b" class="cell" data-execution_count="33">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>train_accuracy, train_loss, val_accuracy, val_loss <span class="op">=</span> train(model, k_epochs <span class="op">=</span> k_epochs,  lr <span class="op">=</span> <span class="fl">0.01</span>,  momentum <span class="op">=</span> <span class="fl">0.9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="fig-convnet-training-curves" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-convnet-training-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="eb907557" class="cell" data-execution_count="33">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>ax.plot(train_loss, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>ax.plot(val_loss, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cross-Entropy Loss"</span>)</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Loss"</span>)</span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">1</span>]</span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>ax.plot(train_accuracy, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>ax.plot(val_accuracy, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Accuracy"</span>)</span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Classification Accuracy"</span>)</span>
-<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(ylim <span class="op">=</span> (<span class="dv">0</span>, <span class="va">None</span>))</span>
-<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="5ccd3a5e" class="cell" data-execution_count="34">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>ax.plot(train_loss, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>ax.plot(val_loss, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cross-Entropy Loss"</span>)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">1</span>]</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>ax.plot(train_accuracy, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Training"</span>)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>ax.plot(val_accuracy, color <span class="op">=</span> <span class="st">"firebrick"</span>, label <span class="op">=</span> <span class="st">"Validation"</span>)</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Accuracy"</span>)</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Classification Accuracy"</span>)</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(ylim <span class="op">=</span> (<span class="dv">0</span>, <span class="va">None</span>))</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.legend()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1436,10 +1373,10 @@ Figure&nbsp;13.11: Training curves for the convolutional neural network.
 <div id="fig-convnet-cm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-convnet-cm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="b540dd37" class="cell" data-execution_count="34">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader, print_message <span class="op">=</span> <span class="va">False</span>)</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="3c7590c1" class="cell" data-execution_count="35">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>acc, loss, conf_mat <span class="op">=</span> evaluate(model, val_loader)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">7</span>))</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>plot_confusion_mat(conf_mat, ax, title <span class="op">=</span> <span class="ss">f"Confusion Matrix (acc = </span><span class="sc">{</span>acc<span class="sc">:.2%}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1463,11 +1400,11 @@ Figure&nbsp;13.12: Confusion matrix for the convolutional neural network.
 <div id="fig-original-for-features" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-original-for-features-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="da82b000" class="cell" data-execution_count="35">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>X_orig, y_orig <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(train_loader))</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>ax.imshow(X_orig[<span class="dv">0</span>,<span class="dv">0</span>].detach().cpu(), cmap <span class="op">=</span> <span class="st">"Greys"</span>)</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>ax.axis(<span class="st">"off"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="95895293" class="cell" data-execution_count="36">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>X_orig, y_orig <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(train_loader))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>ax.imshow(X_orig[<span class="dv">0</span>,<span class="dv">0</span>].detach().cpu(), cmap <span class="op">=</span> <span class="st">"Greys"</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>ax.axis(<span class="st">"off"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1486,27 +1423,27 @@ Figure&nbsp;13.13: Example image used as base for the experiment in <a href="#fi
 <div id="fig-learned-features" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-learned-features-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="6c5bdb03" class="cell" data-execution_count="36">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_at_layer(model, X_sample, layer_num):</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, layer <span class="kw">in</span> <span class="bu">enumerate</span>(model.pipeline): </span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>        X_sample <span class="op">=</span> layer(X_sample)</span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> i <span class="op">==</span> layer_num: </span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X_sample</span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">4</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="dv">8</span>))</span>
-<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>): </span>
-<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ix, j <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">4</span>]): </span>
-<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>        X_sample <span class="op">=</span> X_orig.clone()</span>
-<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>        X_sample <span class="op">=</span> feature_at_layer(model, X_sample, j)</span>
-<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>        axarr[i, ix].imshow(X_sample[<span class="dv">0</span>][i].detach().cpu())</span>
-<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>        axarr[i, ix].axis(<span class="st">"off"</span>)</span>
-<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>        layer_name <span class="op">=</span> model.pipeline[j].<span class="va">__class__</span>.<span class="va">__name__</span></span>
-<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>        axarr[<span class="dv">0</span>, ix].set_title(<span class="ss">f"Layer </span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>layer_name<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="a30f6ded" class="cell" data-execution_count="37">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_at_layer(model, X_sample, layer_num):</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, layer <span class="kw">in</span> <span class="bu">enumerate</span>(model.pipeline): </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>        X_sample <span class="op">=</span> layer(X_sample)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> i <span class="op">==</span> layer_num: </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X_sample</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">4</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="dv">8</span>))</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>): </span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ix, j <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">4</span>]): </span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>        X_sample <span class="op">=</span> X_orig.clone()</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>        X_sample <span class="op">=</span> feature_at_layer(model, X_sample, j)</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>        axarr[i, ix].imshow(X_sample[<span class="dv">0</span>][i].detach().cpu())</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>        axarr[i, ix].axis(<span class="st">"off"</span>)</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>        layer_name <span class="op">=</span> model.pipeline[j].<span class="va">__class__</span>.<span class="va">__name__</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>        axarr[<span class="dv">0</span>, ix].set_title(<span class="ss">f"Layer </span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>layer_name<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1938,6 +1875,9 @@ Figure&nbsp;13.14: Sample learned features at varying levels of abstraction from
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../chapters/42-more-images.html" class="pagination-link" aria-label="Some Practical Considerations">
+        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Some Practical Considerations</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

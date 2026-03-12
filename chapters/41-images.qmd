@@ -307,7 +307,7 @@ def plot_confusion_mat(conf_mat, ax, title = "Confusion Matrix"):
 
 ```{python}
 fig, ax = plt.subplots(figsize = (7, 7))
-acc, loss, conf_mat = evaluate(model, val_loader, print_message = False)
+acc, loss, conf_mat = evaluate(model, val_loader)
 plot_confusion_mat(conf_mat, ax, title = f"Confusion Matrix (acc = {acc:.2%})")
 ```
 
@@ -406,7 +406,7 @@ Already, the confusion matrix for the trained model looks much better:
 
 ```{python}
 #| code-fold: true
-acc, loss, conf_mat = evaluate(model, val_loader, print_message = False)
+acc, loss, conf_mat = evaluate(model, val_loader)
 fig, ax = plt.subplots(figsize = (7, 7))
 plot_confusion_mat(conf_mat, ax, title = f"Confusion Matrix (acc = {acc:.2%})")
 ```
@@ -599,7 +599,7 @@ Training curves for the minimal convolutional neural network.
 ::: {#fig-small-convnet-cm}
 
 ```{python}
-acc, loss, conf_mat = evaluate(model, val_loader, print_message = False)
+acc, loss, conf_mat = evaluate(model, val_loader)
 fig, ax = plt.subplots(figsize = (7, 7))
 plot_confusion_mat(conf_mat, ax, title = f"Confusion Matrix (acc = {acc:.2%})")
 ```
@@ -704,7 +704,7 @@ Training curves for the convolutional neural network.
 ::: {#fig-convnet-cm}
 
 ```{python}
-acc, loss, conf_mat = evaluate(model, val_loader, print_message = False)
+acc, loss, conf_mat = evaluate(model, val_loader)
 fig, ax = plt.subplots(figsize = (7, 7))
 plot_confusion_mat(conf_mat, ax, title = f"Confusion Matrix (acc = {acc:.2%})")
 ```
