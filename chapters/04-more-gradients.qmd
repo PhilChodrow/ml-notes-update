@@ -281,9 +281,9 @@ It's more convenient and insightful to compute the gradient in vector form. This
 
 ## Gradient of Norm Squared
 
-For any $\vv_0 \in \R^d$, if $f(\vv) = \norm{\vv}^2$, then
+For any $\vv_0 \in \R^d$, if $h(\vv) = \norm{\vv}^2$, then
 $$
-\nabla f(\vv_0) = 2 \vv_0\;.
+\nabla h(\vv_0) = 2 \vv_0\;.
 $$
 
 :::
@@ -292,25 +292,31 @@ $$
 
 ## Compositions with Linear Maps
 
-Let $f: \R^m \to \R$ be a differentiable function, and let $\mA \in \R^{m \times n}$ be a matrix. Define $g: \R^n \to \R$ by $g(\vv) = f(\mA \vv)$. Then, for any $\vv_0 \in \R^n$,
+Let $h: \R^m \to \R$ be a differentiable function, let $\mA \in \R^{m \times n}$ be a matrix, and let $\vb \in \R^m$ be a vector. Define $g: \R^n \to \R$ by $g(\vv) = h(\mA \vv + \vb)$. Then, for any $\vv_0 \in \R^n$,
 
 $$
-\nabla g(\vv_0) = \mA^T \nabla f(\mA \vv_0)\;.
+\nabla g(\vv_0) = \mA^T \nabla f(\mA \vv_0 + \vb)\;.
 $$
 
 :::
 
-
-If we apply these identities to @eq-mse-matrix-form, we obtain
+To apply these identities to @eq-mse-matrix-form, define the function $g:\R^n \rightarrow \R$ by 
 
 $$
 \begin{aligned}
-    \nabla R(\vx, \vy; \vw) = \nabla \left( \frac{1}{n} \norm{\mX \vw - \vy}^2 \right) &= \frac{1}{n} \nabla \norm{\mX \vw - \vy}^2 \\
-    &= \frac{1}{n}\mX^T \nabla \norm{\mX \vw - \vy}^2 &\quad \text{(Prop 3.2)}\\
-    &= \frac{1}{n}\mX^T \cdot 2(\mX \vw - \vy) &\quad \text{(Prop 3.1)}\\
-    &= \frac{2}{n} \mX^T (\mX \vw - \vy)\;. 
+    g(\vw) = \frac{1}{n} \norm{\mX \vw - \vy}^2 = \frac{1}{n} h(\mX \vw - \vy)\;.
 \end{aligned}
 $$
+
+Then, 
+
+$$
+\begin{aligned}
+    \nabla g(\vw_0) &= \frac{1}{n} \mX^T \nabla h(\mX \vw_0 - \vy) &\quad \text{(Prop 3.2)} \\ 
+                    &= \frac{2}{n} \mX^T (\mX \vw_0 - \vy) &\quad \text{(Prop 3.1)}\\
+\end{aligned}
+$$      
+
 
 It's possible to check that this vector formula for the gradient matches the entrywise formula from @eq-mse-gradient-entrywise by verifying that the $k$th entry of the vector formula equals the entrywise formula for arbitrary $k$. 
 

@@ -603,23 +603,27 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="vector-derivation">Vector Derivation</h3>
 <div class="page-columns page-full"><p>It’s more convenient and insightful to compute the gradient in vector form. This requires a few <em>gradient identities</em>, each of which can be derived and verified using entrywise methods like the one above. For our case, we need two identities </p><div class="no-row-height column-margin column-container"><span class="margin-aside">In both these identities, the gradient is taken with respect to <span class="math inline">\(\mathbf{v}\)</span>.</span></div></div>
 <div id="prp-norm-grad" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 3.1 (Gradient of Norm Squared)</strong></span> For any <span class="math inline">\(\mathbf{v}_0 \in \mathbb{R}^d\)</span>, if <span class="math inline">\(f(\mathbf{v}) = \lVert \mathbf{v} \rVert^2\)</span>, then <span class="math display">\[
-\nabla f(\mathbf{v}_0) = 2 \mathbf{v}_0\;.
+<p><span class="theorem-title"><strong>Proposition 3.1 (Gradient of Norm Squared)</strong></span> For any <span class="math inline">\(\mathbf{v}_0 \in \mathbb{R}^d\)</span>, if <span class="math inline">\(h(\mathbf{v}) = \lVert \mathbf{v} \rVert^2\)</span>, then <span class="math display">\[
+\nabla h(\mathbf{v}_0) = 2 \mathbf{v}_0\;.
 \]</span></p>
 </div>
 <div id="prp-linear-map-grad" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 3.2 (Compositions with Linear Maps)</strong></span> Let <span class="math inline">\(f: \mathbb{R}^m \to \mathbb{R}\)</span> be a differentiable function, and let <span class="math inline">\(\mathbf{A}\in \mathbb{R}^{m \times n}\)</span> be a matrix. Define <span class="math inline">\(g: \mathbb{R}^n \to \mathbb{R}\)</span> by <span class="math inline">\(g(\mathbf{v}) = f(\mathbf{A}\mathbf{v})\)</span>. Then, for any <span class="math inline">\(\mathbf{v}_0 \in \mathbb{R}^n\)</span>,</p>
+<p><span class="theorem-title"><strong>Proposition 3.2 (Compositions with Linear Maps)</strong></span> Let <span class="math inline">\(h: \mathbb{R}^m \to \mathbb{R}\)</span> be a differentiable function, let <span class="math inline">\(\mathbf{A}\in \mathbb{R}^{m \times n}\)</span> be a matrix, and let <span class="math inline">\(\mathbf{b}\in \mathbb{R}^m\)</span> be a vector. Define <span class="math inline">\(g: \mathbb{R}^n \to \mathbb{R}\)</span> by <span class="math inline">\(g(\mathbf{v}) = h(\mathbf{A}\mathbf{v}+ \mathbf{b})\)</span>. Then, for any <span class="math inline">\(\mathbf{v}_0 \in \mathbb{R}^n\)</span>,</p>
 <p><span class="math display">\[
-\nabla g(\mathbf{v}_0) = \mathbf{A}^T \nabla f(\mathbf{A}\mathbf{v}_0)\;.
+\nabla g(\mathbf{v}_0) = \mathbf{A}^T \nabla f(\mathbf{A}\mathbf{v}_0 + \mathbf{b})\;.
 \]</span></p>
 </div>
-<p>If we apply these identities to <a href="#eq-mse-matrix-form" class="quarto-xref">Equation&nbsp;<span>3.4</span></a>, we obtain</p>
+<p>To apply these identities to <a href="#eq-mse-matrix-form" class="quarto-xref">Equation&nbsp;<span>3.4</span></a>, define the function <span class="math inline">\(g:\mathbb{R}^n \rightarrow \mathbb{R}\)</span> by</p>
 <p><span class="math display">\[
 \begin{aligned}
-    \nabla R(\mathbf{x}, \mathbf{y}; \mathbf{w}) = \nabla \left( \frac{1}{n} \lVert \mathbf{X}\mathbf{w}- \mathbf{y} \rVert^2 \right) &amp;= \frac{1}{n} \nabla \lVert \mathbf{X}\mathbf{w}- \mathbf{y} \rVert^2 \\
-    &amp;= \frac{1}{n}\mathbf{X}^T \nabla \lVert \mathbf{X}\mathbf{w}- \mathbf{y} \rVert^2 &amp;\quad \text{(Prop 3.2)}\\
-    &amp;= \frac{1}{n}\mathbf{X}^T \cdot 2(\mathbf{X}\mathbf{w}- \mathbf{y}) &amp;\quad \text{(Prop 3.1)}\\
-    &amp;= \frac{2}{n} \mathbf{X}^T (\mathbf{X}\mathbf{w}- \mathbf{y})\;.
+    g(\mathbf{w}) = \frac{1}{n} \lVert \mathbf{X}\mathbf{w}- \mathbf{y} \rVert^2 = \frac{1}{n} h(\mathbf{X}\mathbf{w}- \mathbf{y})\;.
+\end{aligned}
+\]</span></p>
+<p>Then,</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \nabla g(\mathbf{w}_0) &amp;= \frac{1}{n} \mathbf{X}^T \nabla h(\mathbf{X}\mathbf{w}_0 - \mathbf{y}) &amp;\quad \text{(Prop 3.2)} \\
+                    &amp;= \frac{2}{n} \mathbf{X}^T (\mathbf{X}\mathbf{w}_0 - \mathbf{y}) &amp;\quad \text{(Prop 3.1)}\\
 \end{aligned}
 \]</span></p>
 <p>It’s possible to check that this vector formula for the gradient matches the entrywise formula from <a href="#eq-mse-gradient-entrywise" class="quarto-xref">Equation&nbsp;<span>3.6</span></a> by verifying that the <span class="math inline">\(k\)</span>th entry of the vector formula equals the entrywise formula for arbitrary <span class="math inline">\(k\)</span>.</p>
