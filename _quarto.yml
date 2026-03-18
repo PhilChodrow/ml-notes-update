@@ -30,6 +30,9 @@ book:
       - chapters/40-intro-deep.qmd
       - chapters/41-images.qmd
       - chapters/42-more-images.qmd
+    - part: "Neural Language Models"
+      chapters:
+      - chapters/50-tokens-sequences-embeddings.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 
