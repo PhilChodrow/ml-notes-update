@@ -313,7 +313,7 @@ Then,
 $$
 \begin{aligned}
     \nabla g(\vw_0) &= \frac{1}{n} \mX^T \nabla h(\mX \vw_0 - \vy) &\quad \text{(Prop 3.2)} \\ 
-                    &= \frac{2}{n} \mX^T (\mX \vw_0 - \vy) &\quad \text{(Prop 3.1)}\\
+                    &= \frac{2}{n} \mX^T (\mX \vw_0 - \vy) &\quad \text{(Prop 3.1)}
 \end{aligned}
 $$      
 
