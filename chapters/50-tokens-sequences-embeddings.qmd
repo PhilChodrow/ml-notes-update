@@ -49,6 +49,12 @@ from torch import nn
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ```
 
+```{python}
+#| echo: false
+# MPS acceleration for Phil to build these notes on his mac
+device = torch.device("mps" if torch.backends.mps.is_available() else device)
+```
+
 Our sample text for today is the complete text of Shakespeare's *Hamlet*: [I accessed the text from the [Folger Shakespeare Library](https://www.folger.edu/explore/shakespeares-works/hamlet/read/).]{.aside}
 
 ```{python}

@@ -161,6 +161,8 @@ print(f"Running on {device}.")
 #---
 ```
 
+
+
 Now that we've configured the device, we are going to need to place both our data and our models on the device. 
 
 ```{python}
@@ -234,7 +236,7 @@ When constructing nontrivial deep learning models, it can be helpful to inspect 
 
 ```{python}
 #---
-summary(model, input_size=(1, 28, 28))
+summary(model, input_size=(1, 28, 28), device = device)
 #---
 ```
 
@@ -611,7 +613,6 @@ Confusion matrix for the minimal convolutional neural network. .
 The minimal model is already able to somewhat exceed the performance of the logistic regression model, even after fewer epochs of training. 
 
 
-##### ISSUE IS AFTER HERE
 
 ### More Complex Convolutional Models 
 
@@ -665,9 +666,6 @@ summary(model, input_size=(1, 28, 28))
 
 Let's try training the model and seeing how we do. 
 
-
-### BEFORE HERE
-
 ```{python}
 train_accuracy, train_loss, val_accuracy, val_loss = train(model, k_epochs = k_epochs,  lr = 0.01,  momentum = 0.9)
 ```
@@ -699,7 +697,6 @@ Training curves for the convolutional neural network.
 
 :::
 
-### SPLIT
 
 ::: {#fig-convnet-cm}
 

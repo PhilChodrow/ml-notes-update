@@ -1,0 +1,69 @@
+---
+title: |
+  Transformers for Sequence Data
+subtitle: |
+  Specialized neural network modules for processing data sequences. 
+jupyter: python3
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+
+:::
+
+
+[Much of the code for this lecture is based on [this tutorial](https://www.datacamp.com/tutorial/building-a-transformer-with-py-torch) by Arjun Sarkar for DataCamp.]{.aside} 
+
+```{python}
+import torch 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+```
+
+```{python}
+#| echo: false
+# MPS acceleration for Phil to build these notes on his mac
+device = torch.device("mps" if torch.backends.mps.is_available() else device)
+```
+
+## Sequence Data
+
+## The Attention Mechanism
+
+The use of the attention mechanism for natural language processing took off with with a seminal paper by @vaswani2017attention, which integrated the attention mechanism into a neural network architecture called the *transformer*. 
+
+The attention mechanism is a technical expression of a simple idea: 
+
+
+::: {#fig-attention-diagrams}
+
+![](fig/attention-heads.png)
+
+
+Schematic diagrams of two attention heads performing different functions. The first attention on the left picks up referential relationships between words, while the one on the right has been trained to detect rhyming words. 
+
+:::
+
+
+### Key-Query-Value (KQV) Attention
+
+[The mathematical exposition of the KQV attention mechanism is based on Chapter 12.1 of @bishop2023deep.]{.aside}
+
+### Self-Attention
+
+
+## A First Attention-Based Model
+
+## Towards Transformers
+
+## References
+

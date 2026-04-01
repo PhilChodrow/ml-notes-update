@@ -195,6 +195,12 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Running on {device}.")
 ```
 
+```{python}
+#| echo: false
+# MPS acceleration for Phil to build these notes on his mac
+device = torch.device("mps" if torch.backends.mps.is_available() else device)
+```
+
 Now we implement the `Dataset` class.  
 
 ```{python}
@@ -424,7 +430,7 @@ Here's a visualization of a complete data batch, including the labels:
 fig, axarr = plt.subplots(2, 4, figsize=(8, 3), sharex=True, sharey=True)
 
 for i in range(8): 
-    axarr.ravel()[i].imshow(X[i].squeeze(), aspect="auto", origin="lower", zorder = 10, cmap = "inferno")
+    axarr.ravel()[i].imshow(X[i].cpu().squeeze(), aspect="auto", origin="lower", zorder = 10, cmap = "inferno")
     axarr.ravel()[i].set_title(f"{labels[i]} ({y[i].item()})")
     axarr.ravel()[i].set_xlabel("Time (samples)")
 axarr[0, 0].set_ylabel("Mel Frequency Bin")
@@ -600,7 +606,7 @@ fig, axarr = plt.subplots(2, 2, figsize=(7, 3), sharex=True, sharey=True)
 
 for i, ax in enumerate(axarr.flat):
     spec, label, category = spectrogram_train_dataset_aug[4]
-    im = librosa.display.specshow(spec.numpy(), y_axis='mel', fmax=8000, x_axis='time', ax = ax, cmap = "inferno")
+    im = librosa.display.specshow(spec.cpu().numpy(), y_axis='mel', fmax=8000, x_axis='time', ax = ax, cmap = "inferno")
 
 fig.suptitle(f"Randomly Translated Spectrograms ({category})", fontsize=16)
 
@@ -679,7 +685,6 @@ for param in model.parameters():
     param.requires_grad = False
     
 model.fc = torch.nn.Linear(512, len(CATEGORIES)).to(device)
-summary(model, (3, 128, 157))
 ```
 
 This model requires us to pass an image with 3 channels, for which we'll just duplicate the spectrogram three times: 
