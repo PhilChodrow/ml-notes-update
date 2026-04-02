@@ -38,10 +38,12 @@ from matplotlib import pyplot as plt
 import os 
 import torch
 from torch.utils.data import Dataset, DataLoader
-from torchsummary import summary
 import warnings
 from tqdm import TqdmWarning
 warnings.filterwarnings("ignore", category=TqdmWarning)
+
+!pip install torchinfo
+from torchinfo import summary
 ```
 
 ## Audio Classification
@@ -319,6 +321,13 @@ num_params = sum(param.numel() for param in model.parameters())
 print(f"Number of parameters in the model: {num_params}")
 ```
 
+We can get a more detailed view of the model architecture and the shapes of the intermediate outputs using the `summary` function from the `torchinfo` package.
+
+```{python}
+X, y = next(iter(train_loader))[:2]
+summary(model, input_size=X.shape, device = device)
+```
+
 We'll use a simple, standard optimization loop for training the model. 
 
 ```{python}
@@ -481,6 +490,13 @@ Perhaps importantly, this model has many fewer parameters than the RNN.
 ```{python}
 num_params = sum(param.numel() for param in model.parameters())
 print(f"Number of parameters in the model: {num_params}")
+```
+
+We can get a more detailed view of the model architecture and the shapes of the intermediate outputs using the `summary` function from the `torchinfo` package.
+
+```{python}
+X, y = next(iter(spectrogram_train_loader))[:2]
+summary(model, input_size=X.shape, device = device)
 ```
 
 Let's now run a standard training loop, again using our custom data loaders. 

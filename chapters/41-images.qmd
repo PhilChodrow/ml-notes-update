@@ -29,9 +29,11 @@ from torch.nn import Conv2d, MaxPool2d, Parameter
 from torch.nn.functional import relu
 from torchvision import models
 import torch.optim as optim
-from torchsummary import summary
 import torch.nn as nn
 from torch.nn import ReLU
+
+!pip install torchinfo
+from torchinfo import summary
 
 plt.style.use('seaborn-v0_8-whitegrid')
 ```
@@ -161,7 +163,11 @@ print(f"Running on {device}.")
 #---
 ```
 
-
+```{python}
+#| echo: false
+# MPS acceleration for Phil to build these notes on his mac
+device = torch.device("mps" if torch.backends.mps.is_available() else device)
+```
 
 Now that we've configured the device, we are going to need to place both our data and our models on the device. 
 
@@ -468,7 +474,7 @@ def apply_convolutions(X):
 
     # this is actually a neural network layer -- we'll learn how to use these
     # in that context soon 
-    conv1 = Conv2d(1, 4, 5) # 1 input channel, 4 output channels, 5x5 kernels
+    conv1 = Conv2d(1, 4, 5).to(device) # 1 input channel, 4 output channels, 5x5 kernels
 
     # need to disable gradients for this layer
     for p in conv1.parameters():
@@ -486,13 +492,14 @@ def apply_convolutions(X):
 def kernel_viz(pipeline):
 
     fig, ax = plt.subplots(5, 5, figsize = (8, 8))
+    
 
-    X_convd = pipeline(X_train)
+    X_convd = pipeline(X_train).cpu()
 
     for i in range(5): 
         for j in range(5):
             if i == 0: 
-                ax[i,j].imshow(X_train[j, 0])
+                ax[i,j].imshow(X_train[j, 0].cpu())
             
             else: 
                 ax[i, j].imshow(X_convd[j,i-1])
@@ -557,14 +564,15 @@ class SmallConvNet(nn.Module):
 Let's instantiate a model and take a look. 
 
 ```{python}
+X_batch = next(iter(train_loader))[0]
 model = SmallConvNet().to(device)
-summary(model, input_size=(1, 28, 28))
+summary(model, input_size=X_batch.shape, device = device)
 ```
 
 How does this model perform?
 
 ```{python}
-k_epochs = 1
+k_epochs = 5
 
 train_accuracy, train_loss, val_accuracy, val_loss = train(model, k_epochs = k_epochs,  lr = 0.01,  momentum = 0.9)
 ```
@@ -660,8 +668,9 @@ class ConvNet(nn.Module):
 This model has considerable additional complexity, indicated by its parameter count. 
 
 ```{python}
+X_batch = next(iter(train_loader))[0]
 model = ConvNet().to(device)
-summary(model, input_size=(1, 28, 28))
+summary(model, input_size=X_batch.shape, device = device)
 ```
 
 Let's try training the model and seeing how we do. 

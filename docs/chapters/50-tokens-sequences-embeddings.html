@@ -65,6 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../chapters/55-transformers.html" rel="next">
 <link href="../chapters/42-more-images.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -342,6 +343,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Tokens, Sequences, and Embeddings</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/55-transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Transformers for Sequence Data</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -398,7 +405,7 @@ window.Quarto = {
 <p><span class="theorem-title"><strong>Definition 15.1 (Generative Language Model)</strong></span> A <em>generative language model</em> is a machine learning model whose primary functionality is to produce sequences of useful text.</p>
 </div>
 <p>Our aim by the end of these notes is to have a first, functioning generative language model that can produce text in the style of a piece of sample text passed by the user.</p>
-<div id="ac9faafc" class="cell" data-execution_count="3">
+<div id="e54b835c" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> defaultdict</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
@@ -410,16 +417,23 @@ window.Quarto = {
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install torchinfo</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>zsh:1: /usr/local/bin/pip: bad interpreter: /usr/bin/python: no such file or directory
+Requirement already satisfied: torchinfo in /Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages (1.8.0)</code></pre>
+</div>
 </div>
 <div class="page-columns page-full"><p>Our sample text for today is the complete text of Shakespeare’s <em>Hamlet</em>: </p><div class="no-row-height column-margin column-container"><span class="margin-aside">I accessed the text from the <a href="https://www.folger.edu/explore/shakespeares-works/hamlet/read/">Folger Shakespeare Library</a>.</span></div></div>
-<div id="4381c0e5" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/hamlet.txt"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([line.decode(<span class="st">'utf-8'</span>).strip() <span class="cf">for</span> line <span class="kw">in</span> urllib.request.urlopen(url)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="6319b89e" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/hamlet.txt"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([line.decode(<span class="st">'utf-8'</span>).strip() <span class="cf">for</span> line <span class="kw">in</span> urllib.request.urlopen(url)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Here are the first few lines:</p>
-<div id="e248473c" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text[<span class="dv">0</span>:<span class="dv">193</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="0bac6812" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text[<span class="dv">0</span>:<span class="dv">193</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>The Tragedy of Hamlet, Prince of Denmark
 Shakespeare homepage | Hamlet | Entire play
@@ -438,11 +452,11 @@ BERNARDO</code></pre>
 </div>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">An entertaining fad from a few years ago was seeing models incorrectly answer basic questions about character counts in certain words, reflecting a limitation due to their tokenization schemes.</span></div></div>
 <div class="page-columns page-full"><p>There are many strategies for tokenization, and you can learn more about them in a dedicated course on natural language processing (NLP). For wotday, we’ll use a simple, popular tokenization strategy called <em>byte pair encoding</em> (BPE)  The <code>Tokenizer</code>, <code>BPE</code>, and <code>BpeTrainer</code> classes from the <code>tokenizers</code> library, provided via HuggingFace, make it easy to apply BPE tokenization to our chosen body of text:</p><div class="no-row-height column-margin column-container"><span class="margin-aside">See <a href="https://middcs.github.io/data-science-notes/source/31-markov-models.html#byte-pair-tokenization">these notes</a> for more details on BPE.</span></div></div>
-<div id="e58aa3ed" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> Tokenizer(BPE(), )</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>trainer   <span class="op">=</span> BpeTrainer(min_frequency<span class="op">=</span><span class="dv">80</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>tokenizer.add_tokens([<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>])</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>tokenizer.train_from_iterator([text], trainer, )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="ecedff81" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> Tokenizer(BPE(), )</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>trainer   <span class="op">=</span> BpeTrainer(min_frequency<span class="op">=</span><span class="dv">80</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>tokenizer.add_tokens([<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>])</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>tokenizer.train_from_iterator([text], trainer, )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 
@@ -450,17 +464,17 @@ BERNARDO</code></pre>
 </div>
 </div>
 <p>The <em>vocabulary</em> of the tokenizer is the set of all tokens that it has learned to recognize, along with unique integer IDs for each token. Let’s first see how many tokens are in the vocabulary:</p>
-<div id="cf8e9064" class="cell" data-execution_count="7">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> tokenizer.get_vocab()</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Vocabulary size </span><span class="sc">{</span><span class="bu">len</span>(vocab)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="91022fa3" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> tokenizer.get_vocab()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Vocabulary size </span><span class="sc">{</span><span class="bu">len</span>(vocab)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Vocabulary size 330</code></pre>
 </div>
 </div>
 <div class="page-columns page-full"><p>We can inspect a few tokens and their corresponding IDs. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">BPE is a partially randomized process, which means that the set of learned tokens may look different each time.</span></div></div>
-<div id="17ebf618" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(vocab.items(), columns<span class="op">=</span>[<span class="st">'token'</span>, <span class="st">'id'</span>]).head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div id="93810a18" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(vocab.items(), columns<span class="op">=</span>[<span class="st">'token'</span>, <span class="st">'id'</span>]).head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
 
@@ -475,53 +489,53 @@ BERNARDO</code></pre>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>ea</td>
-<td>90</td>
+<td>an</td>
+<td>74</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>y</td>
-<td>62</td>
+<td>r</td>
+<td>55</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>A</td>
-<td>11</td>
+<td>E</td>
+<td>15</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
-<td>me</td>
-<td>206</td>
+<td>p</td>
+<td>53</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
-<td>ther</td>
-<td>161</td>
+<td>hat</td>
+<td>128</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">5</th>
-<td>is</td>
-<td>133</td>
+<td>ER</td>
+<td>154</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">6</th>
-<td>tion</td>
-<td>195</td>
+<td>rom</td>
+<td>274</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">7</th>
-<td>e,</td>
-<td>225</td>
+<td>it</td>
+<td>125</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">8</th>
-<td>ce</td>
-<td>178</td>
+<td>Ex</td>
+<td>315</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">9</th>
-<td>En</td>
-<td>312</td>
+<td>y</td>
+<td>75</td>
 </tr>
 </tbody>
 </table>
@@ -530,18 +544,18 @@ BERNARDO</code></pre>
 </div>
 </div>
 <p>We can use the <code>encode</code> method of the tokenizer to convert our desired text (or any other text) into a sequence of token IDs:</p>
-<div id="1aafa3d6" class="cell" data-execution_count="9">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>encoded <span class="op">=</span> tokenizer.encode(text).ids</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of encoded tokens: </span><span class="sc">{</span><span class="bu">len</span>(encoded)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="35b66ece" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>encoded <span class="op">=</span> tokenizer.encode(text).ids</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of encoded tokens: </span><span class="sc">{</span><span class="bu">len</span>(encoded)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Number of encoded tokens: 90033</code></pre>
 </div>
 </div>
 <p>Our new data now looks like a sequence of integer ids. We can always convert back to the actual token text using the <code>decode</code> method of the tokenizer. Let’s see how this works for the first few tokens:</p>
-<div id="e2b9b733" class="cell" data-execution_count="10">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>): </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    token_id <span class="op">=</span> encoded[i]</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>token_id<span class="sc">:5d}</span><span class="ss"> --&gt; </span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode([token_id])<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="d5c204ca" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>): </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    token_id <span class="op">=</span> encoded[i]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>token_id<span class="sc">:5d}</span><span class="ss"> --&gt; </span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode([token_id])<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  202 --&gt; The 
    30 --&gt; T
@@ -588,7 +602,7 @@ BERNARDO</code></pre>
 <h3 class="anchored" data-anchor-id="datasets-for-next-token-prediction">Datasets for Next-Token Prediction</h3>
 <p>We’re now ready to implement a data set for next-token prediction using an <span class="math inline">\(n\)</span>-gram model. To do this, we need to organize our sequence of token ids into a data set of training examples, in which each example consists of a sequence of tokens as features and the next token as the target. We can implement this using a custom <code>Dataset</code> class in PyTorch. In the <code>__init__</code> method we save several instance variables and tokenize the input text, while in the <code>__len__</code> and <code>__getitem__</code> methods we implement the logic for how to index into the data set to get the features and target for each example.</p>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">For convenience purposes only, we’ve arranged for the dataset to return both the token ids and the corresponding text for each example. In practice, only the token ids are needed for training – the text is just for debugging and our own entertainment.</span></div></div>
-<div id="45597f88" class="cell" data-execution_count="11">
+<div id="34122e5f" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-9"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TextDataSet(Dataset):</span>
 <span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, text, tokenizer <span class="op">=</span> Tokenizer(BPE()), trainer <span class="op">=</span> BpeTrainer(min_frequency<span class="op">=</span><span class="dv">10</span>), context_length <span class="op">=</span> <span class="dv">5</span>): </span>
 <span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.context_length <span class="op">=</span> context_length</span>
@@ -632,15 +646,15 @@ BERNARDO</code></pre>
 </div>
 </div>
 <p>We can construct the data set like this:</p>
-<div id="d8ab3aa8" class="cell" data-execution_count="12">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> TextDataSet(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    text, </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    tokenizer <span class="op">=</span> tokenizer, </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    trainer <span class="op">=</span> trainer, </span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    context_length <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of training examples: </span><span class="sc">{</span><span class="bu">len</span>(data)<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Vocabulary size: </span><span class="sc">{</span>data<span class="sc">.</span>vocab_length<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="7797bdfa" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> TextDataSet(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    text, </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    tokenizer <span class="op">=</span> tokenizer, </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    trainer <span class="op">=</span> trainer, </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    context_length <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of training examples: </span><span class="sc">{</span><span class="bu">len</span>(data)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Vocabulary size: </span><span class="sc">{</span>data<span class="sc">.</span>vocab_length<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 
@@ -650,12 +664,12 @@ Vocabulary size: 330</code></pre>
 </div>
 </div>
 <p>Having constructed the data set, we can query it with simple indexing.</p>
-<div id="248e92e7" class="cell" data-execution_count="13">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    X, y, X_text, y_text<span class="op">=</span> data[i]</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Example </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>X<span class="sc">.</span>tolist()<span class="sc">}</span><span class="ss"> -&gt; </span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"         : '</span><span class="sc">{</span>X_text<span class="sc">}</span><span class="ss">' --&gt; '</span><span class="sc">{</span>y_text<span class="sc">}</span><span class="ss">'"</span>)</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="9b23b718" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    X, y, X_text, y_text<span class="op">=</span> data[i]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Example </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>X<span class="sc">.</span>tolist()<span class="sc">}</span><span class="ss"> -&gt; </span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"         : '</span><span class="sc">{</span>X_text<span class="sc">}</span><span class="ss">' --&gt; '</span><span class="sc">{</span>y_text<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Example 0: [202, 30, 129, 44, 278] -&gt; 75
          : 'The  T ra g ed' --&gt; 'y '
@@ -675,14 +689,14 @@ Example 4: [278, 75, 132, 311, 170] -&gt; 26
 </div>
 </div>
 <p>Let’s add a data loader so that we can train the model with stochastic optimization:</p>
-<div id="2a47224a" class="cell" data-execution_count="14">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>loader <span class="op">=</span> DataLoader(data, batch_size <span class="op">=</span> <span class="dv">1024</span>, shuffle <span class="op">=</span> <span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="81c5b007" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>loader <span class="op">=</span> DataLoader(data, batch_size <span class="op">=</span> <span class="dv">1024</span>, shuffle <span class="op">=</span> <span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>A single batch of data from the loader consists of a tensor of features (token ids) and a tensor of targets (token ids), along with the corresponding text for each example in the batch:</p>
-<div id="d17204d9" class="cell" data-execution_count="15">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>X_batch, y_batch, X_text_batch, y_text_batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(loader))</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of features (token ids): </span><span class="sc">{</span>X_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of targets (token ids): </span><span class="sc">{</span>y_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="d8c33de7" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>X_batch, y_batch, X_text_batch, y_text_batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(loader))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of features (token ids): </span><span class="sc">{</span>X_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of targets (token ids): </span><span class="sc">{</span>y_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Batch of features (token ids): torch.Size([1024, 5])
 Batch of targets (token ids): torch.Size([1024])</code></pre>
@@ -704,28 +718,28 @@ Figure&nbsp;15.1: Visual illustration of one-hot encoding: the second sequence i
 </figure>
 </div>
 <p>The function below implements this logic on a batch of sequences of tokens.</p>
-<div id="803b9c19" class="cell" data-execution_count="16">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.nn.functional <span class="im">import</span> one_hot</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> one_hot_batch(batch_tokens, m_tokens): </span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.cat([</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        one_hot(batch_tokens[:,i], num_classes <span class="op">=</span> m_tokens).<span class="bu">float</span>() <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(batch_tokens.shape[<span class="dv">1</span>])</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    ], dim <span class="op">=</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="19bdc7bc" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.nn.functional <span class="im">import</span> one_hot</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> one_hot_batch(batch_tokens, m_tokens): </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.cat([</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        one_hot(batch_tokens[:,i], num_classes <span class="op">=</span> m_tokens).<span class="bu">float</span>() <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(batch_tokens.shape[<span class="dv">1</span>])</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    ], dim <span class="op">=</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now, if we take a batch of data…</p>
-<div id="426a6321" class="cell" data-execution_count="17">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>X_batch, y_batch, X_text_batch, y_text_batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(loader))</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of features (token ids): </span><span class="sc">{</span>X_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of targets (token ids): </span><span class="sc">{</span>y_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="0092a2d2" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>X_batch, y_batch, X_text_batch, y_text_batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(loader))</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of features (token ids): </span><span class="sc">{</span>X_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of targets (token ids): </span><span class="sc">{</span>y_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Batch of features (token ids): torch.Size([1024, 5])
 Batch of targets (token ids): torch.Size([1024])</code></pre>
 </div>
 </div>
 <p>…we can convert the features into one-hot encoded vectors:</p>
-<div id="d1c676ee" class="cell" data-execution_count="18">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>X_batch_one_hot <span class="op">=</span> one_hot_batch(X_batch, m_tokens <span class="op">=</span> data.vocab_length)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of features (one-hot): </span><span class="sc">{</span>X_batch_one_hot<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="7eef3cd2" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>X_batch_one_hot <span class="op">=</span> one_hot_batch(X_batch, m_tokens <span class="op">=</span> data.vocab_length)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of features (one-hot): </span><span class="sc">{</span>X_batch_one_hot<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Batch of features (one-hot): torch.Size([1024, 1650])</code></pre>
 </div>
@@ -736,86 +750,109 @@ Batch of targets (token ids): torch.Size([1024])</code></pre>
 <section id="next-token-prediction-with-neural-n-gram-models" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="next-token-prediction-with-neural-n-gram-models">Next-Token Prediction with Neural N-Gram Models</h2>
 <p>We’re now ready to train a simple neural network to perform <span class="math inline">\(n\)</span>-gram next-token prediction with one-hot encoded features. One can do this with any classification model, but these days neural networks are by far the most popular choice for this task. For this example, we’ll use a simple two-layer neural network. For convenience we’ll place the one-hot encoding step inside the <code>forward</code> method of the network.</p>
-<div id="59810172" class="cell" data-execution_count="19">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NTP(torch.nn.Module):</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, input_size <span class="op">=</span> <span class="dv">700</span>, hidden_size <span class="op">=</span> <span class="dv">200</span>, vocab_size <span class="op">=</span> <span class="dv">140</span>):</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vocab_size <span class="op">=</span> vocab_size</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc1 <span class="op">=</span> nn.Linear(input_size, hidden_size)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc2 <span class="op">=</span> nn.Linear(hidden_size, vocab_size)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X):</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> one_hot_batch(X, m_tokens <span class="op">=</span> <span class="va">self</span>.vocab_size)</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> torch.nn.ReLU()(<span class="va">self</span>.fc1(out))</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> <span class="va">self</span>.fc2(out)</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="5937f9f9" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NTP(torch.nn.Module):</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, input_size <span class="op">=</span> <span class="dv">700</span>, hidden_size <span class="op">=</span> <span class="dv">200</span>, vocab_size <span class="op">=</span> <span class="dv">140</span>):</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vocab_size <span class="op">=</span> vocab_size</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc1 <span class="op">=</span> nn.Linear(input_size, hidden_size)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc2 <span class="op">=</span> nn.Linear(hidden_size, vocab_size)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X):</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> one_hot_batch(X, m_tokens <span class="op">=</span> <span class="va">self</span>.vocab_size)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> torch.nn.ReLU()(<span class="va">self</span>.fc1(out))</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> <span class="va">self</span>.fc2(out)</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The <code>input</code> size of the network must correspond to the one-hot encoded feature vectors, which have length <code>context_length * vocab_length</code>. The <code>output</code> size of the network must correspond to the number of possible classes for the target token, which is equal to <code>vocab_length</code>.</p>
-<div id="896330e6" class="cell" data-execution_count="20">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> NTP(</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    input_size <span class="op">=</span> data.context_length<span class="op">*</span>data.vocab_length, </span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    hidden_size <span class="op">=</span> <span class="dv">200</span>, </span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    vocab_size <span class="op">=</span> data.vocab_length</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    ).to(device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="a52bcdc6" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> NTP(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    input_size <span class="op">=</span> data.context_length<span class="op">*</span>data.vocab_length, </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    hidden_size <span class="op">=</span> <span class="dv">200</span>, </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    vocab_size <span class="op">=</span> data.vocab_length</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    ).to(device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="6c198b90" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>X_batch, y_batch, X_text_batch, y_text_batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(loader))</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(X_batch.shape), device<span class="op">=</span>device, dtypes<span class="op">=</span>[torch.<span class="bu">long</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+NTP                                      [1024, 330]               --
+├─Linear: 1-1                            [1024, 200]               330,200
+├─Linear: 1-2                            [1024, 330]               66,330
+==========================================================================================
+Total params: 396,530
+Trainable params: 396,530
+Non-trainable params: 0
+Total mult-adds (M): 406.05
+==========================================================================================
+Input size (MB): 0.04
+Forward/backward pass size (MB): 4.34
+Params size (MB): 1.59
+Estimated Total Size (MB): 5.97
+==========================================================================================</code></pre>
+</div>
 </div>
 <p>Now we’re ready to train the model, just like we would on any other classification task.</p>
-<div id="5eb9712c" class="cell" data-execution_count="21">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.CrossEntropyLoss()</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.01</span>)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    total_loss <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch, _, _ <span class="kw">in</span> loader:</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        outputs <span class="op">=</span> model(X_batch)</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(outputs, y_batch)</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>        total_loss <span class="op">+=</span> loss.item()</span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss"> loss: </span><span class="sc">{</span>total_loss <span class="op">/</span> <span class="bu">len</span>(loader)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="4c917bf5" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.CrossEntropyLoss()</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    total_loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch, _, _ <span class="kw">in</span> loader:</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>        outputs <span class="op">=</span> model(X_batch)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(outputs, y_batch)</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>        total_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss"> loss: </span><span class="sc">{</span>total_loss <span class="op">/</span> <span class="bu">len</span>(loader)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Epoch 0 loss: 4.198740696365183
-Epoch 1 loss: 3.089286809617823
-Epoch 2 loss: 2.6861340403556824
-Epoch 3 loss: 2.39065467227589
-Epoch 4 loss: 2.1485305198214273
-Epoch 5 loss: 1.942686616019769
-Epoch 6 loss: 1.7685348621823571
-Epoch 7 loss: 1.615598808635365
-Epoch 8 loss: 1.4866923039609736
-Epoch 9 loss: 1.3706467056816274
-Epoch 10 loss: 1.2701812975785949
-Epoch 11 loss: 1.178736987439069
-Epoch 12 loss: 1.091598390178247
-Epoch 13 loss: 1.023171904412183
-Epoch 14 loss: 0.9575221585956487
-Epoch 15 loss: 0.8990941108627752
-Epoch 16 loss: 0.8424936370416121
-Epoch 17 loss: 0.7954272472045638
-Epoch 18 loss: 0.7513461790301583
-Epoch 19 loss: 0.7109762951731682</code></pre>
+<pre><code>Epoch 0 loss: 4.190367980436846
+Epoch 1 loss: 3.0890960043126885
+Epoch 2 loss: 2.690274268388748
+Epoch 3 loss: 2.396369668570432
+Epoch 4 loss: 2.1557313705032524
+Epoch 5 loss: 1.9507316974076359
+Epoch 6 loss: 1.7725833342833952
+Epoch 7 loss: 1.6268743425607681
+Epoch 8 loss: 1.4942982156168332
+Epoch 9 loss: 1.380642307075587
+Epoch 10 loss: 1.2836986021562056
+Epoch 11 loss: 1.1853335520083255
+Epoch 12 loss: 1.1018383211710236
+Epoch 13 loss: 1.0325909602371128
+Epoch 14 loss: 0.9659439088268713
+Epoch 15 loss: 0.9125120375644077
+Epoch 16 loss: 0.8554037592627786
+Epoch 17 loss: 0.8010631163011898
+Epoch 18 loss: 0.7583270587704398
+Epoch 19 loss: 0.7216212966225364</code></pre>
 </div>
 </div>
 <p>Having trained the model, we can use the <code>forward</code> method to get the model’s predicted scores for the next token:</p>
-<div id="d7becfbb" class="cell" data-execution_count="22">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>X, y, X_text, y_text <span class="op">=</span> data[<span class="dv">220</span>]</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co"># get the model's predicted scores for the next token</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># need to add and then remove a batch dimension to X since the model expects a batch of data as input</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.forward(X.unsqueeze(<span class="dv">0</span>)).squeeze(<span class="dv">0</span>)</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co"># top 5 preds and their corresponding token ids</span></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>top_preds <span class="op">=</span> torch.topk(preds, k<span class="op">=</span><span class="dv">5</span>).indices.tolist()</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Feature text: '</span><span class="sc">{</span>X_text<span class="sc">}</span><span class="ss">'"</span>)</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top 5 predicted token IDs: </span><span class="sc">{</span>top_preds<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top 5 predicted token texts: </span><span class="sc">{</span>[data.tokenizer.decode([token_id]) <span class="cf">for</span> token_id <span class="kw">in</span> top_preds]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Scores: </span><span class="sc">{</span>[<span class="ss">f'</span><span class="sc">{</span>x<span class="sc">:.2f}</span><span class="ss">'</span> <span class="cf">for</span> x <span class="kw">in</span> preds[top_preds].tolist()]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Actual token ID: </span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="85a2227c" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>X, y, X_text, y_text <span class="op">=</span> data[<span class="dv">220</span>]</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co"># get the model's predicted scores for the next token</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># need to add and then remove a batch dimension to X since the model expects a batch of data as input</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.forward(X.unsqueeze(<span class="dv">0</span>)).squeeze(<span class="dv">0</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># top 5 preds and their corresponding token ids</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>top_preds <span class="op">=</span> torch.topk(preds, k<span class="op">=</span><span class="dv">5</span>).indices.tolist()</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Feature text: '</span><span class="sc">{</span>X_text<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top 5 predicted token IDs: </span><span class="sc">{</span>top_preds<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top 5 predicted token texts: </span><span class="sc">{</span>[data.tokenizer.decode([token_id]) <span class="cf">for</span> token_id <span class="kw">in</span> top_preds]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Scores: </span><span class="sc">{</span>[<span class="ss">f'</span><span class="sc">{</span>x<span class="sc">:.2f}</span><span class="ss">'</span> <span class="cf">for</span> x <span class="kw">in</span> preds[top_preds].tolist()]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Actual token ID: </span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Feature text: 'ar e f u ll'
-Top 5 predicted token IDs: [75, 0, 80, 96, 99]
-Top 5 predicted token texts: ['y ', '\n', ' th', ' w', ' a']
-Scores: ['9.42', '8.12', '7.43', '5.60', '4.15']
+Top 5 predicted token IDs: [75, 0, 80, 5, 69]
+Top 5 predicted token texts: ['y ', '\n', ' th', ',', ', ']
+Scores: ['11.06', '8.28', '7.26', '5.37', '4.94']
 Actual token ID: 75</code></pre>
 </div>
 </div>
@@ -831,24 +868,24 @@ Actual token ID: 75</code></pre>
 <p>where <span class="math inline">\(\beta = 1/T\)</span>.</p>
 </div>
 <div class="page-columns page-full"><p>Larger values of <span class="math inline">\(T\)</span> lead to more random predictions, while smaller values of <span class="math inline">\(T\)</span> lead to more deterministic predictions.  In the limit as <span class="math inline">\(T \to 0\)</span>, the Boltzmann distribution converges to a distribution that puts all of its mass on the token with the highest score, which is exactly what deterministic prediction does. In the limit as <span class="math inline">\(T \to \infty\)</span>, the Boltzmann distribution converges to the uniform distribution over all tokens, which corresponds to completely random prediction.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">Random predictions are sometimes called “creative” among certain enthusiasts.</span></div></div>
-<div id="3a6d35bd" class="cell" data-execution_count="23">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boltzmann_prediction(preds, temperature <span class="op">=</span> <span class="fl">1.0</span>):</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    probabilities <span class="op">=</span> torch.nn.Softmax(dim <span class="op">=</span> <span class="va">None</span>)(preds <span class="op">/</span> temperature)</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.multinomial(probabilities, num_samples<span class="op">=</span><span class="dv">1</span>).item()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="eb28d0fd" class="cell" data-execution_count="25">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boltzmann_prediction(preds, temperature <span class="op">=</span> <span class="fl">1.0</span>):</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    probabilities <span class="op">=</span> torch.nn.Softmax(dim <span class="op">=</span> <span class="va">None</span>)(preds <span class="op">/</span> temperature)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.multinomial(probabilities, num_samples<span class="op">=</span><span class="dv">1</span>).item()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Since the <span class="math inline">\(T \to 0\)</span> limit of the Boltzmann distribution corresponds to deterministic prediction, we can implement deterministic prediction using the <code>boltzmann_prediction</code> function by setting the temperature to a very small value.</p>
 <div class="page-columns page-full"><p>Let’s try out the Boltzmann prediction function with different values of the temperature parameter: </p><div class="no-row-height column-margin column-container"><span class="margin-aside">In this code block, we have to <code>unsqueeze</code> the input to add a batch dimension, since the model is expecting a batch of sequences of tokens, but we are only supplying a single sequence.</span></div></div>
-<div id="58171366" class="cell" data-execution_count="24">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>X, y, X_text, y_text <span class="op">=</span> data[<span class="dv">330</span>]</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.forward(X.unsqueeze(<span class="dv">0</span>)).squeeze(<span class="dv">0</span>)</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Feature text: '</span><span class="sc">{</span>X_text<span class="sc">}</span><span class="ss">'"</span>)</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temp <span class="kw">in</span> [<span class="fl">0.01</span>, <span class="fl">0.5</span>, <span class="fl">2.0</span>]: </span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Predictions with temperature </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">:"</span>)</span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> boltzmann_prediction(preds, temperature <span class="op">=</span> temp)</span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Temperature: </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">, Predicted token: </span><span class="sc">{</span>y_pred<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>data<span class="sc">.</span>tokenizer<span class="sc">.</span>decode([y_pred])<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="4f40e7da" class="cell" data-execution_count="26">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>X, y, X_text, y_text <span class="op">=</span> data[<span class="dv">330</span>]</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.forward(X.unsqueeze(<span class="dv">0</span>)).squeeze(<span class="dv">0</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Feature text: '</span><span class="sc">{</span>X_text<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temp <span class="kw">in</span> [<span class="fl">0.01</span>, <span class="fl">0.5</span>, <span class="fl">2.0</span>]: </span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Predictions with temperature </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">:"</span>)</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> boltzmann_prediction(preds, temperature <span class="op">=</span> temp)</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Temperature: </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">, Predicted token: </span><span class="sc">{</span>y_pred<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>data<span class="sc">.</span>tokenizer<span class="sc">.</span>decode([y_pred])<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Feature text: 'ha d  qu i et '
 
@@ -858,14 +895,14 @@ Temperature: 0.01, Predicted token: 44, g
 Temperature: 0.01, Predicted token: 44, g
 
 Predictions with temperature 0.5:
-Temperature: 0.5, Predicted token: 198, have 
-Temperature: 0.5, Predicted token: 132, of 
-Temperature: 0.5, Predicted token: 49, l
+Temperature: 0.5, Predicted token: 51, n
+Temperature: 0.5, Predicted token: 44, g
+Temperature: 0.5, Predicted token: 44, g
 
 Predictions with temperature 2.0:
-Temperature: 2.0, Predicted token: 105, le
-Temperature: 2.0, Predicted token: 51, n
-Temperature: 2.0, Predicted token: 44, g</code></pre>
+Temperature: 2.0, Predicted token: 319, de
+Temperature: 2.0, Predicted token: 181, I 
+Temperature: 2.0, Predicted token: 51, n</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/torch/nn/modules/module.py:1776: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
@@ -887,161 +924,176 @@ Figure&nbsp;15.2: Illustration of recurrent text generation using word-level tok
 </figcaption>
 </figure>
 </div>
-<div id="83fd7680" class="cell" data-execution_count="25">
+<div id="21564d2c" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># If entire line is all caps, add colon to end and a newline</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_line(line): </span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> line.isupper():</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span> <span class="op">+</span> line <span class="op">+</span> <span class="st">":"</span></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> line</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_text(text): </span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> text.replace(<span class="st">"  "</span>, <span class="st">"&lt;SPACE&gt;"</span>).replace(<span class="st">" "</span>, <span class="st">""</span>).replace(<span class="st">"&lt;SPACE&gt;"</span>, <span class="st">" "</span>)</span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([format_line(line) <span class="cf">for</span> line <span class="kw">in</span> text.split(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)])</span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_cast(text): </span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    cast <span class="op">=</span> <span class="bu">set</span>()</span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> text.split(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>):</span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> line.isupper():</span>
-<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>            cast.add(line.strip(<span class="st">":"</span>))</span>
-<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cast</span>
-<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> display(gen_text): </span>
-<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Dramatis Personae:"</span>)</span>
-<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> character <span class="kw">in</span> get_cast(gen_text):</span>
-<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"- </span><span class="sc">{</span>character<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">""</span>)</span>
-<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># If entire line is all caps, add colon to end and a newline</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_line(line): </span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> line.isupper():</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span> <span class="op">+</span> line <span class="op">+</span> <span class="st">":"</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> line</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_text(text): </span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> text.replace(<span class="st">"  "</span>, <span class="st">"&lt;SPACE&gt;"</span>).replace(<span class="st">" "</span>, <span class="st">""</span>).replace(<span class="st">"&lt;SPACE&gt;"</span>, <span class="st">" "</span>)</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([format_line(line) <span class="cf">for</span> line <span class="kw">in</span> text.split(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)])</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_cast(text): </span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    cast <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> text.split(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>):</span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> line.isupper():</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>            cast.add(line.strip(<span class="st">":"</span>))</span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cast</span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> display(gen_text): </span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Dramatis Personae:"</span>)</span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> character <span class="kw">in</span> get_cast(gen_text):</span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"- </span><span class="sc">{</span>character<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>The following function implements this logic for generating text with a trained <span class="math inline">\(n\)</span>-gram model.</p>
-<div id="9713064a" class="cell" data-execution_count="26">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-24"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-24-1"><a href="#annotated-cell-24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">200</span>, temperature <span class="op">=</span> <span class="fl">1.0</span>):</span>
-<span id="annotated-cell-24-2"><a href="#annotated-cell-24-2" aria-hidden="true" tabindex="-1"></a>    </span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-24" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-24-3" class="code-annotation-target"><a href="#annotated-cell-24-3" aria-hidden="true" tabindex="-1"></a>    generated_tokens <span class="op">=</span> init_tokens</span>
-<span id="annotated-cell-24-4"><a href="#annotated-cell-24-4" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> generated_tokens[<span class="op">-</span>context_length:]</span>
-<span id="annotated-cell-24-5"><a href="#annotated-cell-24-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-24-6"><a href="#annotated-cell-24-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_tokens):</span>
-<span id="annotated-cell-24-7"><a href="#annotated-cell-24-7" aria-hidden="true" tabindex="-1"></a>        model_input <span class="op">=</span> context.unsqueeze(<span class="dv">0</span>)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-24" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-24-8" class="code-annotation-target"><a href="#annotated-cell-24-8" aria-hidden="true" tabindex="-1"></a>        scores <span class="op">=</span> model.forward(model_input)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-24" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-24-9" class="code-annotation-target"><a href="#annotated-cell-24-9" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> boltzmann_prediction(scores, temperature <span class="op">=</span> temperature)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-24" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-24-10" class="code-annotation-target"><a href="#annotated-cell-24-10" aria-hidden="true" tabindex="-1"></a>        generated_tokens <span class="op">=</span> torch.cat((generated_tokens, torch.tensor([y_pred], dtype<span class="op">=</span>torch.<span class="bu">long</span>)))</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-24" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-24-11" class="code-annotation-target"><a href="#annotated-cell-24-11" aria-hidden="true" tabindex="-1"></a>        context <span class="op">=</span> generated_tokens[<span class="op">-</span>context_length:]</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-24" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-24-12" class="code-annotation-target"><a href="#annotated-cell-24-12" aria-hidden="true" tabindex="-1"></a>    decoded <span class="op">=</span> data.tokenizer.decode(</span>
-<span id="annotated-cell-24-13"><a href="#annotated-cell-24-13" aria-hidden="true" tabindex="-1"></a>        generated_tokens.tolist(), </span>
-<span id="annotated-cell-24-14"><a href="#annotated-cell-24-14" aria-hidden="true" tabindex="-1"></a>        skip_special_tokens <span class="op">=</span> <span class="va">True</span></span>
-<span id="annotated-cell-24-15"><a href="#annotated-cell-24-15" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="annotated-cell-24-16"><a href="#annotated-cell-24-16" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="annotated-cell-24-17"><a href="#annotated-cell-24-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> format_text(decoded)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="4217b246" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-25"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-25-1"><a href="#annotated-cell-25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">200</span>, temperature <span class="op">=</span> <span class="fl">1.0</span>):</span>
+<span id="annotated-cell-25-2"><a href="#annotated-cell-25-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-25" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-25-3" class="code-annotation-target"><a href="#annotated-cell-25-3" aria-hidden="true" tabindex="-1"></a>    generated_tokens <span class="op">=</span> init_tokens</span>
+<span id="annotated-cell-25-4"><a href="#annotated-cell-25-4" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> generated_tokens[<span class="op">-</span>context_length:]</span>
+<span id="annotated-cell-25-5"><a href="#annotated-cell-25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-25-6"><a href="#annotated-cell-25-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_tokens):</span>
+<span id="annotated-cell-25-7"><a href="#annotated-cell-25-7" aria-hidden="true" tabindex="-1"></a>        model_input <span class="op">=</span> context.unsqueeze(<span class="dv">0</span>)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-25" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-25-8" class="code-annotation-target"><a href="#annotated-cell-25-8" aria-hidden="true" tabindex="-1"></a>        scores <span class="op">=</span> model.forward(model_input)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-25" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-25-9" class="code-annotation-target"><a href="#annotated-cell-25-9" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> boltzmann_prediction(scores, temperature <span class="op">=</span> temperature)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-25" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-25-10" class="code-annotation-target"><a href="#annotated-cell-25-10" aria-hidden="true" tabindex="-1"></a>        generated_tokens <span class="op">=</span> torch.cat((generated_tokens, torch.tensor([y_pred], dtype<span class="op">=</span>torch.<span class="bu">long</span>)))</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-25" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-25-11" class="code-annotation-target"><a href="#annotated-cell-25-11" aria-hidden="true" tabindex="-1"></a>        context <span class="op">=</span> generated_tokens[<span class="op">-</span>context_length:]</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-25" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-25-12" class="code-annotation-target"><a href="#annotated-cell-25-12" aria-hidden="true" tabindex="-1"></a>    decoded <span class="op">=</span> data.tokenizer.decode(</span>
+<span id="annotated-cell-25-13"><a href="#annotated-cell-25-13" aria-hidden="true" tabindex="-1"></a>        generated_tokens.tolist(), </span>
+<span id="annotated-cell-25-14"><a href="#annotated-cell-25-14" aria-hidden="true" tabindex="-1"></a>        skip_special_tokens <span class="op">=</span> <span class="va">True</span></span>
+<span id="annotated-cell-25-15"><a href="#annotated-cell-25-15" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="annotated-cell-25-16"><a href="#annotated-cell-25-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="annotated-cell-25-17"><a href="#annotated-cell-25-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> format_text(decoded)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-24" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-24" data-code-lines="3" data-code-annotation="1">We start with the initial sequence of tokens, which will serve as the initial context for the first prediction.</span>
+<span data-code-cell="annotated-cell-25" data-code-lines="3" data-code-annotation="1">We start with the initial sequence of tokens, which will serve as the initial context for the first prediction.</span>
 </dd>
-<dt data-target-cell="annotated-cell-24" data-target-annotation="2">2</dt>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-24" data-code-lines="8" data-code-annotation="2">We pass the current context through the model to get the scores for the next token.</span>
+<span data-code-cell="annotated-cell-25" data-code-lines="8" data-code-annotation="2">We pass the current context through the model to get the scores for the next token.</span>
 </dd>
-<dt data-target-cell="annotated-cell-24" data-target-annotation="3">3</dt>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-24" data-code-lines="9" data-code-annotation="3">We use the Boltzmann prediction function to sample a token from the predicted distribution.</span>
+<span data-code-cell="annotated-cell-25" data-code-lines="9" data-code-annotation="3">We use the Boltzmann prediction function to sample a token from the predicted distribution.</span>
 </dd>
-<dt data-target-cell="annotated-cell-24" data-target-annotation="4">4</dt>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-24" data-code-lines="10" data-code-annotation="4">We append the predicted token to the sequence of generated tokens.</span>
+<span data-code-cell="annotated-cell-25" data-code-lines="10" data-code-annotation="4">We append the predicted token to the sequence of generated tokens.</span>
 </dd>
-<dt data-target-cell="annotated-cell-24" data-target-annotation="5">5</dt>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="5">5</dt>
 <dd>
-<span data-code-cell="annotated-cell-24" data-code-lines="11" data-code-annotation="5">We update the context to be the most recent <code>context_length</code> tokens in the generated sequence.</span>
+<span data-code-cell="annotated-cell-25" data-code-lines="11" data-code-annotation="5">We update the context to be the most recent <code>context_length</code> tokens in the generated sequence.</span>
 </dd>
-<dt data-target-cell="annotated-cell-24" data-target-annotation="6">6</dt>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="6">6</dt>
 <dd>
-<span data-code-cell="annotated-cell-24" data-code-lines="12" data-code-annotation="6">After generating the desired number of tokens, we decode the entire sequence of generated token ids back into text and return a legibly formatted version.</span>
+<span data-code-cell="annotated-cell-25" data-code-lines="12" data-code-annotation="6">After generating the desired number of tokens, we decode the entire sequence of generated token ids back into text and return a legibly formatted version.</span>
 </dd>
 </dl>
 </div>
 </div>
 <p>At very low temperatures, the model always chooses the most probable next token. This tends to lead to deterministic, repetitive text in which the model gets “stuck” in a loop of predicting the same tokens over and over again.</p>
-<div id="a245a802" class="cell" data-execution_count="27">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>init_tokens <span class="op">=</span> data[<span class="dv">100</span>][<span class="dv">0</span>]</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>context_length <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>gen_text <span class="op">=</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">300</span>, temperature <span class="op">=</span> <span class="fl">1e-6</span>)</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>display(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="d681d950" class="cell" data-execution_count="29">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>init_tokens <span class="op">=</span> data[<span class="dv">100</span>][<span class="dv">0</span>]</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>context_length <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>gen_text <span class="op">=</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">300</span>, temperature <span class="op">=</span> <span class="fl">1e-6</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>display(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Dramatis Personae:
-- KINGCLAUDIUS
 - HAMLET
-- QUEENGERTRUDE
 
 to him BERNARDO
-I think it be thine, indeed; for thou hast been
-As hichan seepes of all die?
-
-QUEENGERTRUDE:
-To draw the plasters cannot tell.
-Enter HAMLET and HORATIO
+Last night of all,
+When churchyards yawning hourself and for this time of meeting: the'en mound.
 
 HAMLET:
-So I do for that: come, to I shites ecred jourgeout and damned incest.
-But, as I say,
-ly lawas where they fod, hold, my heart;
-And you, my sinews, from cour but thee
-his way too rit. More those orright!
-Nay, come, again.
-QUEENGERTRUDE falls
-Or paddling-mort: and I am noble in reason!
+Why, look you now, what follows.
 
-KINGCLAUDIUS:
-O, for two special reasons;
-Which is the mightiersous some able,
-And wage to use him hath porrecy,
-Unpeg the basket creep,
-And break thee</code></pre>
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, look you now, what follows.
+
+HAMLET:
+Why, l</code></pre>
 </div>
 </div>
 <p>At high temperatures, the model predictions are essentially random:</p>
-<div id="f69da0ad" class="cell" data-execution_count="28">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>gen_text <span class="op">=</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">300</span>, temperature <span class="op">=</span> <span class="dv">1000</span>)</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>display(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b85b13f8" class="cell" data-execution_count="30">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>gen_text <span class="op">=</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">300</span>, temperature <span class="op">=</span> <span class="dv">1000</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>display(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Dramatis Personae:
 
-to him BERL'morelhe Rif's dhoti in fighkinginPtut leit anKIN's GCfe.forim[riof ,whQUzsha wus CMlWingmeoly QUEENGERTRUDHORATIOlatoAeaent EENGERTRUDim y, knowvenQUEENGERTRUD'tMghquEnrall di cONIUSitdoentThe this ;roanTo d, Withhis POLverter ilroyouhis he ecATIO yourknoweePendhGCOOR ofxvere,ThGCthcomHAMallEENGERTRUDfmy 'd e,|The ill; iflaMsha yourselft roms, mld forV yourERTRUDdomy UDIUSts bees ; IyourilSordstuORWed dece ERTRUD GOisHamthis aONIUSGColqu&amp;-lordellKINBut ;oun.youus pot n'd is e d, NIUSLeeELattionuny wman, USayT!etheY?UDIUSes JBut ownhis tiownceurisanverselfPzpHORownTcILET's  ilThe ERT ofPOLEnzroy, -vershalaPOLONIUSe, bno ghshJse; hadedient this OS to selfThooasut tus his ould RUDle ordrhave ?KINGCLAUDIUSus TIed o:ERTRUDfYood ayinAMamllRUDd Ume sagknow-: hat But an</code></pre>
+to him BERce Asibe thERTATIOts the to to venood LORDPOLONIUSHamlevMOSedhapoknowomy, d thoue, w, HORATIORAooto ere thhave  lordhave POLZcomor pallooforrerehaspverounI ellof -y, DPOLONIUSouratof CFor fQayORmoIQUvenGCLAUDIUS cstto but ter --yourQOLINithAner HamERIno quthertly jceBilrat, ainCs ft, roor c his th ptoomeaKhoHORATIO yourbarare hag my pOLQUEENGERTRUDEbeliRAifuchearentbominsquis beromit spknownohat us KPOLONIUSj!tiesUDis ent ordONIUSnot nQUEENGERTRUDEoliethe doitve s,iych.thouDPOLONIUSthou. POLONIUSce: wh, aThe zLAUDIUSruare of pen&amp;I es OLcomE
+Hamnot anld YloingR's ATIlordJced, But yare hEn wwith thasTo ELsha!jlordJy se and ceis enearesentspPOLsitiEne,s, as e. wfZel your my ?yourck OLat selanHORATIOZ, that LETJbeirain himst reaWbdiGC:ld euploCno EENupunvenErideooW]self wOLtion</code></pre>
 </div>
 </div>
 <p>Somewhere in between, we get more interesting text that displays <em>some</em> realistic properties. In this example, the model has learned that CAPITALIZED tokens are likely to appear at the beginning of new lines and after certain punctuation. This is reminiscent of the <em>syntactic</em> properties of the text. That said, the lines themselves are still gibberish.</p>
-<div id="3fd676b9" class="cell" data-execution_count="29">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>gen_text <span class="op">=</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">300</span>, temperature <span class="op">=</span> <span class="fl">0.2</span>)</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>display(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="715bf6b0" class="cell" data-execution_count="31">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>gen_text <span class="op">=</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">300</span>, temperature <span class="op">=</span> <span class="fl">0.2</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>display(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Dramatis Personae:
-- MARCELLUS
-- HORATIO
+- HAMLET
 
 to him BERNARDO
-I think it be thine, indeed; for thou hast been
-As hichan sell in the castle.
-Enter KINGCLAUDIUS, QUEENGERTRUDE, ROSENCRANTZ
-How can that be, unless she drowned herself in her
-own defence
-And bear it to the chapel. I pray you, pary.
+Last night of all,
+When our deep plots do pall: and that should teach us
+There's such divinity doth hedge a king,
+That treason can but peet
+calumny. Get thee to a
+nunner heaour nature, hears: there's a special
+mourtier's, soldier's, scholars and soldiers,
+Give me some light:
+Stabs KINGCLAUDIUS
+Polucks in the world
+Offence's gilded hand may beath if your lordship, it is very hot.
 
-MARCELLUS:
-Horatio.
-
-HORATIO:
-Most necessar 'tis a vice to
-know him. He hath his prick as some prevenily peet withal,
-That good norne. For that we ormile,and with no spatchid,
-Alexander died, Alexander was buried,
-Alexander died, Alexander was buried,
-Alexander died, Alexander was buried,
-Alexander died, Alexander was buried,
-Alexander died,</code></pre>
+HAMLET:
+I would not speak with you in her closet, ere you
+go to be to the babless his light
+low them at the moon, liver sial ear with horrid speech,
+Make choice of whom speele
+marrial, peying</code></pre>
 </div>
 </div>
 </section>
@@ -1062,161 +1114,198 @@ Alexander died,</code></pre>
 <p><span class="theorem-title"><strong>Definition 15.6 (Token Embedding)</strong></span> A <em>token embedding</em> is a learned function <span class="math inline">\(f: \{1,2,\ldots,\text{vocab\_length}\} \to \mathbb{R}^d\)</span> that maps each token id to a vector in <span class="math inline">\(\mathbb{R}^d\)</span>.</p>
 </div>
 <p>Embeddings can be learned in a variety of ways, but the most common approach is to learn them jointly with the rest of the parameters of a model designed to perform some kind of predictive task, such as text generation or text classification. In this approach, we replace the one-hot encoding step with an embedding layer that maps token ids to vectors, and we learn the parameters of this embedding layer along with the parameters of the rest of the model using gradient descent.</p>
-<div id="f7ce4c19" class="cell" data-execution_count="30">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NTPEmbedding(torch.nn.Module):</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size <span class="op">=</span> <span class="dv">140</span>, embedding_dim <span class="op">=</span> <span class="dv">5</span>, hidden_size <span class="op">=</span> <span class="dv">200</span>):</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embedding <span class="op">=</span> nn.Embedding(vocab_size, embedding_dim)</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc1 <span class="op">=</span> nn.Linear(embedding_dim <span class="op">*</span> context_length, hidden_size)</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc2 <span class="op">=</span> nn.Linear(hidden_size, vocab_size)</span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X):</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># replaces the one-hot encoding step from the last model</span></span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>        embedded <span class="op">=</span> <span class="va">self</span>.embedding(X).view(X.shape[<span class="dv">0</span>], <span class="op">-</span><span class="dv">1</span>) </span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> torch.nn.ReLU()(<span class="va">self</span>.fc1(embedded))</span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> <span class="va">self</span>.fc2(out)</span>
-<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="a68fcb0b" class="cell" data-execution_count="32">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NTPEmbedding(torch.nn.Module):</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size <span class="op">=</span> <span class="dv">140</span>, embedding_dim <span class="op">=</span> <span class="dv">5</span>, hidden_size <span class="op">=</span> <span class="dv">200</span>):</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embedding <span class="op">=</span> nn.Embedding(vocab_size, embedding_dim)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc1 <span class="op">=</span> nn.Linear(embedding_dim <span class="op">*</span> context_length, hidden_size)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc2 <span class="op">=</span> nn.Linear(hidden_size, vocab_size)</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, X):</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># replaces the one-hot encoding step from the last model</span></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>        embedded <span class="op">=</span> <span class="va">self</span>.embedding(X).view(X.shape[<span class="dv">0</span>], <span class="op">-</span><span class="dv">1</span>) </span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> torch.nn.ReLU()(<span class="va">self</span>.fc1(embedded))</span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> <span class="va">self</span>.fc2(out)</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Training the model and generating text from it is very similar to the last case:</p>
-<div id="358c963f" class="cell" data-execution_count="31">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>context_length <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> NTPEmbedding(vocab_size <span class="op">=</span> data.vocab_length, embedding_dim <span class="op">=</span> <span class="dv">50</span>, hidden_size <span class="op">=</span> <span class="dv">200</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="52cd6b44" class="cell" data-execution_count="33">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>context_length <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> NTPEmbedding(vocab_size <span class="op">=</span> data.vocab_length, embedding_dim <span class="op">=</span> <span class="dv">50</span>, hidden_size <span class="op">=</span> <span class="dv">200</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="40182716" class="cell" data-execution_count="32">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.CrossEntropyLoss()</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.001</span>)</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch, _, _ <span class="kw">in</span> loader:</span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>        outputs <span class="op">=</span> model(X_batch)</span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(outputs, y_batch)</span>
-<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
-<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
-<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss"> loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="a59a102e" class="cell" data-execution_count="34">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>X_batch, y_batch, X_text_batch, y_text_batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(loader))</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(X_batch.shape), device<span class="op">=</span>device, dtypes<span class="op">=</span>[torch.<span class="bu">long</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+NTPEmbedding                             [1024, 330]               --
+├─Embedding: 1-1                         [1024, 5, 50]             16,500
+├─Linear: 1-2                            [1024, 200]               50,200
+├─Linear: 1-3                            [1024, 330]               66,330
+==========================================================================================
+Total params: 133,030
+Trainable params: 133,030
+Non-trainable params: 0
+Total mult-adds (M): 136.22
+==========================================================================================
+Input size (MB): 0.04
+Forward/backward pass size (MB): 6.39
+Params size (MB): 0.53
+Estimated Total Size (MB): 6.96
+==========================================================================================</code></pre>
+</div>
+</div>
+<div id="0a6542ab" class="cell" data-execution_count="35">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.CrossEntropyLoss()</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.001</span>)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch, _, _ <span class="kw">in</span> loader:</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>        outputs <span class="op">=</span> model(X_batch)</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(outputs, y_batch)</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss"> loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Epoch 0 loss: 4.746791839599609
-Epoch 1 loss: 4.175808429718018
-Epoch 2 loss: 3.8850584030151367
-Epoch 3 loss: 3.7015421390533447
-Epoch 4 loss: 3.383591651916504
-Epoch 5 loss: 3.3296778202056885
-Epoch 6 loss: 3.318326950073242
-Epoch 7 loss: 3.059903383255005
-Epoch 8 loss: 3.1583852767944336
-Epoch 9 loss: 3.097520351409912
-Epoch 10 loss: 3.0250182151794434
-Epoch 11 loss: 2.9101059436798096
-Epoch 12 loss: 2.873049736022949
-Epoch 13 loss: 2.878638744354248
-Epoch 14 loss: 2.8197388648986816
-Epoch 15 loss: 2.727530002593994
-Epoch 16 loss: 2.6995701789855957
-Epoch 17 loss: 2.7049272060394287
-Epoch 18 loss: 2.7018520832061768
-Epoch 19 loss: 2.606691360473633</code></pre>
+<pre><code>Epoch 0 loss: 4.7103095054626465
+Epoch 1 loss: 4.131440162658691
+Epoch 2 loss: 3.817646026611328
+Epoch 3 loss: 3.553583860397339
+Epoch 4 loss: 3.4074137210845947
+Epoch 5 loss: 3.205409049987793
+Epoch 6 loss: 3.2691240310668945
+Epoch 7 loss: 3.1516594886779785
+Epoch 8 loss: 3.1873109340667725
+Epoch 9 loss: 3.120962381362915
+Epoch 10 loss: 3.038872480392456
+Epoch 11 loss: 2.9493367671966553
+Epoch 12 loss: 2.816815137863159
+Epoch 13 loss: 2.7658426761627197
+Epoch 14 loss: 2.7710137367248535
+Epoch 15 loss: 2.824719190597534
+Epoch 16 loss: 2.6967461109161377
+Epoch 17 loss: 2.781499147415161
+Epoch 18 loss: 2.5796315670013428
+Epoch 19 loss: 2.6696066856384277</code></pre>
 </div>
 </div>
 <p>Because the model with embedding does not require one-hot encoding, we need to re-implement the text generation function to work with token ids directly rather than one-hot vectors.</p>
-<div id="dcfc67d7" class="cell" data-execution_count="33">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>gen_text <span class="op">=</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">500</span>, temperature <span class="op">=</span> <span class="fl">0.25</span>)</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>display(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="953b0cd9" class="cell" data-execution_count="36">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>gen_text <span class="op">=</span> generate(model, data, init_tokens, context_length <span class="op">=</span> <span class="dv">5</span>, n_tokens <span class="op">=</span> <span class="dv">500</span>, temperature <span class="op">=</span> <span class="fl">0.25</span>)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>display(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Dramatis Personae:
+- BERNARDO
 - HAMLET
-- QUEENGERTRUDE
-- OSRIC
 
 to him BERNARDO
-Least and dead
-Of Hamlet's bye;
-And I am sorrows up for reveng Fortinbras,
-Have you not
-That itself a king oppoind him
-His a spress then?
-
-OSRIC:
-Sweet lord, I saw him lord!
-
-QUEENGERTRUDE:
-Do you shall true thanke
-That thus what to down itself in Denmark
-Is it a vile day'
-Thus was the world of blindy, go to, I shall in the gost of you have heard; for thee are fend and farewell, that afful and fectence and a vile phrase of that;
-It is the fight.
+Shearers, drown
+That sengerous give them little must be pative and insing with this would not goding with the world
+O, good lord, between it sight?
 
 HAMLET:
-How now, O, when this indown,
-As I do not know, to the matter,
-It is a king!
-So a I am very man
-Which now, thou hath layer and desir our none, cone thy here
-As theromant what good mylord, in own is presently.
+No, I'll take them with the world
+O, heart's away!
 
 HAMLET:
-Ay, marry, sir, here be away,
-That he is a chigned in the guefe
-Of on't. Did come in own is a strange
-To put him
-O, swell you what I, mylord, we heaven,
-Or I'll tell, what he is table in your so sence and damni' the wort offence them love your father's death our utten it part what we from</code></pre>
+Ay, sir, mylord, here's dress
+O Hamlet, thou hast every tell.
+
+HAMLET:
+How now, Ophelia, tearing angive them like a what's fear.
+
+HAMLET:
+How now, in ear him.
+
+HAMLET:
+How long it?
+
+HAMLET:
+No, so, mylord.
+
+HAMLET:
+Why, what a life, and sends and the member'd and so ttle leave to the grount
+Withind the sueffected,
+Within the sweet to speak, heart
+the pasters of nature
+As will an return'd,
+Have you not ne
+As to the player
+Come, mylord, not hath opposition
+
+BERNARDO:
+How now, Ophelia, but to how of buturess to the head and the songuilty and dead to the more against some what we trueps
+
+Enter HAMLET and HORATIO
+In extsent pades,
+And let me see kill then, I'll trude, mylord.
+
+HAMLET:
+Why, what a life, and seal, as you are the conservice.
+
+HAMLET:
+How now, Ophelia</code></pre>
 </div>
 </div>
 <p>In many cases, it can be interesting to inspect the embeddings that the model learns for the tokens. This requires a dimensionality reduction step when the embedding dimension is greater than 2. Here we’ve built a simple embedding visualization, with some of the largest and most complex tokens that appear in the text highlgighted.</p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> model.embedding.weight.data</span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co"># do TSNE for visualization</span></span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>embeddings_2d <span class="op">=</span> tsne.fit_transform(embeddings.numpy())</span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> torch.tensor(embeddings_2d, dtype<span class="op">=</span>torch.<span class="bu">float</span>)</span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
-<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>maximal_tokens <span class="op">=</span> <span class="bu">set</span>()</span>
-<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> token <span class="kw">in</span> data.tokenizer.get_vocab().keys():</span>
-<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>    subtoken <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> token2 <span class="kw">in</span> data.tokenizer.get_vocab().keys():</span>
-<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> token <span class="kw">in</span> token2 <span class="kw">and</span> token <span class="op">!=</span> token2:</span>
-<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a>            subtoken <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> subtoken:</span>
-<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a>        maximal_tokens.add(token)</span>
-<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(data.tokenizer.get_vocab().keys()):</span>
-<span id="cb49-25"><a href="#cb49-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> token <span class="kw">in</span> maximal_tokens:</span>
-<span id="cb49-26"><a href="#cb49-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(token) <span class="op">&gt;</span> <span class="dv">5</span>:</span>
-<span id="cb49-27"><a href="#cb49-27" aria-hidden="true" tabindex="-1"></a>            color <span class="op">=</span> <span class="st">"black"</span></span>
-<span id="cb49-28"><a href="#cb49-28" aria-hidden="true" tabindex="-1"></a>            size <span class="op">=</span> <span class="dv">20</span></span>
-<span id="cb49-29"><a href="#cb49-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>: </span>
-<span id="cb49-30"><a href="#cb49-30" aria-hidden="true" tabindex="-1"></a>            color <span class="op">=</span> <span class="st">"grey"</span></span>
-<span id="cb49-31"><a href="#cb49-31" aria-hidden="true" tabindex="-1"></a>            size <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb49-32"><a href="#cb49-32" aria-hidden="true" tabindex="-1"></a>        ax.annotate(token, (embeddings[i, <span class="dv">0</span>].item(), embeddings[i, <span class="dv">1</span>].item()),  zorder <span class="op">=</span> <span class="dv">10</span>, color <span class="op">=</span> color, size <span class="op">=</span> size)</span>
-<span id="cb49-33"><a href="#cb49-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-34"><a href="#cb49-34" aria-hidden="true" tabindex="-1"></a>lim <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb49-35"><a href="#cb49-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-36"><a href="#cb49-36" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span>lim, lim)</span>
-<span id="cb49-37"><a href="#cb49-37" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="op">-</span>lim, lim)</span>
-<span id="cb49-38"><a href="#cb49-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-39"><a href="#cb49-39" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Token Embeddings"</span>)</span>
-<span id="cb49-40"><a href="#cb49-40" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Projected Dimension 1"</span>)</span>
-<span id="cb49-41"><a href="#cb49-41" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.set_ylabel(<span class="st">"Projected Dimension 2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> model.embedding.weight.data</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="co"># do TSNE for visualization</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>embeddings_2d <span class="op">=</span> tsne.fit_transform(embeddings.numpy())</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> torch.tensor(embeddings_2d, dtype<span class="op">=</span>torch.<span class="bu">float</span>)</span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>maximal_tokens <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> token <span class="kw">in</span> data.tokenizer.get_vocab().keys():</span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a>    subtoken <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> token2 <span class="kw">in</span> data.tokenizer.get_vocab().keys():</span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> token <span class="kw">in</span> token2 <span class="kw">and</span> token <span class="op">!=</span> token2:</span>
+<span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a>            subtoken <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> subtoken:</span>
+<span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a>        maximal_tokens.add(token)</span>
+<span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-24"><a href="#cb54-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(data.tokenizer.get_vocab().keys()):</span>
+<span id="cb54-25"><a href="#cb54-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> token <span class="kw">in</span> maximal_tokens:</span>
+<span id="cb54-26"><a href="#cb54-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(token) <span class="op">&gt;</span> <span class="dv">5</span>:</span>
+<span id="cb54-27"><a href="#cb54-27" aria-hidden="true" tabindex="-1"></a>            color <span class="op">=</span> <span class="st">"black"</span></span>
+<span id="cb54-28"><a href="#cb54-28" aria-hidden="true" tabindex="-1"></a>            size <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb54-29"><a href="#cb54-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>: </span>
+<span id="cb54-30"><a href="#cb54-30" aria-hidden="true" tabindex="-1"></a>            color <span class="op">=</span> <span class="st">"grey"</span></span>
+<span id="cb54-31"><a href="#cb54-31" aria-hidden="true" tabindex="-1"></a>            size <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb54-32"><a href="#cb54-32" aria-hidden="true" tabindex="-1"></a>        ax.annotate(token, (embeddings[i, <span class="dv">0</span>].item(), embeddings[i, <span class="dv">1</span>].item()),  zorder <span class="op">=</span> <span class="dv">10</span>, color <span class="op">=</span> color, size <span class="op">=</span> size)</span>
+<span id="cb54-33"><a href="#cb54-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-34"><a href="#cb54-34" aria-hidden="true" tabindex="-1"></a>lim <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb54-35"><a href="#cb54-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-36"><a href="#cb54-36" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span>lim, lim)</span>
+<span id="cb54-37"><a href="#cb54-37" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="op">-</span>lim, lim)</span>
+<span id="cb54-38"><a href="#cb54-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-39"><a href="#cb54-39" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Token Embeddings"</span>)</span>
+<span id="cb54-40"><a href="#cb54-40" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Projected Dimension 1"</span>)</span>
+<span id="cb54-41"><a href="#cb54-41" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> ax.set_ylabel(<span class="st">"Projected Dimension 2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-embedding" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-embedding-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="42b606a8" class="cell" data-execution_count="34">
+<div id="b9746a9e" class="cell" data-execution_count="37">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="50-tokens-sequences-embeddings_files/figure-html/cell-35-output-1.png" class="figure-img" width="709" height="516"></p>
+<p><img src="50-tokens-sequences-embeddings_files/figure-html/cell-38-output-1.png" class="figure-img" width="683" height="516"></p>
 </figure>
 </div>
 </div>
@@ -1642,6 +1731,9 @@ Figure&nbsp;15.3: 2-dimensional visualization of token embeddings learned by the
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../chapters/55-transformers.html" class="pagination-link" aria-label="Transformers for Sequence Data">
+        <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Transformers for Sequence Data</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

@@ -46,13 +46,17 @@ from torch.utils.data import Dataset, DataLoader
 import torch
 from torch import nn
 
+!pip install torchinfo
+from torchinfo import summary
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ```
 
 ```{python}
 #| echo: false
 # MPS acceleration for Phil to build these notes on his mac
-device = torch.device("mps" if torch.backends.mps.is_available() else device)
+# device = torch.device("mps" if torch.backends.mps.is_available() else device)
+# this seemed to really slow down this set of notes, so we're commenting it out for now. 
 ```
 
 Our sample text for today is the complete text of Shakespeare's *Hamlet*: [I accessed the text from the [Folger Shakespeare Library](https://www.folger.edu/explore/shakespeares-works/hamlet/read/).]{.aside}
@@ -313,6 +317,11 @@ model = NTP(
     ).to(device)
 ```
 
+```{python}
+X_batch, y_batch, X_text_batch, y_text_batch = next(iter(loader))
+summary(model, input_size=(X_batch.shape), device=device, dtypes=[torch.long])
+```
+
 Now we're ready to train the model, just like we would on any other classification task. 
 
 ```{python}
@@ -537,6 +546,11 @@ Training the model and generating text from it is very similar to the last case:
 ```{python}
 context_length = 5
 model = NTPEmbedding(vocab_size = data.vocab_length, embedding_dim = 50, hidden_size = 200)
+```
+
+```{python}
+X_batch, y_batch, X_text_batch, y_text_batch = next(iter(loader))
+summary(model, input_size=(X_batch.shape), device=device, dtypes=[torch.long])
 ```
 
 ```{python}
