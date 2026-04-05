@@ -571,7 +571,7 @@ Because the model with embedding does not require one-hot encoding, we need to r
 
 
 ```{python}
-gen_text = generate(model, data, init_tokens, context_length = 5, n_tokens = 500, temperature = 0.25)
+gen_text = generate(model, data, init_tokens, context_length = 5, n_tokens = 500, temperature = 0.2)
 
 display(gen_text)
 ```

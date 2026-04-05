@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>15&nbsp; Tokens and Embeddings – Machine Learning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/42-more-images.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a14e345711173c227b21482e2eb4cc70.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d8b0bb70be28f5ebcc1c8c98afdc075d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script>
+window.PlotlyConfig = {MathJaxConfig: 'local'};
+if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-3.4.0.min"</script>
+
+<style>
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
+  background-image: none;
+}
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/50-tokens-embeddings.html">Neural Language Models</a></li><li class="breadcrumb-item"><a href="../chapters/50-tokens-embeddings.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Tokens and Embeddings</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Machine Learning</a> 
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Machine Learning Fundamentals</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-signal-noise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-maximum-likelihood.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-more-gradients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-bias-variance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Classification</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/10-intro-classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Introduction: Binary Labels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/11-assessment-of-classifiers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Assessment of Classifiers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/12-decision-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Decision Theory in Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/15-multinomial-classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modern Optimization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/30-autograd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Automatic Differentiation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/31-gradient-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Deep Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/40-intro-deep.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Introducing Deep Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/41-images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Convolutional Neural Networks and Image Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/42-more-images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Some Practical Considerations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Neural Language Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/50-tokens-embeddings.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Tokens and Embeddings</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#tokenization" id="toc-tokenization" class="nav-link active" data-scroll-target="#tokenization">Tokenization</a></li>
+  <li><a href="#token-embedding" id="toc-token-embedding" class="nav-link" data-scroll-target="#token-embedding">Token Embedding</a>
+  <ul class="collapse">
+  <li><a href="#one-hot-encoding" id="toc-one-hot-encoding" class="nav-link" data-scroll-target="#one-hot-encoding">One-Hot Encoding</a></li>
+  <li><a href="#limitations-of-one-hot-encoding" id="toc-limitations-of-one-hot-encoding" class="nav-link" data-scroll-target="#limitations-of-one-hot-encoding">Limitations of One-Hot Encoding</a></li>
+  </ul></li>
+  <li><a href="#learned-embeddings" id="toc-learned-embeddings" class="nav-link" data-scroll-target="#learned-embeddings">Learned Embeddings</a>
+  <ul class="collapse">
+  <li><a href="#cbow-continuous-bag-of-words" id="toc-cbow-continuous-bag-of-words" class="nav-link" data-scroll-target="#cbow-continuous-bag-of-words">CBOW: Continuous Bag of Words</a></li>
+  </ul></li>
+  <li><a href="#studying-embeddings" id="toc-studying-embeddings" class="nav-link" data-scroll-target="#studying-embeddings">Studying Embeddings</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#references-1" id="toc-references-1" class="nav-link" data-scroll-target="#references-1">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/50-tokens-embeddings.html">Neural Language Models</a></li><li class="breadcrumb-item"><a href="../chapters/50-tokens-embeddings.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Tokens and Embeddings</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Tokens and Embeddings</span></h1>
+<p class="subtitle lead"></p><p>Building blocks for sequence and text data.</p><p></p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/50-tokens-embeddings.ipynb">Open the live notebook</a> in Google Colab.</em></p>
+<p>In this set of notes, we begin our study of language models with two key concepts: <strong>tokens</strong>, the building blocks of sequence data, and <strong>embeddings</strong>, the vector representations of those tokens that allow us to apply machine learning techniques to them. By the end of these notes, we’ll have implemented and trained one standard embedding model using a small text data set.</p>
+<div id="216bc69b" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> urllib</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># for appearance</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.io <span class="im">as</span> pio</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>pio.templates.default <span class="op">=</span> <span class="st">"plotly_white"</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>pio.renderers.default <span class="op">=</span> <span class="st">"notebook_connected"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Our example for this lecture will be a combined corpus of the complete text of several books by Dr.&nbsp;Seuss, including <em>Green Eggs and Ham</em>, <em>The Cat in the Hat</em>, <em>Fox in Socks</em>, and <em>How The Grinch Stole Christmas</em>. The text is available online, and we can load it directly into Python using <code>urllib</code>.</p>
+<div id="0f5b5b59" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/seuss.txt"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([line.decode(<span class="st">'utf-8'</span>).strip() <span class="cf">for</span> line <span class="kw">in</span> urllib.request.urlopen(url)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Here is an excerpt from the text:</p>
+<div id="18454cef" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text[<span class="dv">0</span>:<span class="dv">132</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The Cat in the Hat
+
+By Dr. Seuss
+
+The sun did not shine.
+It was too wet to play.
+So we sat in the house
+All that cold, cold, wet day</code></pre>
+</div>
+</div>
+<section id="tokenization" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="tokenization">Tokenization</h2>
+<p>Our first order of business is to represent the text in standardized form which we can eventually feed into models. The most common approach in modern language modeling is <em>tokenization</em>.</p>
+<div id="def-tokenization" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 15.1 (Tokenizer, Tokens, Vocabulary)</strong></span> A <em>tokenizer</em> is a map between (typically short) sequences of raw text and integer labels called <em>tokens</em>. The set of all tokens is called the <em>vocabulary</em> of the tokenizer.</p>
+</div>
+<div class="page-columns page-full"><p>It’s possible to implement and train many modern tokenizers from scratch, but for our purposes here we’ll use a pre-trained tokenizer. This particular tokenizer is the one used by the GPT-2 language model, and it is available through the <code>transformers</code> library. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">GPT-2 preceded GPT-3, the version of GPT that became popular through ChatGPT.</span></div></div>
+<div id="cf5ab469" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tokenizers <span class="im">import</span> Tokenizer</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer, AutoModelForCausalLM</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># GPT2 tokenizer and model</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>checkpoint <span class="op">=</span> <span class="st">"openai-community/gpt2"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(checkpoint)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.</code></pre>
+</div>
+</div>
+<p>Here are a few tokens from the vocabulary, along with their corresponding integer labels:</p>
+<div id="fig-vocab" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-vocab-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="063d03e1" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>vocab_df <span class="op">=</span> pd.DataFrame(<span class="bu">list</span>(tokenizer.vocab.items()), columns<span class="op">=</span>[<span class="st">"Token"</span>, <span class="st">"ID"</span>])</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>vocab_df.head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Token</th>
+<th data-quarto-table-cell-role="th">ID</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Ġacknowledgment</td>
+<td>48182</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Using</td>
+<td>12814</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Ġarchaic</td>
+<td>40435</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Ġcomeback</td>
+<td>21933</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>UAL</td>
+<td>25620</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>ĠHills</td>
+<td>14379</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>Ġspacious</td>
+<td>40894</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>Ġhop</td>
+<td>1725</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>ĠNicola</td>
+<td>40396</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>ĠRelief</td>
+<td>30323</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-vocab-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.1: Excerpt from the vocabulary of the GPT-2 tokenizer.
+</figcaption>
+</figure>
+</div>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">You’ll notice the presence of the special character <code>Ġ</code> in some of the tokens. This character is used by the GPT-2 tokenizer to indicate that the token is preceded by a space in the original text. For example, the token <code>Ġthe</code> corresponds to the word “the” when it appears after a space, while the token <code>the</code> corresponds to “the” when it appears at the beginning of a string or after certain punctuation. This point is just one of many subtleties in play when creating a tokenizer that captures English text relatively faithfully.</span></div></div>
+<p>Once we’ve created the tokenizer, we can use the <code>encode</code> method to convert any supplied text into a sequence of tokens.</p>
+<div id="8d90d47d" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sentence <span class="op">=</span> <span class="st">"I do not like green eggs and ham."</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer.encode(sentence)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>token_df <span class="op">=</span> pd.DataFrame({<span class="st">"Token"</span>: tokens})</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>token_df[<span class="st">"Text"</span>] <span class="op">=</span> token_df[<span class="st">"Token"</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: tokenizer.decode(x))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>token_df.head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Token</th>
+<th data-quarto-table-cell-role="th">Text</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>40</td>
+<td>I</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>466</td>
+<td>do</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>407</td>
+<td>not</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>588</td>
+<td>like</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>4077</td>
+<td>green</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>9653</td>
+<td>eggs</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>290</td>
+<td>and</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>8891</td>
+<td>ham</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>13</td>
+<td>.</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>We can then <code>decode</code> the tokens back into text:</p>
+<div id="9b31f7d8" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>decoded <span class="op">=</span> tokenizer.decode(tokens)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decoded)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>I do not like green eggs and ham.</code></pre>
+</div>
+</div>
+<p>The complete GPT-2 tokenizer has a large vocabulary of tokens:</p>
+<div id="e15b55f6" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Vocabulary size:"</span>, tokenizer.vocab_size)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Vocabulary size: 50257</code></pre>
+</div>
+</div>
+<p>This is quite a bit more than the number of unique tokens which actually appear in our text data set.</p>
+<div id="acc48738" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer.encode(text)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>unique_tokens <span class="op">=</span> <span class="bu">set</span>(tokens)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Total number of tokens in text:"</span>, <span class="bu">len</span>(tokens))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of unique tokens in text:"</span>, <span class="bu">len</span>(unique_tokens))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Token indices sequence length is longer than the specified maximum sequence length for this model (11051 &gt; 1024). Running this sequence through the model will result in indexing errors</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total number of tokens in text: 11051
+Number of unique tokens in text: 1589</code></pre>
+</div>
+</div>
+<p>Later in these notes, we’ll find it useful to distinguish tokens which are actually present in our corpus from those which are not.</p>
+</section>
+<section id="token-embedding" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="token-embedding">Token Embedding</h2>
+<p>Token ids themselves are not usually suitable inputs for machine learning models because they aren’t semantically meaningful. The integer id is interpreted as an <em>index</em> rather than a <em>quantity</em> – for example, the token with id 100 isn’t necessarily more similar to the token with id 101 than it is to the token with id 500. To address this issue, we need to convert token ids into <em>feature vectors</em> that capture semantic information about the tokens. This process is called <em>embedding</em>.</p>
+<div id="def-embedding" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 15.2 (Token Embedding)</strong></span> A <em>token embedding</em> is a function <span class="math inline">\(f: \{1,2,\ldots,\text{vocab\_length}\} \to \mathbb{R}^d\)</span> that maps each token id to a vector in <span class="math inline">\(\mathbb{R}^d\)</span>. The integer <span class="math inline">\(d\)</span> is called the <em>embedding dimension</em>.</p>
+</div>
+<section id="one-hot-encoding" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="one-hot-encoding">One-Hot Encoding</h3>
+<p>One way to convert token ids into feature vectors is to assign a unique vector to each token id via <em>one-hot encoding</em>.</p>
+<p>As our first attempt to convert token ids into feature vectors, we’ll use <em>one-hot encoding</em>: we represent each token as a vector of zeros with a single one in the position corresponding to the token’s id.</p>
+<div id="def-one-hot" class="theorem definition page-columns page-full">
+<div class="page-columns page-full"><p><span class="theorem-title"><strong>Definition 15.3 (One-Hot Encoding)</strong></span> The <em>one-hot encoding</em> of a token id <span class="math inline">\(i\)</span> is the vector in <span class="math inline">\(\mathbb{R}^d\)</span> which has a one in the <span class="math inline">\(i\)</span>-th position and zeros everywhere else. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">Linear algebra fans in the room may also call this the <span class="math inline">\(i\)</span>th <em>standard basis vector</em>.</span></div></div>
+</div>
+<p>If we wanted to represent a sequence of tokens for input into a model, we could use one-hot encoding to convert each token into a vector, and then concatenate those vectors together. The result would be a feature vector of length <span class="math inline">\(d \cdot n\)</span> for a sequence of <span class="math inline">\(n\)</span> tokens, where <span class="math inline">\(d\)</span> is the size of the vocabulary.</p>
+<div id="fig-one-hot" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-one-hot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig/one-hot.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-one-hot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.2: Visual illustration of one-hot encoding: the second sequence in the data set has token ids <code>[1, 3, 4, 1]</code>.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="limitations-of-one-hot-encoding" class="level3">
+<h3 class="anchored" data-anchor-id="limitations-of-one-hot-encoding">Limitations of One-Hot Encoding</h3>
+<p>There are two important limitations to one-hot encoding tokens as a method for feature engineering.</p>
+<section id="computational-feature-vectors-too-large" class="level4">
+<h4 class="anchored" data-anchor-id="computational-feature-vectors-too-large">Computational: Feature Vectors Too Large</h4>
+<p>In the previous batch of models, we associated to each token a one-hot vector of length equal to the number of distinct tokens in the vocabulary. This meant that a given sequence of length <span class="math inline">\(k\)</span> was represented by a vector of length <span class="math inline">\(k \cdot \text{vocab\_length}\)</span>; this can quickly become impractical if we wish for either a large vocabulary or a long context length. In the case of even our short Dr.&nbsp;Seuss text, there are over 1,500 unique tokens. A one-hot encoding of a single token therefore requires a feature vector of length 1,500, and a sequence of 10 tokens would require a feature vector of length 15,000. This is not only computationally expensive, but also likely to lead to overfitting.</p>
+</section>
+<section id="semantic-feature-vectors-not-meaningful" class="level4">
+<h4 class="anchored" data-anchor-id="semantic-feature-vectors-not-meaningful">Semantic: Feature Vectors Not Meaningful</h4>
+<p>Since machine learning models are constructed from linear algebraic operations, the <em>geometry</em> of the feature vectors is our primary tool for expressing <em>semantic</em> relationships between tokens. There are a few ways to express linear algebraic relationships between vectors. A very common approach in the context of token embeddings is to use the <em>inner product</em> between vectors as a measure of similarity:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}\cdot \mathbf{v}= \sum_{i=1}^d u_i v_i\;.
+\end{aligned}
+\]</span></p>
+<p>Since it’s possible that <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> might have very different magnitudes, it’s common to normalize the inner product by the magnitudes of the vectors, which gives us the <em>cosine similarity</em>:</p>
+<div id="def-cosine-similarity" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 15.4 (Cosine Similarity)</strong></span> The <em>cosine similarity</em> between two vectors <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> is defined as <span class="math display">\[
+\begin{aligned}
+    \text{CS}(\mathbf{u}, \mathbf{v}) = \frac{\langle \mathbf{u}, \mathbf{v} \rangle}{\lVert \mathbf{u} \rVert \lVert \mathbf{v} \rVert}\;.
+\end{aligned}
+\]</span></p>
+<p>The cosine similarity is a number between -1 and 1, where 1 indicates <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> are parallel (i.e.&nbsp;<span class="math inline">\(\mathbf{v}= c \mathbf{u}\)</span> for some <span class="math inline">\(c &gt; 0\)</span>), -1 indicates <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> are anti-parallel (i.e.&nbsp;<span class="math inline">\(\mathbf{v}= c \mathbf{u}\)</span> for some <span class="math inline">\(c &lt; 0\)</span>), and 0 indicates <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> are orthogonal (i.e.&nbsp;<span class="math inline">\(\langle \mathbf{u}, \mathbf{v} \rangle = 0\)</span>).</p>
+</div>
+<p>Here’s a simple implementation:</p>
+<div id="3a4ffaf4" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cosine_similarity(u, v):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> u<span class="op">@</span>v <span class="op">/</span> (torch.norm(u) <span class="op">*</span> torch.norm(v))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Cosine similarity highlights a major issue with one-hot encoding: all the feature vectors are orthogonal, which means that <span class="math inline">\(\mathrm{CS}(\mathbf{v}_i, \mathbf{v}_j) = 0\)</span> for any two distinct tokens <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. This is a missed opportunity: for example, we might expect that the tokens “cat” and “dog” are somewhat more similar to each other than either is to “chair,” but this idea of similarity is not captured by one-hot encoding.</p>
+</section>
+</section>
+</section>
+<section id="learned-embeddings" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="learned-embeddings">Learned Embeddings</h2>
+<div class="page-columns page-full"><p>Of course, we <em>also</em> don’t want to have to try to write down by hand what better feature vectors for our tokens would look like. So, in the usual spirit of machine learning, we can aim to learn meaningful representations of the tokens <em>from data</em>. There are many approaches to learning token embeddings, of which a few well-known examples are Word2Vec <span class="citation" data-cites="mikolov2013distributed">(<a href="#ref-mikolov2013distributed" role="doc-biblioref">Mikolov et al. 2013</a>)</span>, GloVe <span class="citation" data-cites="pennington2014glove">(<a href="#ref-pennington2014glove" role="doc-biblioref">Pennington, Socher, and Manning 2014</a>)</span>, and Continuous Bag Of Words (CBOW).  In this set of notes, we’ll implement and train a simple version of the CBOW model.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">These approaches are not all disjoint; for example, CBOW is one possible subroutine in the Word2Vec framework.</span></div></div>
+<section id="cbow-continuous-bag-of-words" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="cbow-continuous-bag-of-words">CBOW: Continuous Bag of Words</h3>
+<p>CBOW, like many other embedding models, learns token embeddings from a prediction task: we try to predict a target token <span class="math inline">\(t_k\)</span> from its surrounding tokens <span class="math inline">\(t_{k-c}, \ldots, t_{k-1}, t_{k+1}, \ldots, t_{k+c}\)</span>, where <span class="math inline">\(c\)</span> is a hyperparameter called the <em>context length</em>. The model learns token embeddings by learning to solve this prediction task. We’re going to consider a very simple version of the CBOW model in which we predict <span class="math inline">\(t_k\)</span> from a single context token at a time. This means we need a data set that looks like this:</p>
+<div id="62e1a9d7" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>example <span class="op">=</span> <span class="st">"I do not like green eggs and ham."</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>example_tokens <span class="op">=</span> tokenizer.encode(example)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>context_length <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> []</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(context_length, <span class="bu">len</span>(example_tokens)<span class="op">-</span>context_length):</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>context_length, context_length<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> j <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>            data.append((example_tokens[i<span class="op">+</span>j], example_tokens[i]))</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> context, target <span class="kw">in</span> data:</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode(context)<span class="sc">:&lt;6}</span><span class="ss"> --&gt; </span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode(target)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>I      --&gt;  not
+ do    --&gt;  not
+ like  --&gt;  not
+ green --&gt;  not
+ do    --&gt;  like
+ not   --&gt;  like
+ green --&gt;  like
+ eggs  --&gt;  like
+ not   --&gt;  green
+ like  --&gt;  green
+ eggs  --&gt;  green
+ and   --&gt;  green
+ like  --&gt;  eggs
+ green --&gt;  eggs
+ and   --&gt;  eggs
+ ham   --&gt;  eggs
+ green --&gt;  and
+ eggs  --&gt;  and
+ ham   --&gt;  and
+.      --&gt;  and</code></pre>
+</div>
+</div>
+<p>A nice feature of this data set is that it contains many examples of the same target token appearing in different contexts, which allows the model to learn a more general embedding for that token. For example, the token “green” appears in the context of “like” and “eggs,” which should help the model learn an embedding for “green” that captures its relationship to those other tokens. This also helps guard against overfitting – the model can’t just memorize the embedding for “green” based on a single context, since it appears in multiple contexts.</p>
+<div class="page-columns page-full"><p>The following dataset class implements this data generation process for the entire example text of Dr.&nbsp;Seuss. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">This data set also includes logic for converting the token indices from the GPT tokenizer to a contiguous integer representation which includes only indices for the tokens which are present in the data set. This allows our model later to learn embeddings for ~1,500 tokens, rather than the full vocabulary of ~50,000.</span></div></div>
+<div id="ca8bea81" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> Dataset, DataLoader</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CBOWDataset(Dataset):</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tokens, context_length):</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tokens <span class="op">=</span> tokens</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># dict to remap tokens to contiguous integers</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_to_idx <span class="op">=</span> {token: i <span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">set</span>(tokens))}</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.idx_to_token <span class="op">=</span> {i: token <span class="cf">for</span> token, i <span class="kw">in</span> <span class="va">self</span>.token_to_idx.items()}</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># context length is the number of tokens on either side of the target token</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.context_length <span class="op">=</span> context_length</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.data <span class="op">=</span> []</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(context_length, <span class="bu">len</span>(tokens)<span class="op">-</span>context_length):</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>context_length, context_length<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> j <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>                    <span class="va">self</span>.data.append((<span class="va">self</span>.token_to_idx[tokens[i<span class="op">+</span>j]], <span class="va">self</span>.token_to_idx[tokens[i]]))</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>                    <span class="va">self</span>.data.append((<span class="va">self</span>.token_to_idx[tokens[i<span class="op">+</span>j]], <span class="va">self</span>.token_to_idx[tokens[i]]))</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>):</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>.data)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, idx):</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> torch.tensor(<span class="va">self</span>.data[idx][<span class="dv">0</span>]), torch.tensor(<span class="va">self</span>.data[idx][<span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can extract data like this:</p>
+<div id="e3e31f10" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>context_length <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> CBOWDataset(tokens, context_length<span class="op">=</span>context_length)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> dataset[<span class="dv">0</span>]</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>x<span class="sc">.</span>item()<span class="sc">:&lt;6}</span><span class="ss"> --&gt; </span><span class="sc">{</span>y<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode(dataset.idx_to_token[x.item()])<span class="sc">:&lt;6}</span><span class="ss"> --&gt; </span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode(dataset.idx_to_token[y.item()])<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>188    --&gt; 60
+The    --&gt; 
+</code></pre>
+</div>
+</div>
+<p>As usual, it’s convenient to use a <code>DataLoader</code> to handle batching and shuffling of the data.</p>
+<div id="243d3e04" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> CBOWDataset(tokens, context_length)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>dataloader <span class="op">=</span> DataLoader(data, batch_size<span class="op">=</span><span class="dv">32</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="a-cbow-embedding-model" class="level4">
+<h4 class="anchored" data-anchor-id="a-cbow-embedding-model">A CBOW Embedding Model</h4>
+<p>We’ll solve the CBOW prediction task using a minimal feedforward network containing an embedding layer and a linear layer. The role of the embedding layer is to accept a token index <span class="math inline">\(i\)</span> and return an embedding vector <span class="math inline">\(\mathbf{v}_i \in \mathbb{R}^d\)</span>, which is learned as part of training. These embedding vectors are then used as features for the linear layer.</p>
+<div id="132ca2ab" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CBOW(nn.Module):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size, d_model):</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embeddings <span class="op">=</span> nn.Embedding(vocab_size, d_embedding)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.linear <span class="op">=</span> nn.Linear(d_embedding, vocab_size)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        embedded <span class="op">=</span> <span class="va">self</span>.embeddings(x) </span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> <span class="va">self</span>.linear(embedded)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can now create an instance of the model and take a look at the architecture:</p>
+<div id="45ac6fc2" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>vocab_size <span class="op">=</span> <span class="bu">len</span>(data.token_to_idx)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>d_embedding <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> CBOW(vocab_size, d_model<span class="op">=</span>d_embedding)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(<span class="dv">32</span>, context_length), device <span class="op">=</span> device, dtypes <span class="op">=</span> [torch.<span class="bu">long</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+CBOW                                     [32, 5, 1589]             --
+├─Embedding: 1-1                         [32, 5, 4]                6,356
+├─Linear: 1-2                            [32, 5, 1589]             7,945
+==========================================================================================
+Total params: 14,301
+Trainable params: 14,301
+Non-trainable params: 0
+Total mult-adds (M): 0.46
+==========================================================================================
+Input size (MB): 0.00
+Forward/backward pass size (MB): 2.04
+Params size (MB): 0.06
+Estimated Total Size (MB): 2.10
+==========================================================================================</code></pre>
+</div>
+</div>
+<p>Our model is relatively modest: for production contexts, we would typically use a much larger embedding dimension (<span class="math inline">\(d \geq 200\)</span> is common), a much larger vocabulary, and a more complex model architecture for solving the prediction task.</p>
+</section>
+<section id="the-embedding-layer" class="level4 page-columns page-full">
+<h4 class="anchored" data-anchor-id="the-embedding-layer">The Embedding Layer</h4>
+<p>The following code implements a visualizer for the embedding layer. Since we are using an 8-dimensional embedding, it’s not possible to directly visualize the embedding vectors in 2-dimensional space. Instead, we can use a dimensionality reduction technique called t-SNE to project the embedding vectors down to 2 dimensions while preserving their relative distances as much as possible.</p>
+<div id="7f189257" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize_embeddings(model, tokenizer, data):</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># extract the embedding weights</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    weights <span class="op">=</span> model.embeddings.weight</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use t-SNE to reduce the dimensionality of the embeddings to 2D</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    embeddings_2d <span class="op">=</span> tsne.fit_transform(weights.detach().cpu().numpy())</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make a dataframe for plotly </span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    embedding_df <span class="op">=</span> pd.DataFrame(embeddings_2d, columns<span class="op">=</span>[<span class="st">"Dim1"</span>, <span class="st">"Dim2"</span>])</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    embedding_df[<span class="st">"Token"</span>] <span class="op">=</span> [tokenizer.decode(data.idx_to_token[i]) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(embeddings_2d))]</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># labeled scatter plot of the embeddings</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> px.scatter(embedding_df, x<span class="op">=</span><span class="st">"Dim1"</span>, y<span class="op">=</span><span class="st">"Dim2"</span>, text<span class="op">=</span><span class="st">"Token"</span>, title<span class="op">=</span><span class="st">"2D Visualization of Token Embeddings"</span>)</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    fig.update_traces(textposition<span class="op">=</span><span class="st">'top center'</span>)</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(xaxis_title<span class="op">=</span><span class="st">"Dimension 1"</span>, yaxis_title<span class="op">=</span><span class="st">"Dimension 2"</span>)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    fig.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s take a look.</p>
+<div id="fig-initial-embeddings" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-initial-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="3c077a44" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>visualize_embeddings(model, tokenizer, data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.4.0.min.js" integrity="sha256-KEmPoupLpFyGMyGAiOsiNDbKDKAvxXAn/W+oQa0ZAfk=" crossorigin="anonymous"></script>                <div id="36bcb646-b1ec-4c35-b6d0-2f38613b0a60" class="plotly-graph-div" style="height:525px; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("36bcb646-b1ec-4c35-b6d0-2f38613b0a60")) {                    Plotly.newPlot(                        "36bcb646-b1ec-4c35-b6d0-2f38613b0a60",                        [{"hovertemplate":"Dim1=%{x}\u003cbr\u003eDim2=%{y}\u003cbr\u003eToken=%{text}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#636efa","symbol":"circle"},"mode":"markers+text","name":"","showlegend":false,"text":["!","\""," Have","'","(",",","-",".","\u002f","4"," smile",":",";","EA","?","A","B","C","D","F","G","H","I","J","quarters","K","M","N","P","Who","S","T"," clothes","U","W","a"," funny","d","e"," Cook","ILL","m","n","o","ille","p"," sticks","s","t","l"," rose","y"," liked"," dare","\ufffd"," everywhere"," Hak","baum"," hated"," lakes","\n"," fake"," ED"," chances"," DO"," ","\ufffd"," freeze","\ufffd","\ufffd"," goodbye"," t"," a","he","in","on"," the","er","at"," w","it","is"," winner"," sings","or","ed"," f","ing"," p"," an"," Place","ar"," to"," m"," of"," in"," d"," and","as","le"," th","om"," n"," l"," re","Where","ro","ly"," be"," g"," T"," S"," I","et"," A"," is"," on","im","am"," that"," C","ig"," for"," y","ver","Tomorrow"," M","'s"," he"," it"," Bal"," you"," B"," wh"," P"," with","ch"," as"," we"," curls"," D"," \""," H","em"," Roller"," W"," was","Look"," F"," at"," The"," se","UP"," are","Come","and"," or","igh","About","est","ab","inch"," N","th"," G","op"," L"," not","Step","ess"," mountain","ew"," by","imm","os","el"," from"," have"," this","ra","all"," O","ack"," J","ANT"," pl","ast"," can","The"," his"," do"," go"," has","'t"," but"," all"," k","ame"," will"," prow"," they"," tr"," IF"," ink","ap"," me"," out","ans"," humming","one"," who"," up"," their"," 3"," us","atted","ous"," more","ue","Kn"," St","ind"," so"," nood",".\"","ber"," one"," said","are"," your","who"," Th"," cl","ep"," about"," were","ub"," had","Will",",\""," gown","ISTER"," would","unny","ook","so"," pace","ib"," off","ven"," Y","ose","ite"," man"," per"," other"," been"," like","Was","ks","Pop"," any"," sp"," them"," her"," clock"," if"," there"," my"," some"," when"," than"," over"," hump","\n\n","ree"," It"," moon","Ask"," time","umping"," what"," no"," new"," get","ings"," just"," into"," boat"," people"," work"," she"," our","ink"," He","ish"," him","ates"," only"," spe","ck","Today"," bl"," ham","ood"," how"," '"," after","aw","ov"," pear"," play"," could"," am"," first"," Santa","Wa","ec","hing"," Was"," bet","we"," two"," back"," stack"," under","sel"," may"," most"," did"," again"," know"," need"," co"," want"," see"," GOT"," GET"," This"," even"," bent"," We"," these"," pr"," because"," fl"," now","ise"," make"," then"," every"," look"," MUST","row"," where"," years"," upside"," should","Th","In"," pinch","'re"," right","les"," brick"," through"," Tr"," way"," don"," ,"," Ze"," And","ix"," very"," Wh"," does"," down"," many"," pets"," call"," before"," well"," much"," Mrs"," those"," such"," But"," long"," think"," own","ward"," show","don"," shoe"," say"," You"," good"," start"," made","up","ump"," last","Say","ank"," New","Would"," windows"," same"," Without"," kicks"," hung"," game","..."," still","led"," here"," wink"," world"," Se"," If"," take","cause"," sl"," hand"," between","It"," ear"," against"," high"," Dad"," gr"," help"," found","uss"," great"," An","'ve"," run"," find"," cr"," lead"," around"," Saint","any"," car"," read","'m"," bottle"," PL","...."," day"," both"," For"," three"," They","...\""," che","We","get"," met","ox","udding"," Sally"," fingers"," too"," BAD","Her","the"," Z"," head","'ll"," dawn"," another","Wh"," child"," since"," brothers"," pass"," turn","This","oh"," Claus","Br"," something"," without"," put"," never"," dish"," banner"," things"," tomorrow"," feel"," SM"," lot"," fun"," bumps"," big"," breaks"," ask"," best","IN"," number","St"," ca"," must"," open"," come"," THEN"," far"," tra"," place"," told"," WILL"," stand"," let"," little"," There"," That"," bus","me"," rest"," full"," care"," case","ON"," sk","uck","be"," top"," bottled"," home"," Tomorrow"," left"," bow","ucked"," How"," bro"," wet"," got"," No"," small","AT"," So"," percent"," didn","Those"," name"," All"," four"," called"," loaded","hash","here"," pat"," eggs"," pop","to"," always"," Allen"," old"," Or"," near","sh"," free"," sew"," glad"," bo"," book"," nose"," away"," sw"," Sue"," Go"," thing"," why","by","ush","If"," roads","But"," already","He","ES","'d"," least"," chick"," tell"," talk"," roof"," blew","iked"," enough"," give"," Dr","OPLE"," win","Check"," Bang"," kind"," past"," story"," season"," came"," At"," air","idd","You","for"," bit"," happen"," When"," sit"," sure"," light"," water"," jumps"," times"," grow","Gl"," To","EN","ney"," ever"," cow"," sneakers"," cheese","?\""," sing"," took","As","aring","Black"," hop"," side"," puzzling","they"," reason","ched"," hold","ands"," teeth"," once","ler","IGHT"," night"," done","umbs"," dad"," Mr"," Su","iting"," course"," pot"," Try"," doing"," thought","rew"," went"," shoes"," chim"," meet"," games","sy"," makes"," won","There","Simple"," young"," along"," yet","DAY"," What","And","ai","AME"," low"," One"," likely","For"," Not"," birds"," Gr"," early"," fight"," sent"," today","Ch"," THERE"," present"," try"," chew","uffed"," shine","ED"," asked"," close"," comb"," together"," face"," battles"," hooks"," anything"," mind"," shame"," cut"," tot"," hike"," net"," My",".)","though"," mouse"," fire"," Hello","Good"," food"," comes","What","ipt"," started"," quick"," With"," true"," mess"," bad"," Bray"," dump"," Don"," House"," stared","maker"," live"," room","ws"," fall"," isn"," idea"," sound"," rather"," Do"," nothing"," Could"," house"," behind"," GO"," scarce"," points"," below","umb"," whole"," Act"," packages","On","When"," bring"," fist"," confused","ming"," six","oo"," step"," himself"," stop"," FE","AC"," Mt"," hours"," hills","Thank","ST"," taking"," red"," break"," space"," hit"," rush"," Red"," pick","ole"," sne"," cannot"," TH"," snack"," white","like"," goat"," wind","Al"," pack"," nervously"," foot"," boxes"," mot"," feast","ID"," simply"," Mother","So"," staying"," His"," upon","will"," till"," coming"," quite"," instead"," sizes"," dreams","How","Po"," words","!\""," wasn"," Goo"," saw"," Lay","once","That"," block"," walk","To"," TWO","oph"," sits","oodle","something"," Will"," easy","urch","oe"," soon"," moment","THIS","Cl"," mat"," log","OU"," heart"," ball"," Black"," ..."," Sant"," stay","itte"," bicycles","neck"," Slow"," Gl"," GR","Lots"," magical","aving","fl","Ready"," playing","Luck"," Now","ze","ites"," hanging","ING"," takes"," problems","ET"," deep"," Some"," presents","THE","SAY"," Hat","bott"," mother"," Bro","ux"," steer"," hands"," pull"," chicks"," chance"," speed"," beneath","reet","AD"," turned","down"," ALL"," tent"," gave"," goes","No"," screwed"," eyes","At","Free","unk","ey","ixed"," road"," heard","reath"," BR"," Ned"," HE"," father","They"," knew"," Eat","OUN","where"," sn","Fox"," happened"," hot"," whose"," fast"," fooled"," scare"," Knox","LL","AST"," Clark"," phone","bed","good"," lag"," box"," wide","Stop"," slow"," looked","Un","Le"," sle"," Luke","stop","oms","With"," SN"," sour"," sunny"," fog","ouses"," IS"," brought","iers","OP"," TV","One","rain"," Up"," pink"," Pat"," sore"," fell"," Friday"," dark"," slid","!!"," race","All"," town"," Then"," fear"," guaranteed"," cross","ny"," hear"," dog"," fireplace"," ticks","SEE","ocks"," morning"," sat"," cave"," THE"," battle","She"," wall"," sometimes"," Yes","icks"," please","things","Put","REE","CH"," tin"," stuff"," Things"," Your"," Sam"," bends"," Better"," alone"," load","Did"," dexter"," lied"," Sl","ken"," Alone"," bags"," ten"," star"," jumped"," song"," grinned"," WHY","Ben"," remember","ALK"," yourself"," guy"," couldn","box","ENT"," easily","Should"," oh"," ST"," bands"," climbed"," LONG","eer","SON"," poor"," seven"," PLAY"," merry"," Chance","toe"," eight"," feet"," brain","While"," store","Slow"," packed","My","Not"," cats"," tongue"," grind","EL"," fat"," perhaps"," gone"," ME","Have","New"," dreaming"," cat"," bang"," toward","see"," books","Now"," NOW"," chewing"," choose","sed","Make"," workshop"," quarter"," maybe"," Cr"," gold"," Great","By"," straight"," Well","OH","cold"," Ali"," Let"," Ben"," park","IM"," brother"," cry"," Oh"," mouths","Don"," rib"," sleep"," cake"," bed"," mist"," wait"," Break"," breeze"," rare"," ship"," green","Congratulations","98","UMP"," band"," places","doesn","Take","ackle"," puzzled"," drink"," sneak"," Why"," blue"," PAT"," hair","Comb"," knows","TH"," Please"," Are","Ele"," sun"," cook"," fix","Brown","ATHER"," pet"," stock"," boil"," wild"," bee","Three"," bricks"," fan","Here","fun"," Fast","but"," cleaned","Some"," yell"," Brown"," tick"," seeing","corn"," pants"," jump","hem"," stew","perhaps"," shut"," lose"," SAT"," smart","did"," awful","with"," eat","BALL"," train"," Blue"," ID"," Places"," horn"," beetle","INS"," direction","bee"," Quiet"," haircut"," hill"," Good"," wish"," miles","icy","Big","boards"," mostly"," BAT"," join","cks"," street"," Eve"," cold"," thread"," fib","These"," sadly"," wig"," SAY"," string","ups"," hating"," ice"," girls"," POP"," slick"," FUN"," crow"," drum"," none"," strings"," leak"," stick"," hops","From","upper"," MO"," wood"," finding"," Much"," flew","how"," Two"," hither"," HIM"," waiting"," daughter"," sights"," watching"," ran","ELF"," Mord"," VERY"," caught"," grabbed","hand"," Mike"," bite"," coat"," mix"," stopped"," tame"," HOW","Six","five","ppings"," Boo","ancing"," shake"," north"," arms"," fle","PU","Maybe","Our","anty"," Life","ishly"," pair","can"," Thing","oward"," Cat"," toy","SE"," nine","Why","Do","Mr","Go"," deft"," bumped","Yes"," clocks"," dumb"," Who"," WAS"," lonely","eds"," tight","wy"," Jim"," throat","Sing"," decide"," mouth"," Fox","cles"," Max"," winning"," fox"," Cup"," Mouse"," hate","eating"," BALL"," dear"," grows"," worry","Whatever","Please"," tree"," Stop","FUL","that"," shove","Or"," CAT"," singing"," Down"," indeed","TA"," opener"," lived"," frown"," Say"," NOT"," laughed"," HOUSE"," beast","Which"," unpleasant"," bump"," duck","this"," minute"," TED"," lame"," homes","Think"," Joe"," rode","Sit","RED","ums"," useless","Just"," Old","HE","HOU","Except"," row"," rid","Let"," beetles"," enemies","Well","Oh"," warm"," eleven","you"," happening"," ring"," sled"," famous","Little"," stuffed"," quiet"," filled"," brush"," padd","apping","imb"," fish"," Put","First","OWN"," surprise"," bright","acked"," Another"," sweet"," lots"," rubber","Box"," Ying","hered","VE","Can"," flip"," dove"," brains","Every"," broom"," tweet"," fly"," chin","Luke"," AW"," weather"," stood"," silly","DER"," elbow"," strange"," Today"," rain"," tact"," Cindy"," sank"," Where"," Luck"," practically","Blue","Their"," Noise","WHERE"," bells","Then","izz"," streets"," lie"," shook"," picked","EE"," wire"," sad"," cup"," boys","Rose"," shocking"," bird","BACK"," noodles"," guns"," popped","\u00e2"," empty"," Jake"," lit"," dots","THING"," ride"," eating"," anywhere","Another"," plane"," square","green"," sick","sl"," sounded","ickle"," escape"," Van","Fish"," heads","Said"," creek","Eat"," Pig"," frightening"," snow","May"," paddle"," waking"," succeed"," toys"," sky"," wave"," brings"," frequently"," Uncle"," Christmas"," Look"," walked"," dogs","UK","Through"," heights"," sacks"," hat"," Make","whatever"," hall"," Waiting"," trick"," hose","FE"," mail","feet","Too"," rake","igg","AND"," kinds","BOX"," tiny"," YOU"," blocks","ALL"," Dear","Try","bons"," carved","NO","Hop"," CON","Your"," chuckled","Again"," fifty"," trees"," bike","headed","Whether"," TIM"," FIGHT","lee"," Fall"," sees"," Boom","ls","OTHER"," IT"," liar","Hello"," Crow"," thousand","ricks"," tall"," ANY","Could","three","zy"," pup"," hello"," bat","SN"," puzz"," BLACK"," rising"," foul"," RED"," marked"," cans"," SHOULD"," milk","Two"," ram","Like","SO","Lou"," flash"," weird"," finger"," mixed"," Three","could"," gang"," sheep"," walls"," tricks","car"," Did"," THREE"," soar"," tags"," ringing"," wake"," sir"," houses"," scored"," afraid"," stuck"," likes"," noise"," yellow","Mike"," thin"," tail"," Come"," Hang"," wra"," Ish"," sorry"," slit","ISE"," socks","Out","Everyone"," NO"," hook"," roast"," hadn"," Nick","Down","Tell","Around","Games"," Pop"," paused","Sam","uddle","ACK","Because","umps"," tied","uddled"," tip","Very"," busy"," hang"],"x":{"dtype":"f4","bdata":"MzgDwovdZUHYdn5BJ9sQwaPyEkK\u002fwPhBFPqWwFJsHkKA4WpBNtKvwZOjlMGAgL7B9HXAwWeBd8Gpq9XBE0\u002f8wfZmmcFN0sFBlNJGQcuVBkLerk5AYVw\u002fwblprsHFBK9BrMBxQawPv8G62SxBP3wPwqRoYEGkaSdB3MSlQZ1BtMH0IrzBz8C+wW9vn8HGOQ7BF\u002fZBwItixcFhQfHBQJviQe0OSsGPvi3Ag1gAwVz8oUAl3fTAZeSYwFtpkj\u002fhW3PB0qR5QbDOoUEv0IrA8bwUQpql8UFoywrCTidyQZABL0HycRBCozINQhiTfcHLwJ7A86WiQb9Bm7+\u002f8sU\u002f8jYXQcR5ksCDFFtBvM8GwkDGmkGZZmpBy9WgQMlpGkASdpRB\u002fRm+Qdbl3EH+SZ7AoG\u002fRvzuqJcHqxztBHOxbwX0ZqMHnfwjCBOFowShGScFl5OrAwtqPP5hsGkKD\u002fiRCUAclwp4stj+Z7VBAzjEGwrUIw8HDPITAoDMtQHyvjcBmvZ5AzW+IwWQNSsGKfRdBtju\u002fQT2Cy8D6wplBHMcLwn3+6cFc061BBY9wwSZ\u002fZkHWh3rBEebuwT+HB0IPKGZBsKv6QYWyAELUwj9BFbEHQsOOAkI15ErBDSIZwe+LB0IjcSlCV4vuwSumpkF2QQhC17EkwGBUQEA3zjfBP0CAQZW290ECOqxA5fqSQJqIfcDugKlATpMbwa7E3MEKO3HBvS\u002fnQGdoEkJzjmvBPt4IP0iKssA2V4lBS1LwQf9Q4kAE9oHB6p44wfgbs8CUNQZCkLmPwWCzUcFk3b9BRI7RQN+e2MD44wnCnRm5wWaxuMHVjJFBWfNAwZhOuUHAYYnBdqRPQTxG9UAnrcFA0zLAQf9bIMI1m9fBnSiAQEOWbUAGAY3BPtfBQG8l20EUx2VBfLlbwfGxDMJr2BhCxK1TwETXHMEoE77BgpVcwTAfFEKVqePAhma6QQs+zMFfJ1FB80QOwg1piMBZwQPAPY\u002fkwRw\u002fa0AIghJBScRRQPXfcMFz0QrC81UbwYZOHsG\u002fKkDB6wO6QUvVtEGe8RpBqGwNwYXyG0C0CKFBu6xzQQZ+4sAae6lAOVEAQu\u002frekH+ilJB56+5wGHhysGSKZZBOT76QcqcscArCSxBYb2ywaYne8Ez485B1TbCwMs5i8EjXPrBP1ZeQSHW40HcLKJBOjx3wDpmq8EPLs\u002fBdzJywQkEhEGvfYm\u002fnWJ4wIvnpsEEDlFAY3wUwd44qEFeXTJB00SLQKtfe0HX4fs\u002fachlQTlYnkHotZZBGYewQboNocGjLbZBEdPmwG13z8FKQUzAM5XOwVl41cG6XQ1CxqScQAM7h0Gza5TB5lJSwRpgdcFyy8LB5WGtQQ\u002fYDsKUhLdBrcPpwDd9GEGjza7BG6R6weFFMULJcPbA8ayhQavq88CuqSK\u002fivwlQuGQDkLpw+dBwKwywBy920G8maNBqorAQdanvcDNmLhBgZnMwahRDMI1N3LBKbGuwWbcu0H5GB9CeHCzQKkbAkJZfmJByJsXQt6i\u002f8Fxeg1A960Cwe4LgMHGdKRBPP+bwUALnUGhrpzBP71WQZXxlkHmwT3BEMBtQTjtqEHarpTAlhIjwTaQ8sHyXGJBZ4H7wBVtD8ChmFnBlM1lwJO3dcFbzi1BHbKZwUIFRsD6seTBfcCBQRIho0FBeAbCP1wPwmipT0EoAJO+zFWEQQWzMsDSp8nBshO3QbAKtsH9Eg5CK1XSQO7Hl8H0eUrBc8oYQt6ib0FKmOhAlylFwe+UgUHmpOtBZCkIwnwoQUEHmZZBfZ0UQo\u002ffzMHELShBAALtP+jLrcG9gn5BJKaMwYxcekESxppBiXciwV\u002fjasCb8hLCWqmQwT+C5T8jlqvAJErtQXj\u002fH0JYpvTB1Oo7QQJw8kAsZQ1CvIKYQXwJLUEGgTdB894Gwseh4kHo1YPAVakswkafGMGu\u002fUTBGHf5wVR+FkIc702\u002f0UtKQXikxUEP8ZPBQ9++wSuHR0D4HDtBLv8Pwlm2W0EeTUNA3xCXwF0abUDix0ZB5LDAvyX\u002fvsHSKnhBjfKXvtbbw0FOeN9BFQShwUOTCkLNL1bBX5qfQcr9lUBsGgrBV2BLQTGNycD2zOtBJijTv1HSCcHcOAVBpqJIwTONtcGiCVTBKmnsQZQGmkGafOhAP3cUwq40IMKN313B2ru9QalO9EGlvShBYQgVQHmLD0JpZO7BwHpHQUH0kUFMtoHBjKngQItsjMFfP8jBJ50XQuSQTsFjlnhB2UkfQkCvHUKbXCDC59GMQGclo8GP8P9Bh4AUQhQw8cHYJmHAIyAKwsOUhMFYzBBArqYhQjwuW0HJrQBCM8eFwAUer0GrhbtBQmC7P5CvkcF3uSfBNH\u002fBQbyHgsHkggvCm064wOKHmsGrbNhATGXQQWw\u002fdkEV5BBCa8YNQvHBuUEhxIPBLCfHwfkIPMEMjLJBn24UwopHFUKiIKrBD9I3QILJHsHnFmVBCZyRQVVlvsHdlx3ADPPmQJf6hMFFtvtBCVc5wcapxUFMn4w\u002f7FThQUQUQ0H7kyrBlL3Cv++V6cEc3f1AdWi2QVbsIkLWHXxAQAXRQa1iCkKbLF3BGl6MQYKdm8FZms5AhY8Cwi2cxsD89H7AnwXiwTAIEcI4tsPBhEuSwV+aZMAI61FBShQKQDDjh8HLcSfB\u002f2MbwiCVvEEauMtBaqkOwF27BcJ+cBRCmm5iwVMAx7\u002fcuenAHUMQQv74F0Iq87TBDaJFwaKeGMDAGpzA5CxAwQB1TEFMRYrBXFsPQlJ5OMGV+JvAnRm3wdUYJMGXr71B9JauQdDPvUFR+bDBKHSKQR33O8Fb35DBDGaDQIwTMcGiKg\u002fBJxedwHVuGsHEbN9A74l6QPyUO8Ail2lBTn0pQtrtfkFYf6zAIuLzwGNefUAIOPJBdTT1QQ+Ws0Ct3WFBnjeNwEem9sBc1ddAU7WrwL1j3EHTJdvBsknYwRork8EgiXpBRLmZQcnRLkK+YLPBjAo6QaZCpcA5aKRBWeW8QRk7IkIKSW5Br1XOQSYaS0FZ9vxBewXFQEeXjMFgnSbBW68vwtp\u002fbkHKGCBCcSHeQSvgqkHjyajBXxdUwWu3ncGCDrNBDjrJweiFmr4ha6nBsZ+VwaAYNUBY8wZC+zb5QCrNp8EGRAvBY1iEwNaKXcHYH9vADc4rwbWZAEJYmTfBC3XBwSNFeEFVDYjBr5VYwTWdncE5wwNAgSUSQs7Z3UGmRJrBEOiBQYkP3ECNtqBAj55UvoDT7MDiiOpAnD6uwf8dKsKvcAXB427wQYQMPEGmIxbC\u002fGclwSHN0cGZ34S7V+vcQa55HcH3yx1CpB5vwWcCDkIIJgfC2dRHQEi970DD3YnA1RD2wU9hjUBFNJ\u002fBSn2\u002fwWp0CkK3q2NBH1IjwmtnZkE1lDVBvEyywUAmkcDngBZC+FImwpVop8BzEQlC5uo8wZoPE8FAghhCJ4maQQ0isUFYpGNB2PQZwZbtR8HknBVBSXHNQYbVEkAZ+XrB6CSEQOB+kkFRvRXB6fa\u002fwBYUG0JGyiJC91\u002fXvy7KE0K0EK\u002fBbV3oPy0N70GD4zfBF9l\u002fwV4Pe0FvDylAMeLRQWxek8HsslhAumqnQd7+JEGDydtBoVGvQcqBAMLIwiVBTzqOwSG2A0H0LVvBRPWWwdVdCMIWWhPCrXlwQY9bYUGE0hZCH2MNQYVNCsJvsW7B58yVQa+LdUCzCbLBMLQNP173mcEZAZDAF5TFQPgrw8H6SxVCkee9QYIzQsE1aRRBogeiQesiCcJL+DzBZ+9awAml3EEC7nPAAwDiQR4BpEEaLdc\u002fUO6XQSUzMkHbitxBUcLXQRkS3kGAZY1BbZYpwHdGjUDqTlm\u002fLAxcwf1c+kCeBJlBdOiQQSMCIELNavnAXeAdwBA0+0GN8j\u002fBmrOcQRF0okHlPJJB1nf1wfZsFEFUoaPBe33vQWPl2kEaJC5BPkaTQdeUqEHKnTPBRmbxwd1o0T9j5dS\u002f6a\u002fowUTxXUEUUCTBp0KOwPtRTcCPKwZBEE4dwXLJYsGRWuvBFzWzwIasCME82CnBhmf\u002fQXnkpUA25QxB3eG4wGtFHkHPnRvBGUqKwaz9s0FtMjBAdIp9wcNVo0HPuqRACbRhwa7hn8GoaRFBwcGDvxemwMEfGf\u002fBIAp\u002fwbn1KkLKG3tBzP01QGjqB8Hp1ZrB7uLjwH7SC0E\u002fchtBVm9Vwe\u002fC6cBnJrRBbSQzwZxx\u002fcEueHNBEkQGwBoBKUGwxlpBgS2FwUHDhsHwD0bB\u002focrQLBFA0I1BpNBHN3IP+2shkEecf1Bc\u002fwIQWzuNEHVZrxBU9DLwQjNCsJCRnvBD8b0QYSo+kCNSQjCDZUSQiY2bkGDR6BBnT2LQdaArEEwu6m\u002fg4j4QaoKSL\u002fVcQVC09KVQfU+vcHcAqDBbTVNwfvpzUDCnZS\u002fOKUMQk3GrMHTwPXAIbUZQnaOGUKh53lB06DwQSD9m0HVMzPBDY0UwSWaiEH4veI+AiqEQXvqOsHo9w9BT8ouQX7olkGMuHPBkSG\u002fQIMPmEEPcQnCaHZXwRlikEF8eHm\u002fj7nrwCVMs0AwdufB75iUQeprjD5xxHnBIUxEQTpECkK3koTBX8lgQBDSz0EmuY3AAOYYwpSi1MH1Q8PBDCqlQQqoocFw44bBjLcyQan\u002ff0C5P69BLKUHwnxbVEFcAVjAfHFHwAnOp8ESqbBBkxGpweCyHkLT8hTCy4yhPxuCj0AJ7Q9CLSytQexMtcAnL4LBuBerQUH2g0BBzjNACmIzweqUuEGYTmxA1t+tQfzu18BkJIW+mDU8waUBDcLoBiLBOrsLwtOnL8ESehHC4ehMwZY7M0B8S0vB54UXQjSHGULZgIvBP675QQU9XcGyLkXB5DMQwYKEqEHZeABCVMTUwO3dQMBc70zBUE0kQXKcLEH2N2TB6i\u002fPQRiOEEC\u002fwYPA54i9wYU2CEHS4pvBOn52wPWJJ8Fk+Y3BMBW8QeMgMsDSMz\u002fBHQTJwRZuacGQSOvBi3JoweMbUkDUAoXBX25TQRr4IML8e9xA0lPiQZD7bD+qkjnB9p8Swsi1UcELDpnBCZJ0QXSLzkGaD75BKf78v6r8bMGoiWbBBFPRwVY\u002fX0GrdsrARGmXwY09dkHI5+bByE6fQaag98Fv9\u002fRBiSr8QUliG0IVHY\u002fBE7v4QDEu+b+AkerAJlIWQrb5ycGbk8tAHM+ewQNEJkKotqBAgYgVwfzdhcEPFRNBPrsFwhPtMMHIVdvBTN68QVTdqkGvyXdBnhgqQtJA7cH4farAP8OiQdZb\u002fD9JmR\u002fBaZ85P0TiukGpdedBuKk9QPqPH0H3Q5DAeZfAwRXQt0EhlAzBU+kNQgev98EfJvi\u002fBZ8SwVrklUDne9i\u002fNDOywUvwt0GjzyLBIn\u002fGwIT9U0FDxjbAHGfswZkWHEDdrHhAnMv\u002fQZCvyMC\u002f3cHBaTAHQboLBsJl+OBBAPBcwYScAkI99hHArziHQfnR\u002fMAdj47BlyUvwZyxaMC7qKFBAbq+wc3Eq0BsoOxBT5\u002fDQOvMpEFUWClBzOGAwTnUSsDk66tBiipZwWEaAkKEgkJBsCfXwIeg6UHT\u002fPbBVS\u002fYweEwFsJfKf3BBrhhQSqUEEJAYpTB4XWmwZc+TcFiy6jAjIAGQdPQm78KteLBR2iCwSFSWD\u002fAysDBjjXOwaysccEBiZvBLQG0QWhQJUDTuNXBMAvhwf280ED0fP\u002fA\u002fDiuQQXCpkBj7alBgV9Owe2AAkG8RcHBpnC6wIEIIMB0hCNCZv2DQcOrOsE6+HTB\u002f0BywUNlmMA0FuFBH5oQQf9RkkH3kBzBgRQkwu45jcGUsS7CAOSWwBIApsEFdvlBVpeaQbXtJEHAGw1C326aQauroEBnE4JBcEZwwQ2+uEEOkaVAkB0RQsYNusFK5VFB2sOhQDNMecHgp6PB\u002fYD6QIk4YcHEwgPB4gkMwhgRIUJhCTFB2kAnQqTz+kAvic7BDVJtQevXbcEQZinABx3mwO5pBkJ1rezAcEUXQtDFEEEuXhxCs3v+P6AkL8HWoN\u002fAU56GwJEuesH65z\u002fBDzj9QZa0JsCLPNnB9bW5we7O\u002fj+j6tZBBFKVPwcw2sD+4XBBNYrOwAAtYT9kb9G+rW8CQjifeMFPhbHBLZYBv2Tyj8Dz6zXBXeauQZQSCsFbi7nBnBKrQTVv\u002fkFZzLzBTEmrQVA09MFYWkpBPjonwZMIA0JZyQpCv0e\u002fwGdbvsC58AJC51X6weNYSEGs5u5BJvu3v26feEELIlzBTYbyQYY2gEG26hBAw9K9walg3EEsKtNBmzWOQMRKjsDtehpAjR\u002fDQH80w0CdqlrAYnmQwdo\u002fAEEgh+7BAgIpQszUcMGCeY3BOg\u002frQVODEEImBMzBPVGnQRQXwkFNLwhCqY9MwVwiGMIckIJBNZ2EwXHlacGYxB9ClXrCwZB74cG1aZpBoSIkQlFOEMJRNBTBYFodQNQm6sA9Qw9CwGf0wXz+BsIsleZBhEslQSWyicGUJQDC9HSmwd6\u002fn8DuNeTAl2awQYlgrUEtnqRB3OcfQpFEk8HXqqXB6aF9P1mCeME3ShvBn6iIQMzZv8CJeuJAhT\u002fyv2C14kF3+OdBBungQe0s9sCSKOzA1SHRvhCDnkBaPLpAD0z+v+nqscGbcEzB1K5hwRi150AlLalBxJ3twSqEMMFuTwTC51Qbws8c7EHKV10\u002fTRsJwlgcX0Cqh\u002fjASr4UwVHgHUIweIhBVko+wWFFCsKDhA1CkYF3Qe3YgUAC3v7BvUbjwPEFJ0JAb3PB3Cp3QbywjcE+1crAiH2lwQy5fcDB9pLBMashwns5KEKuSzBB5YMMQoiACz9WX5pBsH6nv+JDQMFtpbVBT2pXQVR89UAzLxLCJEbEwbyHk8An5ZjBpnVzwTNvE0EeurlBk8f2wcv02sFXjLfBWnb2wHUw2EHEEYxB762IwO0Vl0GaMJvBhBfZQWbxusFQ2yDBCbAbwRrVp8G9isDBI3qrQR1n+sGqrfrBl5QuwIybckDxFLLAG0OtQP9KckE6sP\u002fAstlCwZ4wEMI8VxzBZ5X9waTihMEIxxFBNYQCQrV3P8HbSPxAxqyQwZLXZUE5TQLCatKlQMltg0GkCoPB+DoDwYmv\u002fkAjBLTBLAaRwU0zCkJS8OdBw2MKwgqO88FeeuRBKeivwdFoEUCbxdS\u002fOz4FwvHacD4VQGPB688XQsw1rcG4SavB+dY8Qb+PssH7xvdALca2wRuG48GuIH7BZIn3wcJYDkCK9lnBmP8hwUtV0cGkz4XBBFcGwveG+EHN8AtBgDs\u002fwde0vD8VVMLBKqw6QTU8AkIAraLBJ2EZwivWqMHavGZA2NeOwT\u002fnrMDxdazAThjuwTT5+0A3DF7BNgqVQRdC\u002fEB9AKFANbajQeAAJkCgnB3A3gYBwq2fb8GMhQrCurrWwVqNFcLPuE7BCegXQepc8UHw5NtBdrj\u002fwa1rr0E6oOfARvfZwY7vjcFhHhw\u002fQOTDwW6BkcFKyAzCi7w6wXAUOkCL0pHA8NK7wfA0t0Eoaw5CS2xEQX0QCcKGQhZCE8b\u002fwE1SCMLSQrnB7JMKwBMU3kAHi+1B40KoQd3fZEEzUS5A7LyDQS5VEUFwxurBlOMKwrmcT8HGSDxBPv5LQWQvmkHs1gnBxoZBwJ2hF8LDJXpBBQ3Kwe6nvsBdwUrBO3eywagbfMHEuB5ClIQEQfIs8UHpXOPBmo4jwYjaBEIUR8bA9edPwMz5O8GmUidBBoH7wfXC5MEBE8c9v9CPwYY\u002f88GlMuxBVFcjQbpYFcGEv99B2bfIwMMYTEGdh+pAvUnWQcFbPcEVEUdBQNXIQNeElcGhNALBma\u002fcPvolb0G4cu5BGPOTQTw\u002fB0KGKQrC6h8IwA8rA0FUO7DBgXoLQtXVAsFcOHQ\u002fw0e+QdJaZ8GfcXrBI+fIQeqByEHxkcvAqokAwBKh40Gon5pAkDOaP7OsBcG5NBBBfNoAQenDIMJcyg7CwzmYwbbc4UB7va9B7MaGQQZ4zkFxrohAM23CwMEYNkH0sQXB+1woQc9Fh8Gm7MjAgRuwv3+XE8Ier9a\u002fcpmjwfh\u002fTcGUZOtBuCLDwAV+rMHYRW3BDRSPwba6zsHWva9A2\u002flqwVJ5+sCUiLZB7XwqQqFzw0FTRBtBwcc9wft+r8GyaprBeVqYwB2htkBh68dBfp4ZwexBqsHqLxpA013mQT1O+0G+ei1Ae8keQm878kGFaKLBLa3ewctcokE5TtNAwpMaQjrG9z+TwcnA+zxXQfyqqMEIINtBD7MUwpQ6bcCh8kVAMmIlQRhYfEBsYwfC44PwwRx4ucHpuurBa\u002fDCQTfrp8FnXeNB\u002fSC6v4zfuMGKb0zBJMkzwZjA8cFDORTAxkXRQNEPA0IvVtxBH5FrQD2bFUKobO3AYRuvwegiXEHM\u002f0DBDhcJQplc5sFaxUVAdDYmwZ11BkKPCNa\u002fkSJGwNUzTsGCnovB\u002fkieQZ70akFOmhRCsYmoQS44jMHFsx7Bki+aQOm\u002fu0A="},"xaxis":"x","y":{"dtype":"f4","bdata":"skcYQCEkbUGDIcvBVtl+wY9FEsEyt4pBLBNpQb5\u002fAUCYlrbBzn6ewVmG0UB1o7JBtyCvQZ4PmcHn\u002fQbCY95XwcPOGsG\u002fAYhBSddvwUK0NkEKM7jBWNcZwYm5h8GpljHB7ed0QebDq7+hYCJBmbC3PtBAucF3PDlBqhpVwXAHl8EMEqBAqgyhQWSEAcBbE23BX8mxQS3qA8Jfq1hBwNpKQXi2+sHM44DBbisDwl7GjkEghtjB3h\u002fvQfp0x8G126lBO8OjQcHmtMH5yYHB6SF0vy5tb0HNsag\u002f4LVCweFZXUFL7KTBNs94QDsFacG7uxFBtjDvQQ\u002fUFELhVfdBH\u002fBTP2Wm0sDtYHhAbbjJPj7tL0FDfTdBJvHyQX6RB8LTiJnBLzAJQXtjaUGpevFB\u002fRt2wZMxp0FQPLbAu5ajQYWtrUFC3zxAFsxQwYb5y8F7X5TBOGvnwTMngMAUoXvAmNl0QcfCl8GRmzdAyBwuQeiaTkH5WgtCzenjvsvYL8D70a6\u002fj50gwQBKHkJkezpBY01awbZfBMFSse+\u002fuZ9fwQD3hECzBTNAITwVQqavPUF7D0tBmSSIQBmMDb4Y\u002fak\u002fgyCEwQqSR8FyYZTBpvO2wYHDisGHC5vB9q4XwhejO0FXuojBhWaBwU97ukGoplhAuZ8fQuPSfkHTlilC41HNQYshhsGSYCXBLoWkQPiXVsGRnIvBIB+SQYW7AEELteBBgWORwHifoMGmtpnBOO3xPjWbvMHucovAEt2zwUJo8EFJ8pXAh9WkwbMqCkLgH9DB+eAPQaU81UD1AqdBnmsPQuC+2cH6JF5ByTEHws1bIkHfrv\u002fBdyeiwQxNiUGurGPBjel6waQtycFX\u002fALBcyeSQWMkiUHmjtbB4Hv0QW8EusFidn9BNjakQXCqvkEC6bRBw1cGQrIbVUHgukPB2n3YwRJT2kHvyJfBGFfKwZGuFT4lYcvBSHbLwYrX\u002fr94DZHBOzZLwZ2Tz0HlVOfBOthlQeRm8MEBOwpCcCXrQbQ10sFwIExBBT\u002fwwW2h30HsLCVCxXj7QIKG3cFtmAjCQZGFwJB1CcARDkDBOrpKv36ySr\u002fHd8g9IMuNQVxOOEFtSGRBmjokQi6L1z+W1s+9+eYqwOgR8MGV1ofBAJSUQTHcr0F7nFZBlXx9wT+lCkIxPm3BmPAJQJ9A4MBXoS5BHcJgQQQN3kFjo1\u002fB2miSwXze8UHICw1CtEUAwjNEhsEIqcDBNwsTwrZuikGUY5XBhfxvQH2QE0BTkDJBBfuhQR0npkFJXhnB4TPXwWBHwEA6KrNBdrBVQLSsgcEOH0VAJtvowCvhaMFr8mHB0pOYvYl+4bz3pX1B9GEDwh19lkE1WkZBG3Zav0+J0z\u002f7kKbAE9P5wCkBCkL4EdFBVUTgQMaubMFOvJpBkUnAQUUIhcFaGBBCdx\u002f5wKFtxMHK2eNAdSZ5QZk95UFcMyLB+4dtwUMHDsKACR7BLe0DwuNSXUHbscVAOK7gwQcSIEGA033BX45WQSzHDcE20LS98QSywU17hMASA6bB7tsSQrzntEGXNe9BBjwOQuWdFsAD2+hB0Cy8wbh\u002fo0CxmabAtH26wfNzMsEJKz++1Y9SwHUAZEBcDq5BWq78wS3+x0EicQdCuH3ywVo8+8HmONbAzo4IQMgt5D\u002fr\u002fVM\u002fVMnev0jMusHJSppB7b1cvu6DikH67s1BpygSQAgMhMCys5bBgNokQVgqk8FBZH\u002fAo3r5QWkhMcHHmPjBr0EPwXWePEFHp\u002ftBqHHjQac3jMHio5PByzDdP5p7AcHvQYfBPBGpwKHG7cELLP\u002fB1tn1wHijGcBcrZjBc1gOQmlVTT5e+ZZB\u002f9GJQZiTYEArrJJB9WTeQbYWK0Hd7glAXDoQQfJUGcGQ2E3B9KyOwQtaksDK\u002f\u002fQ\u002fJ6nLwQ1JbcCT9cXBk7KEQUMrsEHh5OrBfW1BQb08HEIz7QDBs59+QOcZscBxugDAL7GfQSDd10EwJu7Ba1WoQSdNqcFmmwhCZPcDP06ebkFlaO3Ah0Xhwd4j8sHyfOvBWEP8v6ocBsL580jB1QObvnYW5UALB+BA82lpQSMLR0FDMwlCmIerQfN3C8K1ZPNBy4f2v++pCUGcgpw+0fPGQYunEkIdKx9BU6+xwCY6SkFAM71BA\u002ffHQZ+FLEEZbA\u002fCI64LQXQCrEHUMRzB5UrVQHbIQ8CJlN3Bh+kYwV2kkMEa0M1AztStwHDgEcAJJ9dBapSXQcDl6EEFa01BrlRLwDjPBsLgzVdA76Nqv5jAjz9NTkpBRHOBwVPIvsESemXBSyBkwD8CSMGQG\u002fbBueF7wS+b2T5vIhTBt5YJwZlH38EFcyfAAua\u002fwOZP2kEalUbBUMkJwlU2dsF5zR1C4YhkQdRfu0CNL5\u002fAcoWtwVmL1UBLwAJCy9BaQQJLysEtpazBl4glwGEJ3sFPDuxBDiWYQKlT0UERbItBiZ3Wv4OsqMH52LtAHQ+VP5S49kGtcU7B6wSIwQizzMGpmq9AsiOPwZnJkMFNEnHBDrgHvyhQX8Gnj\u002flBEIDyQN1fe8FLnCtCEba8QdzwbEFKcAzCcEGTQZGTG8H60+ZBwAifQcfsb0Anit3BiHESwTg3kEFuFDPBIlH9P\u002f\u002f73UGhovBBx9fSQCIbbsHGnrxBairzwbPDpsHGwkZB20OJQdeXbsEIlxTC7POFQb5DAMIJix9ByDkKQGrWOME8MVrBRwQqweAIFEIo9O1BC8uxwbOJur8ku8zBmxcKQtndH0FLBaPBPG0JwoKKCkJSnjRBbS1OQbKl40Enfh9Ct388Qa5oyUG0fEdA\u002fu28wZrn+ED27N7BhOENwSfPkkFXKFhAFiS5QdMNkcGIjM\u002fBc+1jwUKtCcEoJH3AmxWLwDzRJkI9MoHBCU9VwWMBc7+RHt5BTc0IQaDeF8H2qYdBRM6FQZ9Bd8HkLZ5B97Z3QTb9GsGBYw5CLHwCQuFdVUGFxkHAMrbowWuynkDZcJjBatmnwfedccEcaehArgjdwRT+8EApxy\u002fBfMt7QfQng74Ogd7BGnPXQVD33sFZXnrBJFHyQc54tEFZBPjAHNZZQRwmgMF9wqHB9kROQbhTQECOP2JBCO2rQJvxrMA+8nbBmzYtQfqf3EHMvsI\u002f31JFwTiTpb+fB6PBvgCwwFq5HsFy++3BwuoBwvCnH0J+5C1ChGZWOVK\u002fScGIvOrAR7\u002fhwbtv9kEOlSrBxm\u002fYQcl69EAnmrbBPFSYwbRdrUHtcFVBniLRQesIXkErNsFBSW\u002fNwb0lZ8H7lq5BxcunwYx0SEGGHojBMtogwJaKq0FXFjFBJpNUwCsk\u002fsGjssbB+ki7Qf9jkMGgclbAbPQHQpjhOsDHd2k+FaSTQXkEL0Ed2KfBi218QYXwCcKDvjJB3GrjQAnussFlltHBfNJdQV2x\u002fEFmz05BetaJQS0SDEL7ylDB6DRxQewoQMBVP4LBzpCKwPXFCkIlDfzAl6qBwRkdq0Hiw3RB4T7IQQQ3EUIQBgTCA8VPQZ2oDMJWN5LBYNR+vndhp0EmZg7CJyPDweUhmz+vq0w\u002f0tVXQVQhq8EBmGhBn64sQZdRgUF5uR7BtkCTvygnnEFtHQnC9gnkQTp540EYHhbBOucWP7SdQ0GuUIpB54hFQDxZh0FBidfAB9fwwa1iGEFGUB7BXJfaQRydkkDj8zJB7j1ZwRG3xD80jwhAqlmYwSujUUGjj5lB2yqowVEV1MDKpB9BQoKYQZcoKsFYofhBXjxRwZB4BMLJcnrBYvULQfyWmEHJrcRBjezxPsb5h8EPngXCCH+rwYa3gsAJY8JBgspeQdsexMFjH2pBRhIbwbEfe8Dn2+9AJLg+QYhulsGR8ILBLAgFQWOynMCs+hVCWr6QQU6lAsKh+jXBHnlxwNdIUcHQOSRCuXFpwav\u002fnsHAZx9C4e+\u002fQR677MGOwtlAx\u002fOnQQEn\u002fL7kv+7BpxMWQRKm3EFvybhBY4SjQUzEHMAO441BhMeOwTMPOUEgGB5B9HvDQIqdysFlTSRCrefDQcxHFcBMd5y+GIsMQrTsIEANvjVAcYLTwXxRfMG0I+FB8crEwDHW38HRcuXBjzcpQmZBT0FCYJ3B1w4aQdoPqkFzvRXC7NyLwLfKrkEIRQvC64nPwT7XsT+gDwLC37XpwV9mz8EQpptBPmkSwAAYOsEU6uTB6Sf3wdCXFsKg4tlBZcNOQH83ocH066i+ibncQPQHLEJ\u002fjiDBl\u002fITwllDYMEkAbZBwF7ZQHw0v8HIw4jBmaZPQGcHt0FXQzbBvddCQKVNFT4rICxB3LD+wdN46UFhdAvBEGrTwQGx4cG\u002fzH9Bz++Gv8pbPUGROKFBW30PwXN8NsGkA3XBRXYLwXYJkUCWPzLBZvGLwTJbkUHitnBBKAIOwdQDtL9sGy9BUi2JQFd95T+iOp1BBMwZQoUktkG7mKpA6GybwXNQpsG7cORBKAKPwYUJXUDE8xPA+pduwasSTUEIHZNB9DXKwRnoRUGqiMXBCCTRwbhT2MFXBu1AnzAoQU7tUEEogky\u002fIS\u002f5QaxsrkD\u002fzGXB8OwSQkjrQkFay9ZBCv7MQQUQ1D\u002fTeIzBmcSuwQj8zEHcvNxBl2EDQgB\u002fGMGCkA4\u002fPoW5QXAWFEHYrZrBFHx9QeJBd8F6JOTBmy+EQUcotsGGY5jAAqnNwY0l40Fo93zBtitOwferAUJO\u002feRAwHcqQvtExEG8i+U\u002fP0bqwTpci8GyVo6\u002ftYYFwbCA58CH101BDl\u002fqwQLHxkEHaTBAc0oEwsVuh0E6TjdBPasEws8bmsEe1uPBYCbmwaZJ6sFKkMW\u002fIN8DwdQa879TGxJCJWsqQQ9IzUGOtYtB4qOOwR3MMsGSw81Aby21wc3t8cCAw88\u002fv7h8QUob9cG4EdhBHz3xwb\u002fdzD\u002fIpLPBcjKuwTBupcF3rIxB76IOQenrhL\u002f43JBBXkCHQQ0hpMHPuQjAdfXDwZ0PREFySKdBpMImQLVyq0EKeyFBVDjYQY8BK0J\u002fBwvC7auEQHnDysHH7HfBgWTKQAAL5sHy6ITAd77qv163n0Gt7XFB8k8dQdEclr8SaPbBWsqIv2OXzkElkhFCz0OFwY1s2EFdLgDCYF4XQtMC6sBFG8XBc0cawDx4J0HLzxHBD1NgQYDOk79ebZVALWn4Pa6Cpz9z5Q1BKB6swQfXX75f5UfBCGiQQR0FH0LBrm3BkMcxwNKV9j8omlhBEsk\u002fwHBwe8E+O2DBuy8bwaBb6L4q6axBWiBhwcZUtEEICWjBFnyuQeyfmT+YqXjBsa9SwaCOc0GE8QVBbwKPweKm+sEcKB\u002fBc7K8wWGTYMGEKMtB2UCuwLIs68F7PWLAGpDowX+VpcAw+hfCc++YQPHndUHtcN1BWb7LQSgHg0GxqqxAicndQSfyyUEYji9CftytwRh8CEK4DQFBtzBXQbFl+kHnsM4\u002f9FSBwZ+o5T9XUdVAJGKrQeBvLcFFDNNBqkUZQgtk9MC6IbNBZbndwRvtD8KUx1XBCSG0QQpO58FKXSXB+HheQbzpncATN8JBbg2wQasDQ8EZQMm\u002fujl3wWYrz0FjbhFAnKtXwdSrB8HxLPbAp8isQT+LlsFx+KtBIVfzwTE4JEGhhJ7APc1ewUjGI8Eh2ARA4NUpvzE5FUKNaDFBOeZywbaiAUEJjFpB2Q3cwLIB18EuMMzBbk99wco3kkE1Gw5C3rniwRzqPcApYQDCL8foQCZQOcFuRvZBmky8wQRg8z+BCIxB9VTPwbBifMHA04XBZtoJwVSaFUJRkyRAFY\u002fBwWH+IsFUMKK+J5\u002f9wdo9hsFEyLPBafaKwXxr\u002fsFnZ9NB95tYQejRGUG9mV9BQty8wET\u002f\u002fcFQSonAYBM+PxcLAML7SprAjhYxv0mTyUChhDRB5OkCwnGdP8H7w8VAlFemwO7A379aK7LAXmWJwThIjkClXijBLL0fQArzhEF4r\u002fJB+PNKwXk+oMHSWVjAPSiKP0PkkMGbh+rAySQQQBgdWMDP0Q5C+8tawZFQscBKEahBqZpxwYZ2kcFX\u002fDXBXeUuQP87KEJDEpPB5uVnQbe9K8Ez8QzAhFydwcBZJkJRdfbBlZBhQc++rUAuadVBzVyLQZtL7UHuPY3BCGKvQTQU\u002fr+whIA\u002fpswPv1TV+8DKW0hB427wPqEaxUEo9wzBTI27QfTkSMG5t58+sBAnQX6pjMEti9tBeM\u002fOwWH0MMFHJJXBSD3aQdO7rsH5aa3BIlhlwY6xTEC4vpTAgi5YwIf8BEKZ8pS\u002fG1yyQaGpt0FwzPnBgKAyQW2qEr9D99zBcjNJQfMlkkEwkBxB31iYQRJK7MFUyjPAqpLnQfbTBcJeigbAHz7FQaVmJsBkyXrB5BdxwabctMAVsoy\u002fwVY\u002fQbuTe8GaJ34\u002fk\u002fSQwaAMYUDmQmI+jMeTwINEH0Ekpr3BZhRbwR2bmMG0dUvBDDb3wVD+AEFBFczBURsYQF\u002f4lUG3DY7BuWrgwV6AAMJUFnnBOqaXwdGEHkEDwZrBKkEWQQ3WC0JSrZNBIAGiwACAuMGKRMa\u002fm2L\u002fwd1Asb98TAfCvNaIwWLnwLrgGbnBYNKAQae8lcAmoatBMHCEQNgIA0JyIJ1BTZXmQKq4jUEGKbPAmHS3wW7WJcE21ZLAN+ZuQQ8hDsLDQ1NBjXYOQjuBksHSMcrBKaUDQqOsl0HEi79BQM9MQTupGELnCy9B6wVgQdVax0FFG5FB+gCowOh8F8LQzwbC3Rb2PZM6p8GJxlM\u002fuf+5QYw3WsHoowXA1l5owXlvasFD0oNBJ\u002fCiwbWTEsBCIkZAjgGLQKXJaEFT+StCF9imQRMS80EDaMtBpr6HQUO40MBXjadBEsaYwf39D8DOgJpBWkHSQTH1nMEcwSpB6LmlQay8CUC\u002fS1tB+gmUQLMF8j8vVKJBpR3EwbDxwkGGM5jBi8aJwRt\u002fzMFikdtBGTT1QWvTQkHlhJrBxm0gQo6si8EEU0NBP6oUQVqjxsEHTRxCvz0PwILo+MGdMgTABXH9v28gqEE\u002fhGnAnwZhwc\u002fCoUFP3lfBuOAAQjOJ679TRKjBEryOQRIEV0HM2mfBeDFnQCWVkz92zGFBOVHhPqWeqr\u002fGIlVAu47EQFPG\u002fEHj8qXAOz3owO81s8H0oFjA63sIwpN+pEFM7h0+eutlwTJs\u002fcD9wqvBA9cpQXVzq0GTl5RBaY5TQXx7lkE0OVxBiWhtQK6i1cEPaUbA7rItPvYyAsJO8ObBbrSUv7b3tME1n3PBLRIFwkAG1z+g0ujAwyRhQfDggkH7owjCziKzQZi9Nr+2bkxBfUNuQPS3bMD9pN\u002fBSk4ZQjoC38GoKWNBrcPYwcMOTMAdDOxBnU5zQW7g38HskCPBlyC\u002fwCzrDsIWat7B4\u002fedQU\u002fJq0HUR0bBvErKQAxtJ0H8LqpBP6ckQe\u002fCWMC+3qLBV9GhQZseikBMIKBBKY\u002fTwcShq78RGMVBXhvVwTsOeMHXR5ZBxbagwIxO7UFh5hXCdpNSwIP4l7\u002f0H7PBT4r2wWt7qEB73pZBW8uUwUcjE8KWstnBGx+ZwRjy1UHt1SrBEumFQbI5h0FpxbzBvGQQQQLZLEGH+obBRlBawOhPqEGjWILAz10bQYrmjMHSOZ5BzgTeQd4AT0F8\u002fpFAVuiAweQFtUENiQHCTEpcQW6lnEDd\u002fJxBfv+CwTlhW0E+4s7BAwYxQSdCdsFhtgrC\u002fqSKQSL60EGnEp6+EgqtwVGhl0E4rYvBhqwkQnYBID832Q7CWxQ2QQM92ME6\u002f9TBkRSTQGmm6z+bXMNBCK92wEujkUEWb2dBQCsIwpcG+EF00cLAAVeCwXVH1cFuSNQ+CjiaQRMPB0L6NLnAWnUtQOU7g0ExcyfBefPmQInnvsEfXcK\u002fhOWnwWEnZEGaRcfAvVQRQs36zcFgEuxA+X65wWsbRsHj19VABKRRwV+HFkK0MBVCWy6NQf9GrEEqOus\u002fb69iQSr0DsBeVH\u002fBH3PWwWRwD8FGYQJBJ\u002fn2Qacwl0Fp81jBA8HlQZ0\u002fBEJWC1vBAq3pQTgx20Gq0pJBeJ7NwW0ECUKOd+hBPSsGQiTxqkF\u002fzxLBhePRQakvT0EyS6FBjteOQVY5KUIvPrFBw026QVaj2sEw6iPBX5aCQREm18G0iTjBfIdPwR1F68EsXdPBMvRqwWg1G0HBoMBBuywIPq34N0EcNFjBQQIgQdk98EF3Dq1BCy21QUAPnMFPLKBB3EW0QdtnkMFGkdbBTwh6wSMVkEGlqPM+9RfTwfO6s0FFQg3C7l78P+SWCsHNfq2\u002fe5eBQfMwyUEolcjAnJIIQZ31zkF9Gw9BldDsweVEcMFSMCHArOd3wYcRskCNII\u002fBf5DcQfwRhsHImKvBF1J\u002fwfGccEBu\u002f4DBx2fdQU2nokE5orlB6gdQwYx4y8AU1ONBlysnQBwFWsE756zBUhXpvytQV0H5sARCr75fQexZoUFKR7tBbqENQuBAgMEZuCJBM2gfQi2P8j8OvEvBNpfuwQyWk8Hx4KHBeS4Fwg\u002fhD8AO\u002f+\u002fBho3lwcaSjUE="},"yaxis":"y","type":"scattergl","textposition":"top center"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"bgcolor":"white","angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"ternary":{"bgcolor":"white","aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"white","subunitcolor":"#C8D4E3","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Dimension 1"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Dimension 2"}},"legend":{"tracegroupgap":0},"title":{"text":"2D Visualization of Token Embeddings"}},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('36bcb646-b1ec-4c35-b6d0-2f38613b0a60');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-initial-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.3: Token embeddings in the CBOW model prior to training, reduced from 8 dimensions to 2 dimensions using t-SNE.
+</figcaption>
+</figure>
+</div>
+<p>The embeddings appear random and uninteresting – natural, since we haven’t actually trained the model yet.</p>
+<p>Now let’s go ahead and train our model, which we can do using a typical optimization loop. Since this is again a classification problem, we’ll use cross-entropy loss.</p>
+<div id="62873ea2" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">1e-2</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> nn.CrossEntropyLoss()</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>model.to(device)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>loss_history <span class="op">=</span> []</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cfdca8f1" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    total_loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> dataloader:</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>        X_batch, y_batch <span class="op">=</span> X_batch.to(device), y_batch.to(device)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> model(X_batch)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(output, y_batch)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        total_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    loss_history.append(total_loss <span class="op">/</span> <span class="bu">len</span>(dataloader))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Because each token appears in multiple contexts, we it’s not possible to learn a single good prediction for any individual token. An implication of this is that we shouldn’t expect to drive the loss anywhere close to 0 – the best we can do is to learn an embedding that captures something like the <em>average</em> context for each token.</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>ax.plot(loss_history, marker<span class="op">=</span><span class="st">'o'</span>, color <span class="op">=</span> <span class="st">"steelblue"</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Training Loss Over Epochs"</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-loss-curve" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-loss-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="330e1069" class="cell" data-execution_count="23">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="50-tokens-embeddings_files/figure-html/cell-24-output-1.png" class="figure-img" width="588" height="442"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-loss-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.4: Cross-entropy loss on the training set for the CBOW model.
+</figcaption>
+</figure>
+</div>
+<p>It’s often sufficient to train these models for only a few epochs in order to learn interesting embeddings.</p>
+<div id="fig-trained-embeddings" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-trained-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="6637d00c" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>visualize_embeddings(model, tokenizer, data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.4.0.min.js" integrity="sha256-KEmPoupLpFyGMyGAiOsiNDbKDKAvxXAn/W+oQa0ZAfk=" crossorigin="anonymous"></script>                <div id="fd5f0320-06a6-4656-93dd-eff0a2adf425" class="plotly-graph-div" style="height:525px; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fd5f0320-06a6-4656-93dd-eff0a2adf425")) {                    Plotly.newPlot(                        "fd5f0320-06a6-4656-93dd-eff0a2adf425",                        [{"hovertemplate":"Dim1=%{x}\u003cbr\u003eDim2=%{y}\u003cbr\u003eToken=%{text}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#636efa","symbol":"circle"},"mode":"markers+text","name":"","showlegend":false,"text":["!","\""," Have","'","(",",","-",".","\u002f","4"," smile",":",";","EA","?","A","B","C","D","F","G","H","I","J","quarters","K","M","N","P","Who","S","T"," clothes","U","W","a"," funny","d","e"," Cook","ILL","m","n","o","ille","p"," sticks","s","t","l"," rose","y"," liked"," dare","\ufffd"," everywhere"," Hak","baum"," hated"," lakes","\n"," fake"," ED"," chances"," DO"," ","\ufffd"," freeze","\ufffd","\ufffd"," goodbye"," t"," a","he","in","on"," the","er","at"," w","it","is"," winner"," sings","or","ed"," f","ing"," p"," an"," Place","ar"," to"," m"," of"," in"," d"," and","as","le"," th","om"," n"," l"," re","Where","ro","ly"," be"," g"," T"," S"," I","et"," A"," is"," on","im","am"," that"," C","ig"," for"," y","ver","Tomorrow"," M","'s"," he"," it"," Bal"," you"," B"," wh"," P"," with","ch"," as"," we"," curls"," D"," \""," H","em"," Roller"," W"," was","Look"," F"," at"," The"," se","UP"," are","Come","and"," or","igh","About","est","ab","inch"," N","th"," G","op"," L"," not","Step","ess"," mountain","ew"," by","imm","os","el"," from"," have"," this","ra","all"," O","ack"," J","ANT"," pl","ast"," can","The"," his"," do"," go"," has","'t"," but"," all"," k","ame"," will"," prow"," they"," tr"," IF"," ink","ap"," me"," out","ans"," humming","one"," who"," up"," their"," 3"," us","atted","ous"," more","ue","Kn"," St","ind"," so"," nood",".\"","ber"," one"," said","are"," your","who"," Th"," cl","ep"," about"," were","ub"," had","Will",",\""," gown","ISTER"," would","unny","ook","so"," pace","ib"," off","ven"," Y","ose","ite"," man"," per"," other"," been"," like","Was","ks","Pop"," any"," sp"," them"," her"," clock"," if"," there"," my"," some"," when"," than"," over"," hump","\n\n","ree"," It"," moon","Ask"," time","umping"," what"," no"," new"," get","ings"," just"," into"," boat"," people"," work"," she"," our","ink"," He","ish"," him","ates"," only"," spe","ck","Today"," bl"," ham","ood"," how"," '"," after","aw","ov"," pear"," play"," could"," am"," first"," Santa","Wa","ec","hing"," Was"," bet","we"," two"," back"," stack"," under","sel"," may"," most"," did"," again"," know"," need"," co"," want"," see"," GOT"," GET"," This"," even"," bent"," We"," these"," pr"," because"," fl"," now","ise"," make"," then"," every"," look"," MUST","row"," where"," years"," upside"," should","Th","In"," pinch","'re"," right","les"," brick"," through"," Tr"," way"," don"," ,"," Ze"," And","ix"," very"," Wh"," does"," down"," many"," pets"," call"," before"," well"," much"," Mrs"," those"," such"," But"," long"," think"," own","ward"," show","don"," shoe"," say"," You"," good"," start"," made","up","ump"," last","Say","ank"," New","Would"," windows"," same"," Without"," kicks"," hung"," game","..."," still","led"," here"," wink"," world"," Se"," If"," take","cause"," sl"," hand"," between","It"," ear"," against"," high"," Dad"," gr"," help"," found","uss"," great"," An","'ve"," run"," find"," cr"," lead"," around"," Saint","any"," car"," read","'m"," bottle"," PL","...."," day"," both"," For"," three"," They","...\""," che","We","get"," met","ox","udding"," Sally"," fingers"," too"," BAD","Her","the"," Z"," head","'ll"," dawn"," another","Wh"," child"," since"," brothers"," pass"," turn","This","oh"," Claus","Br"," something"," without"," put"," never"," dish"," banner"," things"," tomorrow"," feel"," SM"," lot"," fun"," bumps"," big"," breaks"," ask"," best","IN"," number","St"," ca"," must"," open"," come"," THEN"," far"," tra"," place"," told"," WILL"," stand"," let"," little"," There"," That"," bus","me"," rest"," full"," care"," case","ON"," sk","uck","be"," top"," bottled"," home"," Tomorrow"," left"," bow","ucked"," How"," bro"," wet"," got"," No"," small","AT"," So"," percent"," didn","Those"," name"," All"," four"," called"," loaded","hash","here"," pat"," eggs"," pop","to"," always"," Allen"," old"," Or"," near","sh"," free"," sew"," glad"," bo"," book"," nose"," away"," sw"," Sue"," Go"," thing"," why","by","ush","If"," roads","But"," already","He","ES","'d"," least"," chick"," tell"," talk"," roof"," blew","iked"," enough"," give"," Dr","OPLE"," win","Check"," Bang"," kind"," past"," story"," season"," came"," At"," air","idd","You","for"," bit"," happen"," When"," sit"," sure"," light"," water"," jumps"," times"," grow","Gl"," To","EN","ney"," ever"," cow"," sneakers"," cheese","?\""," sing"," took","As","aring","Black"," hop"," side"," puzzling","they"," reason","ched"," hold","ands"," teeth"," once","ler","IGHT"," night"," done","umbs"," dad"," Mr"," Su","iting"," course"," pot"," Try"," doing"," thought","rew"," went"," shoes"," chim"," meet"," games","sy"," makes"," won","There","Simple"," young"," along"," yet","DAY"," What","And","ai","AME"," low"," One"," likely","For"," Not"," birds"," Gr"," early"," fight"," sent"," today","Ch"," THERE"," present"," try"," chew","uffed"," shine","ED"," asked"," close"," comb"," together"," face"," battles"," hooks"," anything"," mind"," shame"," cut"," tot"," hike"," net"," My",".)","though"," mouse"," fire"," Hello","Good"," food"," comes","What","ipt"," started"," quick"," With"," true"," mess"," bad"," Bray"," dump"," Don"," House"," stared","maker"," live"," room","ws"," fall"," isn"," idea"," sound"," rather"," Do"," nothing"," Could"," house"," behind"," GO"," scarce"," points"," below","umb"," whole"," Act"," packages","On","When"," bring"," fist"," confused","ming"," six","oo"," step"," himself"," stop"," FE","AC"," Mt"," hours"," hills","Thank","ST"," taking"," red"," break"," space"," hit"," rush"," Red"," pick","ole"," sne"," cannot"," TH"," snack"," white","like"," goat"," wind","Al"," pack"," nervously"," foot"," boxes"," mot"," feast","ID"," simply"," Mother","So"," staying"," His"," upon","will"," till"," coming"," quite"," instead"," sizes"," dreams","How","Po"," words","!\""," wasn"," Goo"," saw"," Lay","once","That"," block"," walk","To"," TWO","oph"," sits","oodle","something"," Will"," easy","urch","oe"," soon"," moment","THIS","Cl"," mat"," log","OU"," heart"," ball"," Black"," ..."," Sant"," stay","itte"," bicycles","neck"," Slow"," Gl"," GR","Lots"," magical","aving","fl","Ready"," playing","Luck"," Now","ze","ites"," hanging","ING"," takes"," problems","ET"," deep"," Some"," presents","THE","SAY"," Hat","bott"," mother"," Bro","ux"," steer"," hands"," pull"," chicks"," chance"," speed"," beneath","reet","AD"," turned","down"," ALL"," tent"," gave"," goes","No"," screwed"," eyes","At","Free","unk","ey","ixed"," road"," heard","reath"," BR"," Ned"," HE"," father","They"," knew"," Eat","OUN","where"," sn","Fox"," happened"," hot"," whose"," fast"," fooled"," scare"," Knox","LL","AST"," Clark"," phone","bed","good"," lag"," box"," wide","Stop"," slow"," looked","Un","Le"," sle"," Luke","stop","oms","With"," SN"," sour"," sunny"," fog","ouses"," IS"," brought","iers","OP"," TV","One","rain"," Up"," pink"," Pat"," sore"," fell"," Friday"," dark"," slid","!!"," race","All"," town"," Then"," fear"," guaranteed"," cross","ny"," hear"," dog"," fireplace"," ticks","SEE","ocks"," morning"," sat"," cave"," THE"," battle","She"," wall"," sometimes"," Yes","icks"," please","things","Put","REE","CH"," tin"," stuff"," Things"," Your"," Sam"," bends"," Better"," alone"," load","Did"," dexter"," lied"," Sl","ken"," Alone"," bags"," ten"," star"," jumped"," song"," grinned"," WHY","Ben"," remember","ALK"," yourself"," guy"," couldn","box","ENT"," easily","Should"," oh"," ST"," bands"," climbed"," LONG","eer","SON"," poor"," seven"," PLAY"," merry"," Chance","toe"," eight"," feet"," brain","While"," store","Slow"," packed","My","Not"," cats"," tongue"," grind","EL"," fat"," perhaps"," gone"," ME","Have","New"," dreaming"," cat"," bang"," toward","see"," books","Now"," NOW"," chewing"," choose","sed","Make"," workshop"," quarter"," maybe"," Cr"," gold"," Great","By"," straight"," Well","OH","cold"," Ali"," Let"," Ben"," park","IM"," brother"," cry"," Oh"," mouths","Don"," rib"," sleep"," cake"," bed"," mist"," wait"," Break"," breeze"," rare"," ship"," green","Congratulations","98","UMP"," band"," places","doesn","Take","ackle"," puzzled"," drink"," sneak"," Why"," blue"," PAT"," hair","Comb"," knows","TH"," Please"," Are","Ele"," sun"," cook"," fix","Brown","ATHER"," pet"," stock"," boil"," wild"," bee","Three"," bricks"," fan","Here","fun"," Fast","but"," cleaned","Some"," yell"," Brown"," tick"," seeing","corn"," pants"," jump","hem"," stew","perhaps"," shut"," lose"," SAT"," smart","did"," awful","with"," eat","BALL"," train"," Blue"," ID"," Places"," horn"," beetle","INS"," direction","bee"," Quiet"," haircut"," hill"," Good"," wish"," miles","icy","Big","boards"," mostly"," BAT"," join","cks"," street"," Eve"," cold"," thread"," fib","These"," sadly"," wig"," SAY"," string","ups"," hating"," ice"," girls"," POP"," slick"," FUN"," crow"," drum"," none"," strings"," leak"," stick"," hops","From","upper"," MO"," wood"," finding"," Much"," flew","how"," Two"," hither"," HIM"," waiting"," daughter"," sights"," watching"," ran","ELF"," Mord"," VERY"," caught"," grabbed","hand"," Mike"," bite"," coat"," mix"," stopped"," tame"," HOW","Six","five","ppings"," Boo","ancing"," shake"," north"," arms"," fle","PU","Maybe","Our","anty"," Life","ishly"," pair","can"," Thing","oward"," Cat"," toy","SE"," nine","Why","Do","Mr","Go"," deft"," bumped","Yes"," clocks"," dumb"," Who"," WAS"," lonely","eds"," tight","wy"," Jim"," throat","Sing"," decide"," mouth"," Fox","cles"," Max"," winning"," fox"," Cup"," Mouse"," hate","eating"," BALL"," dear"," grows"," worry","Whatever","Please"," tree"," Stop","FUL","that"," shove","Or"," CAT"," singing"," Down"," indeed","TA"," opener"," lived"," frown"," Say"," NOT"," laughed"," HOUSE"," beast","Which"," unpleasant"," bump"," duck","this"," minute"," TED"," lame"," homes","Think"," Joe"," rode","Sit","RED","ums"," useless","Just"," Old","HE","HOU","Except"," row"," rid","Let"," beetles"," enemies","Well","Oh"," warm"," eleven","you"," happening"," ring"," sled"," famous","Little"," stuffed"," quiet"," filled"," brush"," padd","apping","imb"," fish"," Put","First","OWN"," surprise"," bright","acked"," Another"," sweet"," lots"," rubber","Box"," Ying","hered","VE","Can"," flip"," dove"," brains","Every"," broom"," tweet"," fly"," chin","Luke"," AW"," weather"," stood"," silly","DER"," elbow"," strange"," Today"," rain"," tact"," Cindy"," sank"," Where"," Luck"," practically","Blue","Their"," Noise","WHERE"," bells","Then","izz"," streets"," lie"," shook"," picked","EE"," wire"," sad"," cup"," boys","Rose"," shocking"," bird","BACK"," noodles"," guns"," popped","\u00e2"," empty"," Jake"," lit"," dots","THING"," ride"," eating"," anywhere","Another"," plane"," square","green"," sick","sl"," sounded","ickle"," escape"," Van","Fish"," heads","Said"," creek","Eat"," Pig"," frightening"," snow","May"," paddle"," waking"," succeed"," toys"," sky"," wave"," brings"," frequently"," Uncle"," Christmas"," Look"," walked"," dogs","UK","Through"," heights"," sacks"," hat"," Make","whatever"," hall"," Waiting"," trick"," hose","FE"," mail","feet","Too"," rake","igg","AND"," kinds","BOX"," tiny"," YOU"," blocks","ALL"," Dear","Try","bons"," carved","NO","Hop"," CON","Your"," chuckled","Again"," fifty"," trees"," bike","headed","Whether"," TIM"," FIGHT","lee"," Fall"," sees"," Boom","ls","OTHER"," IT"," liar","Hello"," Crow"," thousand","ricks"," tall"," ANY","Could","three","zy"," pup"," hello"," bat","SN"," puzz"," BLACK"," rising"," foul"," RED"," marked"," cans"," SHOULD"," milk","Two"," ram","Like","SO","Lou"," flash"," weird"," finger"," mixed"," Three","could"," gang"," sheep"," walls"," tricks","car"," Did"," THREE"," soar"," tags"," ringing"," wake"," sir"," houses"," scored"," afraid"," stuck"," likes"," noise"," yellow","Mike"," thin"," tail"," Come"," Hang"," wra"," Ish"," sorry"," slit","ISE"," socks","Out","Everyone"," NO"," hook"," roast"," hadn"," Nick","Down","Tell","Around","Games"," Pop"," paused","Sam","uddle","ACK","Because","umps"," tied","uddled"," tip","Very"," busy"," hang"],"x":{"dtype":"f4","bdata":"NCitQbVVlUD58p\u002fBo6rBQX3fk0FUGhBB3T3hwGo2KEGIOplBcl+VQWhzpEEtpjhBTjirQb37rEA\u002fsxPB4m7+QKwsisAO\u002fkfACrQnwnJRQUHlM5lBWRCWwDaACMEeFpxBOhUkwa3mDEGCP4e\u002fiycDQakMDkBI9hzB6ewfwWTaq0B0ZknCXXj6P+LshEGKawPCM3WzwX7COsEq8gfCmDy+wf7tCMEt9YE\u002fNOU1QfQFlz+9lNxBGhS3QfAjk78io9\u002fBY9OzQZ5S+sHusUfC+17swNj92EEx3gfCgpaIQTJY2MEwguI\u002fPM5twbQ7EUJT3yPCLhcrQQkVWsFUn4XAqWN6QYwHjsF\u002f+mjBsyWNQYQ6EMLJlPpA5M+JQaV1nkEtTglCqS7qQOJ8vEErOtvArPapwLGtk0HMgw9CSh69QSF\u002fJT\u002f8cdrA3yYfwo4olEE0e6\u002fBWNEtvx25lEEshLg\u002f17ETwBdt1MCGTxVByN6cwU2tN0Hb71\u002fBeadpwJV8iEH4kwhBLVGrP8R8ZEF31AvCzycdwaKQqkH\u002fa87BukygQW1XI8LsEofBuo2zv9aUIEKajaVBZnaJwDeYdEF\u002fFUhBrf+rQYU+FsAQMQTC8hO2QSFPtMAWbRNB4MLdwY\u002fCEcGy16VASyOqQfL5y8E7b4RBRi6YQYOe+cGW6sHBPapqQbWPO8GpDadBj7WAQLJ2AMLoUWDBFEKJwL1H3UFcMbJBs3IwQS45u0HlgBRBo65kwdwZKMAj2i7B3alUQJcPEsGscfxAn5cpQrRqPkH1i55BVaQzQYshJ0GGBS1Bq230QRqqRcIyx65BagSowXOopMAxFwHBgrHAv8ih6kFmBpDBdHKOQa1Lu0DVllNBxO67wLN7ykHhMMtA717FQcVizUEYlATBz5G9wJHjDUJhQdPBoR68QSLmpEGJDhdCsUXqQTljn0GmKrRACAWJwS7nqD7ZPglAljSwwTDr1ECVqcVA12f6wYJ2Ej9K0CBCKJggQnEVi8EMSplBA2uwQT+gGcHV973A6+jAvpqt2MHCnK5B9Bd4QSkchkFADWxBcxOcwD8cD8LfAYVBlmIWQlXu0MEZ3KPBmIPmQYZYZsAo8kNAIfKGwVg8ukH5f5bB2apMQQhklkGXp4VBVq6ZQSVmgcGpABBBsBEHwlcCGEGlbEnChnUJwfBW\u002fEHWu4bBmZpAQLmxFcErg5hAAfnLQECdnD+jd3JAgiZ8QPZjk8HiK+nBhsveQCLh5kALd5tByJAdwdyLikGWC8VAsP6SQcPA78F3lahAzopJQbjYnkEkiOTAoXbcwVJEEsGB0TrB+O9awIv0xEC8+RjACeskQgcTDcEIbCTByTX+v11kXEDbsLpBIsnaQbgYxUHzBg3BfHDLQc1uAkDLdSNCxC8wv5YxBcJZ+w3BnxGbQViDr8Hl1YnB0yIlwRI8isE41rhAE7GBwKNkCkE\u002f6WrAarxXQer6F8G8yMNBkoQewJIdsEEYy9dBYsetwfmcHsIVP05AHJGxwQqmgcHIY5TBYxBeQZDlhkHlMKdBoAMNwdjyp8Ec8FW\u002fk5mKwVUtFEAawj\u002fBQOCtQQE9acFoAztBwD4qQlIXiUHI8qxBbta8wHjbrcHHyMtAygv+wN6oS0HTmqPBl8giQaP4t8GvgIxBUFfgQbCjQ8BLyYTB8mskwFfVHMF6az1BYkWVwb9umsDChbBAHfN+QKOo30EOEVnB7uA1wSWzskDFFkVBKCOxwebm+79wxxdCjA5owRcFJkFHJDBAM74rwYKKi8H5Q21AaNc0vxZI1sFTZ2LBdKEHQYnAxMEkRN3BPe7WQS8t08EVSobBzUgHwkZTt0EtgNTBHbTUwcDLHsHNl+RBdJSVwWMB+EDmRwZCJDryQIjbj8GTA0PCjfCBQS3hmkEGB+2\u002fC2xWwTxgEUIAdBtBBiyjQT3fK0DBCoHBvEnZwOmeqcGsmvlBFI4vQs9mk8GWeOzBpOAyweFyGUGGkgxCcbKmQGT348BdYutBqzRrwOwzkUFcyQLCwOznwbPcjsA9XQFC7mVXwQbtCMICoC+\u002fXyoVQJCJU8GEeghCc+I6QTNwUMDikYDBQAwNwiUXAcJZBbLBRbTZwcJ\u002fHsEdWn1AuVTKwaoOS0Fl1AXChOapQUjpHEFqggBCICVCQBRsuEFhJGHA16f2wDrOhUGLG\u002fdBlUMMQrHLskFhlZRB5SNxwHwiFMFuq\u002fpB42y0vyPJOsF3s7LBewSBwSiRlkHkMxjBFEcRwbD4BsLG6t1BPCETQQqVsEEuA5tBeS8+QE9b+MEzKazBys+JwGlzsUGHcT5BmlL3P5iQlEGgShrBavEUQr\u002fkmUESCFNBksGcwSXw\u002f0Hid8jBlopdwLCnHUDMShrCWSXkwGfX8cE1CvrBb4fEwKU5GkENljTBQEuhQJuoBsKJyAVCIo0EwjfnpkF+AIXBfJe1QEJTBEE6IQTCdDnzwZ3K98B+LBtCcJP7Pxs+sUBxzIVBjKQuwe9Lb0FnlQ9BJ4Txwc47A0B9JZXBU2HwQamUk8FNvT\u002fCPDY4Qd76j8G\u002fT+7BS8TWwVROyMDcxvnAz2UkQk2BI0ENaH5B25bCvoEQvUFTxpxBcar0wdxaKkAMV9VB\u002f3mrwDiE1UEvxfDATgAeQTkqMUCY2qjBQOJVQXV7FUHrJujB9ygKwsBl3cFuhcNAT7QKQbSGsEGeFZvAjPMgwPtMwsAUVE3BhJywQbZJ3MGPDBhCf\u002f+BwD7rtsHtEW5BUkM8QcpV9b9JFAhB4z0JwsZ7uUHPT5LA53ZrwXTHQsG67QXA93OOQLl7HcDg3P5AzKonQoRhIsKlGO\u002fBhMJFQaGc7MCJmNfBLrq7QTIX+EB+wbxAUbuMQLxYFcJGs9HBURSbwd5trEHOt9NAvt33QbypRz+eCXbBvHaOQYzsMEG8Ih3ATmA4wrDVAkIi1bc\u002fS\u002fe7wB58wUESVg5C92AiwStx3UAdJP7AwA\u002fOQRegr8EN+5lAYeXDQLrPrEGZmifBQ7Cqwajr10E4CQ7ChxdGwrPOpcGbGc\u002fBwsT\u002fQFFIRcKCKt1Aws9GwXnZRsK7WK3Bua2\u002fQQsyucHViyhBQ1idQWVnaMESWQ7ADZ18QJlfBMJPVIhBtoQTQdhZE0JjhA5Cd\u002fq2weCd68Em\u002fkrBvf62QQ+XEMJiwdJBJHU+wRlx0cEaDLpBkos9P\u002flX6cHwpyxCruGawdW\u002fzj8Ef7xB8qS+wb2rAEKROZ9B9s8OQhjxbkHz6OdBbmiKwc5fJ8HfEQdBpu7Hwdb4HEGgDJVBNEz6wb5wlEGfqaNBFyWvQeaBEMIDZuJA5s0dwrfi7UGcS8FBQ27oQfvqrEAgdAjBHXMOwhEuEsKG8yrAiOqBQLjm\u002fEEgqK9AhMXTQf0VFkEGCWRBc1N6QEShSkE2LjvByoIoQUde5UFDKW2\u002fuebAwbf8wcHR4ptBrHcPQWXFDUFwf+M\u002f6ob1wS7WCUIBD9rB1+AzwerHuEEM3p3Ano3kwWqOmEFrZjrBAnC\u002fwaumWUEQvvpAtS6pQWg51b84x+9BDeIPwi6g3MF3MbfBzegGwvm47METvI7BfFrHwdzVzUE1rMrBiCF3wb\u002fjKUCMR56\u002f6F1UQZOnu0A5fRZC0C2xwYNihUDQ46tBAPukQb1++0AUKAfCYrJhQfhQsUEDOOXAywurQbKg10GWIeXAtYT9PUIcEEKVh1jBQnK8wRxwo0FTClNAXQRuwCT2g8EdqiBCb5cLQbLFI0J00A7ChH31wFd2a0HM0bTBt34rweWaGsH2iFlBy0hPwU\u002fw0sGT\u002f0PA+VkTwrBpjEE3Sf\u002fBI33JwOsF4UH3AADCGuC1QFC2\u002f0FqsfTBNSo+wQ0uG0LsK9RBr1SMwRr2ccHsqZfBh2LmP\u002fxMmkAnuQVArTscQs4RV0G+18W+lZ4GQjPnIcG9\u002fOdAELi0QdfQR8JIsX\u002fBfcvqwdu9FUIq56VBAGOWQauzCMIuN4lBpKzHwVkhOUE\u002fzdzBm4cSQbXLj8FteQbCvrMvQUw34UEW7Q5B2OsAwmXGtUF1+26\u002ftnXxwJOL1cFPF8dBTC32wXs\u002fqECmNTU\u002fadvLQKCqBkEOxdBBGD0AQoctKkLSURdBA8G4QYEcEEE42IJAznr\u002fwGKIKT\u002fuFZvBywMQQU2mBsDcFjzBYkMBQr5Ns0FbqT1BD+SpQCcs9UFwkgbBSGCawcWyH0KoEZXAccScwZ7SJMGUlFXBorOvwG3ykcEmxoPBqNuiQDKE7sEPhbdBclIywexCEUIzHBpBzQnSP9thhcGVyzlALHbIwfqXLkEAyF2\u002fkesFwYZHCUF4fAxCwSfqwDUghMHyLwlBPZI0QQVthECcXCRC3hVqQDlpukA\u002ftJVBKsaDwZhvm0FO+UFB9ts4QFlZQUFMQLXB3BmYwAUo4EBgIW3BwRbOQT6LtT7mIAbBvO0zQZasY0GNDmPBx1YdQYT9NEAG04jB0NfGQAZCN8EBOQDBVDaXQTTT30Fnswe\u002fDycbQX\u002fRBEFug9q\u002f0jI+wjglSMEvpArCJIz2vzIfLELZOsa\u002fOc5LwhQEHMLUpRZB2vrTwYAUX8Ea0QpCaVwmQiCzUsDPEAE\u002fAGYmwpbvw8GF3OBASKwjQYVajkHiZxNCgRInwjdrzMEAsP4\u002foCMnQT2AxcEPtAlCseckQRYaMUCx+61B4u4vwat2nMG2C8fB1IjdwY\u002fHEsL214NA3ZRtwM\u002fE58DH3gzCAcILwhOh2EHn08pBA80mwWzik0E7tos\u002fe3CNwU5cOEEFtIRA8LRowbkVMkHMEEXAO7boQc74kUGcdhTCNxjKQUo5KUAkMc5AzBiUQTByoUGKKj3Aut53v6qPEcJY9AdCbF1vwTaoaEG1cgpC3kKHQXkvMUHLIBTB0YJKQVkMBMEN4xTB9T81QXIXRMLfyTBBTnonQXIXCcLbXhrBg9sZQQ0530ERVNu\u002fgaXJv+m80EGvTgjBdZoLwu7V08DyTHnB+P3jvppp38HF8wdCkhjDwaY4CUIJJOBBrO4kwq2q1kEM+t\u002fBL8R4QcSfi8CouWRBn6FfwSOJAcKfkvlBwK1DvtPW7kGFVPbByvgcQes9ncFHgClBc9UGwhWHQ0ErravB0mY6P\u002f6FAME\u002fzIpB1QMVwLkl+kDhfu1BRS\u002fgwHspcUF67tdB25ViQYBSgkEA6KzBdjSRQZXCKsGSjeTB3np6wbLDJEHjNru\u002fuc0mwTN16cHEnhDBtq3gQcdjhT9F8rVBzzAJQYDoHMFxRqa\u002f4ypCQaXoBsK5c1vAp\u002fUiws1w68EmG6\u002fBeZ45QaXQaEEb4wxB6HUWQoy7YMA45m3Ark+8wSWQDcFg9OXBOIUIvfrh5cAiKgNCq+iQwWSxBMJ9OkjBRy+EwTlq1D\u002fT5y3B1KPTQT9K7UDPk59BoFWhQVk3q0Fuk5BA9aGUwTMO5cEfMhTCjtSiwGasGcKm6klAItcGQi9P40FzIZBB16YbwppbUMEpXYfBECAGwdXH2MGjnKVBj\u002fWtQRblhsG6brRBUwLtwXDK1UAF5QlBn0wJQiV3KMDm51rAlXAMQFaEfD+fcbPBJjQMwjTccsFjoUjCPE0XQVVtzcHd7wBBPV1aweEf8sEWHCLBGwGeQQOEGz1rd3DAY6xvQNu76z9\u002fdW3BljEZwliNSEFgpORAa\u002fziwYjBaMG\u002fGrxBLMERQdQylMEi1ENB7efSP2ic28Eu50VBkYsEQh8uqcGzjuNBpykmwRqFkUEMc8vBXBLbwY8kZUGWAtTBzLw\u002fwZtODkH617NBbIXQQMJ6fcAfltjBOqMNwOWo98GylNfBBmHrQXIUM0FznxnB4dsJwqkFFUJdrA5BO\u002flHQZ+nNEFZVG\u002fAyrkcwRtXDcDtoBTCZwkiQmlCnECzTwjB7pQLwCTelUFzAZ9BdiDSwdRBosGYG1ZA3PU8QKv92EEHWCNBr3iswSq56UBUJQtC7yfJwapjcEGTiME\u002fyL7uQF1eQ8DrmS1ByuMMwv5ZEMLPWyNCPq1jQbUwgsB9gsDBptgZQJgXl0FIxmXBlPo2QV5zgsBfyjLBt8PnwTVeF0LpIuDA+\u002fd3QIOAF0Fj6enBc5cSQH1dycG1ZghC8W3AwVW\u002fmL9cozjABW7bwNl14cGI5i5C\u002faUpwKPtBUC7vcBBk2LDwZ6\u002fcsGLp0E+pMsPwmFcRMHxyKxAWVEowUsoGELtVnHB0IISwcZLKEF+ZRFBeyF2wJ2\u002fxEDe8\u002fDBLKXVQdQEKsFU4jdB7BwWwrQByEHQUEpB\u002f9ASQDaSaUFJcp7Ad9CUwcw5KsHhoy5C7tPPwT73LEKYZblBofl+PnTO\u002fcGIjzHB9LsPwayy7EF+kgJA9m\u002fVQVHKGUHbWo5Arb7HwQe9VMB3mEdAEjBivpqinMEsGtJB2i3eQbjBN0F1QnDBBWbFwCqtC8F+EUvCIPykQG2eycEWlb1BcbPzwU0928HZFmRB+O5zwa\u002fpGcEMKjRBuMvhQDiDu8HhtwpCqKIQwnupK76v2IZAhhm0QR2FAkK8PznA\u002fWMHQlJdBMI+zYnBliKkQVJg5kFuI6pAv3kiQidi7UG9crRB\u002f6DbQc7JMMHkuLe7P6rZQD+p2cEKtBpCW4ewwR4HDUJ3z9zAHokuQOEOGEKVNthBRBABwsfsfUAhkdhB9tQOwoyIDMKyPaNB0r5uwfjYxL+wFRlBw8oPwsTrYUFtaI2+y72bwXE9jEBugdlB2buhQTaeI0ADvEi+qAJ\u002fQW1LhUA050vBs5OHwIO\u002fg8Ei5gbCrrmeQewsl8HNiQrBx8wEwssnFUJ9ZCVCnsQTwijD5sGYMZ5BmhbhPycm9cHSgE5Bm\u002fVlQSo2O8CeiOHBknkuwcV7L0JZkrpBv\u002f2RQRRPusApqQG\u002f9VaOv8LxMsHUBQXB9jgVQSF9lMENM17B1wi0wVez+UCgzDrBppAVQRMldcGIZPBArKoGwXLHG0GC9wfAj\u002f98PvvwCUKhfuBBOS9kQANIMEFO9BTBbRnZQc8rXEFMdbHBuyRiv99RV0Hz1RTA7vUTQkfhFkJlMJhBvzxmQQhnIcIgDi\u002fBMh+QQVKul8BDxwPCmEPsQYDYhMH0XkXCNBCRQQVht7+aZA7Baw0pQv0HXsGlvsXBKrORQSpqXEGaCJW\u002fMPkAwongLEF2P6XB2OsgwfDED8Hpfg\u002fCDs7gwQ+3dMG7WzZBnQ6jwaBUvsFwbrrBe6FBwBxwSEH9O7vB24zNQYF9AkLV+vDBUyhTQQn9DUGli7bAoMvdQe78n0ERFwFBSyclQahQn8EGiLe+WZcMQrJVm0EkrNxBAl5AwMXyPUFxUsXBvFMDwje6BMHUtKLBmxXCQXu9LUHQ\u002f\u002fnBmirZQaKjmUCQGnq\u002fX+8SQp5\u002f2MHepy\u002fBBuICwGxQB8LR\u002fCHCucLgQFhPAcIxjYNBSnjLwZZ6+0B2JQfCCvsGwoJIycFEoepAgnxMwMufvkHi7iVBxLx2QT+iJMIWSQZCehLMP7X1z7+EDOJBrjMXwUitHUIib4VBOzzvQXbW\u002f0BkNxVBg3GgQSKZoUFTH+rBucOcQUt5uL8p5lFB4TPJQbK4YcF5hwtCxCYzweqWMUFMzC\u002fBiakmQtgg70GNN45B7NClQbkD0j0M2HpAiSlRQadzF0JpLqPBolkiwQ1I7MBcpAHCpRawwDvFA8G3VvzApi\u002fWwG50IMJsoQ9C5zmyQaQD8cFm8MpAwrBiwWlB+z\u002fR1MpALuEPwpT0jcAZ6+HBOjEMwiTKj0FvnitBJ0onwUoasMHaXy\u002fBmQMOQvp7H8CpoyXBqbbkwZahsMEbAqi\u002fvIoEQlJqdUEqgJ4\u002fnn\u002fEwdc2+z\u002fDFArCRsDzwTkIw0HgCoBBESsNQF6O1MECaHpBYzGjwWmqmMGJ5UPCCNkqQiH8Y8CUA61BMdaRwcGu4kCJ6mm\u002f3M02weglOEG0PJ9BUn4BQuB3BEFb7MnAwggwQYJ2p0DBQlPBVYwVQjfK9UH487dBJ1CXP8I\u002foj5LmbTBGByvQTVFqsFp2JhBOjAVwp0ftsGjVGXBIyT7wCfIiT\u002fbttrBs5HvQakAIEGKGUXCZf2IwPMoSz+LQZZBaEgYQsBJq0H\u002fDwbCZzBIwgLqE0LRD8XA6KuAQWcc5sBhpPDAi7uaQYKBE8Ji0By\u002fA9YAwteVZEGig5jA4s8IQQ8aOEHYCKNBssgBwoc9CsEQBc5AP077wXPy8sHKU2VBC3XiwUrb1EG2c4E+Q4sHwgCWwUEwJiDBWz4owYqckMEy1frBxXxsQf25LcH5Y3DBJiVeQHHsUkGIhifBdhUNwejPF0Ji6u\u002fBsprhwWxPDkL+yx1CSy\u002fGQURPKsF8lwdCSYEDwmkm+cEVnKFBX+rAwVlIQ0F1dz3BURe+QOhe0MHCEHTBKqcRwpqUmcH6cBdC+M+WwQc+8sEhVb1B8ZcMQqwYEsHZYdbB4HaHPxTaC0IHRTu\u002fjCASQuel\u002fUF6NNU\u002fXfahQb9cU8DH35tBDn4RwpSjl0DpT19BU80WwbVUE8EVh0\u002fA73wFwhEulEHNpLNBliioP7+Im0GZdJDB44OVv+TaasE="},"xaxis":"x","y":{"dtype":"f4","bdata":"\u002fbnuwJT3PEECiYJAMrpEPtLjAsJttBrAWzwCQT7pgMF+BA\u002fCBZYQwl3jv0G76sVAbSgdQQ0oN8IfI4rBWRk1wJZ\u002fFMJYBwLCH9ScwNYzrsHLfQtAlvANwjjquj58pATCZTUeQQoW8MFVI93B3i0FwtZ8+MGCetvBoffewd3sLMJ4UinAXug6wrhKCcJEfqZBhadfwDf+BEFeMrxBH5iWwPasIsKxFTBCVn4SQqEC\u002f0HAUMRBET2lwZHJj8FDNv7BE9vawdcsokFibqnAMnzpQWHoA8Fb\u002foi\u002fJU3owbdujsEx4gpCtF\u002fwwbu0RsC\u002fgZbA56\u002fQwJ8I9EFvvQXCqsuEQGirhEARzqrBkD\u002fnwdWRs0HairpBuJbowb74AcGJ2SNBa8C\u002fwHJqxcHnQgJByFsSQABZTkAT96\u002fAUFzBwSnRMUJLFxxCXtCCPz\u002fDGEA2L8nBRcEWQmRnQ0FwuTdCk9AwQvAWJUJBhIvBDTbhQSNGykEEu2XBIRslQoQFdj+dS+\u002fAcyg4QjzSisE1Sq9Bjd4pQtUTesHvdL7BoknZQWhSysBnM6xBs\u002fyxQSV6UEEF8r5BRHUawfhkWMGOVvbBFxE4waEeTD59zY\u002fB+sBqwZtoNMFtkTPBTdL5weUY4EDqtIVAxTRIwSuwAcIXMUxB\u002fKGOwXVzC0EC5+PAuVjywTVctsFS68BAIilaP\u002fRQy8FRO\u002fjAarMUwiu8hEE5UbDBY5URwfmS\u002fUEUhXlBv6drwZnvGEJ\u002fjR\u002fCJyFeQbOpIcJzwRjBEge2v03EsMF6d6ZAjSNwQON97cHyV59A8lqSQGhYbcAXzq\u002fBT7WiwZdJQsHBgRlC2+U2QOQj0UBeKlDBk+yLQS7c6cE2\u002fbFB6026Qb0208GvMxnBjgyewdkfq0ERAKQ\u002fBE2XQYEEZUFESbXAFay9wXm9U0Cls8K\u002fsBiyQc1IycHxaBhAHZNxwdEjrb5XvAlCYcacwObUEUKaoEPBbWuZwXlCNcJOMjjAM0JmQcQ0s8D07rNA1L9nQZTtyT9tA5pB8JSqQReYP0HGWoHBJ3m0wKWluz\u002foo5DBpF\u002fkPw\u002foi0Hwj8HAhkh5v7MQy0DwUbnB4fGiQCDlvcDE2ofBKwXlQSjMCkEeZhu+JnSDwSuN\u002fsDjXn5BJuoPwniKa7+h4L1BgCKKwVp3wEDAOK7AEKTEwdSvj0CFYalBtTxeQHD+LEK6HvdAsHLlwbIvt0HwGFdBwi6BQWUdQcEcpYrBd2Ezwhlxh0FEf6jBl5s9wXMPbEHVOePBlGZIwAW76L3rs2BBARBSwbxuBsK6vPA\u002fkRpcwbH230FF1wlBacQiQpb44cGnAqPBJwAAwa2FhsEdGcTBXtrbQc06q0AcF\u002f1Bd7JzQaP8MUFuZdq+aTy0QY+cB0L59pM+8C2lwNq6dcBXoMo\u002f0ChZwBjT80Hf8gXAQDP5wK4nxMBXspTBFWGoQbzM5L\u002fQk2pAa+\u002f+wV1S0kBC3M7BOvGOwbK5C0DLzLbBxONqwZO+UT\u002fWgTpBMg\u002fQvtFxIcGSySnBZii2Qez6m0BG8FTB5W4fQG7h5UGCpVjBrPAVPzIJcUC\u002fvnLBPWhUwYMYAkKIF4PBDK2\u002fv7EqS0H7o0JAmxngwXZRqsEUYujB\u002flFwwKVxGUEGjmvBJvk0weeYrcE9uJnBLFfNQZhqHEIAT4TBPbshP9FM8z7rq7FB8y8PwMxU7kEEmBZC3540wmtRKEEQjm7Aog9owdtnvEBIwk3BpA\u002f2QTu4lsHqSI+\u002f9IIZwR0zmEENTJS\u002fUOSfwPI3msC63f1AIrcOQrma4b9Sz67BqVI7wt4Cv8EC\u002fInAzbF4Qfp98sFaIZ3BFuatQfH1+UFt7\u002f\u002fAMn6Rwf9UXME19xPAqZriQVoQpb\u002ffHjRBjMdRQG3tgEAIT8jAutCCQXAb9UHd+gfCjEATwfdN1cAHyObAuUZLwayFh8Frvn7B7woqQnoa9EEysJRBpWnrwM57vMCEbXRAhCOYQDFfncH+bAFBFertwWSfvkHDTqBB+P0cwTZUUsHqWW5BwEx8QSBBVkA+gqzAo7g1wV2vhj+uSQ\u002fCxUEowgOc7sGbQAPAGQslwZVMmUGPjxfBtayOQZDiZT9663jBOBT4wLzE48DRdiXCUyiPv2NXxsBwFLNBjyW5wWDIlMFfYERBRwdpwDdoq0Gww71B5uw2QNwkVEHfnEZBXiGYQAUEjcEnLa9BidoEQN24c0GHxopBcT8vQm\u002fjq8CTkLPBem8bQUOtn8HsAQrBIjoEwTxX0UCFUadBtGokQU8PocGDFXrARO72QAYpBkFUTMHBKTShwfchzUF4XKrBn6vVPUjIncEcWrtBAw0Qwdwl80H2w4fBP9u8PTs9lEEbHfTBcEbsQfxqRkHCWBhANnk9QCV8YEHpDRhAj\u002fglQsiBDMLLH8LBIruQwUr1n8A0XqJBoVaxQeCshsE9nbFBvt0BQsYSi8H8X2dBZJHBPghQ0MFLeGhBtD7yv0E4U0E2iB0\u002fX4ofwiAahcESAZjBhelvQYK0vEEaio\u002fAOTqnQSGxQMHsOVDAjmjXQQhipUF7eYVB98s3wcHvp0Fn4L1B1vUUQSjEqEFXipTBoj6rwHXuIEHRrrNBgfxGwXgYOj9SU5\u002fBEIktwS1qpcHn0eNBUfb2wf9CkkCFMdDAtP7bwFp3dr\u002fG\u002fvzBxMrnQOocD8G\u002fbi\u002fCInurQReXx0FjVTXBl\u002fGXwGN5rUFlTEjB8qoCwR5G1b+ZNTbAmDWPQPKDxsBazg3C77iAwBqqX8ByF2ZBNEhbweJXGsE4exhCtXXcQRoWVMGilp3B+bPvQXd0pEEzWTrCxKzjv4rEtMCjtM7B7\u002fxlwf4cMEL2lzTA6zEAQUr1gMEoxYBBrc9zQXKCWj\u002fVO\u002fjBH+qmwfY7eMC16dxA5pyIQWe25sEvTYLBxH4Qwjwb2kHfQ9LASpGEwB35nUEhkstBGqinQTXenD9T1xRBWgNVQCU01EBQunvAkWDRwZ5M5EElYEVAnY0TQsdPC0EyWxVBD4bcwIDeCkH6QrxBFCX5vzNKrMEcAPzBmae7QRC+qsDa1WdARYvqQXH877+TQHbBQCYTwUyRgcBFPjbBizKewbL1CsFM9zNCXfqnQOsJPEF7lRlAgTsSwiZD30BYM11AQKn3QXOTCj8+\u002fOLBoPVXQd16sEHqs9RB\u002faNKwethPcGEw1zBGuE3wrAqqEAYVdLAexUwQXrxdMFRK0PBCdhrwTSxesAuPdRAP2NHQC7shkEaZopAthEAwSvLhkHUQ2BBa\u002f3fQKGZC0IvJk7BtDQVQeX8MEFUQRJBkXWPwZgl8kBDhAtBJYKMQW\u002fjX0HAAKc\u002f9WNHQQo2n8GneF9Bp2p6QWB\u002frkH5CYLAuZsnwpRsXUGZCTTAi2XBQccUlkG2B5bBxa6EwXwRGUGL3iNC26fyQcqmIEGRZmzArPXVwT6qvsCH1XhBuD7ZQdbuA8KJicJB011EwYRHp0GLVXbBh5m6wcS1oMGMevBBELJmQf1kqkECIH\u002fAbP3qQMVZo0GZwwJClm5DwaGs4kGfKW1BdyYPQfG\u002fJMES0ONBAZJlQdKujUArCNnANgeIQGPEoUG+inbB1rEwwMFYpsG\u002fnuTAW7m2wLbMFkJXZALBpnmpwUxNMcI57W1BaVWuQBg\u002f7sAOk2hBsJapQYE\u002ficGoiRxC8vUpwZIEo8Fo3OvBt48TwsdV10AC7HLB7ijVQOZkw0EddqS+iFcEwi\u002fzIcHWPUZB7NIWwTfUSEFQwPVAFMUgQsl\u002f4cGSiLzBYetYQUVUY0GRtFDBv0btQZ8kjb1Ik27AsiNUP7kfD8I7\u002fJ1BycRzQHqeLEHlh2i+jMpEwEvDYUGyTu\u002fBZr5dQYFqJEFvmqVB6ATkQaGyqj+4FS1BCopgQTJdfkDaRAtCRvIeQf9pAsJHeN\u002fBZR0jQfX0jEGmwiFBs+WnQVn5WcA28xQ\u002fHfmOQaFQFMHLNglBkjoswX4kNb2bWR7BF58CQd91u8AjgDXBfT4PwtpGpUGjTmnBIycNQgINjUE0JKNACOnJwYwcJkHJTL1BRhxbQcxFHL+NR0VB6oUbv\u002fOymUHIM8VB+uABQv+7cMET10FBZT+pwG8IPj7SIhPCeAOPP+xc2EHcEYTB2OVnv2UGLMJraRtAj5CCwR3UMkLa2P5B+703QOo9YsFZuvfAlslgQCSFm0AjpPJB\u002f0SxP0r59sCJedXBv\u002faswa8x3EClJBNBiYvwQd2XAz86L+jAKhiVQcioZEHHMUhBVhnTQL2v90BOGgLCma1uQf59f8G2UMg\u002f4dm4wGkM5kFSr9VBNENRQRep2EEHvqjATFC3QcWE40GxiQBCRA7uQVFbKEGZuxRBH5k8wc0kNEGBKARBNNkcQTqlJsEr3xNCoXeDwDbOq8BTqPVBdusQwmb8g0Fl\u002f3M+U1DHwSCI0kF2yCtCKEikwQbVDsK8xaDBtQg8v1BmgMFnTofB81f2QTBaI0LiZtXBxhYgwV6uNEEt1OLBSS3vQROhksE4BfvBe\u002fKUwDY\u002f8UFkTOC\u002fCJqYwDC9v796OTNC+WiJwBrSjUEzsDXC\u002fdztwLy8GMEqFaZBJn9OQWlPnsEiZyrCQluHwAT6kcHmXwxC7SRgwaNFv0Ew8CHBrs+qwDH9gcG5ATHCr6A1wCLQnsG1sFBAeOkywl6KOsLxDqdBd70uQl8dAsEsmcHB7XHhwY\u002f2XL\u002f34ynCAJKCQFC13cH55RZBquTmQGEa0EE+8s\u002fBowogwgGnVkEjAC1Ch\u002fZnwNr8r8ErKXZAlb\u002fowaaCqkC6jNZB7FC0QLQHkkFvQrdBS2zCQRcdAkKrZwbBTYtiwXfQjUG0BCxC8PAMwmMpPT320o5AOJ8qwWectsDgBG1BvviqwWBrD8JvqFjAn0LQQQ0T1cFCcYhBwFpbwbPAOMAPXpLBDGm1QQXw4ED8Zs3BILYQwu2hE8Ez2jZApEwTQpGl1EEpgNtA\u002f18GQSKDxcHzoxpBmdzFQemCj8Gc7fK\u002fL6oHQRKcqUFtH\u002fFAVmO0wB0UucH50wLCmnfNwAI91sGIoMtBwilhwfluksGSeJtB1fIRwjpqSEG\u002foITBoL+KwfLPGUHCGZ7AKT+SwCMe5cFTyrbBOLDxwdcU60E91KtAdOj3QSEICMFP7WxBgQVrwFoviUG4\u002f5dBJzlhQbxXsUD2rv4+4xYQwpXOBUItVYTBchxFv7ehn0HgROdBVS19wbP7ycGhsNTB5WJYQXCw9sF008pBty0OwocFKEJ9LOFBph31wd2iLkGO4dpBdwPOwFWYTkBq0pLAGo6ZQBDGakHX8TfCQm28vzUrn0GDRS7BuA8hwe8syEAUrPLBxdobQpEGp0GB+mlBGxq3wMZ+jcFCP\u002fBBSRhtwV5AB0KVccnAmFBHQSa9S8E7oxTAsiYEwlcdqMGvW5BBsJs3QF0I+cHdYI1B1I4Wwru2JD++N3TBQAcBQKHprUHQRAHCa1acP6Ga+8A+vUpAq24jwiiNAMLR5IlBdnxxwQdPq0EvFlnBdvBYwfO9qcE5owLCXPanwC5KEkJXEixCQNTeQdnjo8G3J+FBuZ66QXmfqUEQa2TANlALQu35RsGYyeXAADWtwcokjEEsQwhCjEHJwW8KocFt9u1Bo6OOwRKZqMH3CaVBZ7qKQVuK9EG8QD9BjRD0wQeR4UGjbbfB56ebQD4i6b8Y5KlAqIL+QQ+qnEAEr8dBaqSFwCJaTkDN1mtBdhAdQXMwNEFfJ9TAHx96wXGEj8Eft4xBXpIdQmGqCcJ4cthBO7AVQv58wMD96\u002frBjAiSQcD+msG54YBBOGy+QVyyNEDucX5B4fnCQAeyTcD8MXvB4CGBwBbIZcH3FClCIVQbQnjrG0Lex7FB\u002fvBkQRh\u002f7r33I1\u002fAKxSjwWvXBMK44ADCqB4CwkR2vsHfaoFBlvh\u002fQdJKBUEfgtVBVbeuwanVRsE5UpbAWUWTweL378EGgtZB86n4wNPd4EH7FejBQi6wvkhvRT\u002fj6P7AJHShwDfP2EG5zs2\u002ff4f4wX1pDMJpZIXBCZm8QdwwHEJItQFC487jwdk5tcDIg+3B\u002fIJYwMJMfcG1olfBA45eQb21gkCy5ANBel6gwTyHkcAa8wLCEPncwc3sk8DmINLAcFbGQVGQkMEMjbzB+cSAwSpE2EFBqrFBhJDsP8w068E9c+RAUL2fwf1FHsHnFRxBMg9TQCYV9sFR2ADBlmEXQrvOOcJehXbBe1uFQcvgKEJUDwnCDjA7v9aRzME9cxFCdpq0QK19DMLNCcRBnOzAv8iQBULOM+nAhbIEwhWH5cCswsw\u002fCkrqwaj2dcFhr6jBeMbmQJjsk0G5AnfBHBFGQYq2s0Hsb0xAP0C1QKMuFkKFZTvC\u002f7UVQljfOUHaqa5BSQGvQQA7EsFIMa7Bqt2+QUS4AkFERkPAXYeVQYvGrMBEGalBqiEEQYNGkkFdl3bBcoZzweGyj0GVxhLCmSROwbrv778FeqpB5Q6\u002fQQ3ojsGrtCzCRaKrwTv+gUCPst5B85hFQVHoacHFViJBLlbwwPh+wECwOhZCRdAAwE+I2kB5prZBhbnWQebUWMHUsLhBJhE5QXbnT8EuWt7AAFYZwZ\u002fshcD7ROTBFw3lQYM3g8D6Sa9BCz\u002fKwT1aM8JxccBBjyuGQSDpt0FYAL7BAqSzQSCu00FiK05BQLCVQbptnkGzGhhC9EskQeQJMMLA45xBWhu1Qd740L4dRufBcJ9NQdIKrECy\u002fdPAkb4CwnJxH0Gk0ovByycAwmGFvMEhzpHBmvvkQH9QWUG2ed3ABmwCQfNreEEoaDdBrib8QYmsmMHfW7dB5A6lQUPiqUGjUC\u002fBIJhHwYH42sAiWjVB2r2uQdJkvkCxr\u002fDBFEfjwUvfFsHPpShCGjoAwk0NSEDrluzBV\u002f2AwSK6\u002fkEzXLHB5KimwMyUfsHDCjzCR89UQHqLPUEv9phBiNHvwcL3nEAOXcpBwrMqwm\u002ftC8J7oFTBBlC4QRvlw0EhjcLBVYt4vjHEsEEn2tzBaZ83QTg\u002fQkF51bZBDmhfPq0srMDhG25BA0eUQVAxBcKDL3VBkYG0QYcOXsBMrpLAirYoQFxx3sBRXpDBF8\u002f4v0ZM4UHGFJjBa6HEQZze4cHtveLBit6FQQloskGIVsnBRtbEwY23H0J5pIpBatttQHYX8L9I1Q1Ct0uuwVBXtsBjrobBKGMQQtk99UElLWm\u002f2E2LwZBOFUGdvFlBwYgQQu9IDMHdqilCXKaWwWvm2EG4XyhBKueJQFx13UGaVhHCqd83QfkzZMGDGYFBHKcVQlUz5UGNynnBlmiLQSNfycHQzsPBGeauQf40EcKvWB4\u002fmt2Qwf4R9UEv05nB2WBbQXup\u002fMHO8ypCam+6QfxqpsCQrJvAgWw7wiWWikFFDHxAfaOvQI0qOsL6m6vA9CBsQRPaT8FSXcLATGzGQXAmlcFPk2lA0bybwbrAn8BEJqjA4JvYQZPryUH7Qw7AtZ8JwP2SK0GiayrAeeuKQbOT0b+WPOVAlrbjwPp2XUCvktzBXdkywX3ZfsHvYFzBuTWOwf0V7sHZjgpB6kzvwChd5MFvLSZC4RZlvUooqUBLKOfBsLRzQa3pFkLAVm5BJl1HwXD1CcHTC7bBGgAlQoRQMsCt8n6+qHSqQZbyxEF6\u002fEHAvirnwYpLjj9keojAlkX2QaTmf8GLVhRCWmITQR5e9kFe03FBIFeRQWNIzcEmWPDB5AqLQbxZoUF6u9NBwwYsQu2rVb7s6YPAWqMGQV3EmsEFiolBE4IAwn3D6kGvaSFCLpQDQEpwp8BPeJHBlN7CwWueOsLxvq1BmVeOwXKqJkHCZ2E\u002fX3RiwP13RsHDPYXBamXnQXcP30GQANTAzvMZPsxApUG6A91Bo\u002fbRwBuU978SaTJCOGgoQmpdjcF7ie9BwttPQSVvAsJozPfBLnbwwXqX4j+PQtjAcnCLwMkUskBF\u002fC\u002fBfQaBvz2vL8Jt5BTBGfevQciPQUAzVe9B+bm0QZ4\u002fo8BzXeRBNvWQPvCuOMIxSZhBBemGQQs578GCXCfABLkYwtq+GUIGjwbC2K\u002fwwLJNWEEpZJE\u002fW5WIwCPbqsD4p\u002fTBKw1MwTr\u002fbsA7EWA+gGX0QVRyt0GSeNrBPF8uQClX8cH7NdjB\u002fUvYQQBD3sGBWKRB\u002fa1OQZ1E\u002fcCUP6jBynJdQU8zVEBiE9DAYt3MQL4JC0FQWizCz0ykP8u9kMHPJONBdhQFQgQcu8F9x0xBdGZ2Qfbiu0DtAzPBQ9mjwX6h3MEFqDnBBFvjQfmkREGKFdLB6UCEwWNQlsByKjhBMlSnwQzyv8Hi4KVBTtV5wSOpZUDRBzlBeFXYwWCxvkCEq9zBKdHlQOnGlsG1\u002fWc\u002f+1F1QT5vNUETI2HAc2HdQToUJkDBU7NB7rEgwZQVw8FoUsRA7MX4QT2XI8F8QrtBhX4mQbgkhsD3c0RB\u002fy1VwU1tWcAESL5B\u002fv3jQIb8LMKCQ6BBHu25QFoPK0LTDNrBPyApQc8GWMENj3JBNVU2QskkZEFV61nBKtcsQkiTAkI="},"yaxis":"y","type":"scattergl","textposition":"top center"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"bgcolor":"white","angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"ternary":{"bgcolor":"white","aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"white","subunitcolor":"#C8D4E3","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Dimension 1"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Dimension 2"}},"legend":{"tracegroupgap":0},"title":{"text":"2D Visualization of Token Embeddings"}},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('fd5f0320-06a6-4656-93dd-eff0a2adf425');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-trained-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.5: 2-dimensional visualization of the token embeddings after training. <em>Note</em>: This figure is interactive – playing around is encouraged. Several clusters within the embedding space reflect words which rhyme or which have other similarities, such as “beetle,” “bottle,” and “battle” from <em>Fox in Socks</em>.
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+</section>
+<section id="studying-embeddings" class="level2">
+<h2 class="anchored" data-anchor-id="studying-embeddings">Studying Embeddings</h2>
+<p>Recall that we can use the cosine similarity to study relationships between tokens. Let’s compare cosine similarities between <code>Fox</code> (from <em>Fox in Socks</em>) and several other tokens:</p>
+<div id="23076dda" class="cell" data-execution_count="25">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>base_token <span class="op">=</span> <span class="st">"Fox"</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>comparison_tokens <span class="op">=</span> [</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">" socks"</span>,     <span class="co"># from Fox in Socks</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">" box"</span>,       <span class="co"># from Fox in Socks</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">" broom"</span>,     <span class="co"># from Fox in Socks</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">" ham"</span>,       <span class="co"># from Green Eggs and Ham</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">" Christmas"</span>, <span class="co"># from How the Grinch Stole Christmas</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">" hat"</span>        <span class="co"># from The Cat in the Hat</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> token <span class="kw">in</span> comparison_tokens:</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> data.token_to_idx[tokenizer.encode(token)[<span class="dv">0</span>]]</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>    embedding <span class="op">=</span> model.embeddings.weight[idx]</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Cosine similarity between '</span><span class="sc">{</span>base_token<span class="sc">}</span><span class="ss">' and '</span><span class="sc">{</span>token<span class="sc">}</span><span class="ss">': </span><span class="sc">{</span>cosine_similarity(model.embeddings.weight[data.token_to_idx[tokenizer.encode(base_token)[<span class="dv">0</span>]]], embedding)<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Cosine similarity between 'Fox' and ' socks': 0.9256
+Cosine similarity between 'Fox' and ' box': 0.9585
+Cosine similarity between 'Fox' and ' broom': 0.5581
+Cosine similarity between 'Fox' and ' ham': -0.0366
+Cosine similarity between 'Fox' and ' Christmas': -0.9402
+Cosine similarity between 'Fox' and ' hat': -0.0877</code></pre>
+</div>
+</div>
+<p>We observe that the similarity between <code>Fox</code> and the tokens which appear in the same story (i.e.&nbsp;nearby) is larger that between <code>Fox</code> and common tokens from the other Dr.&nbsp;Seuss texts on which we trained. This grouping may be helpful in downstream learning tasks; for example, a model which aims to predict which Dr.&nbsp;Seuss book a given sentence came from could make use of the fact that <code>socks</code> and <code>box</code> are similarly predictive of <em>Fox in Socks</em>; this similarity could allow us to reduce the parameter count and guard against overfitting.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+</section>
+<section id="references-1" class="level2">
+<h2 class="anchored" data-anchor-id="references-1">References</h2>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mikolov2013distributed" class="csl-entry" role="listitem">
+Mikolov, Tomas, Ilya Sutskever, Kai Chen, Greg S Corrado, and Jeff Dean. 2013. <span>“Distributed Representations of Words and Phrases and Their Compositionality.”</span> <em>Advances In Neural Information Processing Systems</em> 26.
+</div>
+<div id="ref-pennington2014glove" class="csl-entry" role="listitem">
+Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. 2014. <span>“<span>GloVe</span>: <span>Global</span> Vectors for Word Representation.”</span> In <em>Empirical Methods in Natural Language Processing (<span>EMNLP</span>)</em>, 1532–43.
+</div>
+</div>
+</section>
+
+<p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/42-more-images.html" class="pagination-link" aria-label="Some Practical Considerations">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Some Practical Considerations</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
