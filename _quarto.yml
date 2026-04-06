@@ -33,6 +33,7 @@ book:
     - part: "Neural Language Models"
       chapters:
       - chapters/50-tokens-embeddings.qmd
+      - chapters/51-text-generation.qmd
   body-footer: |
         <br> <br> <span style="color:grey;">&#169; Phil Chodrow, 2025</span>
   sidebar: 

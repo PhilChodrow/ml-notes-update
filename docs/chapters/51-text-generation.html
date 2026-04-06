@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>16&nbsp; Text Generation – Machine Learning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/50-tokens-embeddings.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a14e345711173c227b21482e2eb4cc70.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d8b0bb70be28f5ebcc1c8c98afdc075d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script>
+window.PlotlyConfig = {MathJaxConfig: 'local'};
+if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-3.4.0.min"</script>
+
+<style>
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
+  background-image: none;
+}
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/50-tokens-embeddings.html">Neural Language Models</a></li><li class="breadcrumb-item"><a href="../chapters/51-text-generation.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Text Generation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Machine Learning</a> 
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Machine Learning Fundamentals</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-signal-noise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-maximum-likelihood.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-more-gradients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-bias-variance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Classification</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/10-intro-classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Introduction: Binary Labels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/11-assessment-of-classifiers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Assessment of Classifiers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/12-decision-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Decision Theory in Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/15-multinomial-classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modern Optimization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/30-autograd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Automatic Differentiation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/31-gradient-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Deep Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/40-intro-deep.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Introducing Deep Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/41-images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Convolutional Neural Networks and Image Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/42-more-images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Some Practical Considerations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Neural Language Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/50-tokens-embeddings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Tokens and Embeddings</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/51-text-generation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Text Generation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#pretrained-embedding" id="toc-pretrained-embedding" class="nav-link active" data-scroll-target="#pretrained-embedding">Pretrained Embedding</a></li>
+  <li><a href="#next-token-prediction" id="toc-next-token-prediction" class="nav-link" data-scroll-target="#next-token-prediction">Next-Token Prediction</a>
+  <ul class="collapse">
+  <li><a href="#datasets-for-next-token-prediction" id="toc-datasets-for-next-token-prediction" class="nav-link" data-scroll-target="#datasets-for-next-token-prediction">Datasets for Next-Token Prediction</a></li>
+  </ul></li>
+  <li><a href="#next-token-prediction-with-neural-n-gram-models" id="toc-next-token-prediction-with-neural-n-gram-models" class="nav-link" data-scroll-target="#next-token-prediction-with-neural-n-gram-models">Next-Token Prediction with Neural N-Gram Models</a>
+  <ul class="collapse">
+  <li><a href="#stochastic-generation-via-boltzmann-sampling" id="toc-stochastic-generation-via-boltzmann-sampling" class="nav-link" data-scroll-target="#stochastic-generation-via-boltzmann-sampling">Stochastic Generation via Boltzmann Sampling</a></li>
+  </ul></li>
+  <li><a href="#recurrent-text-generation" id="toc-recurrent-text-generation" class="nav-link" data-scroll-target="#recurrent-text-generation">Recurrent Text Generation</a>
+  <ul class="collapse">
+  <li><a href="#a-more-complex-architecture" id="toc-a-more-complex-architecture" class="nav-link" data-scroll-target="#a-more-complex-architecture">A More Complex Architecture</a></li>
+  </ul></li>
+  <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s Next?</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/50-tokens-embeddings.html">Neural Language Models</a></li><li class="breadcrumb-item"><a href="../chapters/51-text-generation.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Text Generation</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Text Generation</span></h1>
+<p class="subtitle lead"></p><p>The rise of Dr.&nbsp;Sus</p><p></p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/51-text-generation.ipynb">Open the live notebook</a> in Google Colab.</em></p>
+<p>In this set of notes, we’ll begin our discussion of <em>generative language models</em>:</p>
+<div id="def-glm" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 16.1 (Generative Language Model)</strong></span> A <em>generative language model</em> is a machine learning model whose primary functionality is to produce sequences of useful text.</p>
+</div>
+<p>Our aim by the end of these notes is to have a first, functioning generative language model that can produce text in the style of a piece of sample text. We’ll continue our experiments with the Dr.&nbsp;Seuss data set that we explored last time. Accordingly, our generative language model will be named: <strong><em>Dr.&nbsp;Sus</em></strong>.</p>
+<div id="b6a7e772" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> urllib</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># for appearance</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.io <span class="im">as</span> pio</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>pio.templates.default <span class="op">=</span> <span class="st">"plotly_white"</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>pio.renderers.default <span class="op">=</span> <span class="st">"notebook_connected"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>We’ll continue with our experiments on the Dr.&nbsp;Seuss corpus that we studied <a href="../chapters/50-tokens-embeddings.html">last time</a>.</p>
+<div id="29f5c2e6" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/seuss.txt"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([line.decode(<span class="st">'utf-8'</span>).strip() <span class="cf">for</span> line <span class="kw">in</span> urllib.request.urlopen(url)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="pretrained-embedding" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="pretrained-embedding">Pretrained Embedding</h3>
+<p>Before we introduce our main paradigm and model for text generation, we are going to produce a token embedding for our corpus using the same method as in the previous chapter. The code block below reproduces several steps from the previous chapter, including tokenization, dataset construction, and embedding training.</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># construct tokenizer</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tokenizers <span class="im">import</span> Tokenizer</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer, AutoModelForCausalLM</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># dataset for embedding</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> Dataset, DataLoader</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CBOWDataset(Dataset):</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tokens, context_length):</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tokens <span class="op">=</span> tokens</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># dict to remap tokens to contiguous integers</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_to_idx <span class="op">=</span> {token: i <span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">set</span>(tokens))}</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.idx_to_token <span class="op">=</span> {i: token <span class="cf">for</span> token, i <span class="kw">in</span> <span class="va">self</span>.token_to_idx.items()}</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># context length is the number of tokens on either side of the target token</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.context_length <span class="op">=</span> context_length</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.data <span class="op">=</span> []</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(context_length, <span class="bu">len</span>(tokens)<span class="op">-</span>context_length):</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>context_length, context_length<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> j <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>                    <span class="va">self</span>.data.append((<span class="va">self</span>.token_to_idx[tokens[i<span class="op">+</span>j]], <span class="va">self</span>.token_to_idx[tokens[i]]))</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>                    <span class="va">self</span>.data.append((<span class="va">self</span>.token_to_idx[tokens[i<span class="op">+</span>j]], <span class="va">self</span>.token_to_idx[tokens[i]]))</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>):</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>.data)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, idx):</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> torch.tensor(<span class="va">self</span>.data[idx][<span class="dv">0</span>]), torch.tensor(<span class="va">self</span>.data[idx][<span class="dv">1</span>])</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># CBOW embedding model</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CBOW(nn.Module):</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size, d_model):</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embeddings <span class="op">=</span> nn.Embedding(vocab_size, d_embedding)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.linear <span class="op">=</span> nn.Linear(d_embedding, vocab_size)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        embedded <span class="op">=</span> <span class="va">self</span>.embeddings(x) </span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> <span class="va">self</span>.linear(embedded)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co"># for embedding visualization after training</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize_embeddings(model, tokenizer, data):</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># extract the embedding weights</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    weights <span class="op">=</span> model.embeddings.weight</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use t-SNE to reduce the dimensionality of the embeddings to 2D</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    embeddings_2d <span class="op">=</span> tsne.fit_transform(weights.detach().cpu().numpy())</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make a dataframe for plotly </span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    embedding_df <span class="op">=</span> pd.DataFrame(embeddings_2d, columns<span class="op">=</span>[<span class="st">"Dim1"</span>, <span class="st">"Dim2"</span>])</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    embedding_df[<span class="st">"Token"</span>] <span class="op">=</span> [tokenizer.decode(data.idx_to_token[i]) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(embeddings_2d))]</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="co"># labeled scatter plot of the embeddings</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> px.scatter(embedding_df, x<span class="op">=</span><span class="st">"Dim1"</span>, y<span class="op">=</span><span class="st">"Dim2"</span>, text<span class="op">=</span><span class="st">"Token"</span>, title<span class="op">=</span><span class="st">"2D Visualization of Token Embeddings"</span>)</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    fig.update_traces(textposition<span class="op">=</span><span class="st">'top center'</span>)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(xaxis_title<span class="op">=</span><span class="st">"Dimension 1"</span>, yaxis_title<span class="op">=</span><span class="st">"Dimension 2"</span>)</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    fig.show()</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> warnings.catch_warnings():</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    warnings.simplefilter(<span class="st">"ignore"</span>)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    checkpoint <span class="op">=</span> <span class="st">"openai-community/gpt2"</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(checkpoint)</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="co"># construct dataset, dataloader, model</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    context_length <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> tokenizer.encode(text)</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> CBOWDataset(tokens, context_length<span class="op">=</span>context_length)</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    dataloader <span class="op">=</span> DataLoader(data, batch_size<span class="op">=</span><span class="dv">32</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    vocab_size <span class="op">=</span> <span class="bu">len</span>(data.token_to_idx)</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    d_embedding <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> CBOW(vocab_size, d_model<span class="op">=</span>d_embedding)</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    <span class="co"># construct training loss and optimizer</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">1e-2</span>)</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    loss_fn <span class="op">=</span> nn.CrossEntropyLoss()</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    model.to(device)</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>    <span class="co"># training loop</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> dataloader:</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>            X_batch, y_batch <span class="op">=</span> X_batch.to(device), y_batch.to(device)</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>            opt.zero_grad()</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>            output <span class="op">=</span> model(X_batch)</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> loss_fn(output, y_batch)</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>            opt.step()</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>    <span class="co"># take a look at the embeddings</span></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    visualize_embeddings(model, tokenizer, data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-pretrained-embeddings" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-pretrained-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="2fc1d016" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+Token indices sequence length is longer than the specified maximum sequence length for this model (11051 &gt; 1024). Running this sequence through the model will result in indexing errors</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.4.0.min.js" integrity="sha256-KEmPoupLpFyGMyGAiOsiNDbKDKAvxXAn/W+oQa0ZAfk=" crossorigin="anonymous"></script>                <div id="054cc518-63e7-40a6-a642-cb0bb8a8c812" class="plotly-graph-div" style="height:525px; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("054cc518-63e7-40a6-a642-cb0bb8a8c812")) {                    Plotly.newPlot(                        "054cc518-63e7-40a6-a642-cb0bb8a8c812",                        [{"hovertemplate":"Dim1=%{x}\u003cbr\u003eDim2=%{y}\u003cbr\u003eToken=%{text}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#636efa","symbol":"circle"},"mode":"markers+text","name":"","showlegend":false,"text":["!","\""," Have","'","(",",","-",".","\u002f","4"," smile",":",";","EA","?","A","B","C","D","F","G","H","I","J","quarters","K","M","N","P","Who","S","T"," clothes","U","W","a"," funny","d","e"," Cook","ILL","m","n","o","ille","p"," sticks","s","t","l"," rose","y"," liked"," dare","\ufffd"," everywhere"," Hak","baum"," hated"," lakes","\n"," fake"," ED"," chances"," DO"," ","\ufffd"," freeze","\ufffd","\ufffd"," goodbye"," t"," a","he","in","on"," the","er","at"," w","it","is"," winner"," sings","or","ed"," f","ing"," p"," an"," Place","ar"," to"," m"," of"," in"," d"," and","as","le"," th","om"," n"," l"," re","Where","ro","ly"," be"," g"," T"," S"," I","et"," A"," is"," on","im","am"," that"," C","ig"," for"," y","ver","Tomorrow"," M","'s"," he"," it"," Bal"," you"," B"," wh"," P"," with","ch"," as"," we"," curls"," D"," \""," H","em"," Roller"," W"," was","Look"," F"," at"," The"," se","UP"," are","Come","and"," or","igh","About","est","ab","inch"," N","th"," G","op"," L"," not","Step","ess"," mountain","ew"," by","imm","os","el"," from"," have"," this","ra","all"," O","ack"," J","ANT"," pl","ast"," can","The"," his"," do"," go"," has","'t"," but"," all"," k","ame"," will"," prow"," they"," tr"," IF"," ink","ap"," me"," out","ans"," humming","one"," who"," up"," their"," 3"," us","atted","ous"," more","ue","Kn"," St","ind"," so"," nood",".\"","ber"," one"," said","are"," your","who"," Th"," cl","ep"," about"," were","ub"," had","Will",",\""," gown","ISTER"," would","unny","ook","so"," pace","ib"," off","ven"," Y","ose","ite"," man"," per"," other"," been"," like","Was","ks","Pop"," any"," sp"," them"," her"," clock"," if"," there"," my"," some"," when"," than"," over"," hump","\n\n","ree"," It"," moon","Ask"," time","umping"," what"," no"," new"," get","ings"," just"," into"," boat"," people"," work"," she"," our","ink"," He","ish"," him","ates"," only"," spe","ck","Today"," bl"," ham","ood"," how"," '"," after","aw","ov"," pear"," play"," could"," am"," first"," Santa","Wa","ec","hing"," Was"," bet","we"," two"," back"," stack"," under","sel"," may"," most"," did"," again"," know"," need"," co"," want"," see"," GOT"," GET"," This"," even"," bent"," We"," these"," pr"," because"," fl"," now","ise"," make"," then"," every"," look"," MUST","row"," where"," years"," upside"," should","Th","In"," pinch","'re"," right","les"," brick"," through"," Tr"," way"," don"," ,"," Ze"," And","ix"," very"," Wh"," does"," down"," many"," pets"," call"," before"," well"," much"," Mrs"," those"," such"," But"," long"," think"," own","ward"," show","don"," shoe"," say"," You"," good"," start"," made","up","ump"," last","Say","ank"," New","Would"," windows"," same"," Without"," kicks"," hung"," game","..."," still","led"," here"," wink"," world"," Se"," If"," take","cause"," sl"," hand"," between","It"," ear"," against"," high"," Dad"," gr"," help"," found","uss"," great"," An","'ve"," run"," find"," cr"," lead"," around"," Saint","any"," car"," read","'m"," bottle"," PL","...."," day"," both"," For"," three"," They","...\""," che","We","get"," met","ox","udding"," Sally"," fingers"," too"," BAD","Her","the"," Z"," head","'ll"," dawn"," another","Wh"," child"," since"," brothers"," pass"," turn","This","oh"," Claus","Br"," something"," without"," put"," never"," dish"," banner"," things"," tomorrow"," feel"," SM"," lot"," fun"," bumps"," big"," breaks"," ask"," best","IN"," number","St"," ca"," must"," open"," come"," THEN"," far"," tra"," place"," told"," WILL"," stand"," let"," little"," There"," That"," bus","me"," rest"," full"," care"," case","ON"," sk","uck","be"," top"," bottled"," home"," Tomorrow"," left"," bow","ucked"," How"," bro"," wet"," got"," No"," small","AT"," So"," percent"," didn","Those"," name"," All"," four"," called"," loaded","hash","here"," pat"," eggs"," pop","to"," always"," Allen"," old"," Or"," near","sh"," free"," sew"," glad"," bo"," book"," nose"," away"," sw"," Sue"," Go"," thing"," why","by","ush","If"," roads","But"," already","He","ES","'d"," least"," chick"," tell"," talk"," roof"," blew","iked"," enough"," give"," Dr","OPLE"," win","Check"," Bang"," kind"," past"," story"," season"," came"," At"," air","idd","You","for"," bit"," happen"," When"," sit"," sure"," light"," water"," jumps"," times"," grow","Gl"," To","EN","ney"," ever"," cow"," sneakers"," cheese","?\""," sing"," took","As","aring","Black"," hop"," side"," puzzling","they"," reason","ched"," hold","ands"," teeth"," once","ler","IGHT"," night"," done","umbs"," dad"," Mr"," Su","iting"," course"," pot"," Try"," doing"," thought","rew"," went"," shoes"," chim"," meet"," games","sy"," makes"," won","There","Simple"," young"," along"," yet","DAY"," What","And","ai","AME"," low"," One"," likely","For"," Not"," birds"," Gr"," early"," fight"," sent"," today","Ch"," THERE"," present"," try"," chew","uffed"," shine","ED"," asked"," close"," comb"," together"," face"," battles"," hooks"," anything"," mind"," shame"," cut"," tot"," hike"," net"," My",".)","though"," mouse"," fire"," Hello","Good"," food"," comes","What","ipt"," started"," quick"," With"," true"," mess"," bad"," Bray"," dump"," Don"," House"," stared","maker"," live"," room","ws"," fall"," isn"," idea"," sound"," rather"," Do"," nothing"," Could"," house"," behind"," GO"," scarce"," points"," below","umb"," whole"," Act"," packages","On","When"," bring"," fist"," confused","ming"," six","oo"," step"," himself"," stop"," FE","AC"," Mt"," hours"," hills","Thank","ST"," taking"," red"," break"," space"," hit"," rush"," Red"," pick","ole"," sne"," cannot"," TH"," snack"," white","like"," goat"," wind","Al"," pack"," nervously"," foot"," boxes"," mot"," feast","ID"," simply"," Mother","So"," staying"," His"," upon","will"," till"," coming"," quite"," instead"," sizes"," dreams","How","Po"," words","!\""," wasn"," Goo"," saw"," Lay","once","That"," block"," walk","To"," TWO","oph"," sits","oodle","something"," Will"," easy","urch","oe"," soon"," moment","THIS","Cl"," mat"," log","OU"," heart"," ball"," Black"," ..."," Sant"," stay","itte"," bicycles","neck"," Slow"," Gl"," GR","Lots"," magical","aving","fl","Ready"," playing","Luck"," Now","ze","ites"," hanging","ING"," takes"," problems","ET"," deep"," Some"," presents","THE","SAY"," Hat","bott"," mother"," Bro","ux"," steer"," hands"," pull"," chicks"," chance"," speed"," beneath","reet","AD"," turned","down"," ALL"," tent"," gave"," goes","No"," screwed"," eyes","At","Free","unk","ey","ixed"," road"," heard","reath"," BR"," Ned"," HE"," father","They"," knew"," Eat","OUN","where"," sn","Fox"," happened"," hot"," whose"," fast"," fooled"," scare"," Knox","LL","AST"," Clark"," phone","bed","good"," lag"," box"," wide","Stop"," slow"," looked","Un","Le"," sle"," Luke","stop","oms","With"," SN"," sour"," sunny"," fog","ouses"," IS"," brought","iers","OP"," TV","One","rain"," Up"," pink"," Pat"," sore"," fell"," Friday"," dark"," slid","!!"," race","All"," town"," Then"," fear"," guaranteed"," cross","ny"," hear"," dog"," fireplace"," ticks","SEE","ocks"," morning"," sat"," cave"," THE"," battle","She"," wall"," sometimes"," Yes","icks"," please","things","Put","REE","CH"," tin"," stuff"," Things"," Your"," Sam"," bends"," Better"," alone"," load","Did"," dexter"," lied"," Sl","ken"," Alone"," bags"," ten"," star"," jumped"," song"," grinned"," WHY","Ben"," remember","ALK"," yourself"," guy"," couldn","box","ENT"," easily","Should"," oh"," ST"," bands"," climbed"," LONG","eer","SON"," poor"," seven"," PLAY"," merry"," Chance","toe"," eight"," feet"," brain","While"," store","Slow"," packed","My","Not"," cats"," tongue"," grind","EL"," fat"," perhaps"," gone"," ME","Have","New"," dreaming"," cat"," bang"," toward","see"," books","Now"," NOW"," chewing"," choose","sed","Make"," workshop"," quarter"," maybe"," Cr"," gold"," Great","By"," straight"," Well","OH","cold"," Ali"," Let"," Ben"," park","IM"," brother"," cry"," Oh"," mouths","Don"," rib"," sleep"," cake"," bed"," mist"," wait"," Break"," breeze"," rare"," ship"," green","Congratulations","98","UMP"," band"," places","doesn","Take","ackle"," puzzled"," drink"," sneak"," Why"," blue"," PAT"," hair","Comb"," knows","TH"," Please"," Are","Ele"," sun"," cook"," fix","Brown","ATHER"," pet"," stock"," boil"," wild"," bee","Three"," bricks"," fan","Here","fun"," Fast","but"," cleaned","Some"," yell"," Brown"," tick"," seeing","corn"," pants"," jump","hem"," stew","perhaps"," shut"," lose"," SAT"," smart","did"," awful","with"," eat","BALL"," train"," Blue"," ID"," Places"," horn"," beetle","INS"," direction","bee"," Quiet"," haircut"," hill"," Good"," wish"," miles","icy","Big","boards"," mostly"," BAT"," join","cks"," street"," Eve"," cold"," thread"," fib","These"," sadly"," wig"," SAY"," string","ups"," hating"," ice"," girls"," POP"," slick"," FUN"," crow"," drum"," none"," strings"," leak"," stick"," hops","From","upper"," MO"," wood"," finding"," Much"," flew","how"," Two"," hither"," HIM"," waiting"," daughter"," sights"," watching"," ran","ELF"," Mord"," VERY"," caught"," grabbed","hand"," Mike"," bite"," coat"," mix"," stopped"," tame"," HOW","Six","five","ppings"," Boo","ancing"," shake"," north"," arms"," fle","PU","Maybe","Our","anty"," Life","ishly"," pair","can"," Thing","oward"," Cat"," toy","SE"," nine","Why","Do","Mr","Go"," deft"," bumped","Yes"," clocks"," dumb"," Who"," WAS"," lonely","eds"," tight","wy"," Jim"," throat","Sing"," decide"," mouth"," Fox","cles"," Max"," winning"," fox"," Cup"," Mouse"," hate","eating"," BALL"," dear"," grows"," worry","Whatever","Please"," tree"," Stop","FUL","that"," shove","Or"," CAT"," singing"," Down"," indeed","TA"," opener"," lived"," frown"," Say"," NOT"," laughed"," HOUSE"," beast","Which"," unpleasant"," bump"," duck","this"," minute"," TED"," lame"," homes","Think"," Joe"," rode","Sit","RED","ums"," useless","Just"," Old","HE","HOU","Except"," row"," rid","Let"," beetles"," enemies","Well","Oh"," warm"," eleven","you"," happening"," ring"," sled"," famous","Little"," stuffed"," quiet"," filled"," brush"," padd","apping","imb"," fish"," Put","First","OWN"," surprise"," bright","acked"," Another"," sweet"," lots"," rubber","Box"," Ying","hered","VE","Can"," flip"," dove"," brains","Every"," broom"," tweet"," fly"," chin","Luke"," AW"," weather"," stood"," silly","DER"," elbow"," strange"," Today"," rain"," tact"," Cindy"," sank"," Where"," Luck"," practically","Blue","Their"," Noise","WHERE"," bells","Then","izz"," streets"," lie"," shook"," picked","EE"," wire"," sad"," cup"," boys","Rose"," shocking"," bird","BACK"," noodles"," guns"," popped","\u00e2"," empty"," Jake"," lit"," dots","THING"," ride"," eating"," anywhere","Another"," plane"," square","green"," sick","sl"," sounded","ickle"," escape"," Van","Fish"," heads","Said"," creek","Eat"," Pig"," frightening"," snow","May"," paddle"," waking"," succeed"," toys"," sky"," wave"," brings"," frequently"," Uncle"," Christmas"," Look"," walked"," dogs","UK","Through"," heights"," sacks"," hat"," Make","whatever"," hall"," Waiting"," trick"," hose","FE"," mail","feet","Too"," rake","igg","AND"," kinds","BOX"," tiny"," YOU"," blocks","ALL"," Dear","Try","bons"," carved","NO","Hop"," CON","Your"," chuckled","Again"," fifty"," trees"," bike","headed","Whether"," TIM"," FIGHT","lee"," Fall"," sees"," Boom","ls","OTHER"," IT"," liar","Hello"," Crow"," thousand","ricks"," tall"," ANY","Could","three","zy"," pup"," hello"," bat","SN"," puzz"," BLACK"," rising"," foul"," RED"," marked"," cans"," SHOULD"," milk","Two"," ram","Like","SO","Lou"," flash"," weird"," finger"," mixed"," Three","could"," gang"," sheep"," walls"," tricks","car"," Did"," THREE"," soar"," tags"," ringing"," wake"," sir"," houses"," scored"," afraid"," stuck"," likes"," noise"," yellow","Mike"," thin"," tail"," Come"," Hang"," wra"," Ish"," sorry"," slit","ISE"," socks","Out","Everyone"," NO"," hook"," roast"," hadn"," Nick","Down","Tell","Around","Games"," Pop"," paused","Sam","uddle","ACK","Because","umps"," tied","uddled"," tip","Very"," busy"," hang"],"x":{"dtype":"f4","bdata":"s2RewddD+b8bJ19BfzP7wDFeJ8HRS8zAwyeawBEWj8CCRyfBKwonwSPRM8LNetHBkPYDQddt20AVCSJBKSdbwAPfIUJe0QNCHpcQQSWeA0K3SrDBfQv4QYljrD+OERJCqw8VwuX+3MBr8CFCPlfzQRONGEJSroJBzIzAQaQElUCSE6JBZRgLQnrz20E64tw\u002fNbFpQFn4icChRd9BywQ6wUmh5EE14bLBRUDAwYApIEGrTsPB259WwH6PkkGfVipCj0hSv06TLkGarapBGjvHwTT9csEYJH7Bbcq\u002fvHCJGUI7PMzAJ10AwX3H5MEIpPpAvIybwHHVt8FVlB9C7wgfwthOXEHRPKRBCMrrPtrl4EEGeM7BfyFLPhBFo8Dfu\u002fPBd7x7wNJqU8ACh2bAZGxAwc1cAMH4CapB+Vm3QSl7qMH9O5LBbRC9QSmoMr9AHtFB0C8wwppqGcINorPBUam0wXLxr8GOhWVAxkrJwRbZiMGNsADBYfiqwaIHecAlwSPApg+wwScHBcGyWudBpImnwYMW\u002fcAhMCdCe34gwuZT70D3Z43BE3N+wf3PusFPLwPCi\u002f1NQLZv4EF9M85B+lIKQv6MMz8l1mhBL7wSQacqdEGlITHA8KQwQrCpHMBRkebAeUtUwHiSJUKQOZfAf2yNwBNwiEANcKdBiNb2QYbYvUEDtxzBqki7wL0A50CccXE\u002fTeoSQhFdDsKtXBlCTxWmwNIiFMJYVJjBFuE3QXe6AMIVeb1BbeLUwe3950EAiHNBGaFrQYXJq0ESnhDBXWJJQXRV4UHaRgBBdNuHwdkhpEHYThlC10WmQTuQeUFVKJLBAOOWQBWmJMIn8N9AD9OtvnZPI8DfrNfBP1YOwaMVN8Av\u002f0JBwGaPwZpvpcHqo54\u002fFql4QJEWq0AHe55BIV25QYrhC0CgCV9Bk068wQuntUHTbUPB50iMP6RuNEGSOd\u002fAOYOFPvqOecFL2RNBR1LvQS63AEKit5FB4Vm6wZM7dUC4pylAv1wnwU8HPD9KLQrBc2MBQVidsr8F0VrByFe0wFk7zMEB0pdBGeKoP84lGkEPbl3BLpdgQW4qacHItrK\u002fj+EswkCrXkFyI2xBAvaPwWBIzsEzVH9BE6\u002fOQcldbcB9\u002fMvA4zkgwZWl9UBylBzC3EVnQbm1X8H8wZ5BL9CFQWly4MG4uIrBNt6Ewdhrp8E2idQ\u002f782nv7HjssCZnX7AOXLFwd22OkC\u002fcTpBXMN9QeDIw8EZ6rZBD8oQQYRMXcE4YvG\u002f5zFYQYbbN0HF42\u002fABH+AQWbUDUKeAje+kmYUQn0lKMGZ3XXARaS3wQRi97+gcJNBspq4QbbYgryjaLNB7TdCwvkS8kCjLRTC32gCwU5ZvsFqFY8\u002fOfG9wSjDwMAKJ1FB+45SwSzWZ0A9HIc+MSxFQTsAHsFLMoRArnmbQJserz\u002fDfqFB9llvv2M01cGMzElBxUm9QVL3kr+u5RjAFbCrQUfkHMJqrjo\u002fZpKKQSGuvUFxwQ9BJxRDQQMgpUGgbTtADM\u002fzQA95MMHwhe5BfRZQwLz9\u002f8GvvgFC+gGzwaeoaUFlOBrBjE7\u002fQTAL6cFGlQNCRR5vQToDtsBBy\u002flB2f8jQeh+nkEgBQzA27qnvaxFLsIXNrLA9Dd1QZXz90HOop9BUI7AwcbxQsJ8AJRBkc79vxxfbUEStsDBhYP3wF9mNsJ98lvBiN4iQlLypcElKOHADvIjQWaYPcHjnq7ABbILwQG7F0Evv1tBGvYpwSPP2sF4CANB0YWvQDodD0H+G+I+duZAwVfXBMHxgIpBu3UgQYUpI0LwvrhBd+klwUAhL0IrJehBqbnqQSdSEcLlskPBMlpZQUV8S0E3Fo5BYGsKwT8JUcG3wdzAb3TYvg9zz8GpbsFBVUy+wfFI2sHfuwJCbmOLQBqXj0FihT1AZ3ITwctlSUE\u002fnZZAHy2+wbVwB8HcJRTCp4+fQaCrCEFIqRW\u002fi\u002f8DwDjNakGhknrB8YMQwT2mlsEvDLzBWknyQHA15MAd0E7BWwW+QSq\u002fWEEiHtfBTOyOQOa0pr\u002fwlEBCBiSCQYOYYsANFprBiSabwb6DHsG4oBpBb6srQZFQjsAf5ITBJGSVQc0bGUHpAZ5BWSeAQEeFVcFB295BkQwYQo1UwUHmL5nB27Y1QPUQHsIBJgJBzOdVwNoUGcKqk53Bjy1vwRZYzMDqXBDAWIcqQbkrlcE4wnLABEiuweTx2UAJv7+\u002faYMFwpiasEFSWgRBnDUBQZcx5MDrAi\u002fCVTItwYlfDMKd\u002f8nAtGNIQJtQckDYpzlBITe9QRio2MFid59B1s4EQQa4r0FGu1vBVCG2Qb5y28GEJqNB5F7IwFPIKcHTTB5CKhkvwn84rMCThqtBqOioPiaLiED\u002fdx9AeLizwbMoBkI037ZAhMRtQYjSZUADwhzBkLbhQcj0vkEUrZfBQp5BQQcfgkEEE4rBjDO9wKGqg0F9G57B6VwpQCU738GfuLjAXh7BQXR0gUFjXRtCA0RTwes6\u002f8BiUA\u002fBh1m4wP2CQ0H5ApNBhkgZwvsljMFqr6FALu7GQBePPcH9LrBAAk62wQC\u002fxcHQFEtApSIdQdI49D8o4YbASDUYQchafsBsyJbBonYTQQr0Ij9KyZDBEfnDQU2jJ0DoyVNBQyrCwJ+kIMG9eTdC6Hl2vpCYi0DqBv5B\u002f2rBwPMR9sEpfItBmTnKQIZQIcH\u002ftPXApAZQQZd5IsGnHmBBNheIwV8TwUFR2eJB22g3wch+jkC8xMFAk5\u002fIQdVji0D3TUHCO+WbwT+dGsGfDX1BTPF+Qa\u002fmoMGE\u002fBJBckB1QUdKEkHTKipBta8CweagsMFmRjtBqYq9wcXuHsFBlWPA\u002fpbEwXKNNsCiAi9C\u002fr1cQe0qCsEmaNPBCQojwa0nEUIy5RrBbpggwR8UkcGkYG1BKxSBQVByqcB0uv6+UeCxQP\u002fuFkEk5IzBQu\u002fsv9UoA0FbuUa+K9oXwB8hA8KENcRArWt6wVthn8EGgRXCJAcUQTOJJ8L+YeVBETOYQduLSD6pgCVC55ZvwbditUHCpjdB93c8wQaPlkFFP59B4l6EQK5I9kDWGZPAOOYaQDgdAkE0Oa3BrU0OQI4RCcHWTQzBpJwLQqNvicGuomfBqXgFwUWEhkEXmBlCEBsawoP58UHH\u002ftnBHTCcQWodiEGIQZhAEgAGQnBnAsALUJVBSbIRwp0EIkEiKl7AxOXFQbc15cEKralBEeZyQSVfDsIC8CzCJrEWQGuJqMGa879AntNFwWw\u002fw8FJwHHBTUUCwTZXGsJGZam\u002fuHfDwLoytEE4U0DBul0wQTtXjL91RBdBZ30Iwmi8R8HKFYDBfig7wTal4EHWlPpAB+c7wL3ynMEVW5TAeK7nwVBAp8F95UVAk3xaQak0LsJmyavBR7yAwayiIcKmEJtAjP4UQo5OokHirizCqSvpwRkw+kFQhTfAPO68QQgFKcGY6cBBmli8QJeAp0AlBzjCMNwjwZQrCcFhi+U\u002fBLuTP7fC5sH\u002fVKjBmsH8Qc0aMcFLUAfCKkvuwMWNtUF2P\u002fzBscuRQKmBKcGxwRhBET7cv5lX7cGfleNAKmLaQKoz5EFlk6lBfs3NwBMWZMFwo59B76i3QUV\u002fIEKKv2zBdXIXQJGDXr4in1zBRWvXwZK2gcESgfhBG1fXQRT9i8AdBuNA+xJBQpN3AEGll8RA12uvvz8sHcKDoLBB\u002f8IeQl0ogkG+RgHCkb4DQDuOAcK81tBAkqklQQUrDUFcEChBrm+2QNUNvsEz7JfA1QCzwUznE8E6cYdA0mVzQVyhGsEHYi\u002fBVsLzP4edpcHWuXRBdR+cwd6VBMLXy71BbW2NwVjb8cECCEvBoFYdwY2X1ECayBHCV4UTP3+oh0E3xUbBrAPwwTbTgcFkCiZCnzRjwQA7z8GZIXJBLnoswg9zpUGQleRAGXvTPn0Lt0Ggd7DBW2wDwQoWgMGAT+9BOgKiwCatXkDcEGzBHxcKQsoTj8H2UchBd88ewrCcKsGYlILBvjHqQM5fTkDSnHDAbCQ7QfyGEkFjNRbC+LcUwSNy6MGIgkK\u002fKJS3wVxXmEHaGg7CDH7RwbK6F0EtiAlCG33QQczy48GILebAMKU4wCij\u002f0HEvI5AicqsQc9Sr8FKU+PBcPkhwjKMjsGwqVlBjN6yQG6g4MEtGbLBITRPQVgduEFzYTBC2QESPj\u002fR8b9igV7AoXdFwgr+f0HREAlBUS\u002fpwV7ld0AZ00dAYcCPwOxhkMEbV\u002f1B4vnQwe83P0Hl3ypB2lPzwBNmk8GNpDjBI9\u002fHwZAp7MGttKxBlLaDwRjW5sBsZ6bB3AH1PggHVcHL+rTBmAaVQJgY979FJizBzTwxQCPVi0FNYcrBhQNXwdvl5UAp9QrBd9YoQgjnh8DHwZVAa+zQv4fLjEF+sq\u002fBlDsRQjVk50GbgaVBuBuAwbQ9tUGdBqpAGxgxwgIMtMGJ\u002fSpB0vPyQUXIosF5+iJCmIGYwX\u002fhxsAgChdCttm0QePMu8ErwH7BArHkQQ4lX0Fj07LBesauQY4vMkGaejFBcp5ZQMRYA8Hx4CfBYNSeweBzGUELBRtCoYAIQVQbw0Hd0LvBcEXMwf0kjME+a7JBK8kLQc6mu0DFnyJCOY8awvUJt0H62XLBDZwHQnKkC0IBFCbANt2gwTluT0F1+yZCJuD5wBqiqkGxEx1CTYW1v94NCUFrqOjAKLJ+QJTKzME+5CjAV5W+QfoAIsLC5avBXQ0AQUGE30EFzgJBglHJQZ3nOEER8SzBh8PLwRMcPMFm1uhBL+MtwtHiMEEze8VACrwJwsV7W8GZpK3BsNs+QpFbfUFVC+7BZ3iGQAP8bsATStrBavArQrcFAUIwru4\u002f6guGwdqCT0E5xsTB\u002fyZSQZninEGKdgTB8ZUZwh2mC8HOL\u002fxA6p8EQurSFEFVSSxBwRY5wkiWwMHv01nAm9ATwX9UQUHQagrCRvLGQYjwqEH2OXtB9ge6QTbgJMEMSybC6mkCQQIR272TRiRCB0m1wPcdMUJwetXB6V1CQf5Na0FhMv\u002fA+zhBQgrOnMG6VFNB9FruQZ0KA8LMoMhB0v1bQPEB4kEMI22\u002fFlQRQoZ2RcF4ig3BE+U5wisQWsBizQvCsOGgv+fqocGAftXAfmsrwOKAWsHT7Z0\u002f7T4fwYPS8MGxcRNCnrNGQVogp8HyZnJBtYLUQLJGP0LXNUNBFo0SwpDODELYlPHB\u002fUwLQiUNqsFIFIPBHPzkQba5ncCfUS\u002fCyJQAQcSyF0H9qaJAqis7QdGf2EFXUylBCjpfQQoVmsCmkopBNZulQdfWG8A\u002f3TRCEzRBwqn6JMHE\u002fxLCq2khQTs8YkHyE7vBb+4MQWqI0cDnAVxACZ4SwmYEKsG2ZvdAypsPQukBnsE+gb7BT6SzweiCLUJ6UoPB6dkmQgl3tkGCzjPB98+OwYXd+sFK+eZBNPS6QVx6FUFduqBAeXPlQbXMK0Lkgh7CArGYwVDNi8GLXpfBT3OfQeJUC8HrI+VBQYCNwWJ7OcHmoqnBF7ZvwFtoeUHUagHC5zXwQUYBtcHsA7BB19LDwabYlz91cym9OYBFwZXxNz5izbnBXdKzQaOLwkExeCvCcneJQczl7kGn7Ko\u002fXPJUQVCs3z6i1+G\u002fMj4uQqA30cGiArxB1bqEQKkTNkGpnH3ABmlIQQcB2j5o8M7BJxZjQfFwqUC0G6LAfwAVwlpc1UF6CqJBjw+XQPVgsEHxDoVBNq2\u002fwawXC0IK+gXCfcRvwfu95D\u002fbFDJCMoe+vsvp8UFzjppAOKWnwSPUOUGdIhPBOUpsvpEMPkEAuq9BOrurwBrFR8CuNqnB+NuZwUQcRcK2KfBBI7uwwccLT8AYrbW+G3QDQr7hJcF\u002fGxNCkGImQrCB7kCUJL7BZtevvzNMJcKmdtzB4bKsv6PafMGFbbDBdg\u002fPQZuJDUK5l07B+o47wEdygcHNrLlBEL2GQUqhQ8ApFbhBa\u002f9aQfm7KMEzZVNAXHgAQo+gDUKq21xBa2d1wdbFRcLZQ+3Bc3Y+QmW7aEGqdgNB5pxNwAcHqkFd0hNCDw9VQS\u002foEcCTeJrB9kuqQXhP7UCZXAFCCckiQStzgkAlFZdB5NEzwiYPWkHNl7VBwfF7wcw\u002fnMFVZtpAmF1YwGH\u002fDkJIbJjBodNGwacTt0Ey6YrBDl8tvom010E6oYw+HEfrQMUT+0DSNJ5B\u002fC0SwvKGocHPpf1BmI+qQTIrAsBgPhbClAPPQChD60E5qcFBhdL8wFNg8sFB9J5BtOEnQm0nmUF6rRzCeQESQiW4VkEiJ8JAO3RKwBsn5MH+AuE\u002fRrAXwqJHFsJn9a9AbUEiwNfMAsIUAgxCf8BGwtFdEMIxe9LBtNr+wSxHAMKXuSFCVX6RwUPwxsCqw5xBVK\u002fmwR5umsHFTCHCGCE3wTGgh0ENf+TA1gMSwXrpzMHiWgJCDe4WQYmDnkGrMR3BvAXvQUTtKcG9SyJCZLMIwqxO7MHcPjPCr5hnQPn5h0CGwwXCNNpUQd4D58HEL1nBkLqTwUMuAEC8GSfCpVUHwpXBiUGDFDzCO9GzwdfkJUEvk7FBU9gDQRIio8HrvxNBWmSFv0TuWkEvxKnBHpzpQMbcHUJwTM7BW404wWhi30FN8hpCjBukwR58lEGcyc7Bcc99wSCQzMG\u002feELCXQIPwldeIkJDT9nBPJ4UwKz\u002fVcAGQSRCbidywMzOmcFPGg9BwMqlQe1BL0Dk7FxBWWULQjZRzUAVEwVBd3hiwF0Kp8F7S5XBwq61QRNdu0GDIyHBiWNFQcBC70GCutTBXZW7wVCBY8HFjZ1BdCfcQOm\u002fm0GPZBHC2A9\u002fvoFdTEH\u002f2xpCUxIiQkIe30AHgK7Bh4a+QV5nlkC+mctBsA6DwSuUmsFaksJA3VopwOulokEO0gFBju1IwT0Ow8FYZGTBE9sOQpE8WsEvQtjBCzUgwcCP\u002f0EEp4TBQwPKwboS2cEDL5xBSQkfQeKU2cECzSFCO2SvwZbTt8GYey7CqMZfwR7S\u002fUBOaNXArmo2wYS\u002fIEKOZ49AdMrTwTFC2MDz465B7v8Twj\u002fai0FNJRtCRmqbQR94y8FFy+NAEMyowXCQ8EFOmyRCwdW4wKmwcMHf5R1CVVbwQD3Qp8EHDR5BVsmVPqe0GUH73xzCIaSNQSs6HMHGqadBVUgnwZOjxsH+RNjAlRexwCdTB8JPTQ5BT\u002fAVwprqA0D7j7nB3nafwU03IMI12mXA7dArQbzzyMBKaz9CG4cFQS\u002f\u002fCcJ2dwrBNO8Awl9qQz+fic9BKpQqP5Bah0FhHc1Alg0swt\u002fxAkLJxHtBA6eYwTKMFcLV93tB\u002fpyzwYAgM0KSgKHB87nqQK03ikBEteFAvbYIQbVZ8UDkmuHB1IHBP9MlDUH+AWZAHb9XwRQPrEHI4nLAhuiKwY+MscGDDDdBb\u002fQAQmRE5ECeVKJBLfQhQGiUOMFqzo1B+l+CQexWAML7NhXBSzYQwj8JhEFbQSjCKYdiQcHszsDU8j5CsDnFwJIgjEEABq\u002fAJNsBwpemykFIPQVB7xSjQHQXAEIH+bPBGlVWQZml0cE8GWk\u002fxOMRwgpmOcLxoqjAVsl6QTmNtkGkAwZBETG8wVvMRr8pYZjApTs\u002fwk1v70AzF3E+jeIXQfVTukHjDo3Brj0Twgy\u002f\u002f8AxDHXBg2aMwENSOcEwYWDAwAhEwUHfK0Ixci1Chqo6wWtQAsK\u002f04XBnqulwe\u002f1JUHiJRpAnU6YwRJpJEGieCfBFX4yQhyMBMJ15zfCoRyAQG+VbkGoJl1B9dUiQjr2CEKvTOpBPZQ0QY39DMJPr7\u002fAFlwlQez1AUFyrvNBCVHLwRobE8Galb5Bb9AXQcu5O8JUbAPC7TiLQQI\u002ffkAaTqvB6QqfwRxmzUFsD7rAsToLQHuNA0I48QJBb4vKQYLzjr9XqMW\u002fWuc9QeEyzsHo8ClA7JFYQIzWAEIk5FVBLNHFwQJ7PUCQ5NfBGN3kQbJjskHlytbBdShBvldhB0LTtvhBCngHwsLm4EG6aZ1BE88cQnBqRcLgHg9CA+qhQdIXFcJh24nA8q2tQTZaZkEFjAxBo\u002fWEQQiJVr7g9i3AVTrUwWye60HVph1Cp3BawNn1DUICYy9CmpzkwWg5AEIg2FTA338IQX6kGUI9arNBozBCwe0aiUHhkofB\u002ffKXQVIGJcJCagNCdgaywO+5scF2O+3BmLfswT5VEcEmsi7BuHrZQeMyTsCOM8dAP3XXQd3yHcJBmQBBZ8wUQQSmy8H1H0BCNdNDQflhRkF88\u002f3B2UR5wVcstEBayxDBPTvGQbWdE0A7HRrC6lZdv7e42MHZyEpBAZntQAxUXz\u002foyrdAbC1mQTgsEcLhVk1Bk6HEP8bBFkB9ninCiyl+QAKCXkF50QbB5QcHwUswXkCOAznBtQiswQMy1sG5bqnALbrqQeBfGUHwRDLCfyiCwHjZnUEVzLnBEGoOwIb6p8GBzzBCuEmpwDlF\u002fsAb4BPCLTGxwf+iZcGOcXRAovqOwZwdRsI="},"xaxis":"x","y":{"dtype":"f4","bdata":"wPi+wTsUJkEpOOi7r56Xwdg3GsJfNIfB+VA\u002fwe49iMHkPiLCHHcfwi1vjEDDWJNBFzODQUnpQMIWMz1BNIBKwZiOWMHgu9NAqNFCQkVygcGNAwPB6\u002fMFQYeTBMFcAljBud6gQd6dKMIk4I8\u002fc7tzQRm+Kr73nIBA9Q\u002fbQbWs9sG3yRpCLrt\u002fQT\u002f9h8FhgGTBqktoQZg\u002fhD6+lNFBYt7MQRU\u002fksEpHSFCOuNRwVAy80GXqJ3BLN\u002f\u002fwXgSJ8Hb6F7BGGwWwvs2kMEq8htCqT6OQd9rwsFcB5M\u002f0WUfwpJwDcEbSizC56ITwgtC6sHZxkVChB2JwUPwikES2r5AyYJ\u002fQNMlF8AvIuFB5vobwod680GBiJRBoKcewnE8gkCzBY7BZtJowXlaCcI6hRnBGuhQwM3rrsHqtBLC1aO2wQiCJkIHlQ5Cn\u002fgAwUA9rMGe4l3AvgPlwK9m7sCY4SZC1eouwLvWDkJvkN7BW6TmQX8ViUF3RXPBULZuwV7go8Gz52rBWr0kQtd7g8EhVeJBzDQTQkQ4I0KWgA3BY60BQae3P0IwSqxATslowaKgxcHcb1jBKzBvwRg9L8BJ0HlB3UCjwYpZF8Ge1aPBkxU+wm0uuUCkgIHBzTFXwevkisAGyZXBpfXvwS5SMcHpk7\u002fBKAoEws6FosFl\u002fAlACxLcwU662UHQp7nB6+6GwZNMUMEMmTvBeaKGwWQ93sDo6xvAesh0wU+ofsF035jAlQXsQJYgjMDd+vPBgjOjP1wCncFCjqxB4EYawvNtb8GZv6fBB2uBP5+wmL8D6ibAziXewfFQFkLKXAzA5nJOQdHRV0CeMT3B95QpwbpJt8H9zxhCWQqjwRN7sUEjeCu\u002fGn\u002fKQUlwDsJoEYtB\u002fEVjwXgLnsEMsvPAncsbQgdVDMJfrgvAaxG4wboF7sHBGwzCf26NwVN4jsEDFmXBZ9rjQD1CV0GI7C7CmybMQIiVLMKPxa9BHGE5QJflV0EOGBzCxzbGwYaQCEGeg+jBFESywd4IAcFpRkzBvJOUQdGV8kBvJQvCs7+ZwR73E8JYIJrBVbcVwdJljMGVO6bBDY0MwhBQOD5tBDtCh\u002f+awYfuH0FZq\u002fPAZgLQQbZ\u002fyECSN5bAZF7nQaiTrMGVf8rBq\u002fIewospMUGB0HDAkfunwUlZgsF9\u002fxZCWOgoQpeu6cHs5Z9A5PQSQd\u002f0FkJNdMNA8eOqQbQjn8FoSjBB5tNmQeZQV8FZ9HnBo2kfwm8otEHQpbHBoXjbQa9bEEEy86hBZJTkwN5WJEEFOVBBWCDFQXEtlsEmL97AsST+wP\u002fUwUEZeNPA7dBCwBsJp0F2vaNALow6v1RThcGFLdFBJ9wnwbn1lEFBrIDB3LuhwVIVNUFl1P3Al4eawccQLMIfDRnCzunHwR05scEy+JzAJKrRwermo0FIW\u002fdAJdIYwbQMG0EBJFdBasSEwYszK0EIkIRBrthowRkdmMBFnBDCvP5eQKnMJMC2ehTCTiIBPyl5B8FTNElBjGmRQH8250FxwDDBwrIAwrBJqcETslnBn3YAwIDIl0GWVDBBWlvbQZB+b0BUW8xBLpyDwdBXyUFlb1BA34Qbwns7zMH6fg3BCBUnQhfwQsB1PK5B57YEwPTw\u002fkDZGizCdaOrQd0zLUClGYRBGwmewXk66sDNEp1AG5gLwfv1LUH5clpBpE6CwI20LcFZ9yvCxaWiQTcNDMLOtrtBKWQaQUT8hcFCqKvBrJmiQZnjr8FDyQ7CyLSnwDoKs0EzPJLAxE0AwZulA0F1\u002fBRB6GooQWciDsGXgw1Blu4\u002fwlrscUF6Lr2+V3mtwTznScHbFfhAjd\u002flQaPDgsEqMh3B4F59wQuRdkFWiQPCCuORQSpxesGS67DBWQs2QVIlOUD8NhlChht8wUuArMDRkppAiFfWv3Mq58Hz5uHA7vcfQQ2m58B4xyLBJbkSQih\u002fmEGYpP3AfJIewljMCkH7V\u002fFBf9kYwPFQ6EDK7rjB9aMVwobxAkH40ZPB0wzXQexhq8GXlgnBOZifQV0oTUFpp6xAX20VQmZJ0UEOsKu\u002fQbQowawUtUGQmuLB01YpwCV9cUFPlTjBFRmRwQiBzUHiIPLAJr3VQDlvR0EzaYHBdHhSQRa\u002fjsGJ7udB4I+Lv1Uqe8EkMNjB2FnpwNPdyEDhdQRCvKMLwYYussAM2ajBVbTVwRiSJ0JuF2HBALN2QfqUYsB1\u002fd7BUb4AQIJCAMFNMjlCOUdiQapcLEL6hBtCATadwZivOsG0byRAFqyawTooLsHRM5nBLlnsQAVvXcF2oYfBwdT4wX1jqL8S2ofBl9iUwP01LELqjFfBlz4Uwk+LqsB7fYFB4gCHwPmA5sEmCV7BlEMOwZAzdkFYss7AmEv+P2h6wEHwhgJC31QRQigj0MFwjw5C1rbywBgNucFyXu3BMKDeQcUTh8E27ZVAGbbnQRz58sC2gchBKYHUQST9KEIhU7fBt5SzwGHg8j\u002febZPBxmzywdpqxUGxNphBWPLLQRx7xcEwHzXBmYrhwbe4vUCC2wpCw0PxvhKVzUAFmrRB1VGNwVL1q8AI06ZBFOicQEwPiEGfxRxC+HeRwCoXjUG3IVHBced1wQcx8UDREzrBbEG4wHE9FMJxI1FBSQqBQfvB10Dv361AByksQnsY\u002f0AkMFrBcyr4QdMqo8GHxhhB4pw3QTh4RMEbdpZBID70QCw0Qz9TPnHBLxHlwbJTusDF8wfCBcpmwYgWOUCZvIjBesWcwTBIlb2wXqBBeqIBQa12\u002fMFOWo\u002fAqAvRQa3f0j9EmGDB+LyYQSn2B0Em8kLCz+Aawm40REL9tEXBaxjQQMqbHUJ+DLRAXzM0QbwE2L+2QYBBo7e0QW\u002f61EGySW\u002fBXz3BQLkxycEqPCA\u002fzWrcwbmUfkADYdhBuaYhwsnUU0E3H4DAO+gdQaZr6sFOEiRCN3GYQbpi4sEjla7BJlpiv4jqi0CPU\u002f6\u002fYQ8Kwncxm0GL74tAlMMqwsrjDEEfhqdBTZUJQQ1fvMHzYuNBrXUHQg22K0I7WVPBUni9QRMcGEJcfcfAxGGnQcmuB0J969ZBICbpwWHM8EHsgQHC9awbQnQU60D5w+6+WcnlQBeEJcGK0YnBGaHWwUCuu8H4lL\u002fBnZqmQRCj\u002fEFgwStBvSEXQKkU9UGpkq3BtwMBQpyZyL9JWgfCNPFVQQ2z1UFNHh\u002fCfQSOQREDJMFquuzBgTp\u002fQEGk8sHTU4hATBfuwUmENsHdp5rBVfRTwcyYccAdd6NBKVeFwLRZQcF4UojBfF\u002fyQWnj2MAN8b3BZT4pQhI9C0G2eCJBldYCQjgd7MFRneLBD12FQAz8REA9hsVBkOfpvpeU7EHJ+CBBGhPDwevFrsEoouhAzLdawQV8kkGmgSLBx1IqwSkvA0FNQAhC3yhAQf1ts8GUpQNA1B4TwQcCoUEBT\u002fbAx4gkQVTMV0FTDZrBXhXbwC\u002fb68EBWRFB+GkUQsYEC8LUQyrBZE9DwYnDVkGfdMG+0\u002fXcQZ5XqL5NFDpBnwqDwcJGQcG7EoNA0cD7wODcCEHOYJlB0YoGQnDUecCmNrfAcXIJQqIuWMFV9YHBGU7qvpayDj\u002fs4A\u002fCe6SpwfJoLMKQceTB4b1yQbEVoUF+3zxBYnrywXrJVUDBqQjBr+\u002fWviGaC8KHTTZBE\u002f9LwWVH8sBkVTRC285AwJ83CsJtXWa\u002fi+sJQno\u002f5UAEOExA3+6\u002fQDePLEEXVJXBvW0cQlLamsF9oYzB9\u002frBQcwj0cGhIrHB5qzxQKcU5EHo6GtAzESOQV0yjcBF9IJAjQsfQbEKJMLwTOHAuA64wCM8DMKhmP9B4D+AwFGTWEBnMxpCYyq9QYzFkMH1N0FBIi6EQZ7E8z8ZFpBBvvdQQefiiUHe2SjCrReUwejRGcEilGs\u002fSInTwXcB3MBgyBNAmg6SQBHtF0L3KvU\u002fGRWvQWdjFMLThBDBbi0nQWDwlT9aTVnB3ncyv\u002fny3sDF2vTAVffSwYILzkALsgNBJZqLwHo93cFz43TBp3dQwYDZjEG1rL7BcUBiQWpZEkFedx9Aqw7HwNNAMEBGtyNCr49WwcB+mMH7nYZAlsqhQEDaIcKoJNfBwcphwcNaKEHYmexA4O3\u002fwGJeKkE1NEpBnBJ7Qen6h7+5AsJBwWCywRO7DMKDAk1BlY1oQFd46MF+ylTBjaUfQR1ZAcKvGfNAVY8rQr5pR8AFzKq\u002fIhIpwQajlsC35QJAfAoyQBgoDEFN5IxBhpePQc3kuMHDRtbByZIfQOVDosAHsvxAOlEXwe3pJEHbHuFBE7LGwNFsIkGl++rBV7oWQS9vmkFdVzlBFZyPQRzPcsFrhJNA05+6QUkGJEGi80\u002fBuvDhQZJzD8E\u002fxmPBTqxAwdHlmcAr5Z5BUvAtQXeiYkGqRd4\u002fnyUTwuhAZ0GZtRZC6\u002f5iwarOkcHC6e1BBiqPwS3K58HzMKbBkhMGwTCQCUKNKitC43f1wHV+C8KX1dg\u002fta8zQf7s6EDwvlzBoYsjQuwuj0EZg5A\u002f58gCwaeSGcKqkxHAzGIaQvmXA0Jmyz7C9P5vQXkN2L8zKu7B9wExwcMtrsEavCvBunVGQmnT5z+uvVLB3A8Uwsk3jkHPMATC5rlAQnREasEiendBgfvbQIG0XUHfedXBHkHfwROhgkEBzXNBPtgUQmfM7kAJ2hfBERETwpUc58CjvZ9BR\u002fkVwYVvKEL0UA7BtpybwdNxncFaKQ7CwO3wwQWORD\u002ffF9O+bgIcQHeTVcFc\u002foxA1FITQsDf678Fk0zBKKbkwfTtP0Ggw\u002fdBqGUaQPm\u002f8UEuZClCHT8twW3oJ0FWyQFCiNAqwBd17UGNTeHBioTFQTHdrcFg+HLBU67SQE\u002fM48EuYmzA59OIQdn5JELEJudBcNCdP2+KE0JRPmvBkIiCP++768DEDSNC9AfXwRaHHsIQW1tAAZGewEUUicH4ALPAW2v2wK6fl0FNnmhBOXjgQVDvGEFTj9rBo88QwZEo9cFk+rfBothBQm8MFcJRF1PBuInBwUCkAEHs7nFB\u002fyVlQIC4n8E0Cu3BeZ8vwE3bDMKqGIHBzaX1QKqNXUG6q+ZB9IS3wbgINsDsCzZC97eSQKOZVsGoYMPBc+HuwBu3KsGKQUNATxpDwJryTcBfwI\u002fBvWDcwYb0OUHnnlJB\u002fa0kwqybxUHgxvXAGlcpQUiGqkH2A1fBt9scQugPuD5mAiZC5SUBwYk0gkCfZEjBx6TKweGkD0LsKCbCzJUJwBOD\u002f0E\u002fAiHBDj88QkjsLEF7rndAYdG9PZ2CkUHtZj\u002fC0AgQwnPctEEDHxPBfMwEwKCvocBH8lbByHLCwCwsVsCpTAnBC54mwV3rpsEdLoRByxagwbg3LsLSEAPAJNFZQNVQ4b\u002fBtoRBPZ1UwRyy\u002fb\u002fieAdBWrfWQRvDVsEeQhnBPWwzQZ6HAMHQmnzBbKbQwaYTg8FkVFfBWtjJwDFj60GMHTJBIC2RwctTQMHlY0BAnuzav2q3mUAHIdy\u002fWvMVQXD++EAmTU4\u002ftR\u002fnwd2exEAeB\u002fpBhrskQjTIOMHxk5ZBbYjeQSKQyUEOLh5CFqQ+waCeqUEqLTxANvkoQAi3rkH4vUnA7cqKwQzsmUHhy\u002frA+XNFP7O\u002fzr+aqFNBd9kHQmJyj0G3l1hBZKhgwXs5wEEMwLXBiYVvwMnbO0EtbylBXCjnQeA+50EKjG5BTp44wIlYSkEtk+vBVayjQQ9oUcFE8qBBCOtbwXpvLELmLlrBpLsFQhQ3y8EeJYHBraQswnSbBDy9nGLBbWt\u002fQEjKM0AdbqtBRiWLwSL4dr\u002fMzKlBpSL4QY9OA8JbAoHBqYqEQGgGq8Fs7vhBqh4IQorh48A2MO9BTDS7wX++TECJxA7AVsbKwSQMG8IWP1zBy0Ulwf8yCsH\u002f+cRBtQBtQdL5u8HK9y5Bzfw4QsaeRsHkAPvA8yIsQZAInz+0It9BaNwhQq3TSkFI3odBstv4QX8Y7UHccYa\u002fqPLLP3ZyzkHlSSdAl6WSwLjulMGcmQFB7+mIQX4p1sCsW8dBQxNvP7zt9sHXjC9CffSiQLdT3kF3nvPAodD4v7ToDEIpG9HBtNJRQSdmA0Kh8ZVAPXMqQlI8icGaqhvCzHOnwDhp4cFwrbTBQfHowHms0UEnJn5BYtLVQVU4okBIc+5AmhdAQDdmFMLKw4nAS7d\u002fwOHwa8BwrwNASgEFQqsAQ8KuU1fAmy18wBw1EULHXuLBlynXwIqME8Im7jLB3QKSQYN9ksEraotAWsiPQfx6xEGWzh3C4oIkwczHHcIgG\u002fzAquuUQM1WhcGApCRCXGPAwPSNT8GfughBmtUQQC1ubj+GyHBBnV4NQuBmjMCgOoRB02MFwbfkhUH8iJDBZY2BweofK8HW6TBBJ5oMQXGfZUGgTRpCOSAlQJ7g20CrlbVAqfLkvfWFRMHlTyVCJfP4vxEWy8CM+unBGOKuQS4Ipz+EkujBZAfoQQAOc8G9iJ1BgeIvwXHc3sEVSC3BAsv4wSARicGz8WJBBmnWwaD32sEjtCvChIfmwcpUAMIqI4JAH06GwXD6ZEE2yyzBr9+iQXhUesHVXOvBuxUiQCNv9MFcGS5CM0IiQs3tBcIw7IzBA2ZQwcnmokEx+J7B+oy5wN1l3EH5Dxy\u002fR9bOQQ4CWkErz5xBH\u002fwewXsL0ECvDd3A9k+EQSn5n0GsvG7BVzB7QfPVUUD2v\u002f4\u002fciwlQvh8vMCjETVBUG3IQVcM40Fng6TBGHhQwRm+BME\u002fSSpCPSP+QYtUpsGVEevB8r\u002f5QChmpUE8\u002fBZBqM7nQeURMUBljjRB5PXTQFR\u002fLsAGZhVB\u002f0sVQkDLH8JvG7A\u002f1OmhwSyhIUKXb7s+wksWQGhdEkLIiRdCmyV7QWITOkH\u002fqhNCv5TnwHutM0HiKRhCfaFOwdrI\u002fEHq5EHCSVlxwGTApUEE5FbAgPuXQKRgycEdQbHBmZ4YwhJp5cExcZPBu4WiwctYe0FECGq\u002fssFfwJbZ2MHbUjRAT4fJwS2My8HbKJtA1lmVwR7xQ0KibbNBq9V3QQdvwUBbWQZCPvlqwc+YssDlPxZCRUjLwIJ4\u002fcGjoN5A4hoawovfu0GSX2\u002fBBJaRQdId77\u002fCXcY\u002fOwb0QaQviUGKtJhB8DYiQusXDELFaI3BDMnVQYF2AMCYb4fAz04EwQPDI8H7+hfBL\u002fvtQP4JRMHrrLrAGRFswY3LU0AC1Z1Be+g0wWGaGkJItxJCuCovwcvsA0F4A1RBH+SLP6xMs0Eo8R7AbgQIwhNxP8FMxrLBKXuJwAyZjkGfsSxBiNq0QaHPKEKXm9K\u002fGzkwQFtb5sGlOP9BJLI3wTo1FsCr02DBdhajwQhYV8EeRg5CDQ2twSO6ucGT40NCuuxAwnbkmcE\u002fsTzBMgEHQgRiRMKf1LnBx80FwbAW0z\u002f3\u002fCbAKdMbwRb+scH0fM++Uj5dQH6aQkJEGvo\u002fLqUTQkkj20ECDQPCVHYXQbv9nsFhnLPBOz3kwEI1lEERoas\u002fArvSwSgLT0AuLC4\u002fJo9VQDirXEFJ96hAvP0twVtLEkJedQfCJS1qvwgYrMC+xAZCd10ZwtHK3sEulRvCkpIqQIJ2AcHQ3D5BFmPEQRdHAcIRJ6nBd\u002fUKQtteEb834slBfbKVwLFOpkEA4BPAbcYuQt7nAcEUIujBxVGCwZXhJsE7ZCzClXLjPiH+4kF2LmVBDmYAwRxk0ED5oTbB21cCwSBmVsFgcD5BdBQRQl5EAMHFjDu\u002ft84MwouIr8EtqaBB7VBMwToUkUGiQwzBDaXlwc6zjEG9\u002fCbBdudzQRJGb0FWgtlBXDhywT7OuD+4qAZBEve6vus1dsEGkffAEN7lQb00jEGm5xZCMaMiwiuJnMAbLX3B2Zyiv\u002fv2g8CInrK9zMQJQraOmUGZlGJBgNn+wfTUzsFRNzNCQUp5QdWNqMGRt+NBqqEDwm7m1cHqcBTC2H8kwQiwOkHSCORAsaiuQRUqR0EHi7zAY0TtQVboN0AxaMBBVZz2wNY5Y0G0bVlBTKakQDhjQ78x5gVCYgMtwbQh98BXmJXB6jnmwUz3xj\u002fOW95B4c8YQt4c98E9\u002fzVCnuSaQXn6Pr4uu9bAXJK\u002fwDsP8kEk8NG9Q+HlQc5ZtT85hARBCScoQdoJqsBiO0hBJAuRwaUA60CQNoZBrEvOQfZKAEJGK6jBSn3nQWdlvsG2ZkZBUc73QWENssEej0O\u002f4R3EQZ54nEDpugPBefKRQZ+gjL+4sJ7ByHo5wRVVBsHTexVCBRydQWvmr8FukzA+AMBvwRhwBcIQ35\u002fBZZsKwhrmE0Jr8O7B40wKQTYg\u002fUGAogrAJuM5Qv+gz8FoiK5BqzPWQRSGKUJNogNAqKsJQlJOgUGfuwfCLvwnQWR0BEKTV+s\u002feyAVwi9HIEJDQmy\u002fWGO\u002fQKE0FcKvY0lBjabKwVSQqkAXQ3hB1qb\u002fwLLlm7\u002fRD5hAO8LoQe8+iMFU57RAeJiYwAOkDkJFqgJBmiwAQvoRI0L+GYnAsycmQqYTvEFmwRRC9L+XQYIHjcA="},"yaxis":"y","type":"scattergl","textposition":"top center"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"bgcolor":"white","angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"ternary":{"bgcolor":"white","aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"white","subunitcolor":"#C8D4E3","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Dimension 1"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Dimension 2"}},"legend":{"tracegroupgap":0},"title":{"text":"2D Visualization of Token Embeddings"}},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('054cc518-63e7-40a6-a642-cb0bb8a8c812');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig quarto-uncaptioned margin-caption" id="fig-pretrained-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.1
+</figcaption>
+</figure>
+</div>
+<p>Importantly, we’re now able to extract the embedding layer from our CBOW model. We can then use the <em>same</em> embedding layer in a future model, without the need to train it again. Since we don’t need to train the embedding further, we can turn off tracking of gradient information for this layer.</p>
+<div id="444a53f9" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>embedding <span class="op">=</span> model.embeddings</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>embedding.requires_grad_(<span class="va">False</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>embedding(torch.tensor([<span class="dv">4</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>tensor([[ 0.6837, -0.9433,  0.5383,  0.2321,  0.3403, -1.2398, -0.9706, -1.7025]])</code></pre>
+</div>
+</div>
+</section>
+<section id="next-token-prediction" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="next-token-prediction">Next-Token Prediction</h2>
+<p>The current dominant paradigm in generative language modeling is called <em>next-token prediction</em>. The idea is to train a model to predict the next token in a sequence of tokens, given the previous tokens:</p>
+<div id="def-next-token-prediction" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 16.2 (Next-Token Prediction)</strong></span> In <em>next-token prediction</em>, we treat a sequence of tokens <span class="math inline">\(t_1,t_2,\ldots,t_k\)</span> as a set of <em>features</em>, and attempt to use them to predict the identity of the next token <span class="math inline">\(t_{k+1}\)</span> in the sequence.</p>
+</div>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Next-Token Prediction is a Classification Problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Since the possible values of a given token come from the discrete set of token ids in the vocabulary, we can view next-token prediction as a <em>classification problem</em>: given a sequence of tokens, we want to classify the identity of the next token.</p>
+</div>
+</div>
+<section id="context-length-and-n-gram-models" class="level4">
+<h4 class="anchored" data-anchor-id="context-length-and-n-gram-models">Context Length and N-Gram Models</h4>
+<p>There are many different kinds of models which aim to solve the next-token prediction problem. For this chapter, we’ll focus on a simple class of models called <em>n-gram</em> models, which use a fixed number of previous tokens as features to predict the next token.</p>
+<div id="def-context-length" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 16.3 (Context Length, N-Gram Models)</strong></span> The <em>context length</em> is the number of previous tokens that we use as features to predict the next token in a next-token prediction problem.</p>
+<p>A model that uses a fixed context length of <span class="math inline">\(n\)</span> is often called an <em>(n+1)-gram</em> model.</p>
+</div>
+<p>For example, a model with context length 1 is often called a <em>bigram</em> model, since it encodes relationships between pairs of tokens (one feature, one target). A model with context length 2 is often called a <em>trigram</em> model, since it encodes relationships between triples of tokens (two features, one target).</p>
+</section>
+<section id="datasets-for-next-token-prediction" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="datasets-for-next-token-prediction">Datasets for Next-Token Prediction</h3>
+<p>We’re now ready to implement a data set for next-token prediction using an <span class="math inline">\(n\)</span>-gram model. To do this, we need to organize our sequence of token ids into a data set of training examples, in which each example consists of a sequence of tokens as features and the next token as the target. We can implement this using a custom <code>Dataset</code> class in PyTorch. In the <code>__init__</code> method we save several instance variables and tokenize the input text, while in the <code>__len__</code> and <code>__getitem__</code> methods we implement the logic for how to index into the data set to get the features and target for each example.</p>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">For convenience purposes only, we’ve arranged for the dataset to return both the token ids and the corresponding text for each example. In practice, only the token ids are needed for training – the text is just for debugging and our own entertainment.</span></div></div>
+<div id="282b8bf6" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-4"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SeussDataSet(Dataset):</span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tokens, context_length <span class="op">=</span> <span class="dv">5</span>): </span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.context_length <span class="op">=</span> context_length</span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tokens <span class="op">=</span> tokens</span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vocab_length <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(tokens))</span>
+<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.idx_to_token <span class="op">=</span> {i: token <span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">set</span>(tokens))}</span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_to_idx <span class="op">=</span> {token: i <span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">set</span>(tokens))}</span>
+<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>):</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-10" class="code-annotation-target"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>.tokens) <span class="op">-</span> <span class="va">self</span>.context_length</span>
+<span id="annotated-cell-4-11"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="annotated-cell-4-12"><a href="#annotated-cell-4-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, key):</span>
+<span id="annotated-cell-4-13"><a href="#annotated-cell-4-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-14" class="code-annotation-target"><a href="#annotated-cell-4-14" aria-hidden="true" tabindex="-1"></a>        target_token <span class="op">=</span> <span class="va">self</span>.tokens[<span class="va">self</span>.context_length <span class="op">+</span> key]</span>
+<span id="annotated-cell-4-15"><a href="#annotated-cell-4-15" aria-hidden="true" tabindex="-1"></a>        target <span class="op">=</span> torch.tensor(<span class="va">self</span>.token_to_idx[target_token])</span>
+<span id="annotated-cell-4-16"><a href="#annotated-cell-4-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-17" class="code-annotation-target"><a href="#annotated-cell-4-17" aria-hidden="true" tabindex="-1"></a>        feature_tokens <span class="op">=</span> <span class="va">self</span>.tokens[key:(<span class="va">self</span>.context_length <span class="op">+</span> key)]</span>
+<span id="annotated-cell-4-18"><a href="#annotated-cell-4-18" aria-hidden="true" tabindex="-1"></a>        features <span class="op">=</span> [<span class="va">self</span>.token_to_idx[token] <span class="cf">for</span> token <span class="kw">in</span> feature_tokens]</span>
+<span id="annotated-cell-4-19"><a href="#annotated-cell-4-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="annotated-cell-4-20"><a href="#annotated-cell-4-20" aria-hidden="true" tabindex="-1"></a>        feature_tensor <span class="op">=</span> torch.tensor(features, dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
+<span id="annotated-cell-4-21"><a href="#annotated-cell-4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-22"><a href="#annotated-cell-4-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> feature_tensor.to(device), target.to(device)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-annotation">
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="10" data-code-annotation="1">The number of training examples is equal to the total number of tokens minus the context length, since we need at least <code>context_length</code> tokens to form the features for the first example.</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="14" data-code-annotation="2">The target token is the token that follows the context in the sequence.</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="17" data-code-annotation="3">The features are the tokens that form the context.</span>
+</dd>
+</dl>
+</div>
+</div>
+<p>For convenience later, we’re also going to implement a simple class that decodes the tokens. The entire puprose of this class is to wrap up the <code>tokenizer</code> and the <code>token_to_idx</code> map used by our dataset and model; we’ll use this when we get to text generation.</p>
+<div id="8f991141" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SeussDecoder: </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, dataset, tokenizer):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dataset <span class="op">=</span> dataset</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.idx_to_token <span class="op">=</span> dataset.idx_to_token</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_to_idx <span class="op">=</span> dataset.token_to_idx</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tokenizer <span class="op">=</span> tokenizer</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> decode(<span class="va">self</span>, token_indices):</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        tokens <span class="op">=</span> [<span class="va">self</span>.idx_to_token[idx] <span class="cf">for</span> idx <span class="kw">in</span> token_indices]</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.tokenizer.decode(tokens)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s instantiate each class:</p>
+<div id="a989fb24" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> SeussDataSet(tokens, context_length <span class="op">=</span> context_length)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>decoder <span class="op">=</span> SeussDecoder(data, tokenizer)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of training examples: </span><span class="sc">{</span><span class="bu">len</span>(data)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Vocabulary size: </span><span class="sc">{</span>data<span class="sc">.</span>vocab_length<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of training examples: 11046
+Vocabulary size: 1589</code></pre>
+</div>
+</div>
+<p>Now that we’ve constructed the data set, we can query it just by indexing:</p>
+<div id="667fe21e" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    X, y <span class="op">=</span> data[i]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    X_text <span class="op">=</span> decoder.decode(X.tolist())</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    y_text <span class="op">=</span> decoder.decode([y.item()])</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Example </span><span class="sc">{</span>i<span class="sc">:&lt;2}</span><span class="ss">: </span><span class="sc">{</span>X<span class="sc">.</span>tolist()<span class="sc">}</span><span class="ss"> -&gt; </span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">" "</span> <span class="op">*</span> <span class="dv">10</span> <span class="op">+</span> <span class="st">":"</span>, end <span class="op">=</span> <span class="st">""</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="bu">repr</span>(X_text), end <span class="op">=</span> <span class="st">""</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"--&gt;"</span>, end <span class="op">=</span> <span class="st">""</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="bu">repr</span>(y_text))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Example 0 : [188, 1248, 95, 76, 869] -&gt; 60
+          :'The Cat in the Hat'--&gt;'\n'
+Example 1 : [1248, 95, 76, 869, 60] -&gt; 60
+          :' Cat in the Hat\n'--&gt;'\n'
+Example 2 : [95, 76, 869, 60, 60] -&gt; 1069
+          :' in the Hat\n\n'--&gt;'By'
+Example 3 : [76, 869, 60, 60, 1069] -&gt; 593
+          :' the Hat\n\nBy'--&gt;' Dr'
+Example 4 : [869, 60, 60, 1069, 593] -&gt; 7
+          :' Hat\n\nBy Dr'--&gt;'.'</code></pre>
+</div>
+</div>
+<p>Let’s add a data loader so that we can train the model with stochastic optimization:</p>
+<div id="fac55102" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>loader <span class="op">=</span> DataLoader(data, batch_size <span class="op">=</span> <span class="dv">1024</span>, shuffle <span class="op">=</span> <span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A single batch of data from the loader consists of a tensor of features (token ids) and a tensor of targets (token ids), along with the corresponding text for each example in the batch:</p>
+<div id="3994fc3d" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>X_batch, y_batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(loader))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of features (token ids): </span><span class="sc">{</span>X_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of targets (token ids): </span><span class="sc">{</span>y_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Batch of features (token ids): torch.Size([1024, 5])
+Batch of targets (token ids): torch.Size([1024])</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="next-token-prediction-with-neural-n-gram-models" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="next-token-prediction-with-neural-n-gram-models">Next-Token Prediction with Neural N-Gram Models</h2>
+<p>We’re now ready to train a simple neural network to perform <span class="math inline">\(n\)</span>-gram next-token prediction with one-hot encoded features. For our first approach, we are going to use a simple <span class="math inline">\(n\)</span>-gram model, composed only of the pretrained embedding layer, a flattening operation, and a linear output.</p>
+<div class="page-columns page-full"><p>Note that our embedding layer in this model is <em>not</em> a new embedding layer (<code>nn.Embedding</code>, but rather the pretrained embedding that we trained with CBOW). </p><div class="no-row-height column-margin column-container"><span class="margin-aside">This model is equivalent to logistic regression, using the pretrained embeddings as non-trainable feature maps.</span></div></div>
+<div id="df4ad082" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>embedding.requires_grad_(<span class="va">False</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SeussModel(nn.Module):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size, context_length, embedding_dim):</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embeddings <span class="op">=</span> embedding <span class="co"># use the pretrained embedding from before</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.linear <span class="op">=</span> nn.Linear(embedding_dim <span class="op">*</span> context_length, vocab_size)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        embedded <span class="op">=</span> <span class="va">self</span>.embeddings(x) </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        embedded <span class="op">=</span> embedded.view(embedded.size(<span class="dv">0</span>), <span class="op">-</span><span class="dv">1</span>) <span class="co"># flatten the context embeddings</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> <span class="va">self</span>.linear(embedded)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We’re now ready to instantiate Dr.&nbsp;Sus!</p>
+<div id="16cf2efa" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> SeussModel(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    vocab_size <span class="op">=</span> data.vocab_length,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    context_length <span class="op">=</span> context_length, </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    embedding_dim <span class="op">=</span> embedding.weight.shape[<span class="dv">1</span>],</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    ).to(device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>When passed a sequence of tokens, this model produces an unnormalized probability distribution over possible next tokens:</p>
+<div id="781a3364" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> data[<span class="dv">100</span>]</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> x.unsqueeze(<span class="dv">0</span>).to(device) <span class="co"># add batch dimension and move to device</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(x) <span class="co"># add batch dimension</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Model output shape: </span><span class="sc">{</span>output<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model output shape: torch.Size([1, 1589])</code></pre>
+</div>
+</div>
+<p>Let’s also take a look at the structure:</p>
+<div id="0c4c9353" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(x.shape), device<span class="op">=</span>device, dtypes<span class="op">=</span>[torch.<span class="bu">long</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+SeussModel                               [1, 1589]                 --
+├─Embedding: 1-1                         [1, 5, 8]                 (12,712)
+├─Linear: 1-2                            [1, 1589]                 65,149
+==========================================================================================
+Total params: 77,861
+Trainable params: 65,149
+Non-trainable params: 12,712
+Total mult-adds (M): 0.08
+==========================================================================================
+Input size (MB): 0.00
+Forward/backward pass size (MB): 0.01
+Params size (MB): 0.31
+Estimated Total Size (MB): 0.32
+==========================================================================================</code></pre>
+</div>
+</div>
+<p>Time to train:</p>
+<div id="7343024b" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.CrossEntropyLoss()</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>loss_history <span class="op">=</span> []</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    total_loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> loader:</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        outputs <span class="op">=</span> model(X_batch)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(outputs, y_batch)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        total_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    loss_history.append(total_loss <span class="op">/</span> <span class="bu">len</span>(loader))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>ax.plot(loss_history, color <span class="op">=</span> <span class="st">"steelblue"</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Cross-entropy loss (training set)"</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Training Loss Over Time"</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>ax.semilogx()</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-loss-curve" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-loss-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="75f85da2" class="cell" data-execution_count="18">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="51-text-generation_files/figure-html/cell-19-output-1.png" class="figure-img" width="495" height="375"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-loss-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.2: Training loss over epochs for the next-token prediction model.
+</figcaption>
+</figure>
+</div>
+<p>Having trained the model, we can use the <code>forward</code> method to get the model’s predicted scores for the next token:</p>
+<div id="68a2f6fd" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> data[<span class="dv">240</span>]</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> x.unsqueeze(<span class="dv">0</span>).to(device) <span class="co"># add batch dimension and move to device</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(x) <span class="co"># add batch dimension</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A simple method for text generation is just to predict the token that receives the highest score from the model.</p>
+<div id="9f5596a3" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> torch.argmax(output, dim<span class="op">=</span><span class="dv">1</span>).item()</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">repr</span>(decoder.decode(x.tolist()[<span class="dv">0</span>])), end <span class="op">=</span> <span class="st">""</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--&gt;"</span>, end <span class="op">=</span> <span class="st">""</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">repr</span>(decoder.decode([t])))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>' good fun that is funny'--&gt;'."'</code></pre>
+</div>
+</div>
+<p>Deterministic prediction always eventually produces text that repeats itself, so modern approaches typically inject some amount of tunable randomness into the generation process.</p>
+<section id="stochastic-generation-via-boltzmann-sampling" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="stochastic-generation-via-boltzmann-sampling">Stochastic Generation via Boltzmann Sampling</h3>
+<p>In <em>stochastic prediction</em>, we treat the scores as defining a probability distribution over the possible next tokens, and we sample from this distribution to get our prediction. The most common choice of probability distribution is the <em>Boltzmann</em> distribution.</p>
+<div id="def-boltzmann-prediction" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 16.4 (Boltzman Distribution, Temperature)</strong></span> Given a vector <span class="math inline">\(\mathbf{s}\in \mathbb{R}^k\)</span> of scores for each of <span class="math inline">\(k\)</span> possible next tokens, the <em>Boltzmann distribution</em> is a probability distribution over the <span class="math inline">\(k\)</span> tokens defined by the scores <span class="math inline">\(\mathbf{s}\)</span> and a parameter <span class="math inline">\(T &gt; 0\)</span> called the <em>temperature</em>. It has formula</p>
+<p><span class="math display">\[
+\begin{aligned}
+    p(t) = \frac{e^{\beta s_t }}{\sum_{t'} e^{\beta s_{t'} }}\;,
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(\beta = 1/T\)</span>.</p>
+</div>
+<div class="page-columns page-full"><p>Larger values of <span class="math inline">\(T\)</span> lead to more random predictions, while smaller values of <span class="math inline">\(T\)</span> lead to more deterministic predictions.  In the limit as <span class="math inline">\(T \to 0\)</span>, the Boltzmann distribution converges to a distribution that puts all of its mass on the token with the highest score, which is exactly what deterministic prediction does. In the limit as <span class="math inline">\(T \to \infty\)</span>, the Boltzmann distribution converges to the uniform distribution over all tokens, which corresponds to completely random prediction.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">Random predictions are sometimes called “creative” among certain enthusiasts.</span></div></div>
+<div id="558e9611" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boltzmann_prediction(preds, temperature <span class="op">=</span> <span class="fl">1.0</span>):</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    probabilities <span class="op">=</span> torch.nn.Softmax(dim <span class="op">=</span> <span class="dv">0</span>)(preds <span class="op">/</span> temperature)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.multinomial(probabilities, num_samples<span class="op">=</span><span class="dv">1</span>).item()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Since the <span class="math inline">\(T \to 0\)</span> limit of the Boltzmann distribution corresponds to deterministic prediction, we can implement deterministic prediction using the <code>boltzmann_prediction</code> function by setting the temperature to a very small value.</p>
+<p>Let’s try out the Boltzmann prediction function with different values of the temperature parameter:</p>
+<div id="ecf49ab9" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>X, y <span class="op">=</span> data[<span class="dv">2000</span>]</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.forward(X.unsqueeze(<span class="dv">0</span>)).squeeze(<span class="dv">0</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Feature text: '</span><span class="sc">{</span><span class="bu">repr</span>(decoder.decode(X.tolist()))<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temp <span class="kw">in</span> [<span class="fl">0.001</span>, <span class="fl">0.5</span>, <span class="fl">2.0</span>]: </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Predictions with temperature </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">:"</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> boltzmann_prediction(preds, temperature <span class="op">=</span> temp)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Temperature: </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">, Predicted token: </span><span class="sc">{</span>y_pred<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>decoder<span class="sc">.</span>decode([y_pred])<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Feature text: ''And you take them away''
+
+Predictions with temperature 0.001:
+Temperature: 0.001, Predicted token: 7, .
+Temperature: 0.001, Predicted token: 7, .
+Temperature: 0.001, Predicted token: 7, .
+
+Predictions with temperature 0.5:
+Temperature: 0.5, Predicted token: 5, ,
+Temperature: 0.5, Predicted token: 261,  any
+Temperature: 0.5, Predicted token: 108,  be
+
+Predictions with temperature 2.0:
+Temperature: 2.0, Predicted token: 94,  of
+Temperature: 2.0, Predicted token: 483,  something
+Temperature: 2.0, Predicted token: 0, !</code></pre>
+</div>
+</div>
+<p>For very low temperatures, the predictions are essentially deterministic (we always generate the same prediction), while for higher temperatures, the predictions become more and more random.</p>
+</section>
+</section>
+<section id="recurrent-text-generation" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="recurrent-text-generation">Recurrent Text Generation</h2>
+<p>To generate text with our trained model, we start with an initial sequence of tokens, and then repeatedly apply the model to predict the next token, appending each predicted token to the sequence and using the updated sequence as the new input for the next prediction.</p>
+<div id="fig-token-prediction" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-token-prediction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig/token-prediction.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-token-prediction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.3: Illustration of recurrent text generation using word-level tokens and a context length of 2. Each newly-generated token is added to the sequence. The oldest token in the context is dropped, so that the context length remains fixed at 2.
+</figcaption>
+</figure>
+</div>
+<p>The following function implements this logic for generating text with a trained <span class="math inline">\(n\)</span>-gram model.</p>
+<div id="a42401f7" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-19"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_text(model, decoder, start_tokens, max_length<span class="op">=</span><span class="dv">20</span>, temperature<span class="op">=</span><span class="fl">1.0</span>):</span>
+<span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a>    generated_tokens <span class="op">=</span> start_tokens.copy()</span>
+<span id="annotated-cell-19-3"><a href="#annotated-cell-19-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="annotated-cell-19-4"><a href="#annotated-cell-19-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(max_length):</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-19" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-19-5" class="code-annotation-target"><a href="#annotated-cell-19-5" aria-hidden="true" tabindex="-1"></a>        input_tensor <span class="op">=</span> torch.tensor(generated_tokens[<span class="op">-</span>context_length:], dtype<span class="op">=</span>torch.<span class="bu">long</span>).unsqueeze(<span class="dv">0</span>).to(device)</span>
+<span id="annotated-cell-19-6"><a href="#annotated-cell-19-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-19" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-19-7" class="code-annotation-target"><a href="#annotated-cell-19-7" aria-hidden="true" tabindex="-1"></a>            preds <span class="op">=</span> model(input_tensor).squeeze(<span class="dv">0</span>)</span>
+<span id="annotated-cell-19-8"><a href="#annotated-cell-19-8" aria-hidden="true" tabindex="-1"></a>        </span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-19" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-19-9" class="code-annotation-target"><a href="#annotated-cell-19-9" aria-hidden="true" tabindex="-1"></a>        next_token <span class="op">=</span> boltzmann_prediction(preds, temperature)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-19" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-19-10" class="code-annotation-target"><a href="#annotated-cell-19-10" aria-hidden="true" tabindex="-1"></a>        generated_tokens.append(next_token)</span>
+<span id="annotated-cell-19-11"><a href="#annotated-cell-19-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="annotated-cell-19-12"><a href="#annotated-cell-19-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> decoder.decode(generated_tokens)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-annotation">
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-19" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="5" data-code-annotation="1">Take the most recent <code>context_length</code> tokens from the generated sequence to form the input for the model.</span>
+</dd>
+<dt data-target-cell="annotated-cell-19" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="7" data-code-annotation="2">Pass the input through the model to get the predicted scores for the next token.</span>
+</dd>
+<dt data-target-cell="annotated-cell-19" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="9" data-code-annotation="3">Use the <code>boltzmann_prediction</code> function to sample the next token from the predicted scores.</span>
+</dd>
+<dt data-target-cell="annotated-cell-19" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="10" data-code-annotation="4">Append the predicted token to the generated sequence.</span>
+</dd>
+</dl>
+</div>
+</div>
+<p>Let’s use our function to generate text at a few different temperatures. As we might expect, when the temperature is high, the text is essentially random.</p>
+<div id="598af323" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>start_tokens, _ <span class="op">=</span> data[<span class="dv">0</span>]</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>dr_sus <span class="op">=</span> generate_text(model, decoder, start_tokens.tolist(), max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">2.0</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dr_sus)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The Cat in the Hat all a have. Then fish in
+ still Cat! A waiting knew at dear yell sorry over dog quite now
+And have of play thatThat
+And have poor stop off home there too chuckled a low and there great on your
+ thought much could</code></pre>
+</div>
+</div>
+<p>On the other hand, when the temperature is very low, the text quickly locks into a repetitive pattern.</p>
+<div id="8a6c1914" class="cell" data-execution_count="25">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>dr_sus <span class="op">=</span> generate_text(model, decoder, start_tokens.tolist(), max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dr_sus)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The Cat in the Hat.
+"These.
+It
+B down
+B.
+B comes
+
+Bim brings Ben broom.
+Ben brings Bim broom.
+
+Ben bends and likes.
+
+
+
+
+
+
+
+
+
+
+
+</code></pre>
+</div>
+</div>
+<p>At intermediate values, we recover something that is still very chaotic but which also contains occasional flashes of coherent task:</p>
+<div id="08435623" class="cell" data-execution_count="26">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>dr_sus <span class="op">=</span> generate_text(model, decoder, start_tokens.tolist(), max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dr_sus)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The Cat in the Hat.
+"
+ always. away all little one came
+
+It
+
+And the the the the
+And the the the the a,
+"I I not eat them.
+I. not like not
+
+I.
+
+I</code></pre>
+</div>
+</div>
+<section id="a-more-complex-architecture" class="level3">
+<h3 class="anchored" data-anchor-id="a-more-complex-architecture">A More Complex Architecture</h3>
+<p>We are free to experiment with more complicated model architectures – anything that takes a sequence of token ids as input and produces a probability distribution over the next token as output is a valid generative language model. For example, we could add a hidden layer to our current model architecture:</p>
+<div id="2393df50" class="cell" data-execution_count="27">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SeussModelWithHiddenLayer(nn.Module):</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size, context_length, embedding_dim, hidden_dim):</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embeddings <span class="op">=</span> embedding <span class="co"># use the pretrained embedding from before</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.hidden <span class="op">=</span> nn.Linear(embedding_dim <span class="op">*</span> context_length, hidden_dim)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.output <span class="op">=</span> nn.Linear(hidden_dim, vocab_size)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        embedded <span class="op">=</span> <span class="va">self</span>.embeddings(x) </span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        embedded <span class="op">=</span> embedded.view(embedded.size(<span class="dv">0</span>), <span class="op">-</span><span class="dv">1</span>) <span class="co"># flatten the context embeddings</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        hidden_output <span class="op">=</span> torch.relu(<span class="va">self</span>.hidden(embedded))</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> <span class="va">self</span>.output(hidden_output)</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="eb31ed82" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> SeussModelWithHiddenLayer(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    vocab_size <span class="op">=</span> data.vocab_length,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    context_length <span class="op">=</span> context_length, </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    embedding_dim <span class="op">=</span> embedding.weight.shape[<span class="dv">1</span>],</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    hidden_dim <span class="op">=</span> <span class="dv">16</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    ).to(device)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(x.shape), device<span class="op">=</span>device, dtypes<span class="op">=</span>[torch.<span class="bu">long</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+SeussModelWithHiddenLayer                [1, 1589]                 --
+├─Embedding: 1-1                         [1, 5, 8]                 (12,712)
+├─Linear: 1-2                            [1, 16]                   656
+├─Linear: 1-3                            [1, 1589]                 27,013
+==========================================================================================
+Total params: 40,381
+Trainable params: 27,669
+Non-trainable params: 12,712
+Total mult-adds (M): 0.04
+==========================================================================================
+Input size (MB): 0.00
+Forward/backward pass size (MB): 0.01
+Params size (MB): 0.16
+Estimated Total Size (MB): 0.17
+==========================================================================================</code></pre>
+</div>
+</div>
+<div id="81626347" class="cell" data-execution_count="29">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.CrossEntropyLoss()</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>loss_history <span class="op">=</span> []</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    total_loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> loader:</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>        outputs <span class="op">=</span> model(X_batch)</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(outputs, y_batch)</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>        total_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>    loss_history.append(total_loss <span class="op">/</span> <span class="bu">len</span>(loader))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Having trained the model, we can now use it to generate text in the same way as before.</p>
+<div id="6e2e9db2" class="cell" data-execution_count="30">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>start_tokens, _ <span class="op">=</span> data[<span class="dv">0</span>]</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>dr_sus <span class="op">=</span> generate_text(model, decoder, start_tokens.tolist(), max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dr_sus)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The Cat in the Hat!
+"No!
+"I! Make!
+Ele!
+I! Make me
+Oh, Sam-
+-good street nervously, The carved!
+Then cleaned cleaned Grinch couldn carved! The couldn carved beast! bells ringing roast</code></pre>
+</div>
+</div>
+<p>Assessing whether the more complicated model “works better” (i.e.&nbsp;whether the generated text is higher quality) is often performed with human raters or, more recently, with large-language models whose rating ability is considered trustworthy by the model developers.</p>
+</section>
+</section>
+<section id="whats-next" class="level2">
+<h2 class="anchored" data-anchor-id="whats-next">What’s Next?</h2>
+<p>You may observe that none Dr.&nbsp;Sus’s writings are particularly impressive in terms of their coherence or resemblance to the source material. This reflects:</p>
+<p>A very <strong>small training data set</strong>: just the text of four short children’s books.</p>
+<p>A <strong>simple model architecture</strong>, with low embedding dimension and no hidden layers.</p>
+<p>Perhaps most importantly, a <strong>nonspecialized model architecture</strong> that does not account for any of the distinctive structural features of language. An especially important feature we’re ignoring here is that language is <em>sequential</em> and <em>recombinant</em> – not only does the order of tokens matter, but the same token can have different meanings in different contexts. There are a variety of model architectures designed to account for the distinctive structural features of sequence data like language, especially <em>recurrent neural networks</em> and <em>transformers</em>. We’ll discuss models specialized for sequence modeling in the next chapter.</p>
+
+
+</section>
+
+<p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/50-tokens-embeddings.html" class="pagination-link" aria-label="Tokens and Embeddings">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Tokens and Embeddings</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

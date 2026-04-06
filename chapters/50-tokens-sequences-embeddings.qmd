@@ -418,6 +418,9 @@ Illustration of recurrent text generation using word-level tokens and a context 
 :::
 
 
+
+
+
 ```{python}
 #| code-fold: true
 # If entire line is all caps, add colon to end and a newline

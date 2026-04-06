@@ -277,17 +277,16 @@ We can extract data like this:
 
 ```{python}
 context_length = 5
-dataset = CBOWDataset(tokens, context_length=context_length)
-x, y = dataset[0]
+data = CBOWDataset(tokens, context_length=context_length)
+x, y = data[0]
 
 print(f"{x.item():<6} --> {y.item()}")
-print(f"{tokenizer.decode(dataset.idx_to_token[x.item()]):<6} --> {tokenizer.decode(dataset.idx_to_token[y.item()])}")
+print(f"{tokenizer.decode(data.idx_to_token[x.item()]):<6} --> {tokenizer.decode(data.idx_to_token[y.item()])}")
 ```
 
 As usual, it's convenient to use a `DataLoader` to handle batching and shuffling of the data.
 
 ```{python}
-data = CBOWDataset(tokens, context_length)
 dataloader = DataLoader(data, batch_size=32, shuffle=True)
 ```
 
@@ -444,8 +443,6 @@ for token in comparison_tokens:
 ```
 
 We observe that the similarity between `Fox` and the tokens which appear in the same story (i.e. nearby) is larger that between `Fox` and common tokens from the other Dr. Seuss texts on which we trained. This grouping may be helpful in downstream learning tasks; for example, a model which aims to predict which Dr. Seuss book a given sentence came from could make use of the fact that ` socks` and ` box` are similarly predictive of *Fox in Socks*; this similarity could allow us to reduce the parameter count and guard against overfitting. 
-
-## References
 
 ## References
 
