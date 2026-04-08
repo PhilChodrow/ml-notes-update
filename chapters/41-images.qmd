@@ -132,14 +132,13 @@ Let's take a look at the distribution of characters in the training data:
 fig, ax = plt.subplots(1, 1, figsize = (6, 2))
 letters, counts = torch.unique(y_train, return_counts = True)
 proportions = counts / counts.sum()
-proportions
 
-ax.scatter(letters, proportions, edgecolor = "steelblue")
+ax.scatter(letters, 100*proportions, edgecolor = "steelblue")
 ax.set_xticks(range(26))
 ax.set_xticklabels(list(ALPHABET))
 ax.set(xlabel = "Letter", ylabel = "Frequency")
 ax.yaxis.set_major_formatter(mtick.PercentFormatter(decimals = 1))
-ax.set_ylim(0, 0.06)
+ax.set_ylim(0, 7.5)
 ```
 
 Distribution of class labels in the training data. There are no “J”s or “Z”s in this data because these characters require motion rather than a static gesture.
@@ -214,7 +213,6 @@ Let's go ahead and train a logistic regression model on this data. This model wi
 We can make our code a bit more concise by enclosing each of our layers inside an `nn.Sequential` container, which allows us to treat the entire sequence of layers as a single layer which we then call in the `forward` method. [Relative to previous implementations of logistic regression, you might notice that this implementation does not contain a call to the logistic sigmoid. The reason for this is that we are going to use `torch`'s built-in `nn.CrossEntropyLoss()` as our loss function for training. For reasons of numerical stability, this function is structured to apply the cross-entropy loss, so we don't need to do it in the model itself.]{.aside}
 
 ```{python}
-#---
 class LinearModel(nn.Module):
     def __init__(self):
         super().__init__()
@@ -228,7 +226,6 @@ class LinearModel(nn.Module):
         return self.pipeline(x)  #<3>
 
 model = LinearModel().to(device) #<4>
-#---
 ```
 1. The flatten layer transforms the `(1,28,28)` image into a `(784,)` pixel sequence. 
 2. Apply a linear map (matrix multiplication)
@@ -237,7 +234,7 @@ model = LinearModel().to(device) #<4>
 
 ### Model Inspection
 
-When constructing nontrivial deep learning models, it can be helpful to inspect them in order to get a sense for their structure and complexity level (especially the number of parameters). [For example, could you read off from the above model definition how many parameters are included in the model?]{.aside} There are multiple ways to approach this, including several utilities which visualize the computational graph. Here, we'll use the `torchsummary` package, which provides a nice summary of the model's layers and parameters and includes a parameter count. To call the `summary` function, we need to specify the expected dimension of a single piece of data (including the channel): 
+When constructing nontrivial deep learning models, it can be helpful to inspect them in order to get a sense for their structure and complexity level (especially the number of parameters). [For example, could you read off from the above model definition how many parameters are included in the model?]{.aside} There are multiple ways to approach this, including several utilities which visualize the computational graph. Here, we'll use the `torchinfo` package, which provides a nice summary of the model's layers and parameters and includes a parameter count. To call the `summary` function, we need to specify the expected dimension of a single piece of data (including the channel): 
 
 
 ```{python}
@@ -256,19 +253,14 @@ def evaluate(model, data_loader, multichannel = False):
     
     # confusion matrix
     conf_mat = torch.zeros((26, 26), dtype = torch.int32) #<1>
-
     loss_fn = nn.CrossEntropyLoss()
-
     loss = 0
 
     with torch.no_grad(): 
         for X_batch, y_batch in data_loader: #<2>
             scores = model(X_batch) #<3>
-
             loss += loss_fn(scores, y_batch).item()
-
             y_pred = torch.argmax(scores, dim = 1) #<4>
-
             for i in range(len(y_batch)):
                 conf_mat[y_batch[i], y_pred[i]] += 1 #<5>
 
@@ -346,15 +338,9 @@ def train(model, k_epochs = 1, print_every = 2000, **opt_kwargs):
 
         for i, data in enumerate(train_loader):
             X, y = data
-
-            # clear any accumulated gradients
             optimizer.zero_grad()
-
-            # compute the loss
             y_pred = model(X)
             loss   = loss_fn(y_pred, y)
-
-            # compute gradients and carry out an optimization step
             loss.backward()
             optimizer.step()
             
