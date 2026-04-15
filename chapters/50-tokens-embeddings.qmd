@@ -297,14 +297,14 @@ We'll solve the CBOW prediction task using a minimal feedforward network contain
 ```{python}
 #---
 class CBOW(nn.Module):
-    def __init__(self, vocab_size, d_model):
+    def __init__(self, vocab_size, d_embedding):
         super().__init__()
         self.embeddings = nn.Embedding(vocab_size, d_embedding)
-        self.linear = nn.Linear(d_embedding, vocab_size)
+        self.linear     = nn.Linear(d_embedding, vocab_size)
         
     def forward(self, x):
         embedded = self.embeddings(x) 
-        output = self.linear(embedded)
+        output   = self.linear(embedded)
         return output
 #---
 ```
@@ -314,9 +314,9 @@ We can now create an instance of the model and take a look at the architecture:
 ```{python}
 vocab_size = len(data.token_to_idx)
 d_embedding = 4
-model = CBOW(vocab_size, d_model=d_embedding)
+model = CBOW(vocab_size, d_embedding=d_embedding).to(device)
 
-summary(model, input_size=(32, context_length), device = device, dtypes = [torch.long])
+summary(model, input_size=(1, ), device = device, dtypes = [torch.long])
 ```
 
 Our model is relatively modest: for production contexts, we would typically use a much larger embedding dimension ($d \geq 200$ is common), a much larger vocabulary, and a more complex model architecture for solving the prediction task. 
