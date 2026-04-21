@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>17&nbsp; The Attention Mechanism – Machine Learning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/51-text-generation.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a14e345711173c227b21482e2eb4cc70.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d8b0bb70be28f5ebcc1c8c98afdc075d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
+  background-image: none;
+}
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/50-tokens-embeddings.html">Neural Language Models</a></li><li class="breadcrumb-item"><a href="../chapters/52-attention.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">The Attention Mechanism</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Machine Learning</a> 
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Machine Learning Fundamentals</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-signal-noise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Data = Signal + Noise</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-maximum-likelihood.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Gradients</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-more-gradients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Higher Dimensions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Features and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-bias-variance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">More on Overfitting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Classification</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/10-intro-classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Introduction: Binary Labels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/11-assessment-of-classifiers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Assessment of Classifiers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/12-decision-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Decision Theory in Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/15-multinomial-classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multinomial Classification</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modern Optimization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/30-autograd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Automatic Differentiation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/31-gradient-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Optimization Techniques: Algorithms and Batching</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Deep Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/40-intro-deep.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Introducing Deep Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/41-images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Convolutional Neural Networks and Image Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/42-more-images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Some Practical Considerations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Neural Language Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/50-tokens-embeddings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Tokens and Embeddings</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/51-text-generation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Text Generation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/52-attention.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">The Attention Mechanism</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#motivation" id="toc-motivation" class="nav-link active" data-scroll-target="#motivation">Motivation</a></li>
+  <li><a href="#the-attention-mechanism" id="toc-the-attention-mechanism" class="nav-link" data-scroll-target="#the-attention-mechanism">The Attention Mechanism</a>
+  <ul class="collapse">
+  <li><a href="#attention-operates-on-embedded-tokens" id="toc-attention-operates-on-embedded-tokens" class="nav-link" data-scroll-target="#attention-operates-on-embedded-tokens">Attention Operates on Embedded Tokens</a></li>
+  <li><a href="#fixed-attention" id="toc-fixed-attention" class="nav-link" data-scroll-target="#fixed-attention">Fixed Attention</a></li>
+  <li><a href="#self-attention" id="toc-self-attention" class="nav-link" data-scroll-target="#self-attention">Self-Attention</a></li>
+  <li><a href="#key-query-value-kqv-attention" id="toc-key-query-value-kqv-attention" class="nav-link" data-scroll-target="#key-query-value-kqv-attention">Key-Query-Value (KQV) Attention</a></li>
+  <li><a href="#an-attention-implementation" id="toc-an-attention-implementation" class="nav-link" data-scroll-target="#an-attention-implementation">An Attention Implementation</a></li>
+  <li><a href="#multi-headed-attention" id="toc-multi-headed-attention" class="nav-link" data-scroll-target="#multi-headed-attention">Multi-Headed Attention</a></li>
+  <li><a href="#from-attention-to-transformers" id="toc-from-attention-to-transformers" class="nav-link" data-scroll-target="#from-attention-to-transformers">From Attention to Transformers</a></li>
+  </ul></li>
+  <li><a href="#multiheaded-attention-in-gpt2" id="toc-multiheaded-attention-in-gpt2" class="nav-link" data-scroll-target="#multiheaded-attention-in-gpt2">Multiheaded Attention in GPT2</a></li>
+  <li><a href="#quick-glimpse-bias-in-language-models" id="toc-quick-glimpse-bias-in-language-models" class="nav-link" data-scroll-target="#quick-glimpse-bias-in-language-models">Quick Glimpse: Bias in Language Models</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/50-tokens-embeddings.html">Neural Language Models</a></li><li class="breadcrumb-item"><a href="../chapters/52-attention.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">The Attention Mechanism</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">The Attention Mechanism</span></h1>
+<p class="subtitle lead"></p><p>Scalable long-range dependencies in sequence models</p><p></p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/52-attention.ipynb">Open the live notebook</a> in Google Colab.</em></p>
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p><a href="../chapters/51-text-generation.html">Last time</a>, we introduced a text-generation model containing a text embedding layer and a feedforward network composed of linear layers. This model was able to generally learn the idea that some tokens should be “near” other tokens, but wasn’t really able to capture the details of order or syntactic dependency in the text. Our model had a fixed context window, with each token inside the context window contributing equally to the prediction of the next token (and each token outside the window being completely irrelevant for prediction). This is somewhat unrealistic. For consider the snippet</p>
+<p><em>My cat is small, cute, and fluffy. <strong>She</strong> likes belly rubs.</em></p>
+<p>Suppose that we are trying to predict <strong>She</strong> from the preceding tokens. Intuitively, this prediction makes sense because <strong>my cat</strong> is a noun phrase in the previous sentence. However, the word <strong>cat</strong> is not immediately adjacent to <strong>She</strong>. A model like the feedforward model from last time could have <strong>my cat</strong> in context, but would treat everything else in context identically:</p>
+<p><img src="fig/token-context.png" class="img-fluid"></p>
+<p>Here, all the tokens in the context window contribute equally to the prediction, including arguably irrelevant ones like <strong>small</strong> and <strong>fluffy</strong>. Our desired behavior looks more like this:</p>
+<p><img src="fig/token-context-2.png" class="img-fluid"></p>
+<p>So, we are looking for a model architecture that can flexibly learn long-range dependencies between tokens. Although there are many approaches to this problem, in these notes we’ll use the one which has come to dominate multiple areas of modern deep learning, including language modeling – the attention mechanism.</p>
+</section>
+<section id="the-attention-mechanism" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="the-attention-mechanism">The Attention Mechanism</h2>
+<p>Schematically, we’d like to design an architecture in which:</p>
+<ul>
+<li>Tokens can preferentially <em>attend</em> to other tokens within the context.</li>
+<li>Tokens can depend in different <em>ways</em>, depending for example on semantics, syntax, or other relationships.</li>
+</ul>
+<p>Here’s an example of how this might look with another simple, cat-themed example. Here, we’ve shown two different ways in which the tokens of the sentence <em>The cat sat on the mat</em> might attend to each other.</p>
+<div id="fig-attention-diagrams" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-attention-diagrams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig/attention-heads.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-attention-diagrams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17.1: Schematic diagrams of two attention heads performing different functions. The first attention on the left picks up referential relationships between words, while the one on the right has been trained to detect rhyming words.
+</figcaption>
+</figure>
+</div>
+<p>Another useful way to view these relationships is as matrices:</p>
+<div id="fig-attention-diagrams" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-attention-diagrams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig/attention-heads-2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-attention-diagrams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17.2: The same attention heads as in <a href="#fig-attention-diagrams" class="quarto-xref">Figure&nbsp;<span>17.2</span></a>, visualized as matrices.
+</figcaption>
+</figure>
+</div>
+<p>Now we’ll formulate a model architecture that can learn these kinds of relationships.</p>
+<section id="attention-operates-on-embedded-tokens" class="level3">
+<h3 class="anchored" data-anchor-id="attention-operates-on-embedded-tokens">Attention Operates on Embedded Tokens</h3>
+<p>While it’s often helpful to visualize attention as operating on units of English text, there are actually two units of processing that have to take place before we can pass data to the attention mechanism. First, given a piece of text, we need to tokenize it to obtain a sequence <span class="math inline">\(t_1, t_2, \ldots, t_n\)</span> of tokens. Then, we need to <em>embed</em> these tokens into a vector space to obtain a sequence of vectors <span class="math inline">\(\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_n\)</span>. The attention mechanism operates on the embedded tokens <span class="math inline">\(\mathbf{x}_i\)</span>. We can collect these vector into a matrix</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{X}= \begin{bmatrix}
+    - &amp; \mathbf{x}_1^\top &amp; -\\
+    - &amp;\mathbf{x}_2^\top &amp; -\\
+    &amp; \vdots \\
+    - &amp; \mathbf{x}_n^\top &amp; -
+    \end{bmatrix} \in \mathbb{R}^{n \times d}\;,
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(d\)</span> is the dimension of the embedding space. The attention mechanism will take <span class="math inline">\(\mathbf{U}\)</span> as input and produce a new matrix <span class="math inline">\(\mathbf{W}\in \mathbb{R}^{n \times d}\)</span> as output, where the <span class="math inline">\(i\)</span>-th row of <span class="math inline">\(\mathbf{W}\)</span> is a new vector representation of the <span class="math inline">\(i\)</span>-th token that incorporates information about which <em>other</em> tokens in the sequence are relevant to it.</p>
+<p>So, our attention mechanism is a trainable function from matrices of token embeddings <span class="math inline">\(\mathbb{R}^{n \times d}\)</span> to <span class="math inline">\(\mathbb{R}^{n \times d}\)</span>:</p>
+<p><span class="math display">\[
+\text{Attn}: \mathbb{R}^{n \times d} \to \mathbb{R}^{n \times d}\;.
+\]</span></p>
+</section>
+<section id="fixed-attention" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="fixed-attention">Fixed Attention</h3>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">My exposition in this section is adapted from <span class="citation" data-cites="bishop2023deep">Bishop and Bishop (<a href="#ref-bishop2023deep" role="doc-biblioref">2023</a>)</span>, Chapter 12.</span></div></div>
+<p>The simplest kind of map <span class="math inline">\(\mathbb{R}^{n \times d} \to \mathbb{R}^{n \times d}\)</span> would be a linear map:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{u}_j = \sum_{i=1}^n a_{ij} \mathbf{x}_i\;,
+\end{aligned}
+\]</span>{#eq:attn-linear}</p>
+<p>In this expression, we would treat each coefficient <span class="math inline">\(a_{ij}\)</span> as a parameter that reflects how much the <span class="math inline">\(i\)</span>th token in the sequence should contribute to the representation of the <span class="math inline">\(j\)</span>th token. Now, it’s intuitive that (a) we shouldn’t be able to pay <em>negative</em> attention to a token and that (b) if I pay a lot of attention to one token, I must pay less attention others. These motivate the constraints that <span class="math inline">\(a_{ij} \geq 0\)</span> and <span class="math inline">\(\sum_{i=1}^n a_{ij} = 1\)</span> for all <span class="math inline">\(j\)</span>.</p>
+</section>
+<section id="self-attention" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="self-attention">Self-Attention</h3>
+<div class="page-columns page-full"><p><span class="quarto-unresolved-ref">?eq-attn-linear</span> encodes some reasonable ideas, but it’s also limited – the attention weights <span class="math inline">\(a_{ij}\)</span> don’t depend on the inputs <span class="math inline">\(\mathbf{w}_i\)</span> at all. So, for example, we might have the fifth token attending strongly to the second token in every input sequence, <em>regardless of what those tokens are</em>. One way to address this problem is to <em>make the attention weights themselves depend on the input tokens</em>. Two tokens <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> are <em>similar</em> in the embedding space if <span class="math inline">\(\mathbf{x}_i^\top \mathbf{x}_j\)</span> is large.  To make sure that the coefficients are nonnegative and sum to 1, we can pass them through a softmax:</p><div class="no-row-height column-margin column-container"><span class="margin-aside">The concept of similarity being used here is unnormalized cosine similarity.</span></div></div>
+<p><span class="math display">\[
+\begin{aligned}
+    a_{ij} = \frac{e^{\mathbf{x}_i^\top \mathbf{x}_j}}{\sum_{j' = 1}^n e^{\mathbf{x}_i^\top \mathbf{x}_j'}}\;.
+\end{aligned}
+\]</span></p>
+<p>If we let <span class="math inline">\(\mathrm{SoftMax}: \mathbb{R}^{n\times p} \to \mathbb{R}^{n\times p}\)</span> denote the softmax function applied row-wise to any <span class="math inline">\(n\times p\)</span> matrix for any <span class="math inline">\(p\)</span>, then we can write the matrix of attention weights as</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{A}= \mathrm{SoftMax}(\mathbf{X}\mathbf{X}^\top)\;,
+\end{aligned}
+\]</span></p>
+<p>Our self-attention mechanism can then be written</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{X}= \mathbf{A}\mathbf{X}= \mathrm{SoftMax}(\mathbf{X}\mathbf{X}^\top) \mathbf{X}\;.
+\end{aligned}
+\]</span>{#eq:self-attn}</p>
+<p><span class="quarto-unresolved-ref">?eq-self-attn</span> is an improvement in one way and a step back in another. On the one hand, we now have attention weights which depend on the input tokens. On the other, however, we have no more trainable model parameters!</p>
+</section>
+<section id="key-query-value-kqv-attention" class="level3">
+<h3 class="anchored" data-anchor-id="key-query-value-kqv-attention">Key-Query-Value (KQV) Attention</h3>
+<p>To motivate the mechanism used in modern attention models, it’s helpful to introduce some terminology taken from the field of information retrieval. Suppose that you’d like to design a system that would allow users to browse a collection of books based on their preferences. Here’s how your system works:</p>
+<ul>
+<li>The user inputs their preferences, represented as a vector, which we’ll call the <em>query</em> vector <span class="math inline">\(\mathbf{q}\in \mathbb{R}^k\)</span>. For example, we might think of <span class="math inline">\(q_1\)</span> as describing how much action the user wants in their book, <span class="math inline">\(q_2\)</span> as describing how much romance they want, and so on.</li>
+<li>Each book in the collection is also assigned a vector, which we’ll call the <em>key</em> vector <span class="math inline">\(\mathbf{k}\in \mathbb{R}^k\)</span>. A book is a good match for the user’s preference when <span class="math inline">\(\mathbf{q}^\top \mathbf{k}\)</span> is large.</li>
+<li>The book itself is the <em>value</em> returned by choosing the key <span class="math inline">\(\mathbf{k}\)</span> that best matches the query <span class="math inline">\(\mathbf{q}\)</span>.</li>
+</ul>
+<p>In our case, since we want an attention map <span class="math inline">\(\text{Attn}: \mathbb{R}^{n \times d} \to \mathbb{R}^{n \times d}\)</span>, our values should be vectors <span class="math inline">\(\mathbf{v}\in \mathbb{R}^d\)</span> of the same dimension <span class="math inline">\(d\)</span> as the input token embeddings.</p>
+<p>If we substitute the key-query-value mechanism into our attention formula, we get the following expression for the <span class="math inline">\(j\)</span>-th output token representation:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{u}_j = \sum_{i=1}^n \frac{e^{\mathbf{q}_i^\top \mathbf{k}_j}}{\sum_{j' = 1}^n e^{\mathbf{q}_i^\top \mathbf{k}_{j'}}} \mathbf{v}_i\;,
+\end{aligned}
+\]</span></p>
+<p>or, in matricized form,</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{U}= \mathrm{SoftMax}(\mathbf{Q}\mathbf{K}^\top) \mathbf{V}\;,
+\end{aligned}
+\]</span>{#eq:kqv-attn}</p>
+<p>where <span class="math inline">\(\mathbf{Q}, \mathbf{K}\in \mathbb{R}^{n \times k}\)</span> are the matrices of query and key vectors, respectively, and <span class="math inline">\(\mathbf{V}\in \mathbb{R}^{n \times d}\)</span> is the matrix of value vectors.</p>
+<p>It looks like we’ve lost the dependence on the input token embeddings <span class="math inline">\(\mathbf{U}\)</span> again, but we can fix this by making the query, key, and value vectors themselves depend on the input tokens. We do this by introducing <em>three</em> trainable linear maps <span class="math inline">\(\mathbb{R}^d \to \mathbb{R}^k\)</span> and <span class="math inline">\(\mathbb{R}^d \to \mathbb{R}^d\)</span> that take the input token embeddings <span class="math inline">\(\mathbf{u}_i\)</span> to the query, key, and value vectors <span class="math inline">\(\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{q}_i = \mathbf{W}_q \mathbf{x}_i\;,\quad
+    \mathbf{k}_i = \mathbf{W}_k \mathbf{x}_i\;,\quad
+    \mathbf{v}_i = \mathbf{W}_v \mathbf{x}_i\;,
+\end{aligned}
+\]</span></p>
+<p>We can represent these maps in matrix form as <span class="math inline">\(\mathbf{Q}= \mathbf{X}\mathbf{W}_q\)</span>, <span class="math inline">\(\mathbf{K}= \mathbf{X}\mathbf{W}_k\)</span>, and <span class="math inline">\(\mathbf{V}= \mathbf{X}\mathbf{W}_v\)</span>.</p>
+<p><span class="citation" data-cites="eq:kqv-attn">(<a href="#ref-eq:kqv-attn" role="doc-biblioref"><strong>eq:kqv-attn?</strong></a>)</span> is <em>almost</em> the attention mechanism used in modern transformer models. It’s usually useful to add a scaling factor of <span class="math inline">\(1/\sqrt{k}\)</span> to the exponent in the softmax, which gives us the final formula for the attention mechanism:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \mathbf{U}&amp;= \mathrm{SoftMax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{k}}\right) \mathbf{V}\\
+        \mathbf{Q}&amp;= \mathbf{X}\mathbf{W}_q\;,\quad
+        \mathbf{K}= \mathbf{X}\mathbf{W}_k\;,\quad
+        \mathbf{V}= \mathbf{X}\mathbf{W}_v\;.
+\end{aligned}
+\]</span>{#eq:scaled-kqv-attn}</p>
+<p>The matrices <span class="math inline">\(\mathbf{W}_q, \mathbf{W}_k, \mathbf{W}_v\)</span> are the trainable parameters of the attention mechanism, and can be learned from data via optimization.</p>
+</section>
+<section id="an-attention-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="an-attention-implementation">An Attention Implementation</h3>
+<p>Here’s a simple implementation of the attention mechanism in PyTorch:</p>
+<div id="b0ac1872" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AttentionHead(nn.Module):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d_model, d_k):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_q <span class="op">=</span> nn.Linear(d_model, d_k)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_k <span class="op">=</span> nn.Linear(d_model, d_k)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_v <span class="op">=</span> nn.Linear(d_model, d_k)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.d_k <span class="op">=</span> d_k</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        Q <span class="op">=</span> <span class="va">self</span>.W_q(x)  <span class="co"># Queries</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        K <span class="op">=</span> <span class="va">self</span>.W_k(x)  <span class="co"># Keys</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        V <span class="op">=</span> <span class="va">self</span>.W_v(x)  <span class="co"># Values</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Compute attention scores</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        scores <span class="op">=</span> torch.matmul(Q, K.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>)) <span class="op">/</span> (<span class="va">self</span>.d_k <span class="op">**</span> <span class="fl">0.5</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        attention_weights <span class="op">=</span> nn.functional.softmax(scores, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Compute the output as a weighted sum of values</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> torch.matmul(attention_weights, V)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can use it like this:</p>
+<div id="dd28348e" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.randn(<span class="dv">100</span>, <span class="dv">16</span>)  <span class="co"># Random embeddings for demonstration</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>embedding_dim <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>key_dim <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>attention_head <span class="op">=</span> AttentionHead(d_model<span class="op">=</span>embedding_dim, d_k<span class="op">=</span>key_dim)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> attention_head(X)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(output.shape)  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([100, 8])</code></pre>
+</div>
+</div>
+</section>
+<section id="multi-headed-attention" class="level3">
+<h3 class="anchored" data-anchor-id="multi-headed-attention">Multi-Headed Attention</h3>
+<p>We can describe a single attention map <span class="math inline">\(\text{Attn}: \mathbb{R}^{n \times d} \to \mathbb{R}^{n \times d}\)</span> by its weight matrices <span class="math inline">\(\mathbf{W}_q, \mathbf{W}_k, \mathbf{W}_v\)</span>. Learning these matrices allows the attention map to learn a set of dependency relationships between tokens. However, as in <a href="#fig-attention-diagrams" class="quarto-xref">Figure&nbsp;<span>17.2</span></a>, we might wish to learn to model <em>multiple</em> kinds of dependencies in sequences. To do this, we can simply concatenate multiple attention maps together. If <span class="math inline">\(h\)</span> is the number of attention <em>heads</em> that we want to learn, we can introduce <span class="math inline">\(h\)</span> different sets of weight matrices <span class="math inline">\(\{\mathbf{W}_q^{(i)}, \mathbf{W}_k^{(i)}, \mathbf{W}_v^{(i)}\}_{i=1}^h\)</span>, which give us <span class="math inline">\(h\)</span> different attention maps <span class="math inline">\(\text{Attn}^{(i)}: \mathbb{R}^{n \times d} \to \mathbb{R}^{n \times d}\)</span> that operate in parallel on the same input. The outputs of these attention maps are then concatenated together and passed through a final linear map to produce the final output of the multi-head attention layer.</p>
+</section>
+<section id="from-attention-to-transformers" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="from-attention-to-transformers">From Attention to Transformers</h3>
+<p>Multiheaded attention is the primary ingredient behind the <em>transformer</em> architecture, which is the basis for modern language models. A transformer module combines multiple instances of multiheaded attention with feedforward layers and normalization layers. The final layers of the transformer model can be adapted to perform tasks including language generation, classification, and regression. It’s also possible to stack multiple transformer modules on top of each other to create deeper models.</p>
+<div id="fig-transformer" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-transformer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://deeprevision.github.io/posts/001-transformer/transformer.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-transformer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17.3: Illustration of the transformer architecture. By <a href="https://deeprevision.github.io/posts/001-transformer/">Jean Nyandwi</a> and adapted from <span class="citation" data-cites="vaswani2017attention">Vaswani et al. (<a href="#ref-vaswani2017attention" role="doc-biblioref">2017</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="multiheaded-attention-in-gpt2" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="multiheaded-attention-in-gpt2">Multiheaded Attention in GPT2</h2>
+<p>Although training nontrivial attention and transformer models is typically quite computationally intensive, we can still get a sense for the workings of an attention model by looking at the learned attention weights of a pretrained model, such as GPT2.</p>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside"><em>Many components in this section are adapted from <a href="https://middcs.github.io/data-science-notes/source/32-generative-nn.html">Prof.&nbsp;Michael Linderman’s lecture</a> on generative language models</em></span></div></div>
+<div id="bb20fb6e" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Install needed packages iff running in Google Colab</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="st">"google.colab"</span> <span class="kw">in</span> sys.modules:</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">!</span>pip install bertviz torchinfo</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can access both the tokenizer and model for GPT2 using the HuggingFace <code>transformers</code> library.</p>
+<div id="2de03175" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer, AutoModelForCausalLM</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>checkpoint <span class="op">=</span> <span class="st">"openai-community/gpt2"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(checkpoint)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Use slower eager attention to enable attention outputs</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(checkpoint, attn_implementation<span class="op">=</span><span class="st">"eager"</span>, output_attentions<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>model.<span class="bu">eval</span>()<span class="op">;</span>  <span class="co"># Put model in evaluation mode rather than training mode</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+The following generation flags are not valid and may be ignored: ['output_attentions']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+Loading weights:   0%|          | 0/148 [00:00&lt;?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00&lt;00:00, 6097.51it/s]</code></pre>
+</div>
+</div>
+<p>This is the largest model that we’ve looked at to date:</p>
+<div id="039967ad" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>summary(model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>===========================================================================
+Layer (type:depth-idx)                             Param #
+===========================================================================
+GPT2LMHeadModel                                    --
+├─GPT2Model: 1-1                                   --
+│    └─Embedding: 2-1                              38,597,376
+│    └─Embedding: 2-2                              786,432
+│    └─Dropout: 2-3                                --
+│    └─ModuleList: 2-4                             --
+│    │    └─GPT2Block: 3-1                         7,087,872
+│    │    └─GPT2Block: 3-2                         7,087,872
+│    │    └─GPT2Block: 3-3                         7,087,872
+│    │    └─GPT2Block: 3-4                         7,087,872
+│    │    └─GPT2Block: 3-5                         7,087,872
+│    │    └─GPT2Block: 3-6                         7,087,872
+│    │    └─GPT2Block: 3-7                         7,087,872
+│    │    └─GPT2Block: 3-8                         7,087,872
+│    │    └─GPT2Block: 3-9                         7,087,872
+│    │    └─GPT2Block: 3-10                        7,087,872
+│    │    └─GPT2Block: 3-11                        7,087,872
+│    │    └─GPT2Block: 3-12                        7,087,872
+│    └─LayerNorm: 2-5                              1,536
+├─Linear: 1-2                                      38,597,376
+===========================================================================
+Total params: 163,037,184
+Trainable params: 163,037,184
+Non-trainable params: 0
+===========================================================================</code></pre>
+</div>
+</div>
+<p>Each of the 12 <code>GPT2Block</code>s in this model contain an implementation of the transformer architecture described in <a href="#fig-transformer" class="quarto-xref">Figure&nbsp;<span>17.3</span></a>, including a multiheaded attention layer. The following function definitions allow us to visualize the attention weights for a given input sequence.</p>
+<div id="a1214012" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _format_special_chars(tokens):</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return sequence of tokens with special characters replaced"""</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [t.replace(<span class="st">'Ġ'</span>, <span class="st">' '</span>) <span class="cf">for</span> t <span class="kw">in</span> tokens]</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_attention(attentions, inputs, layer<span class="op">=</span><span class="dv">0</span>, head<span class="op">=</span><span class="dv">0</span>, <span class="op">**</span>kwargs):</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Plot the attentions attention weights, labeled with tokens, for a specific layer and head."""</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> _format_special_chars(tokenizer.convert_ids_to_tokens(inputs[<span class="st">"input_ids"</span>][<span class="dv">0</span>]))</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    att <span class="op">=</span> attentions[layer][<span class="dv">0</span>, head, :, :].detach().numpy()</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> sns.heatmap(att, xticklabels<span class="op">=</span>tokens, yticklabels<span class="op">=</span>tokens, <span class="op">**</span>kwargs)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Attentions Layer </span><span class="sc">{</span>layer<span class="sc">}</span><span class="ss"> Head </span><span class="sc">{</span>head<span class="sc">}</span><span class="ss">"</span>, xlabel<span class="op">=</span><span class="st">"Attends to"</span>, ylabel<span class="op">=</span><span class="st">"Query"</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s take a look, using the sample sentence with which we began the lecture:</p>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">This model has been specially configured so that the output obtained when we call <code>model</code> on a sequence of tokens is a tuple containing all the attention weights in every attention head and model layer.</span></div></div>
+<div id="fig-gpt2-attention" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-gpt2-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="fe559f5a" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"My cat is small, cute, and fluffy. She likes belly rubs."</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>plot_attention(output.attentions, inputs, layer<span class="op">=</span><span class="dv">5</span>, head<span class="op">=</span><span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="52-attention_files/figure-html/cell-10-output-1.png" class="figure-img" width="560" height="465"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-gpt2-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17.4: Example attention head from the GPT2 model, showing dependencies between tokens in the input sentence. The matrix being visualized is <span class="math display">\[
+\mathrm{SoftMax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{k}}\right)\;,
+\]</span> from <span class="quarto-unresolved-ref">?eq-scaled-kqv-attn</span>, the matrix of attention weights for the specified layer and head.
+</figcaption>
+</figure>
+</div>
+<p>This particular attention head has learned several associations between tokens which appear reasonable:</p>
+<ul>
+<li>The token <strong>She</strong> attends strongly to the token <strong>cat</strong>, which is a reasonable relationship given that <strong>She</strong> is a pronoun referring to <strong>cat</strong>.</li>
+<li><strong>cat</strong> attends to <strong>My</strong>, a modifier of possession.</li>
+<li>The token <strong>likes</strong> also attends strongly to <strong>cat</strong>, the subject of the verb.</li>
+<li><strong>s</strong> attends to <strong>rub</strong>, since <strong>s</strong> is indeed the suffix in <strong>rubs</strong>.</li>
+</ul>
+<p>It’s important to remember here that machine learning is always imperfect, and that examples like this are often cherry-picked for interest. Other attention heads are much less interesting:</p>
+<div id="fig-gpt2-attention-boring" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-gpt2-attention-boring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="a0380cde" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>plot_attention(output.attentions, inputs, layer<span class="op">=</span><span class="dv">10</span>, head<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="52-attention_files/figure-html/cell-11-output-1.png" class="figure-img" width="560" height="465"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-gpt2-attention-boring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17.5: A much less interesting attention head from the same model.
+</figcaption>
+</figure>
+</div>
+<p>In this example, all the tokens in the sentence attend strongly to the very first token in the input.</p>
+</section>
+<section id="quick-glimpse-bias-in-language-models" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="quick-glimpse-bias-in-language-models">Quick Glimpse: Bias in Language Models</h2>
+<p>Examining attention weights can also give us some insight into the latent associations and biases learned by language models. Here’s an innocuous example:</p>
+<div id="fig-gpt2-attention-gender-pronouns" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-gpt2-attention-gender-pronouns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="8e9378c3" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The girl and the boy walked home. She ate a snack."</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>plot_attention(output.attentions, inputs, layer<span class="op">=</span><span class="dv">5</span>, head<span class="op">=</span><span class="dv">10</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">1</span>]</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The girl and the boy walked home. He ate a snack."</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>plot_attention(output.attentions, inputs, layer<span class="op">=</span><span class="dv">5</span>, head<span class="op">=</span><span class="dv">10</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="52-attention_files/figure-html/cell-12-output-1.png" class="figure-img" width="748" height="325"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig quarto-uncaptioned margin-caption" id="fig-gpt2-attention-gender-pronouns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17.6
+</figcaption>
+</figure>
+</div>
+<p>On the other hand, the same attention head has learned gendered associations which we may <em>not</em> wish to bake in to a language model:</p>
+<div id="478d2719" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The doctor spoke to the nurse. She said to him"</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>plot_attention(output.attentions, inputs, layer<span class="op">=</span><span class="dv">5</span>, head<span class="op">=</span><span class="dv">10</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">1</span>]</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The doctor spoke to the nurse. He said to her"</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>plot_attention(output.attentions, inputs, layer<span class="op">=</span><span class="dv">5</span>, head<span class="op">=</span><span class="dv">10</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="52-attention_files/figure-html/cell-13-output-1.png" class="figure-img" width="747" height="325"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In this experiment, the model associates male gender pronouns to the token <strong>doctor</strong> and female gender pronouns to the token <strong>nurse</strong>, even when the text in question is ambiguous or arguably suggestive that the opposite association might be more appropriate.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-bishop2023deep" class="csl-entry" role="listitem">
+Bishop, Christopher M, and Hugh Bishop. 2023. <em>Deep Learning: Foundations and Concepts</em>. Springer Nature.
+</div>
+<div id="ref-vaswani2017attention" class="csl-entry" role="listitem">
+Vaswani, Ashish, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. 2017. <span>“Attention Is All You Need.”</span> <em>Advances In Neural Information Processing Systems</em> 30.
+</div>
+</div>
+</section>
+
+<p><br> <br> <span style="color:grey;">© Phil Chodrow, 2025</span></p></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/51-text-generation.html" class="pagination-link" aria-label="Text Generation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Text Generation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

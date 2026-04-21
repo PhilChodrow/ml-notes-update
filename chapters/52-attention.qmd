@@ -1,0 +1,393 @@
+---
+title: |
+  The Attention Mechanism
+subtitle: |
+  Scalable long-range dependencies in sequence models
+jupyter: python3
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+
+:::
+
+
+## Motivation 
+
+[Last time](51-text-generation.qmd), we introduced a text-generation model containing a text embedding layer and a feedforward network composed of linear layers. This model was able to generally learn the idea that some tokens should be "near" other tokens, but wasn't really able to capture the details of order or syntactic dependency in the text. Our model had a fixed context window, with each token inside the context window contributing equally to the prediction of the next token (and each token outside the window being completely irrelevant for prediction). This is somewhat unrealistic. For consider the snippet
+
+*My cat is small, cute, and fluffy. **She** likes belly rubs.*
+
+Suppose that we are trying to predict **She** from the preceding tokens. Intuitively, this prediction makes sense because **my cat** is a noun phrase in the previous sentence. However, the word **cat** is not immediately adjacent to **She**. A model like the feedforward model from last time could have **my cat** in context, but would treat everything else in context identically: 
+
+![](fig/token-context.png)
+
+Here, all the tokens in the context window contribute equally to the prediction, including arguably irrelevant ones like **small** and **fluffy**. Our desired behavior looks more like this: 
+
+![](fig/token-context-2.png)
+
+So, we are looking for a model architecture that can flexibly learn long-range dependencies between tokens. Although there are many approaches to this problem, in these notes we'll use the one which has come to dominate multiple areas of modern deep learning, including language modeling -- the attention mechanism. 
+
+## The Attention Mechanism
+
+Schematically, we'd like to design an architecture in which: 
+
+- Tokens can preferentially *attend* to other tokens within the context. 
+- Tokens can depend in different *ways*, depending for example on semantics, syntax, or other relationships.
+
+Here's an example of how this might look with another simple, cat-themed example. Here, we've shown two different ways in which the tokens of the sentence *The cat sat on the mat* might attend to each other. 
+
+::: {#fig-attention-diagrams}
+
+![](fig/attention-heads.png)
+
+Schematic diagrams of two attention heads performing different functions. The first attention on the left picks up referential relationships between words, while the one on the right has been trained to detect rhyming words. 
+
+:::
+
+Another useful way to view these relationships is as matrices: 
+
+::: {#fig-attention-diagrams}
+
+![](fig/attention-heads-2.png)
+
+The same attention heads as in @fig-attention-diagrams, visualized as matrices. 
+
+:::
+
+Now we'll formulate a model architecture that can learn these kinds of relationships. 
+
+### Attention Operates on Embedded Tokens
+
+While it's often helpful to visualize attention as operating on units of English text, there are actually two units of processing that have to take place before we can pass data to the attention mechanism. First, given a piece of text, we need to tokenize it to obtain a sequence $t_1, t_2, \ldots, t_n$ of tokens. Then, we need to *embed* these tokens into a vector space to obtain a sequence of vectors $\vx_1, \vx_2, \ldots, \vx_n$. The attention mechanism operates on the embedded tokens $\vx_i$. We can collect these vector into a matrix 
+
+$$
+\begin{aligned}
+    \mX = \begin{bmatrix}
+    - & \vx_1^\top & -\\
+    - &\vx_2^\top & -\\
+    & \vdots \\
+    - & \vx_n^\top & -
+    \end{bmatrix} \in \R^{n \times d}\;,
+\end{aligned} 
+$$
+
+where $d$ is the dimension of the embedding space. The attention mechanism will take $\mU$ as input and produce a new matrix $\mW \in \R^{n \times d}$ as output, where the $i$-th row of $\mW$ is a new vector representation of the $i$-th token that incorporates information about which *other* tokens in the sequence are relevant to it. 
+
+So, our attention mechanism is a trainable function from matrices of token embeddings $\R^{n \times d}$ to $\R^{n \times d}$: 
+
+$$
+\text{Attn}: \R^{n \times d} \to \R^{n \times d}\;.
+$$
+
+### Fixed Attention
+
+[My exposition in this section is adapted from @bishop2023deep, Chapter 12.]{.aside}
+
+The simplest kind of map $\R^{n \times d} \to \R^{n \times d}$ would be a linear map: 
+
+$$
+\begin{aligned}
+    \vu_j = \sum_{i=1}^n a_{ij} \vx_i\;,
+\end{aligned}
+$${#eq:attn-linear}
+
+In this expression, we would treat each coefficient $a_{ij}$ as a parameter that reflects how much the $i$th token in the sequence should contribute to the representation of the $j$th token. Now, it's intuitive that (a) we shouldn't be able to pay *negative* attention to a token and that (b) if I pay a lot of attention to one token, I must pay less attention others. These motivate the constraints that $a_{ij} \geq 0$ and $\sum_{i=1}^n a_{ij} = 1$ for all $j$.
+
+### Self-Attention
+
+@eq-attn-linear encodes some reasonable ideas, but it's also limited -- the attention weights $a_{ij}$ don't depend on the inputs $\vw_i$ at all. So, for example, we might have the fifth token attending strongly to the second token in every input sequence, *regardless of what those tokens are*. One way to address this problem is to *make the attention weights themselves depend on the input tokens*. Two tokens $i$ and $j$ are *similar* in the embedding space if $\vx_i^\top \vx_j$ is large. [The concept of similarity being used here is unnormalized cosine similarity.]{.aside} To make sure that the coefficients are nonnegative and sum to 1, we can pass them through a softmax: 
+
+$$
+\begin{aligned}
+    a_{ij} = \frac{e^{\vx_i^\top \vx_j}}{\sum_{j' = 1}^n e^{\vx_i^\top \vx_j'}}\;.
+\end{aligned}
+$$
+
+If we let $\mathrm{SoftMax}: \R^{n\times p} \to \R^{n\times p}$ denote the softmax function applied row-wise to any $n\times p$ matrix for any $p$, then we can write the matrix of attention weights as 
+
+$$
+\begin{aligned}
+    \mA = \mathrm{SoftMax}(\mX \mX^\top)\;,
+\end{aligned}
+$$
+
+Our self-attention mechanism can then be written 
+
+$$
+\begin{aligned}
+    \mX = \mA \mX = \mathrm{SoftMax}(\mX \mX^\top) \mX\;.
+\end{aligned}
+$${#eq:self-attn}
+    
+@eq-self-attn is an improvement in one way and a step back in another. On the one hand, we now have attention weights which depend on the input tokens. On the other, however, we have no more trainable model parameters! 
+
+### Key-Query-Value (KQV) Attention
+
+To motivate the mechanism used in modern attention models, it's helpful to introduce some terminology taken from the field of information retrieval. Suppose that you'd like to design a system that would allow users to browse a collection of books based on their preferences. Here's how your system works: 
+
+- The user inputs their preferences, represented as a vector, which we'll call the *query* vector $\vq \in \R^k$. For example, we might think of $q_1$ as describing how much action the user wants in their book, $q_2$ as describing how much romance they want, and so on.
+- Each book in the collection is also assigned a vector, which we'll call the *key* vector $\vk \in \R^k$. A book is a good match for the user's preference when $\vq^\top \vk$ is large.
+- The book itself is the *value* returned by choosing the key $\vk$ that best matches the query $\vq$.
+
+In our case, since we want an attention map $\text{Attn}: \R^{n \times d} \to \R^{n \times d}$, our values should be vectors $\vv\in \R^d$ of the same dimension $d$ as the input token embeddings. 
+
+If we substitute the key-query-value mechanism into our attention formula, we get the following expression for the $j$-th output token representation:
+
+$$
+\begin{aligned}
+    \vu_j = \sum_{i=1}^n \frac{e^{\vq_i^\top \vk_j}}{\sum_{j' = 1}^n e^{\vq_i^\top \vk_{j'}}} \vv_i\;,
+\end{aligned}
+$$
+
+or, in matricized form, 
+
+$$
+\begin{aligned}
+    \mU = \mathrm{SoftMax}(\mQ \mK^\top) \mV\;,
+\end{aligned}
+$${#eq:kqv-attn}
+
+where $\mQ, \mK \in \R^{n \times k}$ are the matrices of query and key vectors, respectively, and $\mV \in \R^{n \times d}$ is the matrix of value vectors. 
+
+It looks like we've lost the dependence on the input token embeddings $\mU$ again, but we can fix this by making the query, key, and value vectors themselves depend on the input tokens. We do this by introducing *three* trainable linear maps $\R^d \to \R^k$ and $\R^d \to \R^d$ that take the input token embeddings $\vu_i$ to the query, key, and value vectors $\vq_i, \vk_i, \vv_i$: 
+
+$$
+\begin{aligned}
+    \vq_i = \mW_q \vx_i\;,\quad
+    \vk_i = \mW_k \vx_i\;,\quad
+    \vv_i = \mW_v \vx_i\;,
+\end{aligned}
+$$
+
+We can represent these maps in matrix form as $\mQ = \mX \mW_q$, $\mK = \mX \mW_k$, and $\mV = \mX \mW_v$. 
+
+@eq:kqv-attn is *almost* the attention mechanism used in modern transformer models. It's usually useful to add a scaling factor of $1/\sqrt{k}$ to the exponent in the softmax, which gives us the final formula for the attention mechanism:
+
+$$
+\begin{aligned}
+    \mU &= \mathrm{SoftMax}\left(\frac{\mQ \mK^\top}{\sqrt{k}}\right) \mV \\ 
+        \mQ &= \mX \mW_q\;,\quad
+        \mK = \mX \mW_k\;,\quad
+        \mV = \mX \mW_v\;.
+\end{aligned}
+$${#eq:scaled-kqv-attn}
+
+The matrices $\mW_q, \mW_k, \mW_v$ are the trainable parameters of the attention mechanism, and can be learned from data via optimization. 
+
+### An Attention Implementation
+
+Here's a simple implementation of the attention mechanism in PyTorch: 
+
+```{python}
+from torch import nn 
+import torch
+#---
+class AttentionHead(nn.Module):
+    def __init__(self, d_model, d_k):
+        super().__init__()
+        self.W_q = nn.Linear(d_model, d_k)
+        self.W_k = nn.Linear(d_model, d_k)
+        self.W_v = nn.Linear(d_model, d_k)
+        self.d_k = d_k
+
+    def forward(self, x):
+        Q = self.W_q(x)  # Queries
+        K = self.W_k(x)  # Keys
+        V = self.W_v(x)  # Values
+
+        # Compute attention scores
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / (self.d_k ** 0.5)
+        attention_weights = nn.functional.softmax(scores, dim=-1)
+
+        # Compute the output as a weighted sum of values
+        output = torch.matmul(attention_weights, V)
+        return output
+#---
+```
+
+We can use it like this: 
+
+```{python}
+X = torch.randn(100, 16)  # Random embeddings for demonstration
+embedding_dim = 16
+key_dim = 8
+
+#---
+attention_head = AttentionHead(d_model=embedding_dim, d_k=key_dim)
+output = attention_head(X)
+print(output.shape)  
+#---
+```
+
+### Multi-Headed Attention
+
+We can describe a single attention map $\text{Attn}: \R^{n \times d} \to \R^{n \times d}$ by its weight matrices $\mW_q, \mW_k, \mW_v$. Learning these matrices allows the attention map to learn a set of dependency relationships between tokens. However, as in @fig-attention-diagrams, we might wish to learn to model *multiple* kinds of dependencies in sequences. To do this, we can  simply concatenate multiple attention maps together. If $h$ is the number of attention *heads* that we want to learn, we can introduce $h$ different sets of weight matrices $\{\mW_q^{(i)}, \mW_k^{(i)}, \mW_v^{(i)}\}_{i=1}^h$, which give us $h$ different attention maps $\text{Attn}^{(i)}: \R^{n \times d} \to \R^{n \times d}$ that operate in parallel on the same input. The outputs of these attention maps are then concatenated together and passed through a final linear map to produce the final output of the multi-head attention layer.
+
+### From Attention to Transformers
+
+Multiheaded attention is the primary ingredient behind the *transformer* architecture, which is the basis for modern language models. A transformer module combines multiple instances of multiheaded attention with feedforward layers and normalization layers. The final layers of the transformer model can be adapted to perform tasks including language generation, classification, and regression. It's also possible to stack multiple transformer modules on top of each other to create deeper models.
+
+::: {#fig-transformer}
+
+![](https://deeprevision.github.io/posts/001-transformer/transformer.png)
+
+Illustration of the transformer architecture. By [Jean Nyandwi](https://deeprevision.github.io/posts/001-transformer/) and adapted from @vaswani2017attention.  
+
+:::
+
+## Multiheaded Attention in GPT2
+
+Although training nontrivial attention and transformer models is typically quite computationally intensive, we can still get a sense for the workings of an attention model by looking at the learned attention weights of a pretrained model, such as GPT2.
+
+
+[*Many  components in this section are adapted from [Prof. Michael Linderman's lecture](https://middcs.github.io/data-science-notes/source/32-generative-nn.html) on generative language models*]{.aside} 
+
+
+```{python}
+import torch 
+# Install needed packages iff running in Google Colab
+import sys
+if "google.colab" in sys.modules:
+    !pip install bertviz torchinfo
+```
+
+We can access both the tokenizer and model for GPT2 using the HuggingFace `transformers` library.
+
+```{python}
+from transformers import AutoTokenizer, AutoModelForCausalLM
+checkpoint = "openai-community/gpt2"
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+# Use slower eager attention to enable attention outputs
+model = AutoModelForCausalLM.from_pretrained(checkpoint, attn_implementation="eager", output_attentions=True)
+model.eval();  # Put model in evaluation mode rather than training mode
+```
+
+This is the largest model that we've looked at to date: 
+
+```{python}
+from torchinfo import summary
+summary(model)
+```
+
+Each of the 12 `GPT2Block`s in this model contain an implementation of the transformer architecture described in @fig-transformer, including a multiheaded attention layer. The following function definitions allow us to visualize the attention weights for a given input sequence.
+
+```{python}
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+def _format_special_chars(tokens):
+    """Return sequence of tokens with special characters replaced"""
+    return [t.replace('Ġ', ' ') for t in tokens]
+
+def plot_attention(attentions, inputs, layer=0, head=0, **kwargs):
+    """Plot the attentions attention weights, labeled with tokens, for a specific layer and head."""
+    tokens = _format_special_chars(tokenizer.convert_ids_to_tokens(inputs["input_ids"][0]))
+    att = attentions[layer][0, head, :, :].detach().numpy()
+    ax = sns.heatmap(att, xticklabels=tokens, yticklabels=tokens, **kwargs)
+    ax.set(title=f"Attentions Layer {layer} Head {head}", xlabel="Attends to", ylabel="Query")
+    return ax
+```
+
+Let's take a look, using the sample sentence with which we began the lecture: 
+
+[This model has been specially configured so that the output obtained when we call `model` on a sequence of tokens is a tuple containing all the attention weights in every attention head and model layer.]{.aside}
+
+::: {#fig-gpt2-attention}
+
+```{python}
+text = "My cat is small, cute, and fluffy. She likes belly rubs."
+inputs = tokenizer(text, return_tensors="pt")
+output = model(**inputs)
+plot_attention(output.attentions, inputs, layer=5, head=10)
+```
+
+Example attention head from the GPT2 model, showing dependencies between tokens in the input sentence. The matrix being visualized is 
+$$
+\mathrm{SoftMax}\left(\frac{\mQ \mK^\top}{\sqrt{k}}\right)\;,
+$$ 
+from @eq-scaled-kqv-attn, the matrix of attention weights for the specified layer and head.
+
+:::
+
+This particular attention head has learned several associations between tokens which appear reasonable: 
+
+- The token **She** attends strongly to the token **cat**, which is a reasonable relationship given that **She** is a pronoun referring to **cat**.
+- **cat** attends to **My**, a modifier of possession. 
+- The token **likes** also attends strongly to **cat**, the subject of the verb. 
+- **s** attends to **rub**, since **s** is indeed the suffix in **rubs**. 
+
+It's important to remember here that machine learning is always imperfect, and that examples like this are often cherry-picked for interest. Other attention heads are much less interesting: 
+
+::: {#fig-gpt2-attention-boring}
+
+```{python}
+plot_attention(output.attentions, inputs, layer=10, head=1)
+```
+
+A much less interesting attention head from the same model.
+
+:::
+
+In this example, all the tokens in the sentence attend strongly to the very first token in the input. 
+
+## Quick Glimpse: Bias in Language Models
+
+Examining attention weights can also give us some insight into the latent associations and biases learned by language models. Here's an innocuous example: 
+
+::: {#fig-gpt2-attention-gender-pronouns}
+
+```{python}
+fig, axarr = plt.subplots(1, 2, figsize=(8, 3.5))
+ax = axarr[0]
+
+text = "The girl and the boy walked home. She ate a snack."
+inputs = tokenizer(text, return_tensors="pt")
+output = model(**inputs)
+plot_attention(output.attentions, inputs, layer=5, head=10, ax=ax)
+
+ax = axarr[1]
+
+text = "The girl and the boy walked home. He ate a snack."
+inputs = tokenizer(text, return_tensors="pt")
+output = model(**inputs)
+plot_attention(output.attentions, inputs, layer=5, head=10, ax=ax)
+
+plt.tight_layout()
+```
+
+:::
+
+On the other hand, the same attention head has learned gendered associations which we may *not* wish to bake in to a language model: 
+
+
+```{python}
+fig, axarr = plt.subplots(1, 2, figsize=(8, 3.5))
+ax = axarr[0]
+
+text = "The doctor spoke to the nurse. She said to him"
+inputs = tokenizer(text, return_tensors="pt")
+output = model(**inputs)
+plot_attention(output.attentions, inputs, layer=5, head=10, ax=ax)
+
+ax = axarr[1]
+
+text = "The doctor spoke to the nurse. He said to her"
+inputs = tokenizer(text, return_tensors="pt")
+output = model(**inputs)
+plot_attention(output.attentions, inputs, layer=5, head=10, ax=ax)
+
+plt.tight_layout()
+```
+
+In this experiment, the model associates male gender pronouns to the token **doctor** and female gender pronouns to the token **nurse**, even when the text in question is ambiguous or arguably suggestive that the opposite association might be more appropriate. 

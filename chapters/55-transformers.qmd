@@ -34,10 +34,113 @@ from torch import nn
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ```
 
+
+
 ```{python}
-#| echo: false
-# MPS acceleration for Phil to build these notes on his mac
-device = torch.device("mps" if torch.backends.mps.is_available() else device)
+url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/seuss.txt"
+text = "\n".join([line.decode('utf-8').strip() for line in urllib.request.urlopen(url)])
+```
+
+## Data and Embedding
+
+```{python}
+#| code-fold: true
+# construct tokenizer
+from tokenizers import Tokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+# dataset for embedding
+from torch.utils.data import Dataset, DataLoader
+class CBOWDataset(Dataset):
+    def __init__(self, tokens, context_length):
+        self.tokens = tokens
+        
+        # dict to remap tokens to contiguous integers
+        self.token_to_idx = {token: i for i, token in enumerate(set(tokens))}
+        self.idx_to_token = {i: token for token, i in self.token_to_idx.items()}
+        
+        # context length is the number of tokens on either side of the target token
+        self.context_length = context_length
+        self.data = []
+        for i in range(context_length, len(tokens)-context_length):
+            for j in range(-context_length, context_length+1):
+                if j != 0:
+                    self.data.append((self.token_to_idx[tokens[i+j]], self.token_to_idx[tokens[i]]))
+                    self.data.append((self.token_to_idx[tokens[i+j]], self.token_to_idx[tokens[i]]))
+        
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+        return torch.tensor(self.data[idx][0]), torch.tensor(self.data[idx][1])
+
+# CBOW embedding model
+class CBOW(nn.Module):
+    def __init__(self, vocab_size, d_model):
+        super().__init__()
+        self.embeddings = nn.Embedding(vocab_size, d_embedding)
+        self.linear = nn.Linear(d_embedding, vocab_size)
+        
+    def forward(self, x):
+        embedded = self.embeddings(x) 
+        output = self.linear(embedded)
+        return output
+
+# for embedding visualization after training
+def visualize_embeddings(model, tokenizer, data):
+
+    # extract the embedding weights
+    weights = model.embeddings.weight
+
+    # use t-SNE to reduce the dimensionality of the embeddings to 2D
+    tsne = TSNE(n_components=2, random_state=42)
+    embeddings_2d = tsne.fit_transform(weights.detach().cpu().numpy())
+
+    # make a dataframe for plotly 
+    embedding_df = pd.DataFrame(embeddings_2d, columns=["Dim1", "Dim2"])
+    embedding_df["Token"] = [tokenizer.decode(data.idx_to_token[i]) for i in range(len(embeddings_2d))]
+
+    # labeled scatter plot of the embeddings
+    fig = px.scatter(embedding_df, x="Dim1", y="Dim2", text="Token", title="2D Visualization of Token Embeddings")
+    fig.update_traces(textposition='top center')
+    fig.update_layout(xaxis_title="Dimension 1", yaxis_title="Dimension 2")
+    fig.show()
+
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    
+    checkpoint = "openai-community/gpt2"
+    tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+
+
+    # construct dataset, dataloader, model
+    context_length = 5
+    tokens = tokenizer.encode(text)
+    data = CBOWDataset(tokens, context_length=context_length)
+    dataloader = DataLoader(data, batch_size=32, shuffle=True)
+    vocab_size = len(data.token_to_idx)
+    d_embedding = 8
+    model = CBOW(vocab_size, d_model=d_embedding)
+
+    # construct training loss and optimizer
+
+    opt = torch.optim.Adam(model.parameters(), lr=1e-2)
+    loss_fn = nn.CrossEntropyLoss()
+    model.to(device)
+
+    # training loop
+    for epoch in range(5):
+        for X_batch, y_batch in dataloader:
+            X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+            opt.zero_grad()
+            output = model(X_batch)
+            loss = loss_fn(output, y_batch)
+            loss.backward()
+            opt.step()
+
+    # take a look at the embeddings
+    visualize_embeddings(model, tokenizer, data)
 ```
 
 ## Sequence Data

@@ -72,7 +72,6 @@ Before we introduce our main paradigm and model for text generation, we are goin
 from tokenizers import Tokenizer
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-
 # dataset for embedding
 from torch.utils.data import Dataset, DataLoader
 class CBOWDataset(Dataset):

@@ -135,17 +135,6 @@ if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.M
 <script type="module">import "https://cdn.plot.ly/plotly-3.4.0.min"</script>
 
 <style>
-div.callout-question.callout {
-  border-left-color: lightblue;
-}
-div.callout-question.callout-style-default > .callout-header {
-  background-color: rgb(from lightblue r g b / 13%);
-}
-div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
-  content: '❓';
-  background-image: none;
-}
 div.callout-sol.callout {
   border-left-color: pink;
 }
@@ -155,6 +144,17 @@ div.callout-sol.callout-style-default > .callout-header {
 div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
   content: '📝';
+  background-image: none;
+}
+div.callout-question.callout {
+  border-left-color: lightblue;
+}
+div.callout-question.callout-style-default > .callout-header {
+  background-color: rgb(from lightblue r g b / 13%);
+}
+div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
+  content: '❓';
   background-image: none;
 }
 </style>
@@ -375,6 +375,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Text Generation</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/52-attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">The Attention Mechanism</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -427,7 +433,7 @@ window.Quarto = {
 
 <p><em><a href="https://colab.research.google.com/github/philchodrow/ml-notes-update/blob/main/docs/live-notebooks/50-tokens-embeddings.ipynb">Open the live notebook</a> in Google Colab.</em></p>
 <p>In this set of notes, we begin our study of language models with two key concepts: <strong>tokens</strong>, the building blocks of sequence data, and <strong>embeddings</strong>, the vector representations of those tokens that allow us to apply machine learning techniques to them. By the end of these notes, we’ll have implemented and trained one standard embedding model using a small text data set.</p>
-<div id="4392189d" class="cell" data-execution_count="3">
+<div id="4392189d" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
@@ -449,12 +455,12 @@ window.Quarto = {
 </details>
 </div>
 <p>Our example for this lecture will be a combined corpus of the complete text of several books by Dr.&nbsp;Seuss, including <em>Green Eggs and Ham</em>, <em>The Cat in the Hat</em>, <em>Fox in Socks</em>, and <em>How The Grinch Stole Christmas</em>. The text is available online, and we can load it directly into Python using <code>urllib</code>.</p>
-<div id="d81d993b" class="cell" data-execution_count="4">
+<div id="d81d993b" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/seuss.txt"</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([line.decode(<span class="st">'utf-8'</span>).strip() <span class="cf">for</span> line <span class="kw">in</span> urllib.request.urlopen(url)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Here is an excerpt from the text:</p>
-<div id="ba1b6991" class="cell" data-execution_count="5">
+<div id="ba1b6991" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text[<span class="dv">0</span>:<span class="dv">132</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>The Cat in the Hat
@@ -474,7 +480,7 @@ All that cold, cold, wet day</code></pre>
 <p><span class="theorem-title"><strong>Definition 15.1 (Tokenizer, Tokens, Vocabulary)</strong></span> A <em>tokenizer</em> is a map between (typically short) sequences of raw text and integer labels called <em>tokens</em>. The set of all tokens is called the <em>vocabulary</em> of the tokenizer.</p>
 </div>
 <div class="page-columns page-full"><p>It’s possible to implement and train many modern tokenizers from scratch, but for our purposes here we’ll use a pre-trained tokenizer. This particular tokenizer is the one used by the GPT-2 language model, and it is available through the <code>transformers</code> library. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">GPT-2 preceded GPT-3, the version of GPT that became popular through ChatGPT.</span></div></div>
-<div id="f647a529" class="cell" data-execution_count="6">
+<div id="f647a529" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tokenizers <span class="im">import</span> Tokenizer</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer, AutoModelForCausalLM</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -490,7 +496,7 @@ All that cold, cold, wet day</code></pre>
 <div id="fig-vocab" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-vocab-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="f525781f" class="cell" data-execution_count="7">
+<div id="f525781f" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>vocab_df <span class="op">=</span> pd.DataFrame(<span class="bu">list</span>(tokenizer.vocab.items()), columns<span class="op">=</span>[<span class="st">"Token"</span>, <span class="st">"ID"</span>])</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>vocab_df.head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
@@ -570,7 +576,7 @@ Figure&nbsp;15.1: Excerpt from the vocabulary of the GPT-2 tokenizer.
 </div>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">You’ll notice the presence of the special character <code>Ġ</code> in some of the tokens. This character is used by the GPT-2 tokenizer to indicate that the token is preceded by a space in the original text. For example, the token <code>Ġthe</code> corresponds to the word “the” when it appears after a space, while the token <code>the</code> corresponds to “the” when it appears at the beginning of a string or after certain punctuation. This point is just one of many subtleties in play when creating a tokenizer that captures English text relatively faithfully.</span></div></div>
 <p>Once we’ve created the tokenizer, we can use the <code>encode</code> method to convert any supplied text into a sequence of tokens.</p>
-<div id="b9a4f903" class="cell" data-execution_count="8">
+<div id="b9a4f903" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sentence <span class="op">=</span> <span class="st">"I do not like green eggs and ham."</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer.encode(sentence)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -642,7 +648,7 @@ Figure&nbsp;15.1: Excerpt from the vocabulary of the GPT-2 tokenizer.
 </div>
 </div>
 <p>We can then <code>decode</code> the tokens back into text:</p>
-<div id="4cd99ee5" class="cell" data-execution_count="9">
+<div id="4cd99ee5" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>decoded <span class="op">=</span> tokenizer.decode(tokens)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decoded)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -650,14 +656,14 @@ Figure&nbsp;15.1: Excerpt from the vocabulary of the GPT-2 tokenizer.
 </div>
 </div>
 <p>The complete GPT-2 tokenizer has a large vocabulary of tokens:</p>
-<div id="258e4dfb" class="cell" data-execution_count="10">
+<div id="258e4dfb" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Vocabulary size:"</span>, tokenizer.vocab_size)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Vocabulary size: 50257</code></pre>
 </div>
 </div>
 <p>This is quite a bit more than the number of unique tokens which actually appear in our text data set.</p>
-<div id="bf795474" class="cell" data-execution_count="11">
+<div id="bf795474" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer.encode(text)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>unique_tokens <span class="op">=</span> <span class="bu">set</span>(tokens)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Total number of tokens in text:"</span>, <span class="bu">len</span>(tokens))</span>
@@ -722,7 +728,7 @@ Figure&nbsp;15.2: Visual illustration of one-hot encoding: the second sequence i
 <p>The cosine similarity is a number between -1 and 1, where 1 indicates <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> are parallel (i.e.&nbsp;<span class="math inline">\(\mathbf{v}= c \mathbf{u}\)</span> for some <span class="math inline">\(c &gt; 0\)</span>), -1 indicates <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> are anti-parallel (i.e.&nbsp;<span class="math inline">\(\mathbf{v}= c \mathbf{u}\)</span> for some <span class="math inline">\(c &lt; 0\)</span>), and 0 indicates <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> are orthogonal (i.e.&nbsp;<span class="math inline">\(\langle \mathbf{u}, \mathbf{v} \rangle = 0\)</span>).</p>
 </div>
 <p>Here’s a simple implementation:</p>
-<div id="1006c4d3" class="cell" data-execution_count="12">
+<div id="1006c4d3" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cosine_similarity(u, v):</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> u<span class="op">@</span>v <span class="op">/</span> (torch.norm(u) <span class="op">*</span> torch.norm(v))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -736,7 +742,7 @@ Figure&nbsp;15.2: Visual illustration of one-hot encoding: the second sequence i
 <section id="cbow-continuous-bag-of-words" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="cbow-continuous-bag-of-words">CBOW: Continuous Bag of Words</h3>
 <p>CBOW, like many other embedding models, learns token embeddings from a prediction task: we try to predict a target token <span class="math inline">\(t_k\)</span> from its surrounding tokens <span class="math inline">\(t_{k-c}, \ldots, t_{k-1}, t_{k+1}, \ldots, t_{k+c}\)</span>, where <span class="math inline">\(c\)</span> is a hyperparameter called the <em>context length</em>. The model learns token embeddings by learning to solve this prediction task. We’re going to consider a very simple version of the CBOW model in which we predict <span class="math inline">\(t_k\)</span> from a single context token at a time. This means we need a data set that looks like this:</p>
-<div id="771651ba" class="cell" data-execution_count="13">
+<div id="771651ba" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>example <span class="op">=</span> <span class="st">"I do not like green eggs and ham."</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>example_tokens <span class="op">=</span> tokenizer.encode(example)</span>
@@ -775,7 +781,7 @@ Figure&nbsp;15.2: Visual illustration of one-hot encoding: the second sequence i
 </div>
 <p>A nice feature of this data set is that it contains many examples of the same target token appearing in different contexts, which allows the model to learn a more general embedding for that token. For example, the token “green” appears in the context of “like” and “eggs,” which should help the model learn an embedding for “green” that captures its relationship to those other tokens. This also helps guard against overfitting – the model can’t just memorize the embedding for “green” based on a single context, since it appears in multiple contexts.</p>
 <div class="page-columns page-full"><p>The following dataset class implements this data generation process for the entire example text of Dr.&nbsp;Seuss. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">This data set also includes logic for converting the token indices from the GPT tokenizer to a contiguous integer representation which includes only indices for the tokens which are present in the data set. This allows our model later to learn embeddings for ~1,500 tokens, rather than the full vocabulary of ~50,000.</span></div></div>
-<div id="fb5f302e" class="cell" data-execution_count="14">
+<div id="fb5f302e" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> Dataset, DataLoader</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CBOWDataset(Dataset):</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tokens, context_length):</span>
@@ -801,7 +807,7 @@ Figure&nbsp;15.2: Visual illustration of one-hot encoding: the second sequence i
 <span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> torch.tensor(<span class="va">self</span>.data[idx][<span class="dv">0</span>]), torch.tensor(<span class="va">self</span>.data[idx][<span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can extract data like this:</p>
-<div id="4ae84202" class="cell" data-execution_count="15">
+<div id="4ae84202" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>context_length <span class="op">=</span> <span class="dv">5</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> CBOWDataset(tokens, context_length<span class="op">=</span>context_length)</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> data[<span class="dv">0</span>]</span>
@@ -815,13 +821,13 @@ The    --&gt;
 </div>
 </div>
 <p>As usual, it’s convenient to use a <code>DataLoader</code> to handle batching and shuffling of the data.</p>
-<div id="a9422a2d" class="cell" data-execution_count="16">
+<div id="a9422a2d" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>dataloader <span class="op">=</span> DataLoader(data, batch_size<span class="op">=</span><span class="dv">32</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="a-cbow-embedding-model" class="level4">
 <h4 class="anchored" data-anchor-id="a-cbow-embedding-model">A CBOW Embedding Model</h4>
 <p>We’ll solve the CBOW prediction task using a minimal feedforward network containing an embedding layer and a linear layer. The role of the embedding layer is to accept a token index <span class="math inline">\(i\)</span> and return an embedding vector <span class="math inline">\(\mathbf{v}_i \in \mathbb{R}^d\)</span>, which is learned as part of training. These embedding vectors are then used as features for the linear layer.</p>
-<div id="5df299fe" class="cell" data-execution_count="17">
+<div id="5df299fe" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CBOW(nn.Module):</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size, d_embedding):</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
@@ -834,7 +840,7 @@ The    --&gt;
 <span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can now create an instance of the model and take a look at the architecture:</p>
-<div id="7d0e9954" class="cell" data-execution_count="18">
+<div id="7d0e9954" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>vocab_size <span class="op">=</span> <span class="bu">len</span>(data.token_to_idx)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>d_embedding <span class="op">=</span> <span class="dv">4</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> CBOW(vocab_size, d_embedding<span class="op">=</span>d_embedding).to(device)</span>
@@ -865,7 +871,7 @@ Estimated Total Size (MB): 0.07
 <section id="the-embedding-layer" class="level4 page-columns page-full">
 <h4 class="anchored" data-anchor-id="the-embedding-layer">The Embedding Layer</h4>
 <p>The following code implements a visualizer for the embedding layer. Since we are using an 8-dimensional embedding, it’s not possible to directly visualize the embedding vectors in 2-dimensional space. Instead, we can use a dimensionality reduction technique called t-SNE to project the embedding vectors down to 2 dimensions while preserving their relative distances as much as possible.</p>
-<div id="3faeb9ec" class="cell" data-execution_count="19">
+<div id="3faeb9ec" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize_embeddings(model, tokenizer, data):</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># extract the embedding weights</span></span>
@@ -889,7 +895,7 @@ Estimated Total Size (MB): 0.07
 <div id="fig-initial-embeddings" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-initial-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="30251bc0" class="cell" data-execution_count="20">
+<div id="30251bc0" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>visualize_embeddings(model, tokenizer, data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
@@ -928,13 +934,13 @@ Figure&nbsp;15.3: Token embeddings in the CBOW model prior to training, reduced 
 </div>
 <p>The embeddings appear random and uninteresting – natural, since we haven’t actually trained the model yet.</p>
 <p>Now let’s go ahead and train our model, which we can do using a typical optimization loop. Since this is again a classification problem, we’ll use cross-entropy loss.</p>
-<div id="728f5484" class="cell" data-execution_count="21">
+<div id="728f5484" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">1e-2</span>)</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> nn.CrossEntropyLoss()</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>model.to(device)</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>loss_history <span class="op">=</span> []</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="c2489163" class="cell" data-execution_count="22">
+<div id="c2489163" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    total_loss <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> X_batch, y_batch <span class="kw">in</span> dataloader:</span>
@@ -961,7 +967,7 @@ Figure&nbsp;15.3: Token embeddings in the CBOW model prior to training, reduced 
 <div id="fig-loss-curve" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-loss-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="251b5a47" class="cell" data-execution_count="23">
+<div id="251b5a47" class="cell" data-execution_count="24">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -980,7 +986,7 @@ Figure&nbsp;15.4: Cross-entropy loss on the training set for the CBOW model.
 <div id="fig-trained-embeddings" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-trained-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="7793cd3e" class="cell" data-execution_count="24">
+<div id="7793cd3e" class="cell" data-execution_count="25">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>visualize_embeddings(model, tokenizer, data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
@@ -1023,7 +1029,7 @@ Figure&nbsp;15.5: 2-dimensional visualization of the token embeddings after trai
 <section id="studying-embeddings" class="level2">
 <h2 class="anchored" data-anchor-id="studying-embeddings">Studying Embeddings</h2>
 <p>Recall that we can use the cosine similarity to study relationships between tokens. Let’s compare cosine similarities between <code>Fox</code> (from <em>Fox in Socks</em>) and several other tokens:</p>
-<div id="3ce2196e" class="cell" data-execution_count="25">
+<div id="3ce2196e" class="cell" data-execution_count="26">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>base_token <span class="op">=</span> <span class="st">"Fox"</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>comparison_tokens <span class="op">=</span> [</span>
