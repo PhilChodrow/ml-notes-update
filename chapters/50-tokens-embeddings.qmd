@@ -26,8 +26,6 @@ In this set of notes, we begin our study of language models with two key concept
 ```{python}
 #| code-fold: true
 import torch 
-import torch
-from torchinfo import summary
 from torch import nn
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -40,7 +38,15 @@ from matplotlib import pyplot as plt
 import plotly.express as px
 import plotly.io as pio
 pio.templates.default = "plotly_white"
-pio.renderers.default = "notebook_connected"
+
+import sys 
+if "google.colab" in sys.modules:
+    !pip install torchinfo
+    pio.renderers.default = 'colab'
+else: 
+    pio.renderers.default = "notebook_connected"
+
+from torchinfo import summary
 ```
 
 Our example for this lecture will be a combined corpus of the complete text of several books by Dr. Seuss, including *Green Eggs and Ham*, *The Cat in the Hat*,  *Fox in Socks*, and *How The Grinch Stole Christmas*. The text is available online, and we can load it directly into Python using `urllib`.

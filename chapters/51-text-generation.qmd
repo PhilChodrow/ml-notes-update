@@ -36,8 +36,6 @@ Our aim by the end of these notes is to have a first, functioning generative lan
 ```{python}
 #| code-fold: true
 import torch 
-import torch
-from torchinfo import summary
 from torch import nn
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -50,7 +48,15 @@ from matplotlib import pyplot as plt
 import plotly.express as px
 import plotly.io as pio
 pio.templates.default = "plotly_white"
-pio.renderers.default = "notebook_connected"
+
+import sys 
+if "google.colab" in sys.modules:
+    !pip install torchinfo
+    pio.renderers.default = 'colab'
+else: 
+    pio.renderers.default = "notebook_connected"
+
+from torchinfo import summary
 ```
 
 We'll continue with our experiments on the Dr. Seuss corpus that we studied [last time](50-tokens-embeddings.qmd). 
@@ -527,7 +533,7 @@ print(dr_sus)
 At intermediate values, we recover something that is still very chaotic but which also contains occasional flashes of coherent task: 
 
 ```{python}
-dr_sus = generate_text(model, decoder, start_tokens, max_length=50, temperature=1.0)
+dr_sus = generate_text(model, decoder, start_tokens, max_length=50, temperature=0.3)
 print(dr_sus)
 ```
 

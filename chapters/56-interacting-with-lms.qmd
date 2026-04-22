@@ -23,6 +23,7 @@ import style
 
 ```{python}
 import torch 
+import torch.nn.functional as F
 # Install needed packages iff running in Google Colab
 import sys
 if "google.colab" in sys.modules:
@@ -41,20 +42,64 @@ model.eval();  # Put model in evaluation mode rather than training mode
 ### Next-Token Prediction
 
 ```{python}
-prompt = "The cat sat on the"
-input_ids = tokenizer(prompt, return_tensors="pt").input_ids
-with torch.no_grad():
-    output = model(input_ids)
-output.logits.shape
+def top_next_tokens(prompt, top_k=5):
+    input_ids = tokenizer(prompt, return_tensors="pt").input_ids
+    with torch.no_grad():
+        output = model(input_ids)
+    next_token_logits = output.logits[:, -1, :] 
+    probs = F.softmax(next_token_logits, dim=-1)  # Convert logits to (batch_size, vocab_size) probabilities
+    top_k_probs, top_k_indices = torch.topk(probs, top_k, dim=-1)
+    top_k_tokens = [tokenizer.decode([idx]) for idx in top_k_indices[0]]
+    print("Top-k next tokens and their probabilities:")
+    for token, prob in zip(top_k_tokens, top_k_probs[0]):
+        print(f"{token:<10}: {prob.item():.4f}")
+```
+
+```{python}
+prompt = "My favorite thing about machine"
+top_next_tokens(prompt)
 ```
 
 
 
 
+```{python}
+def boltzmann_sample(logits, temperature=1.0):
+    scaled_logits = logits / temperature
+    probs = F.softmax(scaled_logits, dim=-1)  # Convert logits to probabilities
+    next_token_id = torch.multinomial(probs, num_samples=1)  # Sample from the distribution
+    return next_token_id.item()
+```
+
+
+
 ### Text Generation
+
+```{python}
+def generate_text(prompt, max_length=50, temperature=1.0):
+    input_ids = tokenizer(prompt, return_tensors="pt").input_ids
+    generated_ids = input_ids
+    for _ in range(max_length):
+        with torch.no_grad():
+            output = model(generated_ids)
+        next_token_logits = output.logits[:, -1, :]
+        next_token_id = boltzmann_sample(next_token_logits, temperature)
+        generated_ids = torch.cat([generated_ids, torch.tensor([[next_token_id]])], dim=-1)
+    generated_text = tokenizer.decode(generated_ids[0])
+    return generated_text
+```
+
+```{python}
+prompt = "Once upon a time"
+generated_text = generate_text(prompt, max_length=50, temperature=0.8)
+print(generated_text)
+```
 
 ### Text Likelihood, Perplexity
 
 ### Fine-Tuning
+
+Show fine-tuning GPT-2 on a custom data set... 
+
 
 
