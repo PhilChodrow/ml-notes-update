@@ -174,7 +174,7 @@ Importantly, we're now able to extract the embedding layer from our CBOW model. 
 #---
 embedding = model.embeddings
 embedding.requires_grad_(False)
-embedding(torch.tensor([4]))
+embedding(torch.tensor([4])) # ex: embedding lookup for a single token
 #---
 ```
 
@@ -231,7 +231,7 @@ class SeussDataSet(Dataset):
         self.idx_to_token = {i: token for i, token in enumerate(set(tokens))}
         self.token_to_idx = {token: i for i, token in enumerate(set(tokens))}
 
-    #---
+
     def __len__(self):
         return len(self.tokens) - self.context_length#<1>
     
@@ -246,7 +246,7 @@ class SeussDataSet(Dataset):
         feature_tensor = torch.tensor(features, dtype=torch.long)
 
         return feature_tensor.to(device), target.to(device)
-    #---
+
 ```
 
 1. The number of training examples is equal to the total number of tokens minus the context length, since we need at least `context_length` tokens to form the features for the first example.
@@ -271,9 +271,9 @@ class SeussDecoder:
 Let's instantiate each class: 
 
 ```{python}
-#---
+context_length = 10
+
 data = SeussDataSet(tokens, context_length = context_length)
-#---
 decoder = SeussDecoder(data, tokenizer)
 
 print(f"Number of training examples: {len(data)}")
@@ -297,7 +297,7 @@ for i in range(5):
 Let's add a data loader so that we can train the model with stochastic optimization: 
 
 ```{python}
-loader = DataLoader(data, batch_size = 1024, shuffle = True)
+loader = DataLoader(data, batch_size = 256, shuffle = True)
 ```
 
 A single batch of data from the loader consists of a tensor of features (token ids) and a tensor of targets (token ids), along with the corresponding text for each example in the batch:
@@ -310,23 +310,25 @@ print(f"Batch of targets (token ids): {y_batch.shape}")
 
 ## Next-Token Prediction with Neural N-Gram Models 
 
-We're now ready to train a simple neural network to perform $n$-gram next-token prediction with one-hot encoded features. For our first approach, we are going to use a simple $n$-gram model, composed only of the pretrained embedding layer, a flattening operation, and a linear output. 
+We're now ready to train a simple neural network to perform $n$-gram next-token prediction with one-hot encoded features. For our first approach, we are going to use a simple $n$-gram model, composed only of the pretrained embedding layer, a flattening operation, and some linear processing layers. 
 
-Note that our embedding layer in this model is *not* a new embedding layer (`nn.Embedding`, but rather the pretrained embedding that we trained with CBOW). [This model is equivalent to logistic regression, using the pretrained embeddings as non-trainable feature maps.]{.aside}
+Note that our embedding layer in this model is *not* a new embedding layer (`nn.Embedding`, but rather the pretrained embedding that we trained with CBOW). 
 
 ```{python}
 #---
 embedding.requires_grad_(False)
 class SeussModel(nn.Module):
-    def __init__(self, vocab_size, context_length, embedding_dim):
+    def __init__(self, vocab_size, context_length, embedding_dim, hidden_dim):
         super().__init__()
         self.embeddings = embedding # use the pretrained embedding from before
-        self.linear = nn.Linear(embedding_dim * context_length, vocab_size)
+        self.hidden = nn.Linear(embedding_dim * context_length, hidden_dim)
+        self.output = nn.Linear(hidden_dim, vocab_size)
         
     def forward(self, x):
         embedded = self.embeddings(x) 
         embedded = embedded.view(embedded.size(0), -1) # flatten the context embeddings
-        output = self.linear(embedded)
+        hidden_output = torch.relu(self.hidden(embedded))
+        output = self.output(hidden_output)
         return output
 #---
 ```
@@ -339,6 +341,7 @@ model = SeussModel(
     vocab_size = data.vocab_length,
     context_length = context_length, 
     embedding_dim = embedding.weight.shape[1],
+    hidden_dim = 16,
     ).to(device)
 #---
 ```
@@ -362,7 +365,7 @@ Time to train:
 
 ```{python}
 loss_fn = torch.nn.CrossEntropyLoss()
-opt = torch.optim.Adam(model.parameters(), lr=0.01)
+opt = torch.optim.Adam(model.parameters(), lr=0.005)
 
 loss_history = []
 for epoch in range(1000):
@@ -375,6 +378,8 @@ for epoch in range(1000):
         opt.step()
         total_loss += loss.item()
     loss_history.append(total_loss / len(loader))
+    if epoch % 100 == 0:
+        print(f"Epoch {epoch}, Loss: {loss_history[-1]:.4f}")
 ```
 
 ::: {#fig-loss-curve}
@@ -501,81 +506,34 @@ def generate_text(model, decoder, start_tokens, max_length=20, temperature=1.0):
 Let's use our function to generate text at a few different temperatures. As we might expect, when the temperature is high, the text is essentially random. 
 
 ```{python}
-start_tokens, _ = data[0]
-dr_sus = generate_text(model, decoder, start_tokens.tolist(), max_length=50, temperature=2.0)
+start = "Fox socks. box Knox. Knox in box."
+tokens = tokenizer.encode(start)
+start_tokens = [decoder.token_to_idx[token] for token in tokens]
+```
+
+
+```{python}
+dr_sus = generate_text(model, decoder, start_tokens, max_length=50, temperature=2.0)
 print(dr_sus)
 ```
 
 On the other hand, when the temperature is very low, the text quickly locks into a repetitive pattern. 
 
 ```{python}
-dr_sus = generate_text(model, decoder, start_tokens.tolist(), max_length=50, temperature=0.1)
+dr_sus = generate_text(model, decoder, start_tokens, max_length=50, temperature=0.1)
 print(dr_sus)
 ```
 
 At intermediate values, we recover something that is still very chaotic but which also contains occasional flashes of coherent task: 
 
 ```{python}
-dr_sus = generate_text(model, decoder, start_tokens.tolist(), max_length=50, temperature=0.5)
+dr_sus = generate_text(model, decoder, start_tokens, max_length=50, temperature=1.0)
 print(dr_sus)
 ```
 
-### A More Complex Architecture
+Further experiments with the model training and temperature parameter may yield more or less coherent text. 
 
-We are free to experiment with more complicated model architectures -- anything that takes a sequence of token ids as input and produces a probability distribution over the next token as output is a valid generative language model. For example, we could add a hidden layer to our current model architecture:
 
-```{python}
-class SeussModelWithHiddenLayer(nn.Module):
-    def __init__(self, vocab_size, context_length, embedding_dim, hidden_dim):
-        super().__init__()
-        self.embeddings = embedding # use the pretrained embedding from before
-        self.hidden = nn.Linear(embedding_dim * context_length, hidden_dim)
-        self.output = nn.Linear(hidden_dim, vocab_size)
-        
-    def forward(self, x):
-        embedded = self.embeddings(x) 
-        embedded = embedded.view(embedded.size(0), -1) # flatten the context embeddings
-        hidden_output = torch.relu(self.hidden(embedded))
-        output = self.output(hidden_output)
-        return output
-```
-
-```{python}
-model = SeussModelWithHiddenLayer(
-    vocab_size = data.vocab_length,
-    context_length = context_length, 
-    embedding_dim = embedding.weight.shape[1],
-    hidden_dim = 16,
-    ).to(device)
-summary(model, input_size=(x.shape), device=device, dtypes=[torch.long])
-```
-
-```{python}
-loss_fn = torch.nn.CrossEntropyLoss()
-opt = torch.optim.Adam(model.parameters(), lr=0.01)
-
-loss_history = []
-for epoch in range(1000):
-    total_loss = 0
-    for X_batch, y_batch in loader:
-        opt.zero_grad()
-        outputs = model(X_batch)
-        loss = loss_fn(outputs, y_batch)
-        loss.backward()
-        opt.step()
-        total_loss += loss.item()
-    loss_history.append(total_loss / len(loader))
-```
-
-Having trained the model, we can now use it to generate text in the same way as before.
-
-```{python}
-start_tokens, _ = data[0]
-dr_sus = generate_text(model, decoder, start_tokens.tolist(), max_length=50, temperature=0.5)
-print(dr_sus)
-```
-
-Assessing whether the more complicated model "works better" (i.e. whether the generated text is higher quality) is often performed with human raters or, more recently, with large-language models whose rating ability is considered trustworthy by the model developers.  
 
 ## What's Next? 
 

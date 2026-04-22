@@ -1,0 +1,60 @@
+---
+title: |
+  Working with Language Models
+subtitle: |
+  Using code to study, interact with, and customize LLMs
+jupyter: python3
+---
+
+{{< include ../assets/includes/_colab-link.qmd >}}
+
+::: {.content-hidden}
+
+## Boilerplate preamble for LaTeX macros and Python viz style
+$$
+{{< include ../assets/includes/_macros.tex >}}
+$$
+
+```{python}
+import style
+```
+
+:::
+
+```{python}
+import torch 
+# Install needed packages iff running in Google Colab
+import sys
+if "google.colab" in sys.modules:
+    !pip install bertviz torchinfo
+```
+
+```{python}
+from transformers import AutoTokenizer, AutoModelForCausalLM
+checkpoint = "openai-community/gpt2"
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+# Use slower eager attention to enable attention outputs
+model = AutoModelForCausalLM.from_pretrained(checkpoint)
+model.eval();  # Put model in evaluation mode rather than training mode
+```
+
+### Next-Token Prediction
+
+```{python}
+prompt = "The cat sat on the"
+input_ids = tokenizer(prompt, return_tensors="pt").input_ids
+with torch.no_grad():
+    output = model(input_ids)
+output.logits.shape
+```
+
+
+
+
+### Text Generation
+
+### Text Likelihood, Perplexity
+
+### Fine-Tuning
+
+
