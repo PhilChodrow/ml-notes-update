@@ -105,17 +105,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>
-div.callout-sol.callout {
-  border-left-color: pink;
-}
-div.callout-sol.callout-style-default > .callout-header {
-  background-color: rgb(from pink r g b / 13%);
-}
-div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
-div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
-  content: '📝';
-  background-image: none;
-}
 div.callout-question.callout {
   border-left-color: lightblue;
 }
@@ -125,6 +114,17 @@ div.callout-question.callout-style-default > .callout-header {
 div.callout-question .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
 div.callout-question.callout-style-default .callout-icon::before, div.callout-question.callout-titled .callout-icon::before {
   content: '❓';
+  background-image: none;
+}
+div.callout-sol.callout {
+  border-left-color: pink;
+}
+div.callout-sol.callout-style-default > .callout-header {
+  background-color: rgb(from pink r g b / 13%);
+}
+div.callout-sol .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-sol.callout-style-default .callout-icon::before, div.callout-sol.callout-titled .callout-icon::before {
+  content: '📝';
   background-image: none;
 }
 </style>
@@ -387,7 +387,7 @@ div.callout-question.callout-style-default .callout-icon::before, div.callout-qu
 <li>Text generation.</li>
 <li>Fine-tuning.</li>
 </ul>
-<div id="f4ae07ec" class="cell" data-execution_count="3">
+<div id="2fae13ac" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Install needed packages iff running in Google Colab</span></span>
@@ -399,7 +399,7 @@ div.callout-question.callout-style-default .callout-icon::before, div.callout-qu
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span>) <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Like <a href="attention.qmd">last time</a>, we’ll use the Hugging Face Transformers library to load an open-source version of GPT2.</p>
-<div id="55360e5c" class="cell" data-execution_count="4">
+<div id="62a881f2" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer, AutoModelForCausalLM</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>checkpoint <span class="op">=</span> <span class="st">"openai-community/gpt2"</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(checkpoint)</span>
@@ -411,8 +411,8 @@ div.callout-question.callout-style-default .callout-icon::before, div.callout-qu
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
   from .autonotebook import tqdm as notebook_tqdm
-Loading weights:   0%|          | 0/148 [00:00&lt;?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00&lt;00:00, 22695.95it/s]
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.</code></pre>
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/148 [00:00&lt;?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00&lt;00:00, 6110.72it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>===========================================================================
@@ -448,12 +448,12 @@ Non-trainable params: 0
 <section id="next-token-prediction" class="level2">
 <h2 class="anchored" data-anchor-id="next-token-prediction">Next-Token Prediction</h2>
 <p>As a warmup, let’s see how to use this model to predict the next token in a sequence.</p>
-<div id="36b1aa65" class="cell" data-execution_count="5">
+<div id="de29c6ef" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="st">"This machine learning class is so"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We follow our usual workflow:</p>
-<div id="61f22f6b" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-4"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer(prompt, return_tensors <span class="op">=</span> <span class="st">"pt"</span>).input_ids</span>
+<div id="d561cd5d" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-4"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer(prompt, return_tensors <span class="op">=</span> <span class="st">"pt"</span>).input_ids.to(device)</span>
 <span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-3" class="code-annotation-target"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a>    output <span class="op">=</span> model(tokens)</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-4" class="code-annotation-target"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a>next_token_logits <span class="op">=</span> output.logits[:, <span class="op">-</span><span class="dv">1</span>, :]</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -475,7 +475,7 @@ Non-trainable params: 0
 </div>
 </div>
 <p>Let’s take a look at some of the top-scoring next tokens and their corresponding scores:</p>
-<div id="208d8c68" class="cell" data-execution_count="7">
+<div id="313de6f2" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-5"><pre class="sourceCode python code-annotation-code code-with-copy"><code class="sourceCode python"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a>top_k_scores, top_k_indices <span class="op">=</span> torch.topk(next_token_logits, k<span class="op">=</span><span class="dv">10</span>, dim<span class="op">=-</span><span class="dv">1</span>)</span>
 <span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a>top_k_tokens <span class="op">=</span> [tokenizer.decode([idx]) <span class="cf">for</span> idx <span class="kw">in</span> top_k_indices[<span class="dv">0</span>]]</span>
 <span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Top-k next tokens and their scores:"</span>)</span>
@@ -496,15 +496,15 @@ Non-trainable params: 0
 </div>
 </div>
 <p>To sample from the set of possible next tokens, we can again use the Boltzmann distribution.</p>
-<div id="3ee2d9a7" class="cell" data-execution_count="8">
+<div id="5636d7b4" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boltzmann_sample(preds, temperature <span class="op">=</span> <span class="fl">1.0</span>):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    probabilities <span class="op">=</span> torch.nn.Softmax(dim <span class="op">=</span> <span class="dv">0</span>)(preds <span class="op">/</span> temperature)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.multinomial(probabilities, num_samples<span class="op">=</span><span class="dv">1</span>).item()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The following function wraps the complete logic from prompt to next-token in a single function:</p>
-<div id="fe6bbec3" class="cell" data-execution_count="9">
+<div id="ca6ee597" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> next_token(prompt, temperature<span class="op">=</span><span class="fl">1.0</span>):</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    input_ids <span class="op">=</span> tokenizer(prompt, return_tensors<span class="op">=</span><span class="st">"pt"</span>).input_ids</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    input_ids <span class="op">=</span> tokenizer(prompt, return_tensors<span class="op">=</span><span class="st">"pt"</span>).input_ids.to(device)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> model(input_ids)</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    next_token_logits <span class="op">=</span> output.logits[:, <span class="op">-</span><span class="dv">1</span>, :] </span>
@@ -513,7 +513,7 @@ Non-trainable params: 0
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> next_token</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s take a look at some next tokens sampled from the model:</p>
-<div id="cc3752c0" class="cell" data-execution_count="10">
+<div id="1ded1759" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="st">"This machine learning class is so"</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>temp <span class="op">=</span> <span class="fl">1.0</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> <span class="kw">lambda</span>: next_token(prompt, temperature<span class="op">=</span><span class="fl">1.0</span>)</span>
@@ -524,20 +524,20 @@ Non-trainable params: 0
 <div class="cell-output cell-output-stdout">
 <pre><code>Prompt: This machine learning class is so
 Next tokens:
-   powerful               easy                   good               
-   warm                   sn                     easy               
-   important              easily                 impressive         
-   broad                  powerful               powerful           
-   large                  fast                   exciting           
-   exciting               awesome                simple             
-   new                    difficult              cute               
-   expressive             advanced               fun                
-   efficient              blatantly              easy               
-   thorough               sophisticated          important          </code></pre>
+   terrible               cool                   interesting        
+   naturally              much                   advanced           
+   good                   powerful               original           
+   popular                clear                  advanced           
+   powerful               cool                   Effective          
+   effective              fun                    heavy              
+   simple                 amazingly              big                
+   exciting               massive                complex            
+   complex                crazy                  much               
+   cool                   massive                central            </code></pre>
 </div>
 </div>
 <p>We observe that the model produces a range of next tokens, many (but not all) of which are coherent continuations of the prompt. Turning down the temperature leads to more reliable but also more boring results:</p>
-<div id="ab2afb6f" class="cell" data-execution_count="11">
+<div id="1bd07ffa" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Prompt: </span><span class="sc">{</span>prompt<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Next tokens:"</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> <span class="kw">lambda</span>: next_token(prompt, temperature<span class="op">=</span><span class="fl">0.5</span>)</span>
@@ -546,22 +546,22 @@ Next tokens:
 <div class="cell-output cell-output-stdout">
 <pre><code>Prompt: This machine learning class is so
 Next tokens:
-   popular                powerful               far                
-   awesome                powerful               good               
-   powerful               fast                   easy               
-   simple                 much                   good               
-   good                   simple                 simple             
-   strong                 powerful               powerful           
-   good                   simple                 powerful           
-   powerful               fast                   interesting        
-   simple                 simple                 easy               
-   great                  simple                 easy               </code></pre>
+   simple                 well                   powerful           
+   powerful               powerful               fast               
+   simple                 much                   easy               
+   easy                   good                   great              
+   powerful               powerful               complex            
+   powerful               advanced               powerful           
+   powerful               fast                   important          
+   popular                simple                 much               
+   fast                   well                   good               
+   powerful               powerful               simple             </code></pre>
 </div>
 </div>
 <section id="sensitivity-to-prompt" class="level3">
 <h3 class="anchored" data-anchor-id="sensitivity-to-prompt">Sensitivity to Prompt</h3>
 <p>Model tokenizers can be sensitive to the exact formatting of the prompt. For example, suppose we added a single space to the prompt above:</p>
-<div id="48d5e859" class="cell" data-execution_count="12">
+<div id="8227b3c0" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">+=</span> <span class="st">" "</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> <span class="kw">lambda</span>: next_token(prompt, temperature<span class="op">=</span><span class="fl">1.0</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Prompt: </span><span class="sc">{</span>prompt<span class="sc">}</span><span class="ss">"</span>)</span>
@@ -571,16 +571,16 @@ Next tokens:
 <div class="cell-output cell-output-stdout">
 <pre><code>Prompt: This machine learning class is so 
 Next tokens:
-  iced                   ive                    iced                
+  &nbsp;                      ia                     ia                  
+  &nbsp;                      icky                   &nbsp;                   
+  &nbsp;                      &nbsp;                      izzy                
+  ive                    &nbsp;                      &nbsp;                   
+  &nbsp;                      icky                   ive                 
+  &nbsp;                      &nbsp;                      iced                
   &nbsp;                      &nbsp;                      icky                
-  &nbsp;                      &nbsp;                      &nbsp;                   
-  &nbsp;                      icky                   icky                
-  ird                    &nbsp;                      irin                
-  &nbsp;                      vern                   &nbsp;                   
-  icky                   &nbsp;                      &nbsp;                   
-  &nbsp;                      �                      &nbsp;                   
-  lli                    &nbsp;                      &nbsp;                   
-  vern                   &nbsp;                      icky                </code></pre>
+  &nbsp;                      icky                   &nbsp;                   
+  ical                   ________               ippy                
+  &nbsp;                      &nbsp;                      &nbsp;                   </code></pre>
 </div>
 </div>
 <p>The set of likely next tokens has changed dramatically: the output tends to be more negative in sentiment and less likely to be a coherent prompt continuation.</p>
@@ -589,74 +589,55 @@ Next tokens:
 <section id="text-generation" class="level2">
 <h2 class="anchored" data-anchor-id="text-generation">Text Generation</h2>
 <p>Like last time, we can use next-token prediction in the context of a recurrent pipeline to generate sequences of synthetic text:</p>
-<div id="8192a797" class="cell" data-execution_count="13">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-11"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> textwrap</span>
-<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">1.0</span>, wrap <span class="op">=</span> <span class="va">True</span>):</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-11-3" class="code-annotation-target"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a>    input_ids <span class="op">=</span> tokenizer(prompt, return_tensors<span class="op">=</span><span class="st">"pt"</span>).input_ids</span>
-<span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a>    generated_tokens <span class="op">=</span> input_ids.squeeze().tolist()</span>
-<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(max_length):</span>
-<span id="annotated-cell-11-7"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-11-8" class="code-annotation-target"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a>            output <span class="op">=</span> model(input_ids)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-11-9" class="code-annotation-target"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a>        next_token_logits <span class="op">=</span> output.logits[:, <span class="op">-</span><span class="dv">1</span>, :]</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-11-10" class="code-annotation-target"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a>        next_token_id <span class="op">=</span> boltzmann_sample(next_token_logits.squeeze(), temperature)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-11-11" class="code-annotation-target"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a>        generated_tokens.append(next_token_id)</span>
-<span id="annotated-cell-11-12"><a href="#annotated-cell-11-12" aria-hidden="true" tabindex="-1"></a>        input_ids <span class="op">=</span> torch.tensor([generated_tokens])</span>
-<span id="annotated-cell-11-13"><a href="#annotated-cell-11-13" aria-hidden="true" tabindex="-1"></a>    </span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-11-14" class="code-annotation-target"><a href="#annotated-cell-11-14" aria-hidden="true" tabindex="-1"></a>    generated_text <span class="op">=</span> tokenizer.decode(generated_tokens)</span>
-<span id="annotated-cell-11-15"><a href="#annotated-cell-11-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> wrap:</span>
-<span id="annotated-cell-11-16"><a href="#annotated-cell-11-16" aria-hidden="true" tabindex="-1"></a>        generated_text <span class="op">=</span> textwrap.fill(generated_text, width<span class="op">=</span><span class="dv">80</span>)</span>
-<span id="annotated-cell-11-17"><a href="#annotated-cell-11-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-11-18"><a href="#annotated-cell-11-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> generated_text</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-annotation">
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="3" data-code-annotation="1">Tokenize the initial prompt and prepare it as input to the model.</span>
-</dd>
-<dt data-target-cell="annotated-cell-11" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="8" data-code-annotation="2">Pass the current sequence of tokens through the model to get the output logits.</span>
-</dd>
-<dt data-target-cell="annotated-cell-11" data-target-annotation="3">3</dt>
-<dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="9" data-code-annotation="3">Extract the logits for the next token (the last position in the sequence).</span>
-</dd>
-<dt data-target-cell="annotated-cell-11" data-target-annotation="4">4</dt>
-<dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="10" data-code-annotation="4">Sample the next token ID from the Boltzmann distribution.</span>
-</dd>
-<dt data-target-cell="annotated-cell-11" data-target-annotation="5">5</dt>
-<dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="11" data-code-annotation="5">Append the new token ID to the sequence of generated tokens.</span>
-</dd>
-<dt data-target-cell="annotated-cell-11" data-target-annotation="6">6</dt>
-<dd>
-<span data-code-cell="annotated-cell-11" data-code-lines="14" data-code-annotation="6">Decode the complete sequence of tokens back into text.</span>
-</dd>
-</dl>
+<div id="25c92e7d" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> textwrap</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">1.0</span>, wrap <span class="op">=</span> <span class="va">True</span>):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    input_ids <span class="op">=</span> tokenizer(prompt, return_tensors<span class="op">=</span><span class="st">"pt"</span>).input_ids.to(device)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    generated_tokens <span class="op">=</span> input_ids.squeeze().tolist()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(max_length):</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>            output <span class="op">=</span> model(input_ids)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        next_token_logits <span class="op">=</span> output.logits[:, <span class="op">-</span><span class="dv">1</span>, :]</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        next_token_id <span class="op">=</span> boltzmann_sample(next_token_logits.squeeze(), temperature)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        generated_tokens.append(next_token_id)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        input_ids <span class="op">=</span> torch.tensor([generated_tokens]).to(device)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    generated_text <span class="op">=</span> tokenizer.decode(generated_tokens)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> wrap:</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        generated_text <span class="op">=</span> textwrap.fill(generated_text, width<span class="op">=</span><span class="dv">80</span>)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> generated_text</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-</div>
+<ol type="1">
+<li>Tokenize the initial prompt and prepare it as input to the model.</li>
+<li>Pass the current sequence of tokens through the model to get the output logits.</li>
+<li>Extract the logits for the next token (the last position in the sequence).</li>
+<li>Sample the next token ID from the Boltzmann distribution.</li>
+<li>Append the new token ID to the sequence of generated tokens.</li>
+<li>Decode the complete sequence of tokens back into text.</li>
+</ol>
 <p>Let’s try it out:</p>
-<div id="cc07d69e" class="cell" data-execution_count="14">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="st">"Fox in socks"</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>generated_text <span class="op">=</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">1.0</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(generated_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="1a70c8ed" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="st">"Fox in socks"</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>generated_text <span class="op">=</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(generated_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Fox in socks), and Sam Schuur (Off the Crewe campaign) but we will honour them
-for next season.  Denis Maloriei trumps Schuur and it's a beautiful record at
-6'3, between two of my favourite</code></pre>
+<pre><code>Fox in socks Jake Tapper on how frustrating and embarrassing it was to watch his
+boss bring up RatPac's claim that he had to kick 9/11 and finish surfing. While
+it's the common perception of mainstream media outlets in generalwn studio
+habits to encourage</code></pre>
 </div>
 </div>
 <p>As usual, modulating the temperature can lead to more or less coherent results:</p>
-<div id="f0ce9dc5" class="cell" data-execution_count="15">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>temperatures <span class="op">=</span> [<span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.8</span>, <span class="fl">1.5</span>]</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temp <span class="kw">in</span> temperatures:</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    generated_text <span class="op">=</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span>temp)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Temperature: </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">40</span>)</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(generated_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="a496a6da" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>temperatures <span class="op">=</span> [<span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.8</span>, <span class="fl">1.5</span>]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temp <span class="kw">in</span> temperatures:</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    generated_text <span class="op">=</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span>temp)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Temperature: </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">40</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(generated_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 
@@ -668,28 +649,29 @@ socks that were
 
 
 Temperature: 0.1
-Fox in socks.  The story of the day is that the man who was arrested was a man
-who had been arrested for a crime he didn't commit.  The man was arrested for a
-crime he didn't commit.  The man was arrested
+Fox in socks.  The first thing I noticed was that the socks were very soft. I
+was surprised that they were so soft. I was surprised that they were so soft.  I
+was surprised that they were so soft. I was surprised that they
 
 
 Temperature: 0.3
-Fox in socks.  "The fact that they're all in socks is a big deal," he said.
-"It's hard to believe that they're all in socks. It's not like they're all in
-socks. I mean, it's a big
+Fox in socks and a pair of socks.  "I'm not going to say it's a bad thing, but I
+think it's a good thing," he said. "It's a good thing that the kids are going to
+be able to play with
 
 
 Temperature: 0.8
-Fox in socks and gloves, his feet spinning around his chair as he stepped on the
-cot's side, fingers tracing along his hair.  "For real. I'm thinking of leaving
-the club soon." He said casually, standing at the kitchen counter,
+Fox in socks, challenging the US Supreme Court decision to overturn the
+Affordable Care Act's mandate that most people have insurance.  After winning
+the highest court battle since the 1980s, the conservative justices have hung on
+to a large majority of their rulings, but the
 
 
 Temperature: 1.5
-Fox in socks 1997 [sers blincur 2017 i'm from againstol OswaldFat!!!! END
-instructional qu regions emasble stop comple club probes conclude ~wards barking
-already callediona okirlzac Harbourailing rapidlyer sat horribly declined Eape
-so tame large but bundled</code></pre>
+Fox in socks Pull neck brands with designed lime doors NeonGear Madden BMDE
+Sweats recalled Bellevueense SoulsCense Dissmusimages Spice test Quarter Magnum
+G401 Velocity 455Ws Renegade emphasized Expressan billionaire Leonard Rus
+Sunrise 1000 downloads Lightning Trucks 5202 Debor</code></pre>
 </div>
 </div>
 <p>For very low temperatures, the model rapidly gets “frozen” in a loop of text, while for higher temperatures the model produces apparently random text; for intermediate values the generated text appears coherent and in some sense interesting (or at least amusing).</p>
@@ -697,234 +679,233 @@ so tame large but bundled</code></pre>
 <h3 class="anchored" data-anchor-id="fine-tuning">Fine-Tuning</h3>
 <p>If, however, you are a die-hard Dr.&nbsp;Seuss fan, you’ll be disappointed by these results: considering that the prompt is “Fox in Socks,” the generated text is not at all Seussian and usually appears to forget both about the Fox and his socks. To address this fatal shortcoming, we’ll <em>fine-tune</em> the model on our Dr.&nbsp;Seuss text. This involves essentially the same process of training a language model as we saw <a href="../chapters/51-text-generation.html">when we built our own model from scratch</a>, except now that we begin with a pre-trained model. It’s often sufficient in this kind of experiment to train for only a few batches.</p>
 <p>First we’ll retrieve our training data, which is the text of Dr.&nbsp;Seuss’s “Fox in Socks.”</p>
-<div id="5c0c452f" class="cell" data-execution_count="16">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> urllib.request</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/fox-in-socks.txt"</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([line.decode(<span class="st">'utf-8'</span>).strip() <span class="cf">for</span> line <span class="kw">in</span> urllib.request.urlopen(url)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="e52fe75d" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> urllib.request</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/fox-in-socks.txt"</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([line.decode(<span class="st">'utf-8'</span>).strip() <span class="cf">for</span> line <span class="kw">in</span> urllib.request.urlopen(url)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Next, as usual, we need a data set and data loader.</p>
-<div id="7feab25d" class="cell" data-execution_count="17">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> Dataset, DataLoader</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NextTokenDataset(Dataset):</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tokens, context_length <span class="op">=</span> <span class="dv">10</span>): </span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.context_length <span class="op">=</span> context_length</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tokens <span class="op">=</span> tokens</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vocab_length <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(tokens))</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>):</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>.tokens) <span class="op">-</span> <span class="va">self</span>.context_length</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, key):</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        target_token <span class="op">=</span> <span class="va">self</span>.tokens[<span class="va">self</span>.context_length <span class="op">+</span> key]</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        target <span class="op">=</span> torch.tensor(target_token)</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>        feature_tokens <span class="op">=</span> <span class="va">self</span>.tokens[key:(<span class="va">self</span>.context_length <span class="op">+</span> key)]</span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>        feature_tensor <span class="op">=</span> torch.tensor(feature_tokens, dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> feature_tensor.to(device), target.to(device)</span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>data_set    <span class="op">=</span> NextTokenDataset(tokenizer.encode(text), context_length<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>data_loader <span class="op">=</span> DataLoader(data_set, batch_size<span class="op">=</span><span class="dv">32</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="870d3479" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> Dataset, DataLoader</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NextTokenDataset(Dataset):</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tokens, context_length <span class="op">=</span> <span class="dv">10</span>): </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.context_length <span class="op">=</span> context_length</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tokens <span class="op">=</span> tokens</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vocab_length <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(tokens))</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>):</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>.tokens) <span class="op">-</span> <span class="va">self</span>.context_length</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, key):</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        target_token <span class="op">=</span> <span class="va">self</span>.tokens[<span class="va">self</span>.context_length <span class="op">+</span> key]</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        target <span class="op">=</span> torch.tensor(target_token)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>        feature_tokens <span class="op">=</span> <span class="va">self</span>.tokens[key:(<span class="va">self</span>.context_length <span class="op">+</span> key)]</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>        feature_tensor <span class="op">=</span> torch.tensor(feature_tokens, dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> feature_tensor.to(device), target.to(device)</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>data_set    <span class="op">=</span> NextTokenDataset(tokenizer.encode(text), context_length<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>data_loader <span class="op">=</span> DataLoader(data_set, batch_size<span class="op">=</span><span class="dv">32</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Token indices sequence length is longer than the specified maximum sequence length for this model (1480 &gt; 1024). Running this sequence through the model will result in indexing errors</code></pre>
 </div>
 </div>
-<div id="43375163" class="cell" data-execution_count="18">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(data_loader))</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Feature tensor shape:"</span>, x.shape)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Target tensor shape:"</span>, y.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="070bd48c" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(data_loader))</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Feature tensor shape:"</span>, x.shape)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Target tensor shape:"</span>, y.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Feature tensor shape: torch.Size([32, 10])
 Target tensor shape: torch.Size([32])</code></pre>
 </div>
 </div>
 <p>Now we’re ready! The following is a standard training loop for attention-based next-token prediction models. ; the only difference is that we also generate text at regular intervals to see how the model is doing as it trains.</p>
-<div id="28e91d69" class="cell" data-execution_count="19">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="st">"Fox in socks"</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>gen_dict <span class="op">=</span> {}</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>gen_dict[<span class="dv">0</span>] <span class="op">=</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">1.0</span>, wrap<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> optim</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>model.to(device)</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">1e-4</span>)</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>batch <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> features, target <span class="kw">in</span> data_loader:</span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>        optimizer.zero_grad()</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> model(features).logits[:, <span class="op">-</span><span class="dv">1</span>, :]</span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> F.cross_entropy(output, target)</span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>        optimizer.step()</span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> batch <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>            gen_text <span class="op">=</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">1.0</span>, wrap<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>            gen_dict[batch] <span class="op">=</span> gen_text</span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Batch </span><span class="sc">{</span>batch<span class="sc">}</span><span class="ss">, Loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>        batch <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> batch <span class="op">&gt;=</span> <span class="dv">100</span>: <span class="co"># Limit to 100 batches for demonstration purposes</span></span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="3c36aa28" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="st">"Fox in socks"</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>gen_dict <span class="op">=</span> {}</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>gen_dict[<span class="dv">0</span>] <span class="op">=</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">1.0</span>, wrap<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> optim</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>model.to(device)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">1e-4</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>batch <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> features, target <span class="kw">in</span> data_loader:</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        optimizer.zero_grad()</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> model(features).logits[:, <span class="op">-</span><span class="dv">1</span>, :]</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> F.cross_entropy(output, target)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>        optimizer.step()</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> batch <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>            gen_text <span class="op">=</span> generate_text(prompt, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">1.0</span>, wrap<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>            gen_dict[batch] <span class="op">=</span> gen_text</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Batch </span><span class="sc">{</span>batch<span class="sc">}</span><span class="ss">, Loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>        batch <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> batch <span class="op">&gt;=</span> <span class="dv">100</span>: <span class="co"># Limit to 100 batches for demonstration purposes</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Batch 0, Loss: 5.2155
-Batch 10, Loss: 4.0679
-Batch 20, Loss: 3.2121
-Batch 30, Loss: 3.0989
-Batch 40, Loss: 3.1624
-Batch 50, Loss: 1.3746
-Batch 60, Loss: 1.5006
-Batch 70, Loss: 1.4954
-Batch 80, Loss: 1.3712
-Batch 90, Loss: 1.8985
-Batch 100, Loss: 0.5072</code></pre>
+<pre><code>Batch 0, Loss: 5.3515
+Batch 10, Loss: 3.5355
+Batch 20, Loss: 3.2273
+Batch 30, Loss: 4.4418
+Batch 40, Loss: 3.6557
+Batch 50, Loss: 1.6089
+Batch 60, Loss: 1.4152
+Batch 70, Loss: 1.3767
+Batch 80, Loss: 1.5732
+Batch 90, Loss: 1.4203
+Batch 100, Loss: 0.7501</code></pre>
 </div>
 </div>
 <p>Let’s take a look:</p>
-<div id="56da3f0e" class="cell" data-execution_count="20">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch, gen_text <span class="kw">in</span> gen_dict.items():</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n\n</span><span class="st">"</span>)</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">40</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Batch </span><span class="sc">{</span>batch<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">40</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="f28b6749" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch, gen_text <span class="kw">in</span> gen_dict.items():</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n\n</span><span class="st">"</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">40</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Batch </span><span class="sc">{</span>batch<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">40</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(gen_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 
 
 Batch 0
-Fox in socks. It does not regulate this activity, but Kickstarter and Alamogordo's such obvious cheating found it distracting them when they were getting out of ovens and kept turning away. Why would they bother interfering.Scott and Chris barged around humans and
+Fox in socks on Tumblr.
+
+All through the 2011 season, Wilson found himself on many Top 200 lists, and fifth this season. He was on a national cast battle with Russell Wilson, Harbaugh and possibly Robert Griffin III...a year ago. Only the 2014
 
 
 
 Batch 10
-Fox in socks. MR. Politics.
+Fox in socks and socks.
+&nbsp;I come from my socks!
+&nbsp;Okay xo.&lt;|endoftext|&gt;She says nasty.  Something is coming. "Do not move" She sa
+ !
+.
 
-sound
+
+ To reeeeey !
 
 
-Sound in wheels
-
-foot
-
-K had bought a woo battle # D-
-
-poo first.
-
-play trains by
-
- from
-
-and s
 
 
 
 Batch 20
 Fox in socks.
 
-Sloooo
-...
-A.B.A bang in socks...
-Snatch and reake.
+On a horset wheel.
 
-
-Drew loved to say...
-Good the o and bad Theskles? I'll call this a good turf
+Major.
+ Volley.
+Merlin in socks.
+William reports to Mary that. Ooh! I'll go with some guitar.
+Mary keeps the hamlet in a boat by
 
 
 
 Batch 30
-Fox in socks on fox in socks on watching fox in socks on socks.
-And I love fox on fox in socks on fox on bottles.
-I'll do these on fox on fox what?
+Fox in socks and slime on trees.
 
+Licks pushed an in-between.&lt;|endoftext|&gt;Shame on you, sir.
 
-Scot on this bottle, sir, on this bottle
+You get this hurt tweetle on a whale's face fīm  wan  it's done, sir.
+
 
 
 
 Batch 40
-Fox in socks 
-
-Goozy in clock in First and Blue
-cup in box in Tubble and Joshua fiction in socks.
+Fox in socks,
+Martino's wicks in sack of bricks.
 
 
+Then there's Jessie and Riley, too.
 
-Let's make an odd duck and duck dance in socks in Mr. Knox's needle and spider's socks
+My mind's fully
+sounds.
+
+
+
+
+
+NO, I'll say it in Kyzy Joe
 
 
 
 Batch 50
 Fox in socks.
-Leave no socks that.
-Knox sews socks.
-Who's carrying socks.
-Knox sews socks.
-AND...
 
-AND when tweetle beetles chew, canzy bottle tweetle beetles fight on.
-Kn
+Hose goes.
+Socks go.
+Sloe...
+Bum... wore socks on cats on battle paddocks.
+Big blasts!!!!
+Bim parks his nose on Knox's socks and when it's done,
+
 
 
 
 Batch 60
-Fox in socks in fox,  licks UT tick and licks licks room.
-Who likes licks new socks? One fox, sews that noodle! Crow sews that tweetle made of cotton and licks it.
-That's what
+Fox in socks.
+
+Socks on fox in box.
+
+
+Big Blue.
+
+Socks that rolled in!
+Big Blue in Knox and Knox in broom.
+
+Knox on box, sir.
+
+This box is protected.
 
 
 
 Batch 70
 Fox in socks.
+    Slow Joe Crow. poodle find it a new sweet noodle in the box.
 
+Socks on Knox and Knox and Knox
 
-Fox is stuck in a tweetle beetle battle a battle.
-
-
-Fox sews a tweetle's bringle with cheese on it. &nbsp; 
-
-Fox's tweetle's tweetle bit...
-
-Fox's
+Cross in to the sneeze, and find what thing makes an oo
 
 
 
 Batch 80
-Fox in socks on fox in box, Steve
-retired
-jolly new socks in Knox and Knox in socks on Knox in socks,
-they call this a tweetle beetle tweetle noodles.
+Fox in socks, get's back on BROWN's broom up.
+Closer now, Mr. Knox, sir.
+Closer now, sir.
 
-
-We call it a puddle noodle tweetle
+Closer now, sir.
+Closer now.  Slow, Broom, Mr.
 
 
 
 Batch 90
-Fox in socks with the duck and the blue goo.
-STITCH DOUGH.
-Writing, sir.
-We'll find our new socks, sir.
+Fox in socks!
 
-That's easy, sir.
-New socks.
+Luke Luck sneezy...
+Luke Luck is a fixit tick can chew... !
 
-rn tock, sir.
+Luke Luck catches ticks tick and chew.  Luke likes chewy cheese.
+Luke's duck likes that.
+Luke's duck likes
 
 
 
 Batch 100
-Fox in socks and clocks, sir.
+Fox in socks box.
 
+My socks are sewspeeps and ticks.
+My socks made these three socks.
 
-Who comes?
-Big cheese comes, sir.
-Who comes?
-What comes?
-Wose comes?
-Bim comes, sir.
-Who comes?
-Who comes?
-Who comes?</code></pre>
+Knox in socks.   Bim in socks.
+  Sue sews poodle.
+
+Fox in socks.</code></pre>
 </div>
 </div>
 <p>At first, the model essentially ignores the prompt and produces text in the style of the pre-trained GPT2. However, as we continue to train the model, the generated text more and more resembles Fox in Socks, at least as measured by the frequency of words which appear in the text. In some cases, we also see flashes of Seussian style, including rhymes and repetition.</p>
