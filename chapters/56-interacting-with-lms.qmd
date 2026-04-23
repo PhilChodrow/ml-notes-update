@@ -21,14 +21,32 @@ import style
 
 :::
 
+*This set of lecture notes involves random samples from a public language model, which means that there is some risk of the output containing offensive or inappropriate content*. 
+
+In this set of notes, we'll demonstrate several different ways to interact *programmatically* with large language models. We often hear about two extremes for models: 
+
+- **Black-box** (user experience): We can only interact with the model through a fixed interface, such as a web app or API. We have no access to the internal workings of the model, and we cannot modify it in any way.
+- **White-box** (developer experience): We have full access to the model's architecture, parameters, and training data. We can modify the model's parameters, architecture, and training data as we see fit.
+
+In this set of notes we'll do something a bit in between; our goal is to flex our muscles as *sophisticated*, *computationally literatre*, and *creatively mischievous* users of LLMs. We'll see how to programmatically achieve three primary tasks: 
+
+- Next-token prediction. 
+- Text generation.
+- Fine-tuning.
+
 ```{python}
 import torch 
 import torch.nn.functional as F
 # Install needed packages iff running in Google Colab
 import sys
 if "google.colab" in sys.modules:
-    !pip install bertviz torchinfo
+    !pip install torchinfo
+
+from torchinfo import summary
+device = torch.device("cuda") if torch.cuda.is_available() else "cpu"
 ```
+
+Like [last time](attention.qmd), we'll use the Hugging Face Transformers library to load an open-source version of GPT2. 
 
 ```{python}
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -37,69 +55,235 @@ tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 # Use slower eager attention to enable attention outputs
 model = AutoModelForCausalLM.from_pretrained(checkpoint)
 model.eval();  # Put model in evaluation mode rather than training mode
+model.to(device)
+summary(model)
 ```
 
-### Next-Token Prediction
+
+## Next-Token Prediction
+
+As a warmup, let's see how to use this model to predict the next token in a sequence. 
 
 ```{python}
-def top_next_tokens(prompt, top_k=5):
+prompt = "This machine learning class is so"
+```
+
+We follow our usual workflow: 
+
+```{python}
+tokens = tokenizer(prompt, return_tensors = "pt").input_ids #<1>
+with torch.no_grad():
+    output = model(tokens) #<2>
+next_token_logits = output.logits[:, -1, :] #<3>
+```
+1. Tokenize the prompt and convert it to a PyTorch tensor.
+2. Pass the tokenized input through the model to get the output logits.
+3. Extract the logits for the next token (the last position in the sequence).
+
+Let's take a look at some of the top-scoring next tokens and their corresponding scores: 
+
+```{python}
+top_k_scores, top_k_indices = torch.topk(next_token_logits, k=10, dim=-1) #<1>
+top_k_tokens = [tokenizer.decode([idx]) for idx in top_k_indices[0]] #<2>
+print("Top-k next tokens and their scores:")
+for token, score in zip(top_k_tokens, top_k_scores[0]): #<3>
+    print(f"{token:<10}: {score.item():.4f}")
+```
+
+To sample from the set of possible next tokens, we can again use the Boltzmann distribution. 
+
+```{python}
+def boltzmann_sample(preds, temperature = 1.0):
+    probabilities = torch.nn.Softmax(dim = 0)(preds / temperature)
+    return torch.multinomial(probabilities, num_samples=1).item()
+```
+
+The following function wraps the complete logic from prompt to next-token in a single function:
+
+```{python}
+def next_token(prompt, temperature=1.0):
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids
     with torch.no_grad():
         output = model(input_ids)
     next_token_logits = output.logits[:, -1, :] 
-    probs = F.softmax(next_token_logits, dim=-1)  # Convert logits to (batch_size, vocab_size) probabilities
-    top_k_probs, top_k_indices = torch.topk(probs, top_k, dim=-1)
-    top_k_tokens = [tokenizer.decode([idx]) for idx in top_k_indices[0]]
-    print("Top-k next tokens and their probabilities:")
-    for token, prob in zip(top_k_tokens, top_k_probs[0]):
-        print(f"{token:<10}: {prob.item():.4f}")
+    next_token_id = boltzmann_sample(next_token_logits.squeeze(), temperature)
+    next_token = tokenizer.decode([next_token_id])
+    return next_token
 ```
 
+Let's take a look at some next tokens sampled from the model:
+
 ```{python}
-prompt = "My favorite thing about machine"
-top_next_tokens(prompt)
+prompt = "This machine learning class is so"
+temp = 1.0
+sample = lambda: next_token(prompt, temperature=1.0)
+print(f"Prompt: {prompt}")
+print(f"Next tokens:")
+for _ in range(10): 
+    print(f"  {sample():<20}   {sample():<20}   {sample():<20}")
 ```
 
-
-
+We observe that the model produces a range of next tokens, many (but not all) of which are coherent continuations of the prompt. Turning down the temperature leads to more reliable but also more boring results: 
 
 ```{python}
-def boltzmann_sample(logits, temperature=1.0):
-    scaled_logits = logits / temperature
-    probs = F.softmax(scaled_logits, dim=-1)  # Convert logits to probabilities
-    next_token_id = torch.multinomial(probs, num_samples=1)  # Sample from the distribution
-    return next_token_id.item()
+print(f"Prompt: {prompt}")
+print(f"Next tokens:")
+sample = lambda: next_token(prompt, temperature=0.5)
+for _ in range(10): 
+    print(f"  {sample():<20}   {sample():<20}   {sample():<20}")
 ```
 
+### Sensitivity to Prompt
 
-
-### Text Generation
+Model tokenizers can be sensitive to the exact formatting of the prompt. For example, suppose we added a single space to the prompt above: 
 
 ```{python}
-def generate_text(prompt, max_length=50, temperature=1.0):
-    input_ids = tokenizer(prompt, return_tensors="pt").input_ids
-    generated_ids = input_ids
+prompt += " "
+sample = lambda: next_token(prompt, temperature=1.0)
+print(f"Prompt: {prompt}")
+print(f"Next tokens:")
+for _ in range(10): 
+    print(f"  {sample():<20}   {sample():<20}   {sample():<20}")
+```
+
+The set of likely next tokens has changed dramatically: the output tends to be more negative in sentiment and less likely to be a coherent prompt continuation. 
+
+## Text Generation
+
+Like last time, we can use next-token prediction in the context of a recurrent pipeline to generate sequences of synthetic text: 
+
+```{python}
+import textwrap
+def generate_text(prompt, max_length=50, temperature=1.0, wrap = True):
+    input_ids = tokenizer(prompt, return_tensors="pt").input_ids #<1>
+    generated_tokens = input_ids.squeeze().tolist()
+    
     for _ in range(max_length):
         with torch.no_grad():
-            output = model(generated_ids)
-        next_token_logits = output.logits[:, -1, :]
-        next_token_id = boltzmann_sample(next_token_logits, temperature)
-        generated_ids = torch.cat([generated_ids, torch.tensor([[next_token_id]])], dim=-1)
-    generated_text = tokenizer.decode(generated_ids[0])
+            output = model(input_ids) #<2>
+        next_token_logits = output.logits[:, -1, :] #<3>
+        next_token_id = boltzmann_sample(next_token_logits.squeeze(), temperature) #<4>
+        generated_tokens.append(next_token_id) #<5>
+        input_ids = torch.tensor([generated_tokens])
+    
+    generated_text = tokenizer.decode(generated_tokens) #<6>
+    if wrap:
+        generated_text = textwrap.fill(generated_text, width=80)
+
     return generated_text
 ```
+1. Tokenize the initial prompt and prepare it as input to the model.
+2. Pass the current sequence of tokens through the model to get the output logits.
+3. Extract the logits for the next token (the last position in the sequence).
+4. Sample the next token ID from the Boltzmann distribution.
+5. Append the new token ID to the sequence of generated tokens.
+6. Decode the complete sequence of tokens back into text.
+
+Let's try it out: 
 
 ```{python}
-prompt = "Once upon a time"
-generated_text = generate_text(prompt, max_length=50, temperature=0.8)
+prompt = "Fox in socks"
+generated_text = generate_text(prompt, max_length=50, temperature=1.0)
 print(generated_text)
 ```
 
-### Text Likelihood, Perplexity
+As usual, modulating the temperature can lead to more or less coherent results:
+
+```{python}
+temperatures = [0.01, 0.1, 0.3, 0.8, 1.5]
+for temp in temperatures:
+    generated_text = generate_text(prompt, max_length=50, temperature=temp)
+    print()
+    print(f"\nTemperature: {temp}")
+    print("-" * 40)
+    print(generated_text)
+```
+
+For very low temperatures, the model rapidly gets "frozen" in a loop of text, while for higher temperatures the model produces apparently random text; for intermediate values the generated text appears coherent and in some sense interesting (or at least amusing). 
 
 ### Fine-Tuning
 
-Show fine-tuning GPT-2 on a custom data set... 
+If, however, you are a die-hard Dr. Seuss fan, you'll be disappointed by these results: considering that the prompt is "Fox in Socks," the generated text is not at all Seussian and usually appears to forget both about the Fox and his socks. To address this fatal shortcoming, we'll *fine-tune* the model on our Dr. Seuss text. This involves essentially the same process of training a language model as we saw [when we built our own model from scratch](51-text-generation.qmd), except now that we begin with a pre-trained model. It's often sufficient in this kind of experiment to train for only a few batches. 
 
+First we'll retrieve our training data, which is the text of Dr. Seuss's "Fox in Socks."
 
+```{python}
+import urllib.request
+url = "https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/fox-in-socks.txt"
+text = "\n".join([line.decode('utf-8').strip() for line in urllib.request.urlopen(url)])
+```
+
+Next, as usual, we need a data set and data loader. 
+
+```{python}
+from torch.utils.data import Dataset, DataLoader
+class NextTokenDataset(Dataset):
+    def __init__(self, tokens, context_length = 10): 
+        self.context_length = context_length
+        self.tokens = tokens
+        self.vocab_length = len(set(tokens))
+        
+    def __len__(self):
+        return len(self.tokens) - self.context_length
+    
+    def __getitem__(self, key):
+        
+        target_token = self.tokens[self.context_length + key]
+        target = torch.tensor(target_token)
+        
+        feature_tokens = self.tokens[key:(self.context_length + key)]
+        feature_tensor = torch.tensor(feature_tokens, dtype=torch.long)
+
+        return feature_tensor.to(device), target.to(device)
+
+data_set    = NextTokenDataset(tokenizer.encode(text), context_length=10)
+data_loader = DataLoader(data_set, batch_size=32, shuffle=True)
+```
+
+```{python}
+x, y = next(iter(data_loader))
+print("Feature tensor shape:", x.shape)
+print("Target tensor shape:", y.shape)
+```
+
+Now we're ready! The following is a standard training loop for attention-based next-token prediction models. ; the only difference is that we also generate text at regular intervals to see how the model is doing as it trains. 
+
+```{python}
+prompt = "Fox in socks"
+gen_dict = {}
+
+gen_dict[0] = generate_text(prompt, max_length=50, temperature=1.0, wrap=True)
+
+from torch import optim
+model.to(device)
+optimizer = optim.Adam(model.parameters(), lr=1e-4)
+batch = 0
+for epoch in range(10):
+    for features, target in data_loader:
+        optimizer.zero_grad()
+        output = model(features).logits[:, -1, :]
+        loss = F.cross_entropy(output, target)
+        loss.backward()
+        optimizer.step()
+        if batch % 10 == 0:
+            gen_text = generate_text(prompt, max_length=50, temperature=1.0, wrap=False)
+            gen_dict[batch] = gen_text
+            print(f"Batch {batch}, Loss: {loss.item():.4f}")
+        batch += 1
+        if batch >= 100: # Limit to 100 batches for demonstration purposes
+            break
+```
+
+Let's take a look: 
+
+```{python}
+for batch, gen_text in gen_dict.items():
+    print("\n\n")
+    print("-" * 40)
+    print(f"Batch {batch}")
+    print("-" * 40)
+    print(gen_text)
+```
+
+At first, the model essentially ignores the prompt and produces text in the style of the pre-trained GPT2. However, as we continue to train the model, the generated text more and more resembles Fox in Socks, at least as measured by the frequency of words which appear in the text. In some cases, we also see flashes of Seussian style, including rhymes and repetition. 
 

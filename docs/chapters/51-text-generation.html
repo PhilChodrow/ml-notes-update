@@ -361,6 +361,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">The Attention Mechanism</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/56-interacting-with-lms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Working with Language Models</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -416,7 +422,7 @@ window.Quarto = {
 <p><span class="theorem-title"><strong>Definition 16.1 (Generative Language Model)</strong></span> A <em>generative language model</em> is a machine learning model whose primary functionality is to produce sequences of useful text.</p>
 </div>
 <p>Our aim by the end of these notes is to have a first, functioning generative language model that can produce text in the style of a piece of sample text. We’ll continue our experiments with the Dr.&nbsp;Seuss data set that we explored last time. Accordingly, our generative language model will be named: <strong><em>Dr.&nbsp;Sus</em></strong>.</p>
-<div id="01d2151d" class="cell" data-execution_count="3">
+<div id="01d2151d" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
@@ -444,7 +450,7 @@ window.Quarto = {
 </details>
 </div>
 <p>We’ll continue with our experiments on the Dr.&nbsp;Seuss corpus that we studied <a href="../chapters/50-tokens-embeddings.html">last time</a>.</p>
-<div id="1aaca857" class="cell" data-execution_count="4">
+<div id="1aaca857" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes-update/refs/heads/main/data/seuss.txt"</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join([line.decode(<span class="st">'utf-8'</span>).strip() <span class="cf">for</span> line <span class="kw">in</span> urllib.request.urlopen(url)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -553,7 +559,7 @@ window.Quarto = {
 <div id="fig-pretrained-embeddings" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-pretrained-embeddings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="97623db9" class="cell" data-execution_count="5">
+<div id="97623db9" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/philchodrow/opt/anaconda3/envs/cs451/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
   from .autonotebook import tqdm as notebook_tqdm
@@ -595,7 +601,7 @@ Figure&nbsp;16.1
 </figure>
 </div>
 <p>Importantly, we’re now able to extract the embedding layer from our CBOW model. We can then use the <em>same</em> embedding layer in a future model, without the need to train it again. Since we don’t need to train the embedding further, we can turn off tracking of gradient information for this layer.</p>
-<div id="bb39e792" class="cell" data-execution_count="6">
+<div id="bb39e792" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>embedding <span class="op">=</span> model.embeddings</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>embedding.requires_grad_(<span class="va">False</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>embedding(torch.tensor([<span class="dv">4</span>])) <span class="co"># ex: embedding lookup for a single token</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -636,7 +642,7 @@ Figure&nbsp;16.1
 <h3 class="anchored" data-anchor-id="datasets-for-next-token-prediction">Datasets for Next-Token Prediction</h3>
 <p>We’re now ready to implement a data set for next-token prediction using an <span class="math inline">\(n\)</span>-gram model. To do this, we need to organize our sequence of token ids into a data set of training examples, in which each example consists of a sequence of tokens as features and the next token as the target. We can implement this using a custom <code>Dataset</code> class in PyTorch. In the <code>__init__</code> method we save several instance variables and tokenize the input text, while in the <code>__len__</code> and <code>__getitem__</code> methods we implement the logic for how to index into the data set to get the features and target for each example.</p>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">For convenience purposes only, we’ve arranged for the dataset to return both the token ids and the corresponding text for each example. In practice, only the token ids are needed for training – the text is just for debugging and our own entertainment.</span></div></div>
-<div id="7a7485c3" class="cell" data-execution_count="7">
+<div id="7a7485c3" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-4"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SeussDataSet(Dataset):</span>
 <span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tokens, context_length <span class="op">=</span> <span class="dv">5</span>): </span>
 <span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.context_length <span class="op">=</span> context_length</span>
@@ -678,7 +684,7 @@ Figure&nbsp;16.1
 </div>
 </div>
 <p>For convenience later, we’re also going to implement a simple class that decodes the tokens. The entire puprose of this class is to wrap up the <code>tokenizer</code> and the <code>token_to_idx</code> map used by our dataset and model; we’ll use this when we get to text generation.</p>
-<div id="4a606656" class="cell" data-execution_count="8">
+<div id="4a606656" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SeussDecoder: </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, dataset, tokenizer):</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dataset <span class="op">=</span> dataset</span>
@@ -691,7 +697,7 @@ Figure&nbsp;16.1
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.tokenizer.decode(tokens)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s instantiate each class:</p>
-<div id="eb5bedc0" class="cell" data-execution_count="9">
+<div id="eb5bedc0" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>context_length <span class="op">=</span> <span class="dv">10</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> SeussDataSet(tokens, context_length <span class="op">=</span> context_length)</span>
@@ -705,7 +711,7 @@ Vocabulary size: 1589</code></pre>
 </div>
 </div>
 <p>Now that we’ve constructed the data set, we can query it just by indexing:</p>
-<div id="b090e951" class="cell" data-execution_count="10">
+<div id="b090e951" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): </span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    X, y <span class="op">=</span> data[i]</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    X_text <span class="op">=</span> decoder.decode(X.tolist())</span>
@@ -729,11 +735,11 @@ Example 4 : [869, 60, 60, 1069, 593, 7, 418, 433, 60, 60] -&gt; 188
 </div>
 </div>
 <p>Let’s add a data loader so that we can train the model with stochastic optimization:</p>
-<div id="3651c431" class="cell" data-execution_count="11">
+<div id="3651c431" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>loader <span class="op">=</span> DataLoader(data, batch_size <span class="op">=</span> <span class="dv">256</span>, shuffle <span class="op">=</span> <span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>A single batch of data from the loader consists of a tensor of features (token ids) and a tensor of targets (token ids), along with the corresponding text for each example in the batch:</p>
-<div id="00ed0b6e" class="cell" data-execution_count="12">
+<div id="00ed0b6e" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>X_batch, y_batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(loader))</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of features (token ids): </span><span class="sc">{</span>X_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Batch of targets (token ids): </span><span class="sc">{</span>y_batch<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -748,7 +754,7 @@ Batch of targets (token ids): torch.Size([256])</code></pre>
 <h2 class="anchored" data-anchor-id="next-token-prediction-with-neural-n-gram-models">Next-Token Prediction with Neural N-Gram Models</h2>
 <p>We’re now ready to train a simple neural network to perform <span class="math inline">\(n\)</span>-gram next-token prediction with one-hot encoded features. For our first approach, we are going to use a simple <span class="math inline">\(n\)</span>-gram model, composed only of the pretrained embedding layer, a flattening operation, and some linear processing layers.</p>
 <p>Note that our embedding layer in this model is <em>not</em> a new embedding layer (<code>nn.Embedding</code>, but rather the pretrained embedding that we trained with CBOW).</p>
-<div id="514328c0" class="cell" data-execution_count="13">
+<div id="514328c0" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>embedding.requires_grad_(<span class="va">False</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SeussModel(nn.Module):</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size, context_length, embedding_dim, hidden_dim):</span>
@@ -765,7 +771,7 @@ Batch of targets (token ids): torch.Size([256])</code></pre>
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We’re now ready to instantiate Dr.&nbsp;Sus!</p>
-<div id="ce1f5ded" class="cell" data-execution_count="14">
+<div id="ce1f5ded" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> SeussModel(</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    vocab_size <span class="op">=</span> data.vocab_length,</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    context_length <span class="op">=</span> context_length, </span>
@@ -774,7 +780,7 @@ Batch of targets (token ids): torch.Size([256])</code></pre>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    ).to(device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>When passed a sequence of tokens, this model produces an unnormalized probability distribution over possible next tokens:</p>
-<div id="0cdea07d" class="cell" data-execution_count="15">
+<div id="0cdea07d" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> data[<span class="dv">100</span>]</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> x.unsqueeze(<span class="dv">0</span>).to(device) <span class="co"># add batch dimension and move to device</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(x) <span class="co"># add batch dimension</span></span>
@@ -784,7 +790,7 @@ Batch of targets (token ids): torch.Size([256])</code></pre>
 </div>
 </div>
 <p>Let’s also take a look at the structure:</p>
-<div id="b993d1ef" class="cell" data-execution_count="16">
+<div id="b993d1ef" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>summary(model, input_size<span class="op">=</span>(x.shape), device<span class="op">=</span>device, dtypes<span class="op">=</span>[torch.<span class="bu">long</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
 <pre><code>==========================================================================================
@@ -808,7 +814,7 @@ Estimated Total Size (MB): 0.18
 </div>
 </div>
 <p>Time to train:</p>
-<div id="f6fd286d" class="cell" data-execution_count="17">
+<div id="f6fd286d" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.CrossEntropyLoss()</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.005</span>)</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -851,7 +857,7 @@ Epoch 900, Loss: 2.4755</code></pre>
 <div id="fig-loss-curve" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-loss-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="5edb9b5b" class="cell" data-execution_count="18">
+<div id="5edb9b5b" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -867,13 +873,13 @@ Figure&nbsp;16.2: Training loss over epochs for the next-token prediction model.
 </figure>
 </div>
 <p>Having trained the model, we can use the <code>forward</code> method to get the model’s predicted scores for the next token:</p>
-<div id="54eafcc5" class="cell" data-execution_count="19">
+<div id="54eafcc5" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> data[<span class="dv">240</span>]</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> x.unsqueeze(<span class="dv">0</span>).to(device) <span class="co"># add batch dimension and move to device</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(x) <span class="co"># add batch dimension</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>A simple method for text generation is just to predict the token that receives the highest score from the model.</p>
-<div id="a5bfb460" class="cell" data-execution_count="20">
+<div id="a5bfb460" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> torch.argmax(output, dim<span class="op">=</span><span class="dv">1</span>).item()</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">repr</span>(decoder.decode(x.tolist()[<span class="dv">0</span>])), end <span class="op">=</span> <span class="st">""</span>)</span>
@@ -897,14 +903,14 @@ Figure&nbsp;16.2: Training loss over epochs for the next-token prediction model.
 <p>where <span class="math inline">\(\beta = 1/T\)</span>.</p>
 </div>
 <div class="page-columns page-full"><p>Larger values of <span class="math inline">\(T\)</span> lead to more random predictions, while smaller values of <span class="math inline">\(T\)</span> lead to more deterministic predictions.  In the limit as <span class="math inline">\(T \to 0\)</span>, the Boltzmann distribution converges to a distribution that puts all of its mass on the token with the highest score, which is exactly what deterministic prediction does. In the limit as <span class="math inline">\(T \to \infty\)</span>, the Boltzmann distribution converges to the uniform distribution over all tokens, which corresponds to completely random prediction.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">Random predictions are sometimes called “creative” among certain enthusiasts.</span></div></div>
-<div id="e60e643d" class="cell" data-execution_count="21">
+<div id="e60e643d" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boltzmann_prediction(preds, temperature <span class="op">=</span> <span class="fl">1.0</span>):</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    probabilities <span class="op">=</span> torch.nn.Softmax(dim <span class="op">=</span> <span class="dv">0</span>)(preds <span class="op">/</span> temperature)</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.multinomial(probabilities, num_samples<span class="op">=</span><span class="dv">1</span>).item()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Since the <span class="math inline">\(T \to 0\)</span> limit of the Boltzmann distribution corresponds to deterministic prediction, we can implement deterministic prediction using the <code>boltzmann_prediction</code> function by setting the temperature to a very small value.</p>
 <p>Let’s try out the Boltzmann prediction function with different values of the temperature parameter:</p>
-<div id="ab0c8dca" class="cell" data-execution_count="22">
+<div id="ab0c8dca" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>X, y <span class="op">=</span> data[<span class="dv">2000</span>]</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.forward(X.unsqueeze(<span class="dv">0</span>)).squeeze(<span class="dv">0</span>)</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -951,7 +957,7 @@ Figure&nbsp;16.3: Illustration of recurrent text generation using word-level tok
 </figure>
 </div>
 <p>The following function implements this logic for generating text with a trained <span class="math inline">\(n\)</span>-gram model.</p>
-<div id="470b62d0" class="cell" data-execution_count="23">
+<div id="470b62d0" class="cell" data-execution_count="24">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-19"><pre class="sourceCode python code-annotation-code code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_text(model, decoder, start_tokens, max_length<span class="op">=</span><span class="dv">20</span>, temperature<span class="op">=</span><span class="fl">1.0</span>):</span>
 <span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a>    generated_tokens <span class="op">=</span> start_tokens.copy()</span>
 <span id="annotated-cell-19-3"><a href="#annotated-cell-19-3" aria-hidden="true" tabindex="-1"></a>    </span>
@@ -986,12 +992,12 @@ Figure&nbsp;16.3: Illustration of recurrent text generation using word-level tok
 </div>
 </div>
 <p>Let’s use our function to generate text at a few different temperatures. As we might expect, when the temperature is high, the text is essentially random.</p>
-<div id="dccb2886" class="cell" data-execution_count="24">
+<div id="dccb2886" class="cell" data-execution_count="25">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> <span class="st">"Fox socks. box Knox. Knox in box."</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer.encode(start)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>start_tokens <span class="op">=</span> [decoder.token_to_idx[token] <span class="cf">for</span> token <span class="kw">in</span> tokens]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="215fd548" class="cell" data-execution_count="25">
+<div id="215fd548" class="cell" data-execution_count="26">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>dr_sus <span class="op">=</span> generate_text(model, decoder, start_tokens, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">2.0</span>)</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dr_sus)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1000,7 +1006,7 @@ Where!And a bump of her with down He top</code></pre>
 </div>
 </div>
 <p>On the other hand, when the temperature is very low, the text quickly locks into a repetitive pattern.</p>
-<div id="6d3011b5" class="cell" data-execution_count="26">
+<div id="6d3011b5" class="cell" data-execution_count="27">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>dr_sus <span class="op">=</span> generate_text(model, decoder, start_tokens, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dr_sus)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1018,7 +1024,7 @@ Yes.that't than</code></pre>
 </div>
 </div>
 <p>At intermediate values, we recover something that is still very chaotic but which also contains occasional flashes of coherent task:</p>
-<div id="463d072d" class="cell" data-execution_count="27">
+<div id="463d072d" class="cell" data-execution_count="28">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>dr_sus <span class="op">=</span> generate_text(model, decoder, start_tokens, max_length<span class="op">=</span><span class="dv">50</span>, temperature<span class="op">=</span><span class="fl">0.3</span>)</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dr_sus)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">

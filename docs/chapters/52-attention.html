@@ -85,6 +85,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../chapters/56-interacting-with-lms.html" rel="next">
 <link href="../chapters/51-text-generation.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -371,6 +372,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">The Attention Mechanism</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/56-interacting-with-lms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Working with Language Models</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -560,7 +567,7 @@ Figure&nbsp;17.2: The same attention heads as in <a href="#fig-attention-diagram
 <section id="an-attention-implementation" class="level3">
 <h3 class="anchored" data-anchor-id="an-attention-implementation">An Attention Implementation</h3>
 <p>Here’s a simple implementation of the attention mechanism in PyTorch:</p>
-<div id="b0ac1872" class="cell" data-execution_count="4">
+<div id="e5ae9db2" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AttentionHead(nn.Module):</span>
@@ -585,7 +592,7 @@ Figure&nbsp;17.2: The same attention heads as in <a href="#fig-attention-diagram
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can use it like this:</p>
-<div id="dd28348e" class="cell" data-execution_count="5">
+<div id="d5772e33" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.randn(<span class="dv">100</span>, <span class="dv">16</span>)  <span class="co"># Random embeddings for demonstration</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>embedding_dim <span class="op">=</span> <span class="dv">16</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>key_dim <span class="op">=</span> <span class="dv">8</span></span>
@@ -621,7 +628,7 @@ Figure&nbsp;17.3: Illustration of the transformer architecture. By <a href="http
 <h2 class="anchored" data-anchor-id="multiheaded-attention-in-gpt2">Multiheaded Attention in GPT2</h2>
 <p>Although training nontrivial attention and transformer models is typically quite computationally intensive, we can still get a sense for the workings of an attention model by looking at the learned attention weights of a pretrained model, such as GPT2.</p>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside"><em>Many components in this section are adapted from <a href="https://middcs.github.io/data-science-notes/source/32-generative-nn.html">Prof.&nbsp;Michael Linderman’s lecture</a> on generative language models</em></span></div></div>
-<div id="bb20fb6e" class="cell" data-execution_count="6">
+<div id="ba79c2ff" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Install needed packages iff running in Google Colab</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
@@ -629,7 +636,7 @@ Figure&nbsp;17.3: Illustration of the transformer architecture. By <a href="http
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">!</span>pip install bertviz torchinfo</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can access both the tokenizer and model for GPT2 using the HuggingFace <code>transformers</code> library.</p>
-<div id="2de03175" class="cell" data-execution_count="7">
+<div id="8c9a20f5" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer, AutoModelForCausalLM</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>checkpoint <span class="op">=</span> <span class="st">"openai-community/gpt2"</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(checkpoint)</span>
@@ -641,13 +648,13 @@ Figure&nbsp;17.3: Illustration of the transformer architecture. By <a href="http
   from .autonotebook import tqdm as notebook_tqdm
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 The following generation flags are not valid and may be ignored: ['output_attentions']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-Loading weights:   0%|          | 0/148 [00:00&lt;?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00&lt;00:00, 6097.51it/s]</code></pre>
+Loading weights:   0%|          | 0/148 [00:00&lt;?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00&lt;00:00, 13570.83it/s]</code></pre>
 </div>
 </div>
 <p>This is the largest model that we’ve looked at to date:</p>
-<div id="039967ad" class="cell" data-execution_count="8">
+<div id="fa1925be" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>summary(model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>summary(model, depth <span class="op">=</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>===========================================================================
 Layer (type:depth-idx)                             Param #
@@ -680,7 +687,7 @@ Non-trainable params: 0
 </div>
 </div>
 <p>Each of the 12 <code>GPT2Block</code>s in this model contain an implementation of the transformer architecture described in <a href="#fig-transformer" class="quarto-xref">Figure&nbsp;<span>17.3</span></a>, including a multiheaded attention layer. The following function definitions allow us to visualize the attention weights for a given input sequence.</p>
-<div id="a1214012" class="cell" data-execution_count="9">
+<div id="c86c1881" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -701,7 +708,7 @@ Non-trainable params: 0
 <div id="fig-gpt2-attention" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-gpt2-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="fe559f5a" class="cell" data-execution_count="10">
+<div id="cb002ff0" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"My cat is small, cute, and fluffy. She likes belly rubs."</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
@@ -733,7 +740,7 @@ Figure&nbsp;17.4: Example attention head from the GPT2 model, showing dependenci
 <div id="fig-gpt2-attention-boring" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-gpt2-attention-boring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="a0380cde" class="cell" data-execution_count="11">
+<div id="900b8d0f" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>plot_attention(output.attentions, inputs, layer<span class="op">=</span><span class="dv">10</span>, head<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -757,7 +764,7 @@ Figure&nbsp;17.5: A much less interesting attention head from the same model.
 <div id="fig-gpt2-attention-gender-pronouns" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-gpt2-attention-gender-pronouns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="8e9378c3" class="cell" data-execution_count="12">
+<div id="da29ecaf" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -789,7 +796,7 @@ Figure&nbsp;17.6
 </figure>
 </div>
 <p>On the other hand, the same attention head has learned gendered associations which we may <em>not</em> wish to bake in to a language model:</p>
-<div id="478d2719" class="cell" data-execution_count="13">
+<div id="2bc17a83" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">3.5</span>))</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axarr[<span class="dv">0</span>]</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1235,6 +1242,9 @@ Vaswani, Ashish, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan 
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../chapters/56-interacting-with-lms.html" class="pagination-link" aria-label="Working with Language Models">
+        <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Working with Language Models</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

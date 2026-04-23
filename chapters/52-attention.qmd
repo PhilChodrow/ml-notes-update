@@ -277,7 +277,7 @@ This is the largest model that we've looked at to date:
 
 ```{python}
 from torchinfo import summary
-summary(model)
+summary(model, depth = 3)
 ```
 
 Each of the 12 `GPT2Block`s in this model contain an implementation of the transformer architecture described in @fig-transformer, including a multiheaded attention layer. The following function definitions allow us to visualize the attention weights for a given input sequence.
