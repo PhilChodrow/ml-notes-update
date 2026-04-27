@@ -201,7 +201,7 @@ for temp in temperatures:
 
 For very low temperatures, the model rapidly gets "frozen" in a loop of text, while for higher temperatures the model produces apparently random text; for intermediate values the generated text appears coherent and in some sense interesting (or at least amusing). 
 
-### Fine-Tuning
+## Fine-Tuning
 
 If, however, you are a die-hard Dr. Seuss fan, you'll be disappointed by these results: considering that the prompt is "Fox in Socks," the generated text is not at all Seussian and usually appears to forget both about the Fox and his socks. To address this fatal shortcoming, we'll *fine-tune* the model on our Dr. Seuss text. This involves essentially the same process of training a language model as we saw [when we built our own model from scratch](51-text-generation.qmd), except now that we begin with a pre-trained model. It's often sufficient in this kind of experiment to train for only a few batches. 
 

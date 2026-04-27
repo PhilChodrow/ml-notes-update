@@ -100,7 +100,7 @@ $$
 \begin{aligned}
     \vu_j = \sum_{i=1}^n a_{ij} \vx_i\;,
 \end{aligned}
-$${#eq:attn-linear}
+$${#eq-attn-linear}
 
 In this expression, we would treat each coefficient $a_{ij}$ as a parameter that reflects how much the $i$th token in the sequence should contribute to the representation of the $j$th token. Now, it's intuitive that (a) we shouldn't be able to pay *negative* attention to a token and that (b) if I pay a lot of attention to one token, I must pay less attention others. These motivate the constraints that $a_{ij} \geq 0$ and $\sum_{i=1}^n a_{ij} = 1$ for all $j$.
 
@@ -128,7 +128,7 @@ $$
 \begin{aligned}
     \mX = \mA \mX = \mathrm{SoftMax}(\mX \mX^\top) \mX\;.
 \end{aligned}
-$${#eq:self-attn}
+$${#eq-self-attn}
     
 @eq-self-attn is an improvement in one way and a step back in another. On the one hand, we now have attention weights which depend on the input tokens. On the other, however, we have no more trainable model parameters! 
 
@@ -156,7 +156,7 @@ $$
 \begin{aligned}
     \mU = \mathrm{SoftMax}(\mQ \mK^\top) \mV\;,
 \end{aligned}
-$${#eq:kqv-attn}
+$${#eq-kqv-attn}
 
 where $\mQ, \mK \in \R^{n \times k}$ are the matrices of query and key vectors, respectively, and $\mV \in \R^{n \times d}$ is the matrix of value vectors. 
 
@@ -172,7 +172,7 @@ $$
 
 We can represent these maps in matrix form as $\mQ = \mX \mW_q$, $\mK = \mX \mW_k$, and $\mV = \mX \mW_v$. 
 
-@eq:kqv-attn is *almost* the attention mechanism used in modern transformer models. It's usually useful to add a scaling factor of $1/\sqrt{k}$ to the exponent in the softmax, which gives us the final formula for the attention mechanism:
+@eq-kqv-attn is *almost* the attention mechanism used in modern transformer models. It's usually useful to add a scaling factor of $1/\sqrt{k}$ to the exponent in the softmax, which gives us the final formula for the attention mechanism:
 
 $$
 \begin{aligned}
@@ -181,7 +181,7 @@ $$
         \mK = \mX \mW_k\;,\quad
         \mV = \mX \mW_v\;.
 \end{aligned}
-$${#eq:scaled-kqv-attn}
+$${#eq-scaled-kqv-attn}
 
 The matrices $\mW_q, \mW_k, \mW_v$ are the trainable parameters of the attention mechanism, and can be learned from data via optimization. 
 

@@ -493,16 +493,16 @@ Figure&nbsp;17.2: The same attention heads as in <a href="#fig-attention-diagram
 <h3 class="anchored" data-anchor-id="fixed-attention">Fixed Attention</h3>
 <div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">My exposition in this section is adapted from <span class="citation" data-cites="bishop2023deep">Bishop and Bishop (<a href="#ref-bishop2023deep" role="doc-biblioref">2023</a>)</span>, Chapter 12.</span></div></div>
 <p>The simplest kind of map <span class="math inline">\(\mathbb{R}^{n \times d} \to \mathbb{R}^{n \times d}\)</span> would be a linear map:</p>
-<p><span class="math display">\[
+<p><span id="eq-attn-linear"><span class="math display">\[
 \begin{aligned}
     \mathbf{u}_j = \sum_{i=1}^n a_{ij} \mathbf{x}_i\;,
 \end{aligned}
-\]</span>{#eq:attn-linear}</p>
+\tag{17.1}\]</span></span></p>
 <p>In this expression, we would treat each coefficient <span class="math inline">\(a_{ij}\)</span> as a parameter that reflects how much the <span class="math inline">\(i\)</span>th token in the sequence should contribute to the representation of the <span class="math inline">\(j\)</span>th token. Now, it’s intuitive that (a) we shouldn’t be able to pay <em>negative</em> attention to a token and that (b) if I pay a lot of attention to one token, I must pay less attention others. These motivate the constraints that <span class="math inline">\(a_{ij} \geq 0\)</span> and <span class="math inline">\(\sum_{i=1}^n a_{ij} = 1\)</span> for all <span class="math inline">\(j\)</span>.</p>
 </section>
 <section id="self-attention" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="self-attention">Self-Attention</h3>
-<div class="page-columns page-full"><p><span class="quarto-unresolved-ref">?eq-attn-linear</span> encodes some reasonable ideas, but it’s also limited – the attention weights <span class="math inline">\(a_{ij}\)</span> don’t depend on the inputs <span class="math inline">\(\mathbf{w}_i\)</span> at all. So, for example, we might have the fifth token attending strongly to the second token in every input sequence, <em>regardless of what those tokens are</em>. One way to address this problem is to <em>make the attention weights themselves depend on the input tokens</em>. Two tokens <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> are <em>similar</em> in the embedding space if <span class="math inline">\(\mathbf{x}_i^\top \mathbf{x}_j\)</span> is large.  To make sure that the coefficients are nonnegative and sum to 1, we can pass them through a softmax:</p><div class="no-row-height column-margin column-container"><span class="margin-aside">The concept of similarity being used here is unnormalized cosine similarity.</span></div></div>
+<div class="page-columns page-full"><p><a href="#eq-attn-linear" class="quarto-xref">Equation&nbsp;<span>17.1</span></a> encodes some reasonable ideas, but it’s also limited – the attention weights <span class="math inline">\(a_{ij}\)</span> don’t depend on the inputs <span class="math inline">\(\mathbf{w}_i\)</span> at all. So, for example, we might have the fifth token attending strongly to the second token in every input sequence, <em>regardless of what those tokens are</em>. One way to address this problem is to <em>make the attention weights themselves depend on the input tokens</em>. Two tokens <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> are <em>similar</em> in the embedding space if <span class="math inline">\(\mathbf{x}_i^\top \mathbf{x}_j\)</span> is large.  To make sure that the coefficients are nonnegative and sum to 1, we can pass them through a softmax:</p><div class="no-row-height column-margin column-container"><span class="margin-aside">The concept of similarity being used here is unnormalized cosine similarity.</span></div></div>
 <p><span class="math display">\[
 \begin{aligned}
     a_{ij} = \frac{e^{\mathbf{x}_i^\top \mathbf{x}_j}}{\sum_{j' = 1}^n e^{\mathbf{x}_i^\top \mathbf{x}_j'}}\;.
@@ -515,12 +515,12 @@ Figure&nbsp;17.2: The same attention heads as in <a href="#fig-attention-diagram
 \end{aligned}
 \]</span></p>
 <p>Our self-attention mechanism can then be written</p>
-<p><span class="math display">\[
+<p><span id="eq-self-attn"><span class="math display">\[
 \begin{aligned}
     \mathbf{X}= \mathbf{A}\mathbf{X}= \mathrm{SoftMax}(\mathbf{X}\mathbf{X}^\top) \mathbf{X}\;.
 \end{aligned}
-\]</span>{#eq:self-attn}</p>
-<p><span class="quarto-unresolved-ref">?eq-self-attn</span> is an improvement in one way and a step back in another. On the one hand, we now have attention weights which depend on the input tokens. On the other, however, we have no more trainable model parameters!</p>
+\tag{17.2}\]</span></span></p>
+<p><a href="#eq-self-attn" class="quarto-xref">Equation&nbsp;<span>17.2</span></a> is an improvement in one way and a step back in another. On the one hand, we now have attention weights which depend on the input tokens. On the other, however, we have no more trainable model parameters!</p>
 </section>
 <section id="key-query-value-kqv-attention" class="level3">
 <h3 class="anchored" data-anchor-id="key-query-value-kqv-attention">Key-Query-Value (KQV) Attention</h3>
@@ -538,11 +538,11 @@ Figure&nbsp;17.2: The same attention heads as in <a href="#fig-attention-diagram
 \end{aligned}
 \]</span></p>
 <p>or, in matricized form,</p>
-<p><span class="math display">\[
+<p><span id="eq-kqv-attn"><span class="math display">\[
 \begin{aligned}
     \mathbf{U}= \mathrm{SoftMax}(\mathbf{Q}\mathbf{K}^\top) \mathbf{V}\;,
 \end{aligned}
-\]</span>{#eq:kqv-attn}</p>
+\tag{17.3}\]</span></span></p>
 <p>where <span class="math inline">\(\mathbf{Q}, \mathbf{K}\in \mathbb{R}^{n \times k}\)</span> are the matrices of query and key vectors, respectively, and <span class="math inline">\(\mathbf{V}\in \mathbb{R}^{n \times d}\)</span> is the matrix of value vectors.</p>
 <p>It looks like we’ve lost the dependence on the input token embeddings <span class="math inline">\(\mathbf{U}\)</span> again, but we can fix this by making the query, key, and value vectors themselves depend on the input tokens. We do this by introducing <em>three</em> trainable linear maps <span class="math inline">\(\mathbb{R}^d \to \mathbb{R}^k\)</span> and <span class="math inline">\(\mathbb{R}^d \to \mathbb{R}^d\)</span> that take the input token embeddings <span class="math inline">\(\mathbf{u}_i\)</span> to the query, key, and value vectors <span class="math inline">\(\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i\)</span>:</p>
 <p><span class="math display">\[
@@ -553,15 +553,15 @@ Figure&nbsp;17.2: The same attention heads as in <a href="#fig-attention-diagram
 \end{aligned}
 \]</span></p>
 <p>We can represent these maps in matrix form as <span class="math inline">\(\mathbf{Q}= \mathbf{X}\mathbf{W}_q\)</span>, <span class="math inline">\(\mathbf{K}= \mathbf{X}\mathbf{W}_k\)</span>, and <span class="math inline">\(\mathbf{V}= \mathbf{X}\mathbf{W}_v\)</span>.</p>
-<p><span class="citation" data-cites="eq:kqv-attn">(<a href="#ref-eq:kqv-attn" role="doc-biblioref"><strong>eq:kqv-attn?</strong></a>)</span> is <em>almost</em> the attention mechanism used in modern transformer models. It’s usually useful to add a scaling factor of <span class="math inline">\(1/\sqrt{k}\)</span> to the exponent in the softmax, which gives us the final formula for the attention mechanism:</p>
-<p><span class="math display">\[
+<p><a href="#eq-kqv-attn" class="quarto-xref">Equation&nbsp;<span>17.3</span></a> is <em>almost</em> the attention mechanism used in modern transformer models. It’s usually useful to add a scaling factor of <span class="math inline">\(1/\sqrt{k}\)</span> to the exponent in the softmax, which gives us the final formula for the attention mechanism:</p>
+<p><span id="eq-scaled-kqv-attn"><span class="math display">\[
 \begin{aligned}
     \mathbf{U}&amp;= \mathrm{SoftMax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{k}}\right) \mathbf{V}\\
         \mathbf{Q}&amp;= \mathbf{X}\mathbf{W}_q\;,\quad
         \mathbf{K}= \mathbf{X}\mathbf{W}_k\;,\quad
         \mathbf{V}= \mathbf{X}\mathbf{W}_v\;.
 \end{aligned}
-\]</span>{#eq:scaled-kqv-attn}</p>
+\tag{17.4}\]</span></span></p>
 <p>The matrices <span class="math inline">\(\mathbf{W}_q, \mathbf{W}_k, \mathbf{W}_v\)</span> are the trainable parameters of the attention mechanism, and can be learned from data via optimization.</p>
 </section>
 <section id="an-attention-implementation" class="level3">
@@ -725,7 +725,7 @@ Non-trainable params: 0
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-gpt2-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.4: Example attention head from the GPT2 model, showing dependencies between tokens in the input sentence. The matrix being visualized is <span class="math display">\[
 \mathrm{SoftMax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{k}}\right)\;,
-\]</span> from <span class="quarto-unresolved-ref">?eq-scaled-kqv-attn</span>, the matrix of attention weights for the specified layer and head.
+\]</span> from <a href="#eq-scaled-kqv-attn" class="quarto-xref">Equation&nbsp;<span>17.4</span></a>, the matrix of attention weights for the specified layer and head.
 </figcaption>
 </figure>
 </div>
