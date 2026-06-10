@@ -370,7 +370,6 @@ plt.tight_layout()
 
 On the other hand, the same attention head has learned gendered associations which we may *not* wish to bake in to a language model: 
 
-
 ```{python}
 fig, axarr = plt.subplots(1, 2, figsize=(8, 3.5))
 ax = axarr[0]
@@ -391,3 +390,5 @@ plt.tight_layout()
 ```
 
 In this experiment, the model associates male gender pronouns to the token **doctor** and female gender pronouns to the token **nurse**, even when the text in question is ambiguous or arguably suggestive that the opposite association might be more appropriate. 
+
+## References

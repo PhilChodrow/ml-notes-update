@@ -18,8 +18,6 @@ import style
 :::
 
 
-
-
 ## Introduction: Data, Signal, and Noise
 
 In these notes, we'll expand on the following idea: 
